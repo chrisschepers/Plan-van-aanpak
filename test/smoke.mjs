@@ -88,18 +88,18 @@ await wait(50);
 
 // Stap 3 — preview
 check("stap 3: preview", !!byText("h1", "Preview en download"));
-check("4 preview-tabs", $$(".preview-tabs button").length === 4);
+check("3 preview-tabs", $$(".preview-tabs button").length === 3);
 click($$(".preview-tabs button")[1]);
 await wait(30);
 check("PvA-tab toont Plan van Aanpak (UWV)", !!byText(".doc-sheet h2", "Plan van Aanpak"));
 check("PvA toont UWV-secties (Werkgever)", !!byText(".doc-sheet h3", "Werkgever"));
 check("PvA toont [INVULLEN] voor BSN", !!byText(".doc-sheet", "[INVULLEN]"));
-// Aanvullende adviezen
+// Begeleidend bericht met verweven adviezen
 click($$(".preview-tabs button")[2]);
 await wait(30);
-check("adviezen-tab toont kaarten", $$(".advice-card").length >= 3);
-check("adviezen tonen procesadviezen (verzuimweek)", !!byText(".advice-card", "verzuimweek"));
-check("adviezen tonen ZUD/einddatum-prompt", !!byText(".advice-card", "Einddatum dienstverband ontbreekt"));
+check("bericht-tab toont begeleidend bericht", !!byText(".doc-sheet h2", "Begeleidend bericht"));
+check("bericht bevat verweven advies (verzuimdossier)", !!byText(".doc-sheet", "verzuimdossier"));
+check("bericht bevat einddatum-advies", !!byText(".doc-sheet", "einddatum"));
 // Download starten (de echte .docx-generatie wordt in test/docx.mjs gecontroleerd;
 // JSZip voltooit niet in jsdom, daarom hier alleen dat de handler start)
 const dlBtn = byText("button", "Download als Word");

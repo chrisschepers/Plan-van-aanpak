@@ -137,3 +137,18 @@ export function computeAdvice(fields, reportDate) {
 
   return advies;
 }
+
+/** Zet de adviezen om naar lopende alinea's voor het begeleidend bericht. */
+export function adviceParagraphs(fields, reportDate) {
+  const advies = computeAdvice(fields, reportDate);
+  const alineas = [];
+  for (const a of advies) {
+    if (a.deadlines && a.deadlines.length) {
+      const punten = a.deadlines.map((d) => d.who).join(" ");
+      alineas.push(`${a.body} ${punten}`);
+    } else {
+      alineas.push(a.body);
+    }
+  }
+  return alineas;
+}

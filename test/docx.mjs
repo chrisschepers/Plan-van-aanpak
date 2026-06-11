@@ -39,11 +39,10 @@ async function docText(fields) {
 let xml = await docText(INITIAL_FIELDS);
 
 check(".docx bevat opbouwadvies", xml.includes("Opbouw- en re-integratieadvies"));
-check(".docx bevat UWV Plan van Aanpak", xml.includes("Plan van Aanpak"));
-check(".docx bevat sectie Werknemer", xml.includes("Werknemer"));
-check(".docx bevat sectie Werkgever", xml.includes("Werkgever"));
-check(".docx bevat sectie Arbodienst / bedrijfsarts", xml.includes("Arbodienst"));
-check(".docx bevat Aanvullende adviezen", xml.includes("Aanvullende adviezen"));
+check(".docx bevat UWV Plan van aanpak", xml.toLowerCase().includes("plan van aanpak"));
+check(".docx bevat UWV-secties (genummerd)", xml.includes("Werknemer") && xml.includes("Werkgever") && xml.includes("Arbodienst"));
+check(".docx bevat UWV sectie 7 afspraken (7E)", xml.includes("Sociaal-medische zaken") || xml.includes("Afspraken"));
+check(".docx bevat AG140-footer", xml.includes("AG140"));
 check(".docx bevat Begeleidend bericht", xml.includes("Begeleidend bericht"));
 
 check(".docx bevat naam J. de Vries", xml.includes("J. de Vries"));
@@ -51,10 +50,10 @@ check(".docx bevat geboortedatum 14-08-1987", xml.includes("14-08-1987"));
 check(".docx houdt BSN op [INVULLEN]", xml.includes("[INVULLEN]"));
 check(".docx bevat opbouwschema-datum 10-03-2025", xml.includes("10-03-2025"));
 
-// adviezen: altijd-advies + verzuimweek-procesadviezen
+// adviezen verweven in het begeleidend bericht
 check(".docx bevat altijd-advies (verzuimdossier)", xml.includes("verzuimdossier"));
-check(".docx bevat procesadviezen-verzuimweek", xml.includes("verzuimweek"));
-check(".docx vraagt om einddatum dienstverband", xml.includes("Einddatum dienstverband ontbreekt") || xml.includes("einddatum"));
+check(".docx bevat procesadvies (PvA uiterlijk week 8)", xml.includes("week 8"));
+check(".docx vraagt om einddatum dienstverband", xml.includes("einddatum"));
 
 // ---- 2. Met ingevulde einddatum tijdens ziekte -> ZUD-advies (verkort/volledig RIV) ----
 const adviesZud = computeAdvice(setField(INITIAL_FIELDS, "einddatum", "30-06-2025"), CASE.reportDate);

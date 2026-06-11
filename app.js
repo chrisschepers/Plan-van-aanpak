@@ -388,6 +388,19 @@
     }
     return advies;
   }
+  function adviceParagraphs(fields, reportDate) {
+    const advies = computeAdvice(fields, reportDate);
+    const alineas = [];
+    for (const a of advies) {
+      if (a.deadlines && a.deadlines.length) {
+        const punten = a.deadlines.map((d) => d.who).join(" ");
+        alineas.push(`${a.body} ${punten}`);
+      } else {
+        alineas.push(a.body);
+      }
+    }
+    return alineas;
+  }
 
   // src/previews.jsx
   function DocPreviewHead({ title, icon }) {
@@ -407,15 +420,11 @@
     };
     return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Plan van Aanpak (UWV \u2014 formulier AG140)", icon: I.doc }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet" }, /* @__PURE__ */ React.createElement("h2", null, "Plan van Aanpak"), /* @__PURE__ */ React.createElement("p", { className: "wvp" }, "Wet verbetering poortwachter \xB7 UWV-formulier AG140 \u2014 concept ter controle"), /* @__PURE__ */ React.createElement("h3", null, "Werknemer"), /* @__PURE__ */ React.createElement("dl", { className: "kv" }, /* @__PURE__ */ React.createElement("dt", null, "Voorletters en achternaam"), /* @__PURE__ */ React.createElement(Val, { fields, id: "naam" }), /* @__PURE__ */ React.createElement("dt", null, "Geboortedatum"), /* @__PURE__ */ React.createElement(Val, { fields, id: "geboortedatum" }), /* @__PURE__ */ React.createElement("dt", null, "Burgerservicenummer"), /* @__PURE__ */ React.createElement("dd", { className: "flag" }, "[INVULLEN]"), /* @__PURE__ */ React.createElement("dt", null, "Einddatum dienstverband"), /* @__PURE__ */ React.createElement(Val, { fields, id: "einddatum" })), /* @__PURE__ */ React.createElement("h3", null, "Werkgever"), /* @__PURE__ */ React.createElement("dl", { className: "kv" }, /* @__PURE__ */ React.createElement("dt", null, "Bedrijfsnaam"), /* @__PURE__ */ React.createElement(Val, { fields, id: "werkgever" }), /* @__PURE__ */ React.createElement("dt", null, "Naam contactpersoon"), /* @__PURE__ */ React.createElement("dd", { className: "flag" }, "[INVULLEN]")), /* @__PURE__ */ React.createElement("h3", null, "Arbodienst / bedrijfsarts"), /* @__PURE__ */ React.createElement("dl", { className: "kv" }, /* @__PURE__ */ React.createElement("dt", null, "Naam bedrijfsarts"), /* @__PURE__ */ React.createElement("dd", { className: "flag" }, "[INVULLEN]")), /* @__PURE__ */ React.createElement("h3", null, "Functie van de werknemer"), /* @__PURE__ */ React.createElement("dl", { className: "kv" }, /* @__PURE__ */ React.createElement("dt", null, "Functie"), /* @__PURE__ */ React.createElement(Val, { fields, id: "functie" }), /* @__PURE__ */ React.createElement("dt", null, "Eerste ziektedag"), /* @__PURE__ */ React.createElement(Val, { fields, id: "eersteZ" })), /* @__PURE__ */ React.createElement("h3", null, "Mening werknemer en werkgever over de arbeidsmogelijkheden"), /* @__PURE__ */ React.createElement("p", null, "Werknemer is belastbaar voor ", getVal(fields, "belast").toLowerCase(), ". Werkgever en werknemer zien mogelijkheden om het eigen werk (", getVal(fields, "uren").toLowerCase(), ") gefaseerd te hervatten volgens het opbouwschema."), /* @__PURE__ */ React.createElement("h3", null, "Einddoel"), /* @__PURE__ */ React.createElement("p", null, "Volledige werkhervatting in de eigen functie voor ", getVal(fields, "uren").toLowerCase(), ". Verwachting: ", getVal(fields, "prognose").toLowerCase(), "."), /* @__PURE__ */ React.createElement("h3", null, "Afspraken \u2014 sociaal-medische zaken"), /* @__PURE__ */ React.createElement("p", null, "Werknemer hervat het werk volgens onderstaand opbouwschema. Werkaanpassing:", " ", getVal(fields, "beperking").toLowerCase(), ". Start op ", getVal(fields, "start"), ",", " ", getVal(fields, "opbouw").toLowerCase(), " uitgebreid."), /* @__PURE__ */ React.createElement("table", { className: "schema-table", style: { marginTop: 6 } }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Activiteit (per datum)"), /* @__PURE__ */ React.createElement("th", null, "Uren per week"), /* @__PURE__ */ React.createElement("th", null, "Planning"))), /* @__PURE__ */ React.createElement("tbody", null, schema.slice(0, 4).map((r, i) => /* @__PURE__ */ React.createElement("tr", { key: i }, /* @__PURE__ */ React.createElement("td", { className: "date" }, r.date), /* @__PURE__ */ React.createElement("td", { className: "hours" }, r.hours, " uur"), /* @__PURE__ */ React.createElement("td", { className: "pct-cell" }, /* @__PURE__ */ React.createElement("div", { className: "pct-bar" }, /* @__PURE__ */ React.createElement("div", { className: "pct-track" }, /* @__PURE__ */ React.createElement("div", { className: "pct-fill", style: { width: r.pct + "%" } })), /* @__PURE__ */ React.createElement("span", { className: "pct-num" }, r.pct, "%"))))), /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { className: "date", style: { color: "var(--muted)", fontStyle: "italic" } }, "\u2026"), /* @__PURE__ */ React.createElement("td", { colSpan: "2", style: { color: "var(--muted)", fontStyle: "italic" } }, "oplopend tot ", schema[schema.length - 1].hours, " uur (100%) per ", fullRecoveryDate(schema))))), /* @__PURE__ */ React.createElement("h3", null, "Eerstevolgende evaluatie"), /* @__PURE__ */ React.createElement("p", null, "De voortgang wordt periodiek ge\xEBvalueerd. Eerstvolgende evaluatie: ", flagOrText("evaluatie"), "."), /* @__PURE__ */ React.createElement("h3", null, "Ondertekening"), /* @__PURE__ */ React.createElement("dl", { className: "kv" }, /* @__PURE__ */ React.createElement("dt", null, "Werkgever"), /* @__PURE__ */ React.createElement("dd", null, "______________________\xA0\xA0Datum: __________"), /* @__PURE__ */ React.createElement("dt", null, "Werknemer"), /* @__PURE__ */ React.createElement("dd", null, "______________________\xA0\xA0Datum: __________"))));
   }
-  var LEVEL_LABEL = { deadline: "Termijnen", risk: "Let op", attention: "Aandachtspunt", flag: "Aanvullen" };
-  function AanvullendAdviesPreview({ fields, reportDate }) {
-    const advies = computeAdvice(fields, reportDate);
-    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Aanvullende adviezen", icon: I.info }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet" }, /* @__PURE__ */ React.createElement("h2", null, "Aanvullende adviezen"), /* @__PURE__ */ React.createElement("p", { className: "wvp" }, "Procesadviezen volgens de Werkwijzer Poortwachter. Deze worden in het begeleidend bericht verweven; controleer en pas aan waar nodig."), /* @__PURE__ */ React.createElement("div", { className: "advice-list" }, advies.map((a, i) => /* @__PURE__ */ React.createElement("div", { className: "advice-card lvl-" + a.level, key: i }, /* @__PURE__ */ React.createElement("div", { className: "advice-head" }, /* @__PURE__ */ React.createElement("span", { className: "advice-tag tag-" + a.level }, LEVEL_LABEL[a.level]), /* @__PURE__ */ React.createElement("h4", null, a.title)), /* @__PURE__ */ React.createElement("p", null, a.body), a.deadlines && a.deadlines.length > 0 && /* @__PURE__ */ React.createElement("table", { className: "schema-table deadline-table" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Wanneer"), /* @__PURE__ */ React.createElement("th", null, "Actie"))), /* @__PURE__ */ React.createElement("tbody", null, a.deadlines.map((d, j) => /* @__PURE__ */ React.createElement("tr", { key: j }, /* @__PURE__ */ React.createElement("td", { className: "date", style: { whiteSpace: "nowrap", verticalAlign: "top" } }, d.date), /* @__PURE__ */ React.createElement("td", null, /* @__PURE__ */ React.createElement("strong", null, d.title, "."), " ", d.who))))))))));
-  }
-  function BerichtPreview({ fields, schema }) {
+  function BerichtPreview({ fields, schema, reportDate }) {
     const naam = getVal(fields, "naam");
     const werkgever = getVal(fields, "werkgever");
-    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van Aanpak \u2014 ", naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste ", isMissing(werkgever) ? "[werkgever]" : werkgever, ","), /* @__PURE__ */ React.createElement("p", null, "Op basis van de terugkoppeling van de bedrijfsarts is een concept Plan van Aanpak opgesteld voor ", naam, ". In de bijlage vind je vier onderdelen: het opbouwadvies, het concept Plan van Aanpak (UWV-formulier AG140), de aanvullende adviezen en dit begeleidende bericht."), /* @__PURE__ */ React.createElement("p", null, "De kern: werknemer is belastbaar (", getVal(fields, "belast").toLowerCase(), ") en bouwt vanaf ", getVal(fields, "start"), " ", getVal(fields, "opbouw").toLowerCase(), " op, van ", schema[0].hours, " naar ", schema[schema.length - 1].hours, " uur. Volledige werkhervatting is voorzien rond ", fullRecoveryDate(schema), ". Houd rekening met de werkaanpassing: ", getVal(fields, "beperking").toLowerCase(), "."), /* @__PURE__ */ React.createElement("p", null, "Loop het concept na, vul de gemarkeerde velden ([INVULLEN]) aan en let op de aanvullende adviezen (wettelijke termijnen, leeftijd en einddatum dienstverband). Bespreek het Plan van Aanpak samen met de werknemer voordat je het vaststelt. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("strong", { style: { color: "var(--navy-900)" } }, "[INVULLEN: naam casemanager]"))));
+    const alineas = adviceParagraphs(fields, reportDate);
+    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak \u2014 ", naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste ", isMissing(werkgever) ? "werkgever" : werkgever, ", hierbij ontvang je het concept-Plan van aanpak voor je werknemer ", naam, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), /* @__PURE__ */ React.createElement("p", null, "Werknemer is belastbaar voor ", getVal(fields, "belast").toLowerCase(), ". De bedrijfsarts adviseert een opbouw vanaf ", getVal(fields, "start"), ", ", getVal(fields, "opbouw").toLowerCase(), ", van ", schema[0].hours, " naar ", schema[schema.length - 1].hours, " uur. Volledige werkhervatting is voorzien rond ", fullRecoveryDate(schema), ". Houd rekening met de werkaanpassing:", " ", getVal(fields, "beperking").toLowerCase(), "."), alineas.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: i }, t)), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de open velden ([INVULLEN]) samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("strong", { style: { color: "var(--navy-900)" } }, "[INVULLEN: naam afzender]"))));
   }
 
   // node_modules/docx/dist/index.mjs
@@ -8476,6 +8485,46 @@
       }
     }
   });
+  var ShadingType = {
+    /** Clear shading - no pattern, fill color only */
+    CLEAR: "clear",
+    DIAGONAL_CROSS: "diagCross",
+    DIAGONAL_STRIPE: "diagStripe",
+    HORIZONTAL_CROSS: "horzCross",
+    HORIZONTAL_STRIPE: "horzStripe",
+    NIL: "nil",
+    PERCENT_5: "pct5",
+    PERCENT_10: "pct10",
+    PERCENT_12: "pct12",
+    PERCENT_15: "pct15",
+    PERCENT_20: "pct20",
+    PERCENT_25: "pct25",
+    PERCENT_30: "pct30",
+    PERCENT_35: "pct35",
+    PERCENT_37: "pct37",
+    PERCENT_40: "pct40",
+    PERCENT_45: "pct45",
+    PERCENT_50: "pct50",
+    PERCENT_55: "pct55",
+    PERCENT_60: "pct60",
+    PERCENT_62: "pct62",
+    PERCENT_65: "pct65",
+    PERCENT_70: "pct70",
+    PERCENT_75: "pct75",
+    PERCENT_80: "pct80",
+    PERCENT_85: "pct85",
+    PERCENT_87: "pct87",
+    PERCENT_90: "pct90",
+    PERCENT_95: "pct95",
+    REVERSE_DIAGONAL_STRIPE: "reverseDiagStripe",
+    SOLID: "solid",
+    THIN_DIAGONAL_CROSS: "thinDiagCross",
+    THIN_DIAGONAL_STRIPE: "thinDiagStripe",
+    THIN_HORIZONTAL_CROSS: "thinHorzCross",
+    THIN_REVERSE_DIAGONAL_STRIPE: "thinReverseDiagStripe",
+    THIN_VERTICAL_STRIPE: "thinVertStripe",
+    VERTICAL_STRIPE: "vertStripe"
+  };
   var ChangeAttributes = class extends XmlAttributeComponent {
     constructor(..._args) {
       super(..._args);
@@ -18483,10 +18532,185 @@
     return (_text$match = text.match(pattern)) !== null && _text$match !== void 0 ? _text$match : [];
   };
 
-  // src/download.js
+  // src/uwvform.js
   var NAVY = "1F3864";
   var GREY = "69748B";
   var FLAG = "9A3B2E";
+  var LINE = "C8CDD6";
+  var FILL = "F2F5FA";
+  var border = { style: BorderStyle.SINGLE, size: 4, color: LINE };
+  var allBorders = { top: border, bottom: border, left: border, right: border, insideHorizontal: border, insideVertical: border };
+  function sectionBar(nr, title) {
+    return new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE } },
+      rows: [new TableRow({ children: [new TableCell({
+        shading: { type: ShadingType.CLEAR, fill: NAVY },
+        margins: { top: 60, bottom: 60, left: 120, right: 120 },
+        children: [new Paragraph({ children: [new TextRun({ text: `${nr}.  ${title}`, bold: true, color: "FFFFFF", size: 22 })] })]
+      })] })]
+    });
+  }
+  function help(text) {
+    return new Paragraph({
+      spacing: { before: 60, after: 40 },
+      children: [new TextRun({ text, italics: true, color: GREY, size: 18 })]
+    });
+  }
+  function fieldRow(label, value, opts = {}) {
+    const missing = isMissing(value) || opts.forceMissing;
+    const shown = opts.forceMissing ? "[INVULLEN]" : missing ? "[INVULLEN]" : value;
+    return new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      columnWidths: [3200, 6400],
+      borders: allBorders,
+      rows: [new TableRow({ children: [
+        new TableCell({
+          width: { size: 33, type: WidthType.PERCENTAGE },
+          shading: { type: ShadingType.CLEAR, fill: "FFFFFF" },
+          margins: { top: 60, bottom: 60, left: 120, right: 120 },
+          children: [new Paragraph({ children: [new TextRun({ text: label, color: GREY, size: 20 })] })]
+        }),
+        new TableCell({
+          width: { size: 67, type: WidthType.PERCENTAGE },
+          shading: { type: ShadingType.CLEAR, fill: FILL },
+          margins: { top: 60, bottom: 60, left: 120, right: 120 },
+          children: [new Paragraph({ children: [new TextRun({ text: shown, bold: !missing, italics: missing, color: missing ? FLAG : "18202F", size: 20 })] })]
+        })
+      ] })]
+    });
+  }
+  function textBox(value) {
+    const missing = isMissing(value);
+    return new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: allBorders,
+      rows: [new TableRow({ children: [new TableCell({
+        shading: { type: ShadingType.CLEAR, fill: FILL },
+        margins: { top: 80, bottom: 80, left: 120, right: 120 },
+        children: [new Paragraph({ children: [new TextRun({ text: missing ? "[INVULLEN]" : value, italics: missing, color: missing ? FLAG : "18202F", size: 20 })] })]
+      })] })]
+    });
+  }
+  function activityTable(rows) {
+    const head = ["Activiteit", "Wie", "Planning"];
+    const cell2 = (t, opts = {}) => new TableCell({
+      width: { size: opts.w, type: WidthType.PERCENTAGE },
+      shading: opts.head ? { type: ShadingType.CLEAR, fill: "E6EBF4" } : void 0,
+      margins: { top: 50, bottom: 50, left: 100, right: 100 },
+      children: [new Paragraph({ children: [new TextRun({ text: t, bold: !!opts.head, color: opts.head ? NAVY : "3C465A", size: 18 })] })]
+    });
+    const widths = [54, 20, 26];
+    const dataRows = rows.length ? rows : [["[INVULLEN]", "[INVULLEN]", "[INVULLEN]"]];
+    return new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: allBorders,
+      rows: [
+        new TableRow({ tableHeader: true, children: head.map((h, i) => cell2(h, { head: true, w: widths[i] })) }),
+        ...dataRows.map((r) => new TableRow({ children: r.map((c, i) => cell2(c, { w: widths[i] })) }))
+      ]
+    });
+  }
+  function gap() {
+    return new Paragraph({ spacing: { after: 80 }, children: [] });
+  }
+  function buildUwvPva(fields, schema) {
+    const start = getVal(fields, "start");
+    const opbouwActiviteit = `Werknemer hervat/bouwt op conform het opbouwschema van de bedrijfsarts (start ${getVal(fields, "start")}, ${getVal(fields, "opbouw").toLowerCase()} tot ${schema[schema.length - 1].hours} uur).`;
+    const els = [
+      new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: "Plan van aanpak", bold: true, color: NAVY, size: 36 })] }),
+      new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text: "Wet verbetering poortwachter \u2014 in te vullen door werkgever en werknemer", color: GREY, size: 18 })] }),
+      sectionBar(1, "Werknemer"),
+      help("Gebruikt de werknemer de achternaam van de partner? Vul dan ook de geboortenaam in."),
+      fieldRow("1.1  Voorletters en achternaam", getVal(fields, "naam")),
+      fieldRow("1.2  Burgerservicenummer", "", { forceMissing: true }),
+      fieldRow("Geboortedatum", getVal(fields, "geboortedatum")),
+      fieldRow("Einddatum dienstverband", getVal(fields, "einddatum")),
+      gap(),
+      sectionBar(2, "Werkgever"),
+      fieldRow("Bedrijfsnaam", getVal(fields, "werkgever")),
+      fieldRow("Naam contactpersoon", "", { forceMissing: true }),
+      gap(),
+      sectionBar(3, "Arbodienst / bedrijfsarts"),
+      help("Vul de naam in van de bedrijfsarts die de Probleemanalyse heeft opgesteld."),
+      fieldRow("Naam bedrijfsarts", "", { forceMissing: true }),
+      gap(),
+      sectionBar(4, "Functie van de werknemer"),
+      fieldRow("4.1  Functie", getVal(fields, "functie")),
+      help("Omschrijving van de werkzaamheden van het laatste werk dat de werknemer deed v\xF3\xF3r de ziekmelding."),
+      textBox(""),
+      gap(),
+      sectionBar(5, "Mening werknemer en werkgever over de arbeidsmogelijkheden"),
+      help("Welke mogelijkheden ziet de werknemer om weer (meer) te gaan werken?"),
+      textBox(""),
+      help("Welke mogelijkheden ziet de werkgever voor de werknemer om weer (meer) te gaan werken?"),
+      textBox(""),
+      gap(),
+      sectionBar(6, "Einddoel"),
+      textBox(`Werkhervatting in de eigen functie voor ${getVal(fields, "uren").toLowerCase()}. Verwachting: ${getVal(fields, "prognose").toLowerCase()}.`),
+      gap(),
+      sectionBar(7, "Afspraken"),
+      help("Welke afspraken heeft u met uw werknemer gemaakt over zijn re-integratie? Vul de activiteiten in die ondernomen moeten worden om de werknemer te re-integreren. Betrek hierbij de Probleemanalyse en het advies van de bedrijfsarts."),
+      new Paragraph({ spacing: { before: 80, after: 40 }, children: [new TextRun({ text: "7A  Arbeidsinhoud", bold: true, color: NAVY, size: 19 })] }),
+      activityTable([["Werkgever en werknemer stellen samen passende werkzaamheden vast binnen de aangegeven mogelijkheden (afwisseling zitten/staan, geen piekbelasting).", "Werkgever en werknemer", "Per " + start]]),
+      new Paragraph({ spacing: { before: 80, after: 40 }, children: [new TextRun({ text: "7B  Arbeidsomstandigheden", bold: true, color: NAVY, size: 19 })] }),
+      help("Ongeschikte werkruimte, lawaai, tocht, gebrekkige ventilatie, gevaarlijke werkplek."),
+      activityTable([]),
+      new Paragraph({ spacing: { before: 80, after: 40 }, children: [new TextRun({ text: "7C  Arbeidsvoorwaarden", bold: true, color: NAVY, size: 19 })] }),
+      help("Regelmatig voeren van werkoverleg; instemmen met zorgverlof; flexibiliseren van werktijden."),
+      activityTable([]),
+      new Paragraph({ spacing: { before: 80, after: 40 }, children: [new TextRun({ text: "7D  Arbeidsverhoudingen", bold: true, color: NAVY, size: 19 })] }),
+      help("Onvoldoende steun van leidinggevende/collega's, conflict: mediation door de arbodienst of een andere externe deskundige."),
+      activityTable([]),
+      new Paragraph({ spacing: { before: 80, after: 40 }, children: [new TextRun({ text: "7E  Sociaal-medische zaken", bold: true, color: NAVY, size: 19 })] }),
+      help("Acties om de werknemer te laten re-integreren. Deze acties vinden plaats op advies van de bedrijfsarts."),
+      activityTable([
+        [opbouwActiviteit, "Werknemer en werkgever", "Per " + start],
+        ["Werknemer verschijnt op het vervolgconsult bij de bedrijfsarts.", "Werknemer", "Conform oproep arbodienst"]
+      ]),
+      new Paragraph({ spacing: { before: 80, after: 40 }, children: [new TextRun({ text: "7F  Overige activiteiten", bold: true, color: NAVY, size: 19 })] }),
+      activityTable([
+        ["Werkgever en werknemer evalueren de voortgang en stellen het Plan van aanpak bij wanneer de belastbaarheid wijzigt.", "Werkgever en werknemer", "Elke 6 weken"]
+      ]),
+      gap(),
+      sectionBar(8, "Mening over de gemaakte afspraken"),
+      help("Niet door de tool ingevuld \u2014 dit is aan werknemer en werkgever zelf."),
+      fieldRow("Wat vindt de werknemer van de afspraken?", "", { forceMissing: true }),
+      fieldRow("Wat vindt de werkgever van de afspraken?", "", { forceMissing: true }),
+      gap(),
+      sectionBar(9, "Te laat opgesteld Plan van aanpak"),
+      help("Is het Plan van aanpak meer dan 2 weken na de Probleemanalyse opgesteld, geef hiervoor dan de reden."),
+      textBox(""),
+      gap(),
+      sectionBar(10, "Ondertekening")
+    ];
+    const signCell = (who) => new TableCell({
+      width: { size: 50, type: WidthType.PERCENTAGE },
+      borders: allBorders,
+      margins: { top: 80, bottom: 160, left: 120, right: 120 },
+      children: [
+        new Paragraph({ children: [new TextRun({ text: who, bold: true, color: NAVY, size: 20 })] }),
+        new Paragraph({ spacing: { before: 200 }, children: [new TextRun({ text: "Datum: ____________________", color: GREY, size: 18 })] }),
+        new Paragraph({ spacing: { before: 120 }, children: [new TextRun({ text: "Handtekening:", color: GREY, size: 18 })] })
+      ]
+    });
+    els.push(new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: allBorders,
+      rows: [new TableRow({ children: [signCell("Werkgever"), signCell("Werknemer")] })]
+    }));
+    els.push(new Paragraph({
+      spacing: { before: 160 },
+      alignment: AlignmentType.RIGHT,
+      children: [new TextRun({ text: "AG140  03041  05-23", color: GREY, size: 16 })]
+    }));
+    return els;
+  }
+
+  // src/download.js
+  var NAVY2 = "1F3864";
+  var GREY2 = "69748B";
+  var FLAG2 = "9A3B2E";
   var txt = (fields, id) => {
     const v = getVal(fields, id);
     return isMissing(v) ? "[INVULLEN]" : v;
@@ -18495,14 +18719,14 @@
     return new Paragraph({
       heading: HeadingLevel.HEADING_1,
       spacing: { before: 240, after: 120 },
-      children: [new TextRun({ text, bold: true, color: NAVY, size: 32 })]
+      children: [new TextRun({ text, bold: true, color: NAVY2, size: 32 })]
     });
   }
   function h2(text) {
     return new Paragraph({
       heading: HeadingLevel.HEADING_2,
       spacing: { before: 200, after: 80 },
-      children: [new TextRun({ text, bold: true, color: NAVY, size: 24 })]
+      children: [new TextRun({ text, bold: true, color: NAVY2, size: 24 })]
     });
   }
   function p(text, opts = {}) {
@@ -18512,16 +18736,16 @@
     });
   }
   function sub(text) {
-    return new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text, color: GREY, size: 20 })] });
+    return new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text, color: GREY2, size: 20 })] });
   }
   function kv(label, value) {
     const missing = isMissing(value);
     return new Paragraph({ spacing: { after: 60 }, children: [
-      new TextRun({ text: label + ": ", color: GREY, size: 22 }),
+      new TextRun({ text: label + ": ", color: GREY2, size: 22 }),
       new TextRun({
         text: missing ? "[INVULLEN]" : value,
         bold: true,
-        color: missing ? FLAG : "18202F",
+        color: missing ? FLAG2 : "18202F",
         italics: missing,
         size: 22
       })
@@ -18534,20 +18758,20 @@
       text,
       bold: !!opts.head,
       size: 20,
-      color: opts.head ? NAVY : "3C465A"
+      color: opts.head ? NAVY2 : "3C465A"
     })] })]
   });
   function table(headers, rows) {
-    const border = { style: BorderStyle.SINGLE, size: 4, color: "D7DCE5" };
+    const border2 = { style: BorderStyle.SINGLE, size: 4, color: "D7DCE5" };
     return new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
       borders: {
-        top: border,
-        bottom: border,
-        left: border,
-        right: border,
-        insideHorizontal: border,
-        insideVertical: border
+        top: border2,
+        bottom: border2,
+        left: border2,
+        right: border2,
+        insideHorizontal: border2,
+        insideVertical: border2
       },
       rows: [
         new TableRow({ tableHeader: true, children: headers.map((h) => cell(h, { head: true })) }),
@@ -18562,22 +18786,9 @@
     );
   }
   function buildDocxDocument(fields, schema, reportDate) {
-    const advies = computeAdvice(fields, reportDate);
     const naam = getVal(fields, "naam");
     const hersteld = fullRecoveryDate(schema);
-    const adviesBlokken = advies.flatMap((a) => {
-      const out = [
-        new Paragraph({
-          spacing: { before: 160, after: 40 },
-          children: [new TextRun({ text: a.title, bold: true, color: a.level === "risk" ? FLAG : NAVY, size: 22 })]
-        }),
-        p(a.body)
-      ];
-      if (a.deadlines && a.deadlines.length) {
-        out.push(table(["Wanneer", "Actie"], a.deadlines.map((d) => [d.date, `${d.title}. ${d.who}`])));
-      }
-      return out;
-    });
+    const alineas = adviceParagraphs(fields, reportDate);
     const doc = new File({
       creator: "planvanaanpakinvuller.nl",
       title: `Plan van Aanpak \u2014 ${naam}`,
@@ -18595,51 +18806,20 @@
           kv("Startdatum opbouw", txt(fields, "start")),
           h2("Opbouwschema"),
           schemaTable(schema),
-          p(`Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.`, { color: GREY }),
-          // 2 — Plan van Aanpak (UWV AG140)
+          p(`Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.`, { color: GREY2 }),
+          // 2 — Plan van Aanpak (officieel UWV-format AG140)
           new Paragraph({ children: [new PageBreak()] }),
-          h1("Plan van Aanpak"),
-          sub("Wet verbetering poortwachter \xB7 UWV-formulier AG140 \u2014 concept ter controle."),
-          h2("Werknemer"),
-          kv("Voorletters en achternaam", txt(fields, "naam")),
-          kv("Geboortedatum", txt(fields, "geboortedatum")),
-          kv("Burgerservicenummer", "[INVULLEN]"),
-          kv("Einddatum dienstverband", txt(fields, "einddatum")),
-          h2("Werkgever"),
-          kv("Bedrijfsnaam", txt(fields, "werkgever")),
-          kv("Naam contactpersoon", "[INVULLEN]"),
-          h2("Arbodienst / bedrijfsarts"),
-          kv("Naam bedrijfsarts", "[INVULLEN]"),
-          h2("Functie van de werknemer"),
-          kv("Functie", txt(fields, "functie")),
-          kv("Eerste ziektedag", txt(fields, "eersteZ")),
-          h2("Mening werknemer en werkgever over de arbeidsmogelijkheden"),
-          p(`Werknemer is belastbaar voor ${getVal(fields, "belast").toLowerCase()}. Werkgever en werknemer zien mogelijkheden om het eigen werk (${getVal(fields, "uren").toLowerCase()}) gefaseerd te hervatten volgens het opbouwschema.`),
-          h2("Einddoel"),
-          p(`Volledige werkhervatting in de eigen functie voor ${getVal(fields, "uren").toLowerCase()}. Verwachting: ${getVal(fields, "prognose").toLowerCase()}.`),
-          h2("Afspraken \u2014 sociaal-medische zaken"),
-          p(`Werknemer hervat het werk volgens onderstaand opbouwschema. Werkaanpassing: ${getVal(fields, "beperking").toLowerCase()}. Start op ${getVal(fields, "start")}, ${getVal(fields, "opbouw").toLowerCase()} uitgebreid.`),
-          schemaTable(schema),
-          h2("Eerstvolgende evaluatie"),
-          kv("Eerstvolgende evaluatie", txt(fields, "evaluatie")),
-          h2("Ondertekening"),
-          p("Werkgever: ______________________    Datum: __________"),
-          p("Werknemer: ______________________    Datum: __________"),
-          // 3 — Aanvullende adviezen
-          new Paragraph({ children: [new PageBreak()] }),
-          h1("Aanvullende adviezen"),
-          sub("Automatisch afgeleid uit de gecontroleerde gegevens \u2014 controleer en pas aan waar nodig."),
-          ...adviesBlokken,
-          // 4 — Begeleidend bericht
+          ...buildUwvPva(fields, schema),
+          // 3 — Begeleidend bericht (met de adviezen verweven)
           new Paragraph({ children: [new PageBreak()] }),
           h1("Begeleidend bericht"),
-          sub(`Onderwerp: Concept Plan van Aanpak \u2014 ${naam}`),
-          p(`Beste ${isMissing(getVal(fields, "werkgever")) ? "[werkgever]" : getVal(fields, "werkgever")},`),
-          p(`Op basis van de terugkoppeling van de bedrijfsarts is een concept Plan van Aanpak opgesteld voor ${naam}. In de bijlage vind je vier onderdelen: het opbouwadvies, het concept Plan van Aanpak (UWV-formulier AG140), de aanvullende adviezen en dit begeleidende bericht.`),
-          p(`De kern: werknemer is belastbaar (${getVal(fields, "belast").toLowerCase()}) en bouwt vanaf ${getVal(fields, "start")} ${getVal(fields, "opbouw").toLowerCase()} op, van ${schema[0].hours} naar ${schema[schema.length - 1].hours} uur. Volledige werkhervatting is voorzien rond ${hersteld}. Houd rekening met de werkaanpassing: ${getVal(fields, "beperking").toLowerCase()}.`),
-          p("Loop het concept na, vul de gemarkeerde velden ([INVULLEN]) aan en let op de aanvullende adviezen. Bespreek het Plan van Aanpak samen met de werknemer voordat je het vaststelt. Medische gegevens zijn bewust niet opgenomen."),
+          sub(`Onderwerp: Concept Plan van aanpak \u2014 ${naam}`),
+          p(`Beste ${isMissing(getVal(fields, "werkgever")) ? "werkgever" : getVal(fields, "werkgever")}, hierbij ontvang je het concept-Plan van aanpak voor je werknemer ${naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}.`),
+          p(`Werknemer is belastbaar voor ${getVal(fields, "belast").toLowerCase()}. De bedrijfsarts adviseert een opbouw vanaf ${getVal(fields, "start")}, ${getVal(fields, "opbouw").toLowerCase()}, van ${schema[0].hours} naar ${schema[schema.length - 1].hours} uur. Volledige werkhervatting is voorzien rond ${hersteld}. Houd rekening met de werkaanpassing: ${getVal(fields, "beperking").toLowerCase()}.`),
+          ...alineas.map((t) => p(t)),
+          p("Bespreek het concept met je werknemer, vul de open velden ([INVULLEN]) samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."),
           p("Met vriendelijke groet,"),
-          new Paragraph({ children: [new TextRun({ text: "[INVULLEN: naam casemanager]", bold: true, color: NAVY, size: 22 })] })
+          new Paragraph({ children: [new TextRun({ text: "[INVULLEN: naam afzender]", bold: true, color: NAVY2, size: 22 })] })
         ]
       }]
     });
@@ -18766,8 +18946,7 @@
     const tabs = [
       { t: "Opbouwadvies", el: /* @__PURE__ */ React.createElement(AdviesPreview, { fields, schema, reportDate: CASE.reportDate }) },
       { t: "Plan van Aanpak", el: /* @__PURE__ */ React.createElement(PvaPreview, { fields, schema }) },
-      { t: "Aanvullende adviezen", el: /* @__PURE__ */ React.createElement(AanvullendAdviesPreview, { fields, reportDate: CASE.reportDate }) },
-      { t: "Begeleidend bericht", el: /* @__PURE__ */ React.createElement(BerichtPreview, { fields, schema }) }
+      { t: "Begeleidend bericht", el: /* @__PURE__ */ React.createElement(BerichtPreview, { fields, schema, reportDate: CASE.reportDate }) }
     ];
     async function handleDownload() {
       setBusy(true);

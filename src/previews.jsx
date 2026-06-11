@@ -7,7 +7,7 @@
 import { I, getVal, isMissing } from "./data.jsx";
 import { fullRecoveryDate } from "./engine.js";
 import { SchemaRows } from "./fields.jsx";
-import { computeAdvice } from "./advice.js";
+import { adviceParagraphs } from "./advice.js";
 
 function DocPreviewHead({ title, icon }) {
   return (
@@ -143,78 +143,37 @@ export function PvaPreview({ fields, schema }) {
   );
 }
 
-// 3 — Aanvullende adviezen
-const LEVEL_LABEL = { deadline: "Termijnen", risk: "Let op", attention: "Aandachtspunt", flag: "Aanvullen" };
-
-export function AanvullendAdviesPreview({ fields, reportDate }) {
-  const advies = computeAdvice(fields, reportDate);
-  return (
-    <div className="doc-preview">
-      <DocPreviewHead title="Aanvullende adviezen" icon={I.info} />
-      <div className="doc-sheet">
-        <h2>Aanvullende adviezen</h2>
-        <p className="wvp">Procesadviezen volgens de Werkwijzer Poortwachter. Deze worden in het begeleidend bericht verweven; controleer en pas aan waar nodig.</p>
-        <div className="advice-list">
-          {advies.map((a, i) => (
-            <div className={"advice-card lvl-" + a.level} key={i}>
-              <div className="advice-head">
-                <span className={"advice-tag tag-" + a.level}>{LEVEL_LABEL[a.level]}</span>
-                <h4>{a.title}</h4>
-              </div>
-              <p>{a.body}</p>
-              {a.deadlines && a.deadlines.length > 0 && (
-                <table className="schema-table deadline-table">
-                  <thead><tr><th>Wanneer</th><th>Actie</th></tr></thead>
-                  <tbody>
-                    {a.deadlines.map((d, j) => (
-                      <tr key={j}>
-                        <td className="date" style={{ whiteSpace: "nowrap", verticalAlign: "top" }}>{d.date}</td>
-                        <td><strong>{d.title}.</strong> {d.who}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// 4 — Begeleidend bericht aan werkgever
-export function BerichtPreview({ fields, schema }) {
+// 3 — Begeleidend bericht aan werkgever (met de adviezen verweven)
+export function BerichtPreview({ fields, schema, reportDate }) {
   const naam = getVal(fields, "naam");
   const werkgever = getVal(fields, "werkgever");
+  const alineas = adviceParagraphs(fields, reportDate);
   return (
     <div className="doc-preview">
       <DocPreviewHead title="Begeleidend bericht aan werkgever" icon={I.mail} />
       <div className="doc-sheet msg-sheet">
         <h2 style={{ fontSize: 19 }}>Begeleidend bericht</h2>
-        <p className="wvp" style={{ marginBottom: 18 }}>Onderwerp: Concept Plan van Aanpak — {naam}</p>
+        <p className="wvp" style={{ marginBottom: 18 }}>Onderwerp: Concept Plan van aanpak — {naam}</p>
 
-        <p className="greeting">Beste {isMissing(werkgever) ? "[werkgever]" : werkgever},</p>
-        <p>
-          Op basis van de terugkoppeling van de bedrijfsarts is een concept Plan van
-          Aanpak opgesteld voor {naam}. In de bijlage vind je vier onderdelen:
-          het opbouwadvies, het concept Plan van Aanpak (UWV-formulier AG140),
-          de aanvullende adviezen en dit begeleidende bericht.
+        <p className="greeting">
+          Beste {isMissing(werkgever) ? "werkgever" : werkgever}, hierbij ontvang je het
+          concept-Plan van aanpak voor je werknemer {naam}, opgesteld naar aanleiding van de
+          terugkoppeling van de bedrijfsarts d.d. {reportDate}.
         </p>
         <p>
-          De kern: werknemer is belastbaar ({getVal(fields, "belast").toLowerCase()}) en bouwt
-          vanaf {getVal(fields, "start")} {getVal(fields, "opbouw").toLowerCase()} op,
-          van {schema[0].hours} naar {schema[schema.length - 1].hours} uur. Volledige
-          werkhervatting is voorzien rond {fullRecoveryDate(schema)}. Houd rekening met
-          de werkaanpassing: {getVal(fields, "beperking").toLowerCase()}.
+          Werknemer is belastbaar voor {getVal(fields, "belast").toLowerCase()}. De bedrijfsarts
+          adviseert een opbouw vanaf {getVal(fields, "start")}, {getVal(fields, "opbouw").toLowerCase()},
+          van {schema[0].hours} naar {schema[schema.length - 1].hours} uur. Volledige werkhervatting
+          is voorzien rond {fullRecoveryDate(schema)}. Houd rekening met de werkaanpassing:{" "}
+          {getVal(fields, "beperking").toLowerCase()}.
         </p>
+        {alineas.map((t, i) => <p key={i}>{t}</p>)}
         <p>
-          Loop het concept na, vul de gemarkeerde velden ([INVULLEN]) aan en let op de
-          aanvullende adviezen (wettelijke termijnen, leeftijd en einddatum dienstverband).
-          Bespreek het Plan van Aanpak samen met de werknemer voordat je het vaststelt.
-          Medische gegevens zijn bewust niet opgenomen.
+          Bespreek het concept met je werknemer, vul de open velden ([INVULLEN]) samen in,
+          onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van
+          de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen.
         </p>
-        <p className="sign">Met vriendelijke groet,<br/><strong style={{ color: "var(--navy-900)" }}>[INVULLEN: naam casemanager]</strong></p>
+        <p className="sign">Met vriendelijke groet,<br/><strong style={{ color: "var(--navy-900)" }}>[INVULLEN: naam afzender]</strong></p>
       </div>
     </div>
   );

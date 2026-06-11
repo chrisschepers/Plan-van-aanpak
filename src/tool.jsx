@@ -4,7 +4,7 @@ import { I, CASE, INITIAL_FIELDS, MISSING } from "./data.jsx";
 import { computeSchema } from "./engine.js";
 import { SchemaTable, FieldsPanel } from "./fields.jsx";
 import { SourceDoc } from "./sourcedoc.jsx";
-import { AdviesPreview, PvaPreview, AanvullendAdviesPreview, BerichtPreview } from "./previews.jsx";
+import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
 import { downloadDocx } from "./download.js";
 
 const TOOL_STEPS = ["Upload", "Controleren", "Downloaden"];
@@ -225,8 +225,7 @@ function PreviewStep({ onBack, controleOk, fields, schema }) {
   const tabs = [
     { t: "Opbouwadvies", el: <AdviesPreview fields={fields} schema={schema} reportDate={CASE.reportDate} /> },
     { t: "Plan van Aanpak", el: <PvaPreview fields={fields} schema={schema} /> },
-    { t: "Aanvullende adviezen", el: <AanvullendAdviesPreview fields={fields} reportDate={CASE.reportDate} /> },
-    { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} /> },
+    { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} reportDate={CASE.reportDate} /> },
   ];
 
   async function handleDownload() {

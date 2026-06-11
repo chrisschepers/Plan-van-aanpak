@@ -9,7 +9,8 @@ import {
 } from "docx";
 import { getVal, isMissing } from "./casedata.js";
 import { fullRecoveryDate } from "./engine.js";
-import { computeAdvice } from "./advice.js";
+import { adviceParagraphs } from "./advice.js";
+import { buildUwvPva } from "./uwvform.js";
 
 const NAVY = "1F3864";
 const GREY = "69748B";
@@ -72,21 +73,9 @@ function schemaTable(schema) {
 }
 
 export function buildDocxDocument(fields, schema, reportDate) {
-  const advies = computeAdvice(fields, reportDate);
   const naam = getVal(fields, "naam");
   const hersteld = fullRecoveryDate(schema);
-
-  const adviesBlokken = advies.flatMap((a) => {
-    const out = [
-      new Paragraph({ spacing: { before: 160, after: 40 },
-        children: [new TextRun({ text: a.title, bold: true, color: a.level === "risk" ? FLAG : NAVY, size: 22 })] }),
-      p(a.body),
-    ];
-    if (a.deadlines && a.deadlines.length) {
-      out.push(table(["Wanneer", "Actie"], a.deadlines.map((d) => [d.date, `${d.title}. ${d.who}`])));
-    }
-    return out;
-  });
+  const alineas = adviceParagraphs(fields, reportDate);
 
   const doc = new Document({
     creator: "planvanaanpakinvuller.nl",
@@ -107,52 +96,20 @@ export function buildDocxDocument(fields, schema, reportDate) {
         schemaTable(schema),
         p(`Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.`, { color: GREY }),
 
-        // 2 — Plan van Aanpak (UWV AG140)
+        // 2 — Plan van Aanpak (officieel UWV-format AG140)
         new Paragraph({ children: [new PageBreak()] }),
-        h1("Plan van Aanpak"),
-        sub("Wet verbetering poortwachter · UWV-formulier AG140 — concept ter controle."),
-        h2("Werknemer"),
-        kv("Voorletters en achternaam", txt(fields, "naam")),
-        kv("Geboortedatum", txt(fields, "geboortedatum")),
-        kv("Burgerservicenummer", "[INVULLEN]"),
-        kv("Einddatum dienstverband", txt(fields, "einddatum")),
-        h2("Werkgever"),
-        kv("Bedrijfsnaam", txt(fields, "werkgever")),
-        kv("Naam contactpersoon", "[INVULLEN]"),
-        h2("Arbodienst / bedrijfsarts"),
-        kv("Naam bedrijfsarts", "[INVULLEN]"),
-        h2("Functie van de werknemer"),
-        kv("Functie", txt(fields, "functie")),
-        kv("Eerste ziektedag", txt(fields, "eersteZ")),
-        h2("Mening werknemer en werkgever over de arbeidsmogelijkheden"),
-        p(`Werknemer is belastbaar voor ${getVal(fields, "belast").toLowerCase()}. Werkgever en werknemer zien mogelijkheden om het eigen werk (${getVal(fields, "uren").toLowerCase()}) gefaseerd te hervatten volgens het opbouwschema.`),
-        h2("Einddoel"),
-        p(`Volledige werkhervatting in de eigen functie voor ${getVal(fields, "uren").toLowerCase()}. Verwachting: ${getVal(fields, "prognose").toLowerCase()}.`),
-        h2("Afspraken — sociaal-medische zaken"),
-        p(`Werknemer hervat het werk volgens onderstaand opbouwschema. Werkaanpassing: ${getVal(fields, "beperking").toLowerCase()}. Start op ${getVal(fields, "start")}, ${getVal(fields, "opbouw").toLowerCase()} uitgebreid.`),
-        schemaTable(schema),
-        h2("Eerstvolgende evaluatie"),
-        kv("Eerstvolgende evaluatie", txt(fields, "evaluatie")),
-        h2("Ondertekening"),
-        p("Werkgever: ______________________    Datum: __________"),
-        p("Werknemer: ______________________    Datum: __________"),
+        ...buildUwvPva(fields, schema),
 
-        // 3 — Aanvullende adviezen
-        new Paragraph({ children: [new PageBreak()] }),
-        h1("Aanvullende adviezen"),
-        sub("Automatisch afgeleid uit de gecontroleerde gegevens — controleer en pas aan waar nodig."),
-        ...adviesBlokken,
-
-        // 4 — Begeleidend bericht
+        // 3 — Begeleidend bericht (met de adviezen verweven)
         new Paragraph({ children: [new PageBreak()] }),
         h1("Begeleidend bericht"),
-        sub(`Onderwerp: Concept Plan van Aanpak — ${naam}`),
-        p(`Beste ${isMissing(getVal(fields, "werkgever")) ? "[werkgever]" : getVal(fields, "werkgever")},`),
-        p(`Op basis van de terugkoppeling van de bedrijfsarts is een concept Plan van Aanpak opgesteld voor ${naam}. In de bijlage vind je vier onderdelen: het opbouwadvies, het concept Plan van Aanpak (UWV-formulier AG140), de aanvullende adviezen en dit begeleidende bericht.`),
-        p(`De kern: werknemer is belastbaar (${getVal(fields, "belast").toLowerCase()}) en bouwt vanaf ${getVal(fields, "start")} ${getVal(fields, "opbouw").toLowerCase()} op, van ${schema[0].hours} naar ${schema[schema.length - 1].hours} uur. Volledige werkhervatting is voorzien rond ${hersteld}. Houd rekening met de werkaanpassing: ${getVal(fields, "beperking").toLowerCase()}.`),
-        p("Loop het concept na, vul de gemarkeerde velden ([INVULLEN]) aan en let op de aanvullende adviezen. Bespreek het Plan van Aanpak samen met de werknemer voordat je het vaststelt. Medische gegevens zijn bewust niet opgenomen."),
+        sub(`Onderwerp: Concept Plan van aanpak — ${naam}`),
+        p(`Beste ${isMissing(getVal(fields, "werkgever")) ? "werkgever" : getVal(fields, "werkgever")}, hierbij ontvang je het concept-Plan van aanpak voor je werknemer ${naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}.`),
+        p(`Werknemer is belastbaar voor ${getVal(fields, "belast").toLowerCase()}. De bedrijfsarts adviseert een opbouw vanaf ${getVal(fields, "start")}, ${getVal(fields, "opbouw").toLowerCase()}, van ${schema[0].hours} naar ${schema[schema.length - 1].hours} uur. Volledige werkhervatting is voorzien rond ${hersteld}. Houd rekening met de werkaanpassing: ${getVal(fields, "beperking").toLowerCase()}.`),
+        ...alineas.map((t) => p(t)),
+        p("Bespreek het concept met je werknemer, vul de open velden ([INVULLEN]) samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."),
         p("Met vriendelijke groet,"),
-        new Paragraph({ children: [new TextRun({ text: "[INVULLEN: naam casemanager]", bold: true, color: NAVY, size: 22 })] }),
+        new Paragraph({ children: [new TextRun({ text: "[INVULLEN: naam afzender]", bold: true, color: NAVY, size: 22 })] }),
       ],
     }],
   });
