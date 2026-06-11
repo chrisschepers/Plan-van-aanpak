@@ -28,15 +28,30 @@ function setField(fields, id, value) {
   }));
 }
 
-async function docText(fields) {
+async function docZip(fields) {
   const doc = buildDocxDocument(fields, schema, CASE.reportDate);
   const buf = await Packer.toBuffer(doc);
-  const zip = await JSZip.loadAsync(buf);
-  return zip.file("word/document.xml").async("string");
+  return JSZip.loadAsync(buf);
+}
+async function docText(fields) {
+  return (await docZip(fields)).file("word/document.xml").async("string");
+}
+async function allText(zip, prefix) {
+  const names = Object.keys(zip.files).filter((n) => n.startsWith(prefix) && n.endsWith(".xml"));
+  const parts = await Promise.all(names.map((n) => zip.file(n).async("string")));
+  return parts.join("\n");
 }
 
 // ---- 1. Basisdocument (velden zoals geëxtraheerd) ----
-let xml = await docText(INITIAL_FIELDS);
+const zip0 = await docZip(INITIAL_FIELDS);
+let xml = await zip0.file("word/document.xml").async("string");
+
+// briefpapier in huisstijl: kop met merknaam + voet met EER/privacy-regel
+const headers = await allText(zip0, "word/header");
+const footers = await allText(zip0, "word/footer");
+check("briefhoofd bevat merknaam", headers.includes("planvanaanpak") && headers.includes("invuller.nl"));
+check("briefvoet bevat EER/privacy-regel", footers.includes("EER") && footers.includes("Privacy by design"));
+check("briefvoet heeft [INVULLEN] bedrijfsnaam/KVK", footers.includes("bedrijfsnaam") && footers.includes("KVK"));
 
 // Dit document is het begeleidend bericht (met opbouwadvies + verweven adviezen);
 // het ingevulde Plan van aanpak zelf zit in het echte UWV-sjabloon (zie template.mjs).

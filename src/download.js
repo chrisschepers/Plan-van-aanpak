@@ -6,6 +6,7 @@
 import {
   Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType,
   Table, TableRow, TableCell, WidthType, BorderStyle, PageBreak,
+  Header, Footer, ShadingType, VerticalAlign,
 } from "docx";
 import { getVal, isMissing } from "./casedata.js";
 import { fullRecoveryDate } from "./engine.js";
@@ -13,8 +14,56 @@ import { adviceParagraphs } from "./advice.js";
 import { fillTemplate, buildUwvValues } from "./filltemplate.js";
 
 const NAVY = "1F3864";
+const NAVY_400 = "5B76A6";
+const GREEN = "157F5B";
 const GREY = "69748B";
+const FAINT = "97A0B2";
 const FLAG = "9A3B2E";
+
+// ---- Briefpapier in de huisstijl van de website (navy + groen accent) ----
+function brandHeader() {
+  const noBorder = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
+  const markCell = new TableCell({
+    width: { size: 13, type: WidthType.PERCENTAGE },
+    shading: { type: ShadingType.CLEAR, color: "auto", fill: NAVY },
+    verticalAlign: VerticalAlign.CENTER,
+    margins: { top: 90, bottom: 90, left: 80, right: 80 },
+    children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "PvA", bold: true, color: "FFFFFF", size: 26 })] })],
+  });
+  const brandCell = new TableCell({
+    width: { size: 87, type: WidthType.PERCENTAGE },
+    verticalAlign: VerticalAlign.CENTER,
+    margins: { left: 180 },
+    children: [
+      new Paragraph({ spacing: { after: 0 }, children: [
+        new TextRun({ text: "planvanaanpak", bold: true, color: NAVY, size: 28 }),
+        new TextRun({ text: "invuller.nl", bold: true, color: NAVY_400, size: 28 }),
+      ] }),
+      new Paragraph({ children: [new TextRun({ text: "Concept Plan van aanpak · Wet verbetering poortwachter", color: GREY, size: 15 })] }),
+    ],
+  });
+  return new Header({ children: [
+    new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder, insideHorizontal: noBorder, insideVertical: noBorder },
+      rows: [new TableRow({ children: [markCell, brandCell] })],
+    }),
+    new Paragraph({ spacing: { before: 60, after: 0 },
+      border: { bottom: { style: BorderStyle.SINGLE, size: 14, color: GREEN } }, children: [] }),
+  ] });
+}
+
+function brandFooter() {
+  return new Footer({ children: [
+    new Paragraph({
+      alignment: AlignmentType.CENTER, spacing: { before: 40 },
+      border: { top: { style: BorderStyle.SINGLE, size: 6, color: "E3E7EE" } },
+      children: [new TextRun({ text: "planvanaanpakinvuller.nl · Privacy by design, mens in de loop · Verwerking binnen de EER · Geen training op klantdata", color: GREY, size: 14 })],
+    }),
+    new Paragraph({ alignment: AlignmentType.CENTER,
+      children: [new TextRun({ text: "[INVULLEN: bedrijfsnaam · KVK · contactgegevens]", color: FAINT, size: 14 })] }),
+  ] });
+}
 
 const txt = (fields, id) => {
   const v = getVal(fields, id);
@@ -82,6 +131,9 @@ export function buildDocxDocument(fields, schema, reportDate) {
     title: `Plan van Aanpak — ${naam}`,
     styles: { default: { document: { run: { font: "Calibri" } } } },
     sections: [{
+      properties: { page: { margin: { top: 2300, bottom: 1500, left: 1200, right: 1200 } } },
+      headers: { default: brandHeader() },
+      footers: { default: brandFooter() },
       children: [
         // 1 — Opbouwadvies
         h1("Opbouw- en re-integratieadvies"),
