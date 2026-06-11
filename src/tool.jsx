@@ -5,7 +5,7 @@ import { computeSchema } from "./engine.js";
 import { SchemaTable, FieldsPanel } from "./fields.jsx";
 import { SourceDoc } from "./sourcedoc.jsx";
 import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
-import { downloadDocx } from "./download.js";
+import { downloadDocx, downloadUwvPva } from "./download.js";
 
 const TOOL_STEPS = ["Upload", "Controleren", "Downloaden"];
 
@@ -221,20 +221,23 @@ function VerifyStep({ onBack, onNext, checked, setChecked, fields, onEdit, schem
 function PreviewStep({ onBack, controleOk, fields, schema }) {
   const [tab, setTab] = React.useState(0);
   const [downloaded, setDownloaded] = React.useState(null);
-  const [busy, setBusy] = React.useState(false);
   const tabs = [
     { t: "Opbouwadvies", el: <AdviesPreview fields={fields} schema={schema} reportDate={CASE.reportDate} /> },
     { t: "Plan van Aanpak", el: <PvaPreview fields={fields} schema={schema} /> },
     { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} reportDate={CASE.reportDate} /> },
   ];
 
-  async function handleDownload() {
-    setBusy(true);
+  const [busyKey, setBusyKey] = React.useState(null);
+
+  async function run(key, fn) {
+    setBusyKey(key);
     try {
-      const filename = await downloadDocx(fields, schema, CASE.reportDate);
+      const filename = await fn();
       setDownloaded(filename);
+    } catch (e) {
+      setDownloaded("FOUT: " + (e && e.message ? e.message : "download mislukt"));
     } finally {
-      setBusy(false);
+      setBusyKey(null);
     }
   }
 
@@ -260,7 +263,7 @@ function PreviewStep({ onBack, controleOk, fields, schema }) {
         <div className="dl-info">
           <span className="ico">{I.download}</span>
           <div>
-            <h4>Download alle onderdelen als Word (.docx)</h4>
+            <h4>Download als Word (.docx)</h4>
             <p>
               {controleOk
                 ? <span className="review-confirm">{I.checkSm} Menselijke controle bevestigd in stap 2</span>
@@ -268,9 +271,14 @@ function PreviewStep({ onBack, controleOk, fields, schema }) {
             </p>
           </div>
         </div>
-        <button className="btn btn-accent btn-lg" disabled={!controleOk || busy} onClick={handleDownload}>
-          {I.download} {busy ? "Bezig…" : "Download als Word"}
-        </button>
+        <div className="dl-buttons">
+          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("pva", () => downloadUwvPva(fields, schema))}>
+            {I.download} {busyKey === "pva" ? "Bezig…" : "Plan van Aanpak (UWV)"}
+          </button>
+          <button className="btn btn-ghost btn-lg" disabled={!controleOk || busyKey} onClick={() => run("bericht", () => downloadDocx(fields, schema, CASE.reportDate))}>
+            {I.mail} {busyKey === "bericht" ? "Bezig…" : "Begeleidend bericht"}
+          </button>
+        </div>
       </div>
 
       <div className="tool-actions">

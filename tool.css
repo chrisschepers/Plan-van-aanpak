@@ -223,6 +223,41 @@
 .demo-note p { font-size: 14.5px; color: var(--ink-soft); }
 .demo-note strong { color: var(--navy-900); }
 
+/* ---- Twee downloadknoppen ---- */
+.dl-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+@media (max-width: 560px) { .dl-buttons { width: 100%; } .dl-buttons .btn { flex: 1; } }
+
+/* ---- UWV-formulier (schermweergave 1-op-1) ---- */
+.uwvform { padding: 34px 38px; }
+.uwv-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.uwv-title h2 { font-size: 24px; color: var(--navy-900); }
+.uwv-logo { font-weight: 800; font-size: 20px; color: var(--navy); letter-spacing: .04em; border: 2px solid var(--navy); border-radius: 6px; padding: 2px 9px; }
+.uwv-bar { display: flex; align-items: center; gap: 11px; background: var(--navy); color: #fff; font-weight: 700; font-size: 15px; padding: 8px 14px; border-radius: 6px; margin: 22px 0 10px; }
+.uwv-nr { display: inline-grid; place-items: center; min-width: 24px; height: 24px; background: rgba(255,255,255,.18); border-radius: 5px; font-size: 13.5px; }
+.uwv-help { font-size: 13px; color: var(--muted); font-style: italic; margin: 8px 0 8px; }
+.uwv-row { display: grid; grid-template-columns: 240px 1fr; gap: 0; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; margin-bottom: 7px; }
+.uwv-row .uwv-label { background: #fff; padding: 9px 13px; font-size: 13.5px; color: var(--ink-soft); border-right: 1px solid var(--line); }
+.uwv-row .uwv-val { background: var(--navy-50); padding: 9px 13px; font-size: 14.5px; font-weight: 600; color: var(--navy-900); min-height: 38px; }
+.uwv-row .uwv-val.empty { background: repeating-linear-gradient(135deg, #f4f6fa 0 8px, #eef2f8 8px 16px); }
+@media (max-width: 560px) { .uwv-row { grid-template-columns: 1fr; } .uwv-row .uwv-label { border-right: none; border-bottom: 1px solid var(--line); } }
+.uwv-check { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink-soft); padding: 5px 0; }
+.uwv-box { width: 18px; height: 18px; border: 1.5px solid var(--navy-400); border-radius: 4px; display: grid; place-items: center; flex: none; background: #fff; }
+.uwv-box svg { width: 13px; height: 13px; color: #fff; }
+.uwv-box.on { background: var(--accent); border-color: var(--accent); }
+.uwv-cat { font-weight: 700; color: var(--navy); font-size: 14px; margin: 16px 0 7px; }
+.uwv-act { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-bottom: 8px; }
+.uwv-act th { text-align: left; background: var(--navy-50); color: var(--navy); font-size: 12px; font-weight: 700; padding: 7px 11px; border: 1px solid var(--line); }
+.uwv-act td { padding: 8px 11px; border: 1px solid var(--line); color: var(--ink-soft); vertical-align: top; }
+.uwv-act td.empty { background: repeating-linear-gradient(135deg, #f7f9fc 0 8px, #eef2f8 8px 16px); min-width: 60px; }
+.uwv-act th:nth-child(2), .uwv-act td:nth-child(2) { width: 22%; }
+.uwv-act th:nth-child(3), .uwv-act td:nth-child(3) { width: 22%; }
+.uwv-sign { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+.uwv-sign > div { border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: grid; gap: 14px; }
+.uwv-sign strong { color: var(--navy-900); font-size: 14.5px; }
+.uwv-sign span { color: var(--muted); font-size: 13px; }
+.uwv-foot { text-align: right; color: var(--faint); font-size: 12px; margin-top: 18px; padding-top: 10px; border-top: 1px solid var(--line-soft); }
+@media (max-width: 560px) { .uwvform { padding: 22px 18px; } .uwv-sign { grid-template-columns: 1fr; } }
+
 /* ---- Aanvullende adviezen ---- */
 .advice-list { display: grid; gap: 16px; margin-top: 8px; }
 .advice-card { border: 1px solid var(--line); border-left: 4px solid var(--navy-400); border-radius: 12px; padding: 16px 18px; background: #fff; }

@@ -38,16 +38,13 @@ async function docText(fields) {
 // ---- 1. Basisdocument (velden zoals geëxtraheerd) ----
 let xml = await docText(INITIAL_FIELDS);
 
+// Dit document is het begeleidend bericht (met opbouwadvies + verweven adviezen);
+// het ingevulde Plan van aanpak zelf zit in het echte UWV-sjabloon (zie template.mjs).
 check(".docx bevat opbouwadvies", xml.includes("Opbouw- en re-integratieadvies"));
-check(".docx bevat UWV Plan van aanpak", xml.toLowerCase().includes("plan van aanpak"));
-check(".docx bevat UWV-secties (genummerd)", xml.includes("Werknemer") && xml.includes("Werkgever") && xml.includes("Arbodienst"));
-check(".docx bevat UWV sectie 7 afspraken (7E)", xml.includes("Sociaal-medische zaken") || xml.includes("Afspraken"));
-check(".docx bevat AG140-footer", xml.includes("AG140"));
+check(".docx verwijst naar UWV-formulier (AG140)", xml.includes("AG140"));
 check(".docx bevat Begeleidend bericht", xml.includes("Begeleidend bericht"));
 
 check(".docx bevat naam J. de Vries", xml.includes("J. de Vries"));
-check(".docx bevat geboortedatum 14-08-1987", xml.includes("14-08-1987"));
-check(".docx houdt BSN op [INVULLEN]", xml.includes("[INVULLEN]"));
 check(".docx bevat opbouwschema-datum 10-03-2025", xml.includes("10-03-2025"));
 
 // adviezen verweven in het begeleidend bericht

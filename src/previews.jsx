@@ -57,87 +57,103 @@ export function AdviesPreview({ fields, schema, reportDate }) {
   );
 }
 
-// 2 — Concept Plan van Aanpak (officiële UWV-structuur, formulier AG140)
+// 2 — Plan van Aanpak: schermweergave die het UWV-formulier (AG140) nabootst.
+function UwvBar({ nr, children }) {
+  return <div className="uwv-bar"><span className="uwv-nr">{nr}</span>{children}</div>;
+}
+function UwvRow({ label, value }) {
+  const missing = isMissing(value) || value === "";
+  return (
+    <div className="uwv-row">
+      <div className="uwv-label">{label}</div>
+      <div className={"uwv-val" + (missing ? " empty" : "")}>{missing ? "" : value}</div>
+    </div>
+  );
+}
+function UwvHelp({ children }) { return <p className="uwv-help">{children}</p>; }
+function UwvCheck({ checked, children }) {
+  return <div className="uwv-check"><span className={"uwv-box" + (checked ? " on" : "")}>{checked ? I.checkSm : null}</span>{children}</div>;
+}
+function ActTable({ rows }) {
+  return (
+    <table className="uwv-act">
+      <thead><tr><th>Activiteit</th><th>Wie</th><th>Planning</th></tr></thead>
+      <tbody>
+        {(rows.length ? rows : [["", "", ""]]).map((r, i) => (
+          <tr key={i}>{r.map((c, j) => <td key={j} className={c ? "" : "empty"}>{c}</td>)}</tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
 export function PvaPreview({ fields, schema }) {
-  const flagOrText = (id) => {
-    const v = getVal(fields, id);
-    return isMissing(v)
-      ? <span style={{ color: "var(--flag-text)", fontStyle: "italic", fontWeight: 600 }}>[INVULLEN]</span>
-      : v;
-  };
+  const start = getVal(fields, "start");
+  const opbouw = `Werknemer hervat/bouwt op conform het opbouwschema van de bedrijfsarts (start ${start}, ${getVal(fields, "opbouw").toLowerCase()} tot ${schema[schema.length - 1].hours} uur).`;
+  const taak = `Werkgever en werknemer stellen samen passende werkzaamheden vast binnen de aangegeven mogelijkheden (${getVal(fields, "beperking").toLowerCase()}).`;
   return (
     <div className="doc-preview">
       <DocPreviewHead title="Plan van Aanpak (UWV — formulier AG140)" icon={I.doc} />
-      <div className="doc-sheet">
-        <h2>Plan van Aanpak</h2>
-        <p className="wvp">Wet verbetering poortwachter · UWV-formulier AG140 — concept ter controle</p>
+      <div className="doc-sheet uwvform">
+        <div className="uwv-title">
+          <h2>Plan van aanpak</h2>
+          <span className="uwv-logo">UWV</span>
+        </div>
+        <p className="wvp">Wet verbetering poortwachter — schermweergave van het ingevulde formulier. De download is het echte UWV-bestand.</p>
 
-        <h3>Werknemer</h3>
-        <dl className="kv">
-          <dt>Voorletters en achternaam</dt><Val fields={fields} id="naam" />
-          <dt>Geboortedatum</dt><Val fields={fields} id="geboortedatum" />
-          <dt>Burgerservicenummer</dt><dd className="flag">[INVULLEN]</dd>
-          <dt>Einddatum dienstverband</dt><Val fields={fields} id="einddatum" />
-        </dl>
+        <UwvBar nr="1">Werknemer</UwvBar>
+        <UwvHelp>Gebruikt de werknemer de achternaam van de partner? Vul dan ook de geboortenaam in.</UwvHelp>
+        <UwvRow label="1.1  Voorletters en achternaam" value={getVal(fields, "naam")} />
+        <UwvRow label="1.2  Burgerservicenummer" value="" />
 
-        <h3>Werkgever</h3>
-        <dl className="kv">
-          <dt>Bedrijfsnaam</dt><Val fields={fields} id="werkgever" />
-          <dt>Naam contactpersoon</dt><dd className="flag">[INVULLEN]</dd>
-        </dl>
+        <UwvBar nr="2">Werkgever</UwvBar>
+        <UwvRow label="2.1  Bedrijfsnaam" value={getVal(fields, "werkgever")} />
+        <UwvRow label="2.2  Naam contactpersoon" value="" />
 
-        <h3>Arbodienst / bedrijfsarts</h3>
-        <dl className="kv">
-          <dt>Naam bedrijfsarts</dt><dd className="flag">[INVULLEN]</dd>
-        </dl>
+        <UwvBar nr="3">Arbodienst / bedrijfsarts</UwvBar>
+        <UwvRow label="3.1  Naam bedrijfsarts" value="" />
 
-        <h3>Functie van de werknemer</h3>
-        <dl className="kv">
-          <dt>Functie</dt><Val fields={fields} id="functie" />
-          <dt>Eerste ziektedag</dt><Val fields={fields} id="eersteZ" />
-        </dl>
+        <UwvBar nr="4">Functie van de werknemer</UwvBar>
+        <UwvRow label="4.1  Functie" value={getVal(fields, "functie")} />
+        <UwvHelp>4.2  Omschrijving van de werkzaamheden van het laatste werk vóór de ziekmelding.</UwvHelp>
+        <UwvRow label="" value="" />
 
-        <h3>Mening werknemer en werkgever over de arbeidsmogelijkheden</h3>
-        <p>
-          Werknemer is belastbaar voor {getVal(fields, "belast").toLowerCase()}. Werkgever en
-          werknemer zien mogelijkheden om het eigen werk ({getVal(fields, "uren").toLowerCase()})
-          gefaseerd te hervatten volgens het opbouwschema.
-        </p>
+        <UwvBar nr="5">Mening werknemer en werkgever over de arbeidsmogelijkheden</UwvBar>
+        <UwvRow label="5.1  Werknemer" value="" />
+        <UwvRow label="5.2  Werkgever" value="" />
 
-        <h3>Einddoel</h3>
-        <p>
-          Volledige werkhervatting in de eigen functie voor {getVal(fields, "uren").toLowerCase()}.
-          Verwachting: {getVal(fields, "prognose").toLowerCase()}.
-        </p>
+        <UwvBar nr="6">Einddoel</UwvBar>
+        <UwvHelp>U kunt meerdere vakjes aankruisen.</UwvHelp>
+        <UwvCheck checked>Werkhervatting in de eigen functie</UwvCheck>
+        <UwvCheck>Gedeeltelijke werkhervatting in de eigen functie</UwvCheck>
+        <UwvCheck>Werkhervatting in eigen functie met aanpassingen</UwvCheck>
+        <UwvCheck>Werkhervatting in een andere functie bij de eigen werkgever</UwvCheck>
+        <UwvCheck>(Gedeeltelijke) werkhervatting bij een andere werkgever</UwvCheck>
 
-        <h3>Afspraken — sociaal-medische zaken</h3>
-        <p>
-          Werknemer hervat het werk volgens onderstaand opbouwschema. Werkaanpassing:{" "}
-          {getVal(fields, "beperking").toLowerCase()}. Start op {getVal(fields, "start")},
-          {" "}{getVal(fields, "opbouw").toLowerCase()} uitgebreid.
-        </p>
-        <table className="schema-table" style={{ marginTop: 6 }}>
-          <thead><tr><th>Activiteit (per datum)</th><th>Uren per week</th><th>Planning</th></tr></thead>
-          <tbody>
-            {schema.slice(0, 4).map((r, i) => (
-              <tr key={i}>
-                <td className="date">{r.date}</td>
-                <td className="hours">{r.hours} uur</td>
-                <td className="pct-cell"><div className="pct-bar"><div className="pct-track"><div className="pct-fill" style={{ width: r.pct + "%" }}></div></div><span className="pct-num">{r.pct}%</span></div></td>
-              </tr>
-            ))}
-            <tr><td className="date" style={{ color: "var(--muted)", fontStyle: "italic" }}>…</td><td colSpan="2" style={{ color: "var(--muted)", fontStyle: "italic" }}>oplopend tot {schema[schema.length - 1].hours} uur (100%) per {fullRecoveryDate(schema)}</td></tr>
-          </tbody>
-        </table>
+        <UwvBar nr="7">Afspraken</UwvBar>
+        <UwvHelp>Welke afspraken heeft u met uw werknemer gemaakt over zijn re-integratie?</UwvHelp>
+        <div className="uwv-cat">7A  Arbeidsinhoud</div>
+        <ActTable rows={[[taak, "Werkgever en werknemer", `Per ${start}`]]} />
+        <div className="uwv-cat">7E  Sociaal-medische zaken</div>
+        <ActTable rows={[
+          [opbouw, "Werknemer en werkgever", `Per ${start}`],
+          ["Werknemer verschijnt op het vervolgconsult bij de bedrijfsarts.", "Werknemer", "Conform oproep arbodienst"],
+        ]} />
+        <div className="uwv-cat">7F  Overige activiteiten</div>
+        <ActTable rows={[["Werkgever en werknemer evalueren de voortgang en stellen het Plan van aanpak bij wanneer de belastbaarheid wijzigt.", "Werkgever en werknemer", "Elke 6 weken"]]} />
 
-        <h3>Eerstevolgende evaluatie</h3>
-        <p>De voortgang wordt periodiek geëvalueerd. Eerstvolgende evaluatie: {flagOrText("evaluatie")}.</p>
+        <UwvBar nr="8">Mening over de gemaakte afspraken</UwvBar>
+        <UwvHelp>In te vullen door werknemer en werkgever zelf.</UwvHelp>
 
-        <h3>Ondertekening</h3>
-        <dl className="kv">
-          <dt>Werkgever</dt><dd>______________________&nbsp;&nbsp;Datum: __________</dd>
-          <dt>Werknemer</dt><dd>______________________&nbsp;&nbsp;Datum: __________</dd>
-        </dl>
+        <UwvBar nr="9">Te laat opgesteld Plan van aanpak</UwvBar>
+        <UwvRow label="Reden" value="" />
+
+        <UwvBar nr="10">Ondertekening</UwvBar>
+        <div className="uwv-sign">
+          <div><strong>Werkgever</strong><span>Datum: ____________</span><span>Handtekening:</span></div>
+          <div><strong>Werknemer</strong><span>Datum: ____________</span><span>Handtekening:</span></div>
+        </div>
+        <div className="uwv-foot">AG140  03041  05-23</div>
       </div>
     </div>
   );

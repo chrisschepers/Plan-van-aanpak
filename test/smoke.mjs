@@ -91,22 +91,22 @@ check("stap 3: preview", !!byText("h1", "Preview en download"));
 check("3 preview-tabs", $$(".preview-tabs button").length === 3);
 click($$(".preview-tabs button")[1]);
 await wait(30);
-check("PvA-tab toont Plan van Aanpak (UWV)", !!byText(".doc-sheet h2", "Plan van Aanpak"));
-check("PvA toont UWV-secties (Werkgever)", !!byText(".doc-sheet h3", "Werkgever"));
-check("PvA toont [INVULLEN] voor BSN", !!byText(".doc-sheet", "[INVULLEN]"));
+check("PvA-tab toont UWV-formulierweergave", !!byText(".uwv-bar", "Werknemer"));
+check("PvA toont ingevulde naam", !!byText(".uwv-val", "J. de Vries"));
+check("PvA heeft einddoel-vinkje aangekruist", $$(".uwv-box.on").length >= 1);
+check("PvA toont sectie 7E (sociaal-medisch)", !!byText(".uwv-cat", "Sociaal-medische"));
+check("PvA toont AG140-footer", !!byText(".uwv-foot", "AG140"));
 // Begeleidend bericht met verweven adviezen
 click($$(".preview-tabs button")[2]);
 await wait(30);
 check("bericht-tab toont begeleidend bericht", !!byText(".doc-sheet h2", "Begeleidend bericht"));
 check("bericht bevat verweven advies (verzuimdossier)", !!byText(".doc-sheet", "verzuimdossier"));
 check("bericht bevat einddatum-advies", !!byText(".doc-sheet", "einddatum"));
-// Download starten (de echte .docx-generatie wordt in test/docx.mjs gecontroleerd;
-// JSZip voltooit niet in jsdom, daarom hier alleen dat de handler start)
-const dlBtn = byText("button", "Download als Word");
-check("download-knop actief na controle", !dlBtn.disabled);
-click(dlBtn);
-await wait(50);
-check("download start (knop toont 'Bezig…')", !!byText("button", "Bezig…"));
+// Twee downloadknoppen aanwezig en actief na controle (download zelf: zie template.mjs/docx.mjs)
+const pvaBtn = byText(".dl-buttons button", "Plan van Aanpak");
+const berBtn = byText(".dl-buttons button", "Begeleidend bericht");
+check("knop 'Plan van Aanpak (UWV)' aanwezig en actief", !!pvaBtn && !pvaBtn.disabled);
+check("knop 'Begeleidend bericht' aanwezig en actief", !!berBtn && !berBtn.disabled);
 
 console.log(failures === 0 ? "\nAlle checks geslaagd." : `\n${failures} check(s) gefaald.`);
 process.exit(failures === 0 ? 0 : 1);

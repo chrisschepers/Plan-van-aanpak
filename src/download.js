@@ -10,7 +10,7 @@ import {
 import { getVal, isMissing } from "./casedata.js";
 import { fullRecoveryDate } from "./engine.js";
 import { adviceParagraphs } from "./advice.js";
-import { buildUwvPva } from "./uwvform.js";
+import { fillTemplate, buildUwvValues } from "./filltemplate.js";
 
 const NAVY = "1F3864";
 const GREY = "69748B";
@@ -95,12 +95,9 @@ export function buildDocxDocument(fields, schema, reportDate) {
         h2("Opbouwschema"),
         schemaTable(schema),
         p(`Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.`, { color: GREY }),
+        p("Het ingevulde Plan van aanpak is bijgevoegd als apart document in het officiële UWV-formulier (AG140).", { color: GREY }),
 
-        // 2 — Plan van Aanpak (officieel UWV-format AG140)
-        new Paragraph({ children: [new PageBreak()] }),
-        ...buildUwvPva(fields, schema),
-
-        // 3 — Begeleidend bericht (met de adviezen verweven)
+        // 2 — Begeleidend bericht (met de adviezen verweven)
         new Paragraph({ children: [new PageBreak()] }),
         h1("Begeleidend bericht"),
         sub(`Onderwerp: Concept Plan van aanpak — ${naam}`),
@@ -116,12 +113,12 @@ export function buildDocxDocument(fields, schema, reportDate) {
   return doc;
 }
 
-export async function downloadDocx(fields, schema, reportDate) {
+function safeName(fields) {
   const naam = getVal(fields, "naam");
-  const safe = naam.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "") || "concept";
-  const filename = `Plan-van-Aanpak-${safe}.docx`;
-  const doc = buildDocxDocument(fields, schema, reportDate);
-  const blob = await Packer.toBlob(doc);
+  return naam.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "") || "concept";
+}
+
+function triggerDownload(blob, filename) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -131,4 +128,20 @@ export async function downloadDocx(fields, schema, reportDate) {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 4000);
   return filename;
+}
+
+// Begeleidend bericht (met opbouwadvies + verweven adviezen) als .docx.
+export async function downloadDocx(fields, schema, reportDate) {
+  const filename = `Begeleidend-bericht-${safeName(fields)}.docx`;
+  const blob = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate));
+  return triggerDownload(blob, filename);
+}
+
+// Het ingevulde Plan van aanpak in het échte UWV-formulier (AG140).
+export async function downloadUwvPva(fields, schema) {
+  const resp = await fetch(new URL("uwv-template.docx", document.baseURI));
+  if (!resp.ok) throw new Error("UWV-sjabloon niet gevonden");
+  const buf = await resp.arrayBuffer();
+  const blob = await fillTemplate(buf, buildUwvValues(fields, schema));
+  return triggerDownload(blob, `Plan-van-Aanpak-${safeName(fields)}.docx`);
 }
