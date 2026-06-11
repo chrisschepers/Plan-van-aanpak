@@ -10894,46 +10894,6 @@
       }
     }
   });
-  var ShadingType = {
-    /** Clear shading - no pattern, fill color only */
-    CLEAR: "clear",
-    DIAGONAL_CROSS: "diagCross",
-    DIAGONAL_STRIPE: "diagStripe",
-    HORIZONTAL_CROSS: "horzCross",
-    HORIZONTAL_STRIPE: "horzStripe",
-    NIL: "nil",
-    PERCENT_5: "pct5",
-    PERCENT_10: "pct10",
-    PERCENT_12: "pct12",
-    PERCENT_15: "pct15",
-    PERCENT_20: "pct20",
-    PERCENT_25: "pct25",
-    PERCENT_30: "pct30",
-    PERCENT_35: "pct35",
-    PERCENT_37: "pct37",
-    PERCENT_40: "pct40",
-    PERCENT_45: "pct45",
-    PERCENT_50: "pct50",
-    PERCENT_55: "pct55",
-    PERCENT_60: "pct60",
-    PERCENT_62: "pct62",
-    PERCENT_65: "pct65",
-    PERCENT_70: "pct70",
-    PERCENT_75: "pct75",
-    PERCENT_80: "pct80",
-    PERCENT_85: "pct85",
-    PERCENT_87: "pct87",
-    PERCENT_90: "pct90",
-    PERCENT_95: "pct95",
-    REVERSE_DIAGONAL_STRIPE: "reverseDiagStripe",
-    SOLID: "solid",
-    THIN_DIAGONAL_CROSS: "thinDiagCross",
-    THIN_DIAGONAL_STRIPE: "thinDiagStripe",
-    THIN_HORIZONTAL_CROSS: "thinHorzCross",
-    THIN_REVERSE_DIAGONAL_STRIPE: "thinReverseDiagStripe",
-    THIN_VERTICAL_STRIPE: "thinVertStripe",
-    VERTICAL_STRIPE: "vertStripe"
-  };
   var ChangeAttributes = class extends XmlAttributeComponent {
     constructor(..._args) {
       super(..._args);
@@ -13658,7 +13618,6 @@
     BOTTOM: "bottom"
   };
   var VerticalAlignSection = _objectSpread2(_objectSpread2({}, VerticalAlignTable), {}, { BOTH: "both" });
-  var VerticalAlign = VerticalAlignSection;
   var createVerticalAlign = (value) => new BuilderElement({
     name: "w:vAlign",
     attributes: { verticalAlign: {
@@ -21034,36 +20993,15 @@
   var FAINT = "97A0B2";
   var FLAG = "9A3B2E";
   function brandHeader() {
-    const noBorder = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
-    const markCell = new TableCell({
-      width: { size: 13, type: WidthType.PERCENTAGE },
-      shading: { type: ShadingType.CLEAR, color: "auto", fill: NAVY },
-      verticalAlign: VerticalAlign.CENTER,
-      margins: { top: 90, bottom: 90, left: 80, right: 80 },
-      children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "PvA", bold: true, color: "FFFFFF", size: 26 })] })]
-    });
-    const brandCell = new TableCell({
-      width: { size: 87, type: WidthType.PERCENTAGE },
-      verticalAlign: VerticalAlign.CENTER,
-      margins: { left: 180 },
-      children: [
-        new Paragraph({ spacing: { after: 0 }, children: [
-          new TextRun({ text: "planvanaanpak", bold: true, color: NAVY, size: 28 }),
-          new TextRun({ text: "invuller.nl", bold: true, color: NAVY_400, size: 28 })
-        ] }),
-        new Paragraph({ children: [new TextRun({ text: "Concept Plan van aanpak \xB7 Wet verbetering poortwachter", color: GREY, size: 15 })] })
-      ]
-    });
     return new Header({ children: [
-      new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        borders: { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder, insideHorizontal: noBorder, insideVertical: noBorder },
-        rows: [new TableRow({ children: [markCell, brandCell] })]
-      }),
+      new Paragraph({ spacing: { after: 20 }, children: [
+        new TextRun({ text: "planvanaanpak", bold: true, color: NAVY, size: 30 }),
+        new TextRun({ text: "invuller.nl", bold: true, color: NAVY_400, size: 30 })
+      ] }),
       new Paragraph({
-        spacing: { before: 60, after: 0 },
-        border: { bottom: { style: BorderStyle.SINGLE, size: 14, color: GREEN } },
-        children: []
+        spacing: { after: 0 },
+        border: { bottom: { style: BorderStyle.SINGLE, size: 18, color: GREEN } },
+        children: [new TextRun({ text: "Concept Plan van aanpak \xB7 Wet verbetering poortwachter", color: GREY, size: 16 })]
       })
     ] });
   }
@@ -21164,7 +21102,7 @@
       title: `Plan van Aanpak \u2014 ${naam}`,
       styles: { default: { document: { run: { font: "Calibri" } } } },
       sections: [{
-        properties: { page: { margin: { top: 2300, bottom: 1500, left: 1200, right: 1200 } } },
+        properties: { page: { margin: { top: 1900, bottom: 1400, left: 1200, right: 1200 } } },
         headers: { default: brandHeader() },
         footers: { default: brandFooter() },
         children: [
