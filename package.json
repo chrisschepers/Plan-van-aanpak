@@ -1,0 +1,16 @@
+{
+  "name": "planvanaanpakinvuller",
+  "version": "0.1.0",
+  "private": true,
+  "description": "planvanaanpakinvuller.nl — concept Plan van Aanpak (Wet verbetering poortwachter), automatisch ingevuld",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node test/smoke.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "jsdom": "^25.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}
