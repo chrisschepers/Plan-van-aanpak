@@ -1,95 +1,170 @@
-/* Echte Word-download: bouwt één Word-compatibel document (.doc, HTML-formaat)
-   met de drie onderdelen, gevuld met de gecontroleerde veldwaarden. */
+/* Echte .docx-export met de 'docx'-bibliotheek — opent overal netjes
+   (Word, Google Docs, mobiele Office-apps). Bevat vier onderdelen:
+   opbouwadvies, Plan van Aanpak (UWV AG140), aanvullende adviezen en
+   het begeleidend bericht. */
 
-import { getVal, isMissing } from "./data.jsx";
+import {
+  Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType,
+  Table, TableRow, TableCell, WidthType, BorderStyle, PageBreak,
+} from "docx";
+import { getVal, isMissing } from "./casedata.js";
 import { fullRecoveryDate } from "./engine.js";
+import { computeAdvice } from "./advice.js";
 
-const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const NAVY = "1F3864";
+const GREY = "69748B";
+const FLAG = "9A3B2E";
 
-function val(fields, id) {
+const txt = (fields, id) => {
   const v = getVal(fields, id);
-  return isMissing(v) ? '<span style="color:#9a3b2e;font-style:italic">[INVULLEN]</span>' : esc(v);
+  return isMissing(v) ? "[INVULLEN]" : v;
+};
+
+function h1(text) {
+  return new Paragraph({ heading: HeadingLevel.HEADING_1, spacing: { before: 240, after: 120 },
+    children: [new TextRun({ text, bold: true, color: NAVY, size: 32 })] });
+}
+function h2(text) {
+  return new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 80 },
+    children: [new TextRun({ text, bold: true, color: NAVY, size: 24 })] });
+}
+function p(text, opts = {}) {
+  return new Paragraph({ spacing: { after: 120 },
+    children: [new TextRun({ text, color: opts.color, italics: opts.italics, size: 22 })] });
+}
+function sub(text) {
+  return new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text, color: GREY, size: 20 })] });
+}
+
+// Sleutel/waarde-rij; markeert ontbrekende waarden.
+function kv(label, value) {
+  const missing = isMissing(value);
+  return new Paragraph({ spacing: { after: 60 }, children: [
+    new TextRun({ text: label + ": ", color: GREY, size: 22 }),
+    new TextRun({ text: missing ? "[INVULLEN]" : value, bold: true, color: missing ? FLAG : "18202F",
+      italics: missing, size: 22 }),
+  ] });
+}
+
+const cell = (text, opts = {}) => new TableCell({
+  width: { size: opts.w || 33, type: WidthType.PERCENTAGE },
+  shading: opts.head ? { fill: "E6EBF4" } : undefined,
+  children: [new Paragraph({ children: [new TextRun({ text, bold: !!opts.head, size: 20,
+    color: opts.head ? NAVY : "3C465A" })] })],
+});
+
+function table(headers, rows) {
+  const border = { style: BorderStyle.SINGLE, size: 4, color: "D7DCE5" };
+  return new Table({
+    width: { size: 100, type: WidthType.PERCENTAGE },
+    borders: { top: border, bottom: border, left: border, right: border,
+      insideHorizontal: border, insideVertical: border },
+    rows: [
+      new TableRow({ tableHeader: true, children: headers.map((h) => cell(h, { head: true })) }),
+      ...rows.map((r) => new TableRow({ children: r.map((c) => cell(String(c))) })),
+    ],
+  });
 }
 
 function schemaTable(schema) {
-  const rows = schema.map((r) =>
-    `<tr><td>${r.date}</td><td>${r.hours} uur</td><td>${r.pct}%</td></tr>`
-  ).join("");
-  return `<table border="1" cellpadding="6" cellspacing="0" style="border-collapse:collapse;border:1px solid #c8cdd6;font-size:11pt">
-    <tr style="background:#e6ebf4"><th align="left">Per datum</th><th align="left">Uren per week</th><th align="left">Hersteld</th></tr>${rows}</table>`;
+  return table(["Per datum", "Uren per week", "Hersteld"],
+    schema.map((r) => [r.date, `${r.hours} uur`, `${r.pct}%`]));
 }
 
-export function buildWordDocument(fields, schema, reportDate) {
+export function buildDocxDocument(fields, schema, reportDate) {
+  const advies = computeAdvice(fields, reportDate);
   const naam = getVal(fields, "naam");
   const hersteld = fullRecoveryDate(schema);
-  const lower = (id) => {
-    const v = getVal(fields, id);
-    return isMissing(v) ? val(fields, id) : esc(v.toLowerCase());
-  };
 
-  const body = `
-  <h1>Opbouw- en re-integratieadvies</h1>
-  <p style="color:#69748b">Concept op basis van de terugkoppeling bedrijfsarts d.d. ${esc(reportDate)} — ter controle en vaststelling.</p>
-  <h2>Uitgangspunten</h2>
-  <table cellpadding="4" cellspacing="0" style="font-size:11pt">
-    <tr><td width="220">Werknemer</td><td><b>${val(fields, "naam")}</b></td></tr>
-    <tr><td>Contracturen</td><td><b>${val(fields, "uren")}</b></td></tr>
-    <tr><td>Belastbaarheid</td><td><b>${val(fields, "belast")}</b></td></tr>
-    <tr><td>Opbouwtempo</td><td><b>${val(fields, "opbouw")}</b></td></tr>
-    <tr><td>Startdatum opbouw</td><td><b>${val(fields, "start")}</b></td></tr>
-  </table>
-  <h2>Opbouwschema</h2>
-  ${schemaTable(schema)}
-  <p>Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.</p>
+  const adviesBlokken = advies.flatMap((a) => {
+    const out = [
+      new Paragraph({ spacing: { before: 160, after: 40 },
+        children: [new TextRun({ text: a.title, bold: true, color: a.level === "risk" ? FLAG : NAVY, size: 22 })] }),
+      p(a.body),
+    ];
+    if (a.deadlines && a.deadlines.length) {
+      out.push(table(["Wanneer", "Actie"], a.deadlines.map((d) => [d.date, `${d.title}. ${d.who}`])));
+    }
+    return out;
+  });
 
-  <br clear="all" style="page-break-before:always" />
+  const doc = new Document({
+    creator: "planvanaanpakinvuller.nl",
+    title: `Plan van Aanpak — ${naam}`,
+    styles: { default: { document: { run: { font: "Calibri" } } } },
+    sections: [{
+      children: [
+        // 1 — Opbouwadvies
+        h1("Opbouw- en re-integratieadvies"),
+        sub(`Concept op basis van de terugkoppeling bedrijfsarts d.d. ${reportDate} — ter controle en vaststelling.`),
+        h2("Uitgangspunten"),
+        kv("Werknemer", txt(fields, "naam")),
+        kv("Contracturen", txt(fields, "uren")),
+        kv("Belastbaarheid", txt(fields, "belast")),
+        kv("Opbouwtempo", txt(fields, "opbouw")),
+        kv("Startdatum opbouw", txt(fields, "start")),
+        h2("Opbouwschema"),
+        schemaTable(schema),
+        p(`Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.`, { color: GREY }),
 
-  <h1>Plan van Aanpak</h1>
-  <p style="color:#69748b">Wet verbetering poortwachter — concept ter controle.</p>
-  <h2>1 · Gegevens</h2>
-  <table cellpadding="4" cellspacing="0" style="font-size:11pt">
-    <tr><td width="220">Werknemer</td><td><b>${val(fields, "naam")}</b></td></tr>
-    <tr><td>Functie</td><td><b>${val(fields, "functie")}</b></td></tr>
-    <tr><td>Contracturen</td><td><b>${val(fields, "uren")}</b></td></tr>
-    <tr><td>Eerste ziektedag</td><td><b>${val(fields, "eersteZ")}</b></td></tr>
-    <tr><td>Werkgever</td><td><b>${val(fields, "werkgever")}</b></td></tr>
-  </table>
-  <h2>2 · Doel van de re-integratie</h2>
-  <p>Volledige werkhervatting in de eigen functie voor ${lower("uren")}. De verwachting is: ${lower("prognose")}, conform het opbouwschema.</p>
-  <h2>3 · Afspraken over de werkhervatting</h2>
-  <p>Werknemer hervat het werk volgens onderstaand opbouwschema, met als werkaanpassing: ${lower("beperking")}. De opbouw start op ${val(fields, "start")} (${lower("belast")}) en wordt ${lower("opbouw")} uitgebreid.</p>
-  ${schemaTable(schema)}
-  <h2>4 · Evaluatie</h2>
-  <p>De voortgang wordt periodiek geëvalueerd. Eerstvolgende evaluatie: ${val(fields, "evaluatie")}.</p>
-  <h2>5 · Ondertekening</h2>
-  <p>Werkgever: ____________________&nbsp;&nbsp;&nbsp;&nbsp;Datum: ____________</p>
-  <p>Werknemer: ____________________&nbsp;&nbsp;&nbsp;&nbsp;Datum: ____________</p>
+        // 2 — Plan van Aanpak (UWV AG140)
+        new Paragraph({ children: [new PageBreak()] }),
+        h1("Plan van Aanpak"),
+        sub("Wet verbetering poortwachter · UWV-formulier AG140 — concept ter controle."),
+        h2("Werknemer"),
+        kv("Voorletters en achternaam", txt(fields, "naam")),
+        kv("Geboortedatum", txt(fields, "geboortedatum")),
+        kv("Burgerservicenummer", "[INVULLEN]"),
+        kv("Einddatum dienstverband", txt(fields, "einddatum")),
+        h2("Werkgever"),
+        kv("Bedrijfsnaam", txt(fields, "werkgever")),
+        kv("Naam contactpersoon", "[INVULLEN]"),
+        h2("Arbodienst / bedrijfsarts"),
+        kv("Naam bedrijfsarts", "[INVULLEN]"),
+        h2("Functie van de werknemer"),
+        kv("Functie", txt(fields, "functie")),
+        kv("Eerste ziektedag", txt(fields, "eersteZ")),
+        h2("Mening werknemer en werkgever over de arbeidsmogelijkheden"),
+        p(`Werknemer is belastbaar voor ${getVal(fields, "belast").toLowerCase()}. Werkgever en werknemer zien mogelijkheden om het eigen werk (${getVal(fields, "uren").toLowerCase()}) gefaseerd te hervatten volgens het opbouwschema.`),
+        h2("Einddoel"),
+        p(`Volledige werkhervatting in de eigen functie voor ${getVal(fields, "uren").toLowerCase()}. Verwachting: ${getVal(fields, "prognose").toLowerCase()}.`),
+        h2("Afspraken — sociaal-medische zaken"),
+        p(`Werknemer hervat het werk volgens onderstaand opbouwschema. Werkaanpassing: ${getVal(fields, "beperking").toLowerCase()}. Start op ${getVal(fields, "start")}, ${getVal(fields, "opbouw").toLowerCase()} uitgebreid.`),
+        schemaTable(schema),
+        h2("Eerstvolgende evaluatie"),
+        kv("Eerstvolgende evaluatie", txt(fields, "evaluatie")),
+        h2("Ondertekening"),
+        p("Werkgever: ______________________    Datum: __________"),
+        p("Werknemer: ______________________    Datum: __________"),
 
-  <br clear="all" style="page-break-before:always" />
+        // 3 — Aanvullende adviezen
+        new Paragraph({ children: [new PageBreak()] }),
+        h1("Aanvullende adviezen"),
+        sub("Automatisch afgeleid uit de gecontroleerde gegevens — controleer en pas aan waar nodig."),
+        ...adviesBlokken,
 
-  <h1>Begeleidend bericht</h1>
-  <p style="color:#69748b">Onderwerp: Concept Plan van Aanpak — ${esc(naam)}</p>
-  <p>Beste ${isMissing(getVal(fields, "werkgever")) ? "[werkgever]" : esc(getVal(fields, "werkgever"))},</p>
-  <p>Op basis van de terugkoppeling van de bedrijfsarts is een concept Plan van Aanpak opgesteld voor ${esc(naam)}. In de bijlage vind je drie onderdelen: het opbouwadvies, het concept Plan van Aanpak en dit begeleidende bericht.</p>
-  <p>De kern: werknemer is belastbaar (${lower("belast")}) en bouwt vanaf ${val(fields, "start")} ${lower("opbouw")} op, van ${schema[0].hours} naar ${schema[schema.length - 1].hours} uur. Volledige werkhervatting is voorzien rond ${hersteld}. Houd rekening met de werkaanpassing: ${lower("beperking")}.</p>
-  <p>Loop het concept na, vul de gemarkeerde velden ([INVULLEN]) aan en bespreek het Plan van Aanpak samen met de werknemer voordat je het vaststelt. Medische gegevens zijn bewust niet opgenomen.</p>
-  <p>Met vriendelijke groet,<br/><b>[INVULLEN: naam casemanager]</b></p>`;
-
-  return `<!DOCTYPE html><html lang="nl"><head><meta charset="utf-8"><title>Plan van Aanpak — ${esc(naam)}</title>
-  <style>
-    body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #18202f; line-height: 1.5; }
-    h1 { font-size: 17pt; color: #1F3864; border-bottom: 2px solid #1F3864; padding-bottom: 4px; }
-    h2 { font-size: 12.5pt; color: #1a2f57; margin-top: 18px; }
-    th { color: #1F3864; }
-  </style></head><body>${body}</body></html>`;
+        // 4 — Begeleidend bericht
+        new Paragraph({ children: [new PageBreak()] }),
+        h1("Begeleidend bericht"),
+        sub(`Onderwerp: Concept Plan van Aanpak — ${naam}`),
+        p(`Beste ${isMissing(getVal(fields, "werkgever")) ? "[werkgever]" : getVal(fields, "werkgever")},`),
+        p(`Op basis van de terugkoppeling van de bedrijfsarts is een concept Plan van Aanpak opgesteld voor ${naam}. In de bijlage vind je vier onderdelen: het opbouwadvies, het concept Plan van Aanpak (UWV-formulier AG140), de aanvullende adviezen en dit begeleidende bericht.`),
+        p(`De kern: werknemer is belastbaar (${getVal(fields, "belast").toLowerCase()}) en bouwt vanaf ${getVal(fields, "start")} ${getVal(fields, "opbouw").toLowerCase()} op, van ${schema[0].hours} naar ${schema[schema.length - 1].hours} uur. Volledige werkhervatting is voorzien rond ${hersteld}. Houd rekening met de werkaanpassing: ${getVal(fields, "beperking").toLowerCase()}.`),
+        p("Loop het concept na, vul de gemarkeerde velden ([INVULLEN]) aan en let op de aanvullende adviezen. Bespreek het Plan van Aanpak samen met de werknemer voordat je het vaststelt. Medische gegevens zijn bewust niet opgenomen."),
+        p("Met vriendelijke groet,"),
+        new Paragraph({ children: [new TextRun({ text: "[INVULLEN: naam casemanager]", bold: true, color: NAVY, size: 22 })] }),
+      ],
+    }],
+  });
+  return doc;
 }
 
-export function downloadWord(fields, schema, reportDate) {
+export async function downloadDocx(fields, schema, reportDate) {
   const naam = getVal(fields, "naam");
   const safe = naam.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "") || "concept";
-  const filename = `Plan-van-Aanpak-${safe}.doc`;
-  const html = buildWordDocument(fields, schema, reportDate);
-  const blob = new Blob(["﻿", html], { type: "application/msword" });
+  const filename = `Plan-van-Aanpak-${safe}.docx`;
+  const doc = buildDocxDocument(fields, schema, reportDate);
+  const blob = await Packer.toBlob(doc);
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

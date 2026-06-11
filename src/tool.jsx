@@ -4,8 +4,8 @@ import { I, CASE, INITIAL_FIELDS, MISSING } from "./data.jsx";
 import { computeSchema } from "./engine.js";
 import { SchemaTable, FieldsPanel } from "./fields.jsx";
 import { SourceDoc } from "./sourcedoc.jsx";
-import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
-import { downloadWord } from "./download.js";
+import { AdviesPreview, PvaPreview, AanvullendAdviesPreview, BerichtPreview } from "./previews.jsx";
+import { downloadDocx } from "./download.js";
 
 const TOOL_STEPS = ["Upload", "Controleren", "Downloaden"];
 
@@ -26,13 +26,43 @@ function Stepper({ step }) {
 }
 
 /* ---------- Stap 1: Upload ---------- */
+const MB = 1024 * 1024;
+function fmtSize(bytes) {
+  if (bytes >= MB) return (bytes / MB).toFixed(1) + " MB";
+  return Math.max(1, Math.round(bytes / 1024)) + " kB";
+}
+function extOf(name) {
+  const m = /\.([a-z0-9]+)$/i.exec(name);
+  return m ? m[1].toLowerCase() : "";
+}
+
 function UploadStep({ onProcessed }) {
   const [file, setFile] = React.useState(null);
   const [drag, setDrag] = React.useState(false);
+  const [error, setError] = React.useState(null);
   const [processing, setProcessing] = React.useState(false);
+  const inputRef = React.useRef(null);
+
+  const ALLOWED = ["pdf", "doc", "docx"];
+
+  function acceptFile(f) {
+    if (!f) return;
+    const ext = extOf(f.name);
+    if (!ALLOWED.includes(ext)) {
+      setError("Alleen PDF of Word (.pdf, .doc, .docx) wordt ondersteund.");
+      return;
+    }
+    if (f.size > 20 * MB) {
+      setError("Het bestand is groter dan 20 MB.");
+      return;
+    }
+    setError(null);
+    setFile({ name: f.name, size: fmtSize(f.size), type: ext === "pdf" ? "pdf" : "doc", real: true });
+  }
 
   function pickExample() {
-    setFile({ name: "terugkoppeling-bedrijfsarts.pdf", size: "248 kB", type: "pdf" });
+    setError(null);
+    setFile({ name: "terugkoppeling-bedrijfsarts.pdf", size: "248 kB", type: "pdf", real: false });
   }
 
   if (processing) return <Processing onDone={onProcessed} />;
@@ -45,27 +75,50 @@ function UploadStep({ onProcessed }) {
         <p>Sleep het spreekuurverslag erin of kies een bestand. De tool leest de functionele gegevens uit — medische informatie blijft buiten het Plan van Aanpak.</p>
       </div>
 
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        style={{ display: "none" }}
+        onChange={(e) => acceptFile(e.target.files && e.target.files[0])}
+      />
+
       {!file ? (
         <div
           className={"dropzone" + (drag ? " drag" : "")}
-          onClick={pickExample}
+          onClick={() => inputRef.current && inputRef.current.click()}
           onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
           onDragLeave={() => setDrag(false)}
-          onDrop={(e) => { e.preventDefault(); setDrag(false); pickExample(); }}
+          onDrop={(e) => { e.preventDefault(); setDrag(false); acceptFile(e.dataTransfer.files && e.dataTransfer.files[0]); }}
         >
           <span className="ico">{I.upload}</span>
           <h3>Sleep je bestand hierheen</h3>
-          <p>of klik om de voorbeeldcasus (J. de Vries) te laden</p>
-          <div className="formats">PDF of Word · max. 20 MB · verwerking binnen de EER · demo gebruikt de voorbeeldcasus</div>
+          <p>of klik om een PDF of Word-bestand te kiezen</p>
+          <div className="formats">PDF of Word · max. 20 MB · verwerking binnen de EER</div>
         </div>
       ) : (
         <div className="file-chip">
-          <span className={"fico " + file.type}>PDF</span>
+          <span className={"fico " + file.type}>{file.type === "pdf" ? "PDF" : "DOC"}</span>
           <div className="meta">
             <div className="nm">{file.name}</div>
             <div className="sz">{file.size} · klaar om te verwerken</div>
           </div>
           <button className="x" title="Verwijder" onClick={() => setFile(null)}>{I.x}</button>
+        </div>
+      )}
+
+      {error && <div className="upload-error">{error}</div>}
+
+      {!file && (
+        <p className="example-link">
+          Geen bestand bij de hand? <button type="button" onClick={pickExample}>Gebruik de voorbeeldcasus (J. de Vries)</button>
+        </p>
+      )}
+
+      {file && file.real && (
+        <div className="demo-note">
+          {I.info}
+          <p><strong>Demo-modus.</strong> Je bestand is ingelezen, maar de AI-extractie van echte documenten volgt in de volgende fase. Ter controle van de werking vult de tool nu de voorbeeldgegevens in. Gebruik fictieve terugkoppelingen.</p>
         </div>
       )}
 
@@ -168,15 +221,22 @@ function VerifyStep({ onBack, onNext, checked, setChecked, fields, onEdit, schem
 function PreviewStep({ onBack, controleOk, fields, schema }) {
   const [tab, setTab] = React.useState(0);
   const [downloaded, setDownloaded] = React.useState(null);
+  const [busy, setBusy] = React.useState(false);
   const tabs = [
     { t: "Opbouwadvies", el: <AdviesPreview fields={fields} schema={schema} reportDate={CASE.reportDate} /> },
     { t: "Plan van Aanpak", el: <PvaPreview fields={fields} schema={schema} /> },
+    { t: "Aanvullende adviezen", el: <AanvullendAdviesPreview fields={fields} reportDate={CASE.reportDate} /> },
     { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} /> },
   ];
 
-  function handleDownload() {
-    const filename = downloadWord(fields, schema, CASE.reportDate);
-    setDownloaded(filename);
+  async function handleDownload() {
+    setBusy(true);
+    try {
+      const filename = await downloadDocx(fields, schema, CASE.reportDate);
+      setDownloaded(filename);
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -201,7 +261,7 @@ function PreviewStep({ onBack, controleOk, fields, schema }) {
         <div className="dl-info">
           <span className="ico">{I.download}</span>
           <div>
-            <h4>Download alle drie de onderdelen als Word</h4>
+            <h4>Download alle onderdelen als Word (.docx)</h4>
             <p>
               {controleOk
                 ? <span className="review-confirm">{I.checkSm} Menselijke controle bevestigd in stap 2</span>
@@ -209,8 +269,8 @@ function PreviewStep({ onBack, controleOk, fields, schema }) {
             </p>
           </div>
         </div>
-        <button className="btn btn-accent btn-lg" disabled={!controleOk} onClick={handleDownload}>
-          {I.download} Download als Word
+        <button className="btn btn-accent btn-lg" disabled={!controleOk || busy} onClick={handleDownload}>
+          {I.download} {busy ? "Bezig…" : "Download als Word"}
         </button>
       </div>
 
