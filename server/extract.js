@@ -40,6 +40,7 @@ SIGNALEN: zet elk signaal op true ALLEEN als de terugkoppeling dit duidelijk aan
 - arbeidsconflict: er is sprake van een arbeidsconflict of verstoorde arbeidsverhouding.
 - belastbaarheidNaEerstejaars: de belastbaarheid ontstaat pas (ruim) na ongeveer een jaar verzuim.
 - gewijzigdeBelastbaarheidSpoor2: de belastbaarheid is gewijzigd terwijl een tweede-spoortraject loopt.
+- herstelVerwachtBinnen3Maanden: de bedrijfsarts verwacht volledig herstel/volledige werkhervatting binnen circa 3 maanden.
 
 Geef uitsluitend het gevraagde JSON-object terug.`;
 
@@ -93,8 +94,9 @@ const SCHEMA = {
         arbeidsconflict: { type: "boolean" },
         belastbaarheidNaEerstejaars: { type: "boolean" },
         gewijzigdeBelastbaarheidSpoor2: { type: "boolean" },
+        herstelVerwachtBinnen3Maanden: { type: "boolean" },
       },
-      required: ["geenBenutbareMogelijkheden", "duurzaamGeenMogelijkheden", "marginaleMogelijkheden", "arbeidstherapeutisch", "stagnatie", "arbeidsconflict", "belastbaarheidNaEerstejaars", "gewijzigdeBelastbaarheidSpoor2"],
+      required: ["geenBenutbareMogelijkheden", "duurzaamGeenMogelijkheden", "marginaleMogelijkheden", "arbeidstherapeutisch", "stagnatie", "arbeidsconflict", "belastbaarheidNaEerstejaars", "gewijzigdeBelastbaarheidSpoor2", "herstelVerwachtBinnen3Maanden"],
     },
   },
   required: [

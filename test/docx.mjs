@@ -88,6 +88,12 @@ check("ZUD noemt re-integratieverslag", !!zud && /re-integratieverslag/i.test(zu
 
 // ziekteduur 03-02-2025 -> 30-06-2025 ≈ 21 weken => volledig RIV
 check("ZUD kiest volledig RIV bij >10 weken ziekte", !!zud && zud.body.includes("Volledig re-integratieverslag"));
+check("ZUD noemt participatieverzoek bij UWV", !!zud && zud.body.includes("participatieverzoek"));
+
+// zelfde casus, maar herstel binnen 3 maanden verwacht (signaal) => verkort RIV
+const adviesHerstel = computeAdvice(setField(INITIAL_FIELDS, "einddatum", "30-06-2025"), CASE.reportDate, { herstelVerwachtBinnen3Maanden: true });
+const zudHerstel = adviesHerstel.find((a) => a.title.includes("Ziek uit dienst"));
+check("ZUD + herstel binnen 3 maanden => verkort RIV", !!zudHerstel && zudHerstel.body.includes("Verkort re-integratieverslag volstaat"));
 
 // ---- 3. Leeftijdsregel: oudere werknemer -> 60+/AOW-advies ----
 const adviesOud = computeAdvice(setField(INITIAL_FIELDS, "geboortedatum", "01-01-1962"), CASE.reportDate);

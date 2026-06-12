@@ -57,6 +57,27 @@ belastbaarheid en werkaanpassing passen (bv. lichtere of afgebakende taken).
 Schrijf alleen de taken zelf, zonder disclaimer (die voegt de applicatie toe).
 Geen functieomschrijving meegegeven → laat 'taaksuggestie' leeg ("").
 
+SIGNALEN: zet elk signaal op true ALLEEN als de terugkoppeling dit duidelijk
+aangeeft, anders false (de applicatie koppelt hieraan de juiste
+Werkwijzer-adviezen):
+- geenBenutbareMogelijkheden: de bedrijfsarts geeft aan dat er op dit moment geen
+  benutbare arbeidsmogelijkheden zijn.
+- duurzaamGeenMogelijkheden: duurzaam geen mogelijkheden én geen herstelverwachting.
+- marginaleMogelijkheden: zeer beperkte/marginale belastbaarheid (slechts enkele
+  uren of taken).
+- arbeidstherapeutisch: werken op arbeidstherapeutische basis (zonder loonwaarde)
+  wordt genoemd.
+- stagnatie: de opbouw loopt achter op schema, de hervatting is instabiel, of er is
+  uitval/terugval.
+- arbeidsconflict: er is sprake van een arbeidsconflict of verstoorde
+  arbeidsverhouding.
+- belastbaarheidNaEerstejaars: de belastbaarheid ontstaat pas (ruim) na ongeveer
+  een jaar verzuim.
+- gewijzigdeBelastbaarheidSpoor2: de belastbaarheid is gewijzigd terwijl een
+  tweede-spoortraject loopt.
+- herstelVerwachtBinnen3Maanden: de bedrijfsarts verwacht volledig herstel/volledige
+  werkhervatting binnen circa 3 maanden.
+
 Geef uitsluitend het gevraagde JSON-object terug.
 
 
@@ -125,9 +146,16 @@ Leeg veld = "" (en bij de reken-getallen = 0). Toelichting staat tussen ( ).
     "stagnatie": false,                     (opbouw loopt achter / terugval)
     "arbeidsconflict": false,               (arbeidsconflict / verstoorde verhouding)
     "belastbaarheidNaEerstejaars": false,   (belastbaarheid pas na ~1 jaar)
-    "gewijzigdeBelastbaarheidSpoor2": false (gewijzigd terwijl spoor 2 loopt)
+    "gewijzigdeBelastbaarheidSpoor2": false, (gewijzigd terwijl spoor 2 loopt)
+    "herstelVerwachtBinnen3Maanden": false  (volledig herstel binnen ±3 maanden verwacht
+                                             → bij ziek-uit-dienst volstaat dan een
+                                             verkort re-integratieverslag)
   }
 }
+
+LET OP: alle adviesTEKSTEN die de tool kan geven staan niet hier maar in
+server/adviescatalogus.txt — dat bestand wordt automatisch uit de echte regels
+gegenereerd en is bedoeld om de adviezen inhoudelijk te controleren.
 
 NB: de WERKWIJZER-LOGICA zelf zit niet in deze prompt maar in de code
 (src/advice.js), zodat het voorspelbaar en controleerbaar is. De AI detecteert

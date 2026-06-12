@@ -6,7 +6,8 @@
   "description": "planvanaanpakinvuller.nl — concept Plan van Aanpak (Wet verbetering poortwachter), automatisch ingevuld",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node test/template.mjs && node test/merge.mjs && node test/docx.mjs && node test/smoke.mjs"
+    "test": "node test/template.mjs && node test/merge.mjs && node test/docx.mjs && node test/smoke.mjs",
+    "catalogus": "node server/genereer-adviescatalogus.mjs"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",

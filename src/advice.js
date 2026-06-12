@@ -38,7 +38,7 @@ export function computeDerived(fields) {
 }
 
 // Adviestijdlijn (Agentprompt v2). weekTo: 999 = open einde.
-const TIMELINE = [
+export const TIMELINE = [
   { from: 0,  to: 8,   title: "Plan van Aanpak op tijd",            body: "Stel het Plan van Aanpak uiterlijk in week 8 op (2 weken na de probleemanalyse)." },
   { from: 40, to: 42,  title: "42e-weeksmelding bij UWV",           body: "Doe de 42e-weeksmelding bij UWV." },
   { from: 45, to: 999, title: "Inzetbaarheidsprofiel (IZP/LAB)",    body: "Laat de bedrijfsarts een Inzetbaarheidsprofiel (IZP/LAB) opstellen t.b.v. een arbeidsdeskundig onderzoek." },
@@ -71,24 +71,30 @@ export function poortwachterTermijnen(fields) {
 }
 
 // Voorwaardelijke Werkwijzer-adviezen, afgevuurd op signaalwoorden die de AI detecteert.
-const SIGNAAL_ADVIES = {
+// De teksten komen letterlijk in het begeleidend bericht; daarom geformuleerd als
+// direct advies (de situatie is op dat moment al vastgesteld).
+export const SIGNAAL_ADVIES = {
   geenBenutbareMogelijkheden: { level: "risk", title: "Geen benutbare mogelijkheden (GBM)",
-    body: "Forceer nu geen re-integratieactiviteiten. De bedrijfsarts houdt de vinger aan de pols: plan vervolgconsulten en leg elke terugkoppeling vast. Duurt de GBM-situatie de volle 2 jaar, dan volstaat een beperkt re-integratieverslag (Werkwijzer 5.9, 3.1)." },
+    body: "De bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn. Forceer dan geen re-integratieactiviteiten: de bedrijfsarts houdt de vinger aan de pols — plan vervolgconsulten en leg elke terugkoppeling vast in het verzuimdossier. Duurt deze situatie de volle twee jaar, dan volstaat een beperkt re-integratieverslag (Werkwijzer 5.9, 3.1)." },
   duurzaamGeenMogelijkheden: { level: "risk", title: "Duurzaam geen mogelijkheden — overweeg vervroegde IVA",
-    body: "Is er duurzaam geen benutbare mogelijkheid én geen herstelverwachting, wijs dan op een vervroegde IVA-aanvraag (mogelijk tot week 68 van het verzuim)." },
+    body: "De bedrijfsarts geeft aan dat er duurzaam geen benutbare mogelijkheden zijn en er geen herstelverwachting is. Overweeg dan een vervroegde IVA-aanvraag; die kan tot week 68 van het verzuim worden ingediend." },
   marginaleMogelijkheden: { level: "attention", title: "Marginale mogelijkheden",
-    body: "Lever extra inspanning om de geringe mogelijkheden bij de eigen werkgever te benutten (taken, uren, begeleiding). Het tweede spoor is hierbij niet snel aan de orde (Werkwijzer 5.8)." },
+    body: "De belastbaarheid is op dit moment zeer beperkt (marginale mogelijkheden). Lever extra inspanning om juist die geringe mogelijkheden bij de eigen werkgever te benutten — in taken, uren en begeleiding; het tweede spoor is hier niet snel aan de orde (Werkwijzer 5.8)." },
   arbeidstherapeutisch: { level: "attention", title: "Arbeidstherapeutisch werken — begrenzen",
-    body: "Begrens werken op arbeidstherapeutische basis in tijd en bouw door naar uren mét loonwaarde. Te lang arbeidstherapeutisch zonder loonwaarde is een grond om het Plan van Aanpak bij te stellen (Werkwijzer 3.2.4)." },
+    body: "Er wordt (deels) op arbeidstherapeutische basis gewerkt. Begrens dit in tijd en bouw door naar uren mét loonwaarde; te lang arbeidstherapeutisch werken zonder loonwaarde is een grond om het Plan van Aanpak bij te stellen (Werkwijzer 3.2.4)." },
   stagnatie: { level: "attention", title: "Stagnatie / hervatting instabiel",
-    body: "Stel het Plan van Aanpak bij. Loopt de re-integratie vast en komen werkgever en werknemer er samen niet uit, vraag dan een deskundigenoordeel aan bij UWV (Werkwijzer 3.2.4, 5.4)." },
+    body: "De opbouw loopt achter op schema of de hervatting is instabiel. Stel het Plan van Aanpak bij; komen werkgever en werknemer er samen niet uit, vraag dan een deskundigenoordeel aan bij UWV (Werkwijzer 3.2.4, 5.4)." },
   arbeidsconflict: { level: "risk", title: "Arbeidsconflict genoemd",
-    body: "Zet mediation of een gesprek onder begeleiding in. Een ziekmelding is geen oplossing voor een conflict (Werkwijzer 5.3)." },
+    body: "Er speelt een arbeidsconflict of verstoorde arbeidsverhouding. Zet mediation of een gesprek onder begeleiding in; een ziekmelding is geen oplossing voor een conflict (Werkwijzer 5.3)." },
   belastbaarheidNaEerstejaars: { level: "attention", title: "Belastbaarheid ontstaat pas na de eerstejaarsevaluatie",
-    body: "Houd maximaal 8 weken aan tussen het vaststellen van de belastbaarheid en de start van de activiteiten: 2 weken voor bijstelling van het PvA en 6 weken tot uitvoering (Werkwijzer 4.3.2)." },
+    body: "De belastbaarheid ontstaat pas na de eerstejaarsevaluatie. Houd dan maximaal 8 weken aan tussen het vaststellen van de belastbaarheid en de start van de activiteiten: 2 weken voor bijstelling van het Plan van Aanpak en 6 weken tot uitvoering (Werkwijzer 4.3.2)." },
   gewijzigdeBelastbaarheidSpoor2: { level: "attention", title: "Gewijzigde belastbaarheid terwijl spoor 2 loopt",
-    body: "Informeer het re-integratiebureau direct over de gewijzigde belastbaarheid (Werkwijzer 4.3.4)." },
+    body: "De belastbaarheid is gewijzigd terwijl het tweede-spoortraject loopt. Informeer het re-integratiebureau hier direct over (Werkwijzer 4.3.4)." },
 };
+
+// Dit signaal geeft geen eigen advies-alinea: het bepaalt mede welke
+// re-integratieverslag-variant geldt bij ziek-uit-dienst (zie hieronder).
+export const ZUD_MODIFIER_SIGNALEN = ["herstelVerwachtBinnen3Maanden"];
 
 /**
  * @returns {Array<{level:'deadline'|'risk'|'attention'|'flag', title, body, deadlines?}>}
@@ -163,14 +169,16 @@ export function computeAdvice(fields, reportDate, signalen = {}) {
   if (einddienst && eersteZ) {
     if (eindeWacht && einddienst < eindeWacht) {
       const ziekteWeken = Math.max(0, weeksBetween(eersteZ, einddienst));
+      const herstel3mnd = !!(signalen && signalen.herstelVerwachtBinnen3Maanden);
       let riv;
       if (ziekteWeken < 6) riv = "Geen re-integratieverslag nodig; doe alleen een ziek-uit-dienstmelding bij UWV, uiterlijk op de laatste werkdag.";
       else if (ziekteWeken <= 10) riv = "Verkort re-integratieverslag, uiterlijk op de laatste dag van het dienstverband.";
+      else if (herstel3mnd) riv = "Verkort re-integratieverslag volstaat (de bedrijfsarts verwacht volledig herstel binnen 3 maanden), uiterlijk op de laatste dag van het dienstverband.";
       else riv = "Volledig re-integratieverslag (probleemanalyse, PvA + bijstellingen, evaluaties, actueel oordeel), uiterlijk op de laatste dag.";
       advies.push({
         level: "risk",
         title: "Ziek uit dienst — tijdelijk contract eindigt tijdens ziekte (Werkwijzer 5.5–5.7)",
-        body: `Het dienstverband eindigt op ${fmtNL(einddienst)}; ziekteduur op die datum is ± ${ziekteWeken} weken. ${riv} Geef het ziek-uit-dienstgaan door aan UWV (Ziektewet) en geef de werknemer een kopie van het verslag. Lever dezelfde re-integratie-inspanningen tot de laatste dag en richt je op spoor 2 als herstel vóór de einddatum niet wordt verwacht. (Uitzondering: eigenrisicodrager Ziektewet — afwijkende afspraken.)`,
+        body: `Het dienstverband eindigt op ${fmtNL(einddienst)}; ziekteduur op die datum is ± ${ziekteWeken} weken. ${riv} Geef het ziek-uit-dienstgaan door aan UWV (Ziektewet) en geef de werknemer een kopie van het verslag. Lever dezelfde re-integratie-inspanningen tot de laatste dag; wordt herstel vóór de einddatum niet verwacht, richt je dan vooral op spoor 2 en overweeg een participatieverzoek bij UWV. (Uitzondering: eigenrisicodrager Ziektewet — afwijkende afspraken.)`,
       });
     } else {
       advies.push({
