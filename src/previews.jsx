@@ -214,7 +214,11 @@ export function BerichtPreview({ fields, schema, reportDate, taaksuggestie, sign
           onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van
           de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen.
         </p>
-        <p className="sign">Met vriendelijke groet,<br/><span style={{ color: "var(--muted)" }}>(naam en functie van de afzender)</span></p>
+        <p className="sign">
+          Met vriendelijke groet,<br/>
+          <span style={{ color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 }}>[INVULLEN: naam casemanager]</span><br/>
+          <span style={{ color: "var(--muted)", fontSize: 13 }}>Casemanager verzuim</span>
+        </p>
       </div>
     </div>
   );

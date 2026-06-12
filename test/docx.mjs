@@ -51,19 +51,20 @@ const headers = await allText(zip0, "word/header");
 const footers = await allText(zip0, "word/footer");
 check("briefhoofd bevat merknaam", headers.includes("planvanaanpak") && headers.includes("invuller.nl"));
 check("briefvoet bevat EER/privacy-regel", footers.includes("EER") && footers.includes("Privacy by design"));
-check("briefvoet noemt afzender (bedrijfsnaam/KVK), zonder letterlijke [INVULLEN]", footers.includes("bedrijfsnaam") && footers.includes("KVK") && !footers.includes("[INVULLEN]"));
+check("briefvoet: website + privacyregel + paginanummers", footers.includes("planvanaanpakinvuller.nl") && footers.includes("Privacy by design") && footers.includes("PAGE") && footers.includes("NUMPAGES"));
+check("briefhoofd heeft eerste + vervolgpagina-variant (afbeeldingen)", headers.includes("Vervolg") && Object.keys(zip0.files).some((n) => n.startsWith("word/media/")));
 
 // Dit document is het begeleidend bericht (met opbouwadvies + verweven adviezen);
 // het ingevulde Plan van aanpak zelf zit in het echte UWV-sjabloon (zie template.mjs).
 check(".docx bevat opbouwadvies", xml.includes("Opbouw- en re-integratieadvies"));
 check(".docx verwijst naar UWV-formulier (AG140)", xml.includes("AG140"));
-check(".docx bevat Begeleidend bericht", xml.includes("Begeleidend bericht"));
+check(".docx is een brief (meta-blok + ondertekening, ontwerp Briefpapier v2)", xml.includes("Ons kenmerk") && xml.includes("Casemanager verzuim") && xml.includes("[INVULLEN: naam casemanager]"));
 
 check(".docx bevat begeleidend bericht aan werkgever", xml.includes("Beste werkgever"));
 check(".docx bevat opbouwschema-datum 10-03-2025", xml.includes("10-03-2025"));
 
 check(".docx bevat poortwachter-termijnen", xml.includes("Poortwachter-termijnen") && xml.includes("42e-weeksmelding"));
-check("termijnen staan aan het einde van de brief (na de afzender)", xml.indexOf("Poortwachter-termijnen") > xml.indexOf("Met vriendelijke groet"));
+check("termijnen-bijlage staat aan het einde van de brief (na de afzender)", xml.lastIndexOf("Poortwachter-termijnen") > xml.indexOf("Met vriendelijke groet"));
 
 // met functieomschrijving → taaksuggestie + disclaimer in het bericht
 const docTaak = buildDocxDocument(INITIAL_FIELDS, schema, CASE.reportDate, "lichte administratieve taken met afwisseling zitten/staan");

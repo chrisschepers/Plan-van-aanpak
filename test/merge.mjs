@@ -45,16 +45,30 @@ check("UWV-logo/fonts behouden", !!M.file("word/media/image1.png") && !!M.file("
 check("AG140-footer behouden", !!M.file("word/footer1.xml"));
 
 // 2) Brief staat ervoor (vóór het formulier)
-check("brief vóór formulier", mDoc.indexOf("Begeleidend bericht") < mDoc.indexOf(formBodyInner.slice(0, 80)));
+check("brief vóór formulier", mDoc.indexOf("Beste werkgever") >= 0 && mDoc.indexOf("Beste werkgever") < mDoc.indexOf(formBodyInner.slice(0, 80)));
 check("brief bevat opbouwadvies", mDoc.includes("Opbouw- en re-integratieadvies"));
-check("briefhoofd-part toegevoegd", !!M.file("word/headerLetter.xml"));
-check("briefvoet-part toegevoegd", !!M.file("word/footerLetter.xml"));
-check("briefhoofd bevat merknaam", (await M.file("word/headerLetter.xml").async("string")).includes("planvanaanpak"));
+const letterHeaders = Object.keys(M.files).filter((n) => /^word\/headerLetter\d+\.xml$/.test(n));
+const letterFooters = Object.keys(M.files).filter((n) => /^word\/footerLetter\d+\.xml$/.test(n));
+check("briefhoofd-parts toegevoegd (eerste + vervolgpagina)", letterHeaders.length === 2);
+check("briefvoet-parts toegevoegd (eerste + vervolgpagina)", letterFooters.length === 2);
+const headerXmls = await Promise.all(letterHeaders.map((n) => M.file(n).async("string")));
+check("briefhoofd bevat merknaam", headerXmls.some((x) => x.includes("planvanaanpak")));
+
+// 2b) Briefpapier-afbeeldingen (merkband/golven/logo) zijn meegekomen
+const letterMedia = Object.keys(M.files).filter((n) => /^word\/media\/letter-/.test(n));
+check("briefpapier-afbeeldingen meegenomen (apart van UWV-media)", letterMedia.length >= 3);
+const headerRels = Object.keys(M.files).filter((n) => /^word\/_rels\/headerLetter\d+\.xml\.rels$/.test(n));
+check("kop-relaties (afbeeldingen) aanwezig", headerRels.length === 2);
+for (const hr of headerRels) {
+  const rl = await M.file(hr).async("string");
+  check(`media-verwijzingen in ${hr.split("/").pop()} resolven`, [...rl.matchAll(/Target="([^"]+)"/g)].every((m) => !!M.file("word/" + m[1])));
+}
 
 // 3) Pakket consistent
 check("twee secties (2× sectPr)", (mDoc.match(/<w:sectPr/g) || []).length === 2);
-check("content-types kent headerLetter", mCT.includes("/word/headerLetter.xml"));
-check("rels kent headerLetter + footerLetter", mRels.includes("headerLetter.xml") && mRels.includes("footerLetter.xml"));
+check("content-types kent headerLetter-parts", letterHeaders.every((n) => mCT.includes("/" + n)));
+check("content-types kent png", /Extension="png"/.test(mCT));
+check("rels kent headerLetter + footerLetter", mRels.includes("headerLetter1.xml") && letterFooters.every((n) => mRels.includes(n.replace("word/", ""))));
 // elke r:id in document.xml moet in rels bestaan
 const relIds = new Set([...mRels.matchAll(/Id="(rId\d+)"/g)].map((m) => m[1]));
 const used = [...mDoc.matchAll(/r:id="(rId\d+)"/g)].map((m) => m[1]);

@@ -2976,7 +2976,7 @@
     const kern = berichtKern(fields, schema, schemaZelfOpgesteld);
     const alineas = adviceParagraphs(fields, reportDate, signalen);
     const taak = (taaksuggestie || "").trim();
-    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), kern.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: "k" + i }, t)), alineas.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: i }, t)), taak && /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Suggestie voor aangepaste taken."), " Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ", taak, ".", " ", /* @__PURE__ */ React.createElement("em", null, "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.")), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--muted)" } }, "(naam en functie van de afzender)"))));
+    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), kern.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: "k" + i }, t)), alineas.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: i }, t)), taak && /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Suggestie voor aangepaste taken."), " Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ", taak, ".", " ", /* @__PURE__ */ React.createElement("em", null, "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.")), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 } }, "[INVULLEN: naam casemanager]"), /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--muted)", fontSize: 13 } }, "Casemanager verzuim"))));
   }
 
   // node_modules/docx/dist/index.mjs
@@ -12826,11 +12826,977 @@
   };
   var abstractNumUniqueNumericIdGen = () => uniqueNumericIdCreator();
   var concreteNumUniqueNumericIdGen = () => uniqueNumericIdCreator(1);
+  var docPropertiesUniqueNumericIdGen = () => uniqueNumericIdCreator();
   var bookmarkUniqueNumericIdGen = () => uniqueNumericIdCreator();
   var uniqueId = () => nanoid().toLowerCase();
+  var hashedId = (data) => import_hash.default.sha1().update(data instanceof ArrayBuffer ? new Uint8Array(data) : data).digest("hex");
   var generateUuidPart = (count) => customAlphabet("1234567890abcdef", count)();
   var uniqueUuid = () => `${generateUuidPart(8)}-${generateUuidPart(4)}-${generateUuidPart(4)}-${generateUuidPart(4)}-${generateUuidPart(12)}`;
   var encodeUtf8 = (str) => new Uint8Array(new TextEncoder().encode(str));
+  var HorizontalPositionRelativeFrom = {
+    /**
+    * ## Character
+    *
+    * Specifies that the horizontal positioning shall be relative to the position of the anchor within its run content.
+    */
+    CHARACTER: "character",
+    /**
+    * ## Column
+    *
+    * Specifies that the horizontal positioning shall be relative to the extents of the column which contains its anchor.
+    */
+    COLUMN: "column",
+    /**
+    * ## Inside Margin
+    *
+    * Specifies that the horizontal positioning shall be relative to the inside margin of the current page (the left margin on odd pages, right on even pages).
+    */
+    INSIDE_MARGIN: "insideMargin",
+    /**
+    * ## Left Margin
+    *
+    * Specifies that the horizontal positioning shall be relative to the left margin of the page.
+    */
+    LEFT_MARGIN: "leftMargin",
+    /**
+    * ## Page Margin
+    *
+    * Specifies that the horizontal positioning shall be relative to the page margins.
+    */
+    MARGIN: "margin",
+    /**
+    * ## Outside Margin
+    *
+    * Specifies that the horizontal positioning shall be relative to the outside margin of the current page (the right margin on odd pages, left on even pages).
+    */
+    OUTSIDE_MARGIN: "outsideMargin",
+    /**
+    * ## Page Edge
+    *
+    * Specifies that the horizontal positioning shall be relative to the edge of the page.
+    */
+    PAGE: "page",
+    /**
+    * ## Right Margin
+    *
+    * Specifies that the horizontal positioning shall be relative to the right margin of the page.
+    */
+    RIGHT_MARGIN: "rightMargin"
+  };
+  var VerticalPositionRelativeFrom = {
+    /**
+    * ## Bottom Margin
+    *
+    * Specifies that the vertical positioning shall be relative to the bottom margin of the current page.
+    */
+    BOTTOM_MARGIN: "bottomMargin",
+    /**
+    * ## Inside Margin
+    *
+    * Specifies that the vertical positioning shall be relative to the inside margin of the current page.
+    */
+    INSIDE_MARGIN: "insideMargin",
+    /**
+    * ## Line
+    *
+    * Specifies that the vertical positioning shall be relative to the line containing the anchor character.
+    */
+    LINE: "line",
+    /**
+    * ## Page Margin
+    *
+    * Specifies that the vertical positioning shall be relative to the page margins.
+    */
+    MARGIN: "margin",
+    /**
+    * ## Outside Margin
+    *
+    * Specifies that the vertical positioning shall be relative to the outside margin of the current page.
+    */
+    OUTSIDE_MARGIN: "outsideMargin",
+    /**
+    * ## Page Edge
+    *
+    * Specifies that the vertical positioning shall be relative to the edge of the page.
+    */
+    PAGE: "page",
+    /**
+    * ## Paragraph
+    *
+    * Specifies that the vertical positioning shall be relative to the paragraph which contains the drawing anchor.
+    */
+    PARAGRAPH: "paragraph",
+    /**
+    * ## Top Margin
+    *
+    * Specifies that the vertical positioning shall be relative to the top margin of the current page.
+    */
+    TOP_MARGIN: "topMargin"
+  };
+  var createSimplePos = () => new BuilderElement({
+    name: "wp:simplePos",
+    attributes: {
+      x: {
+        key: "x",
+        value: 0
+      },
+      y: {
+        key: "y",
+        value: 0
+      }
+    }
+  });
+  var createAlign = (value) => new BuilderElement({
+    name: "wp:align",
+    children: [value]
+  });
+  var createPositionOffset = (offsetValue) => new BuilderElement({
+    name: "wp:posOffset",
+    children: [offsetValue.toString()]
+  });
+  var createHorizontalPosition = ({ relative, align, offset }) => new BuilderElement({
+    name: "wp:positionH",
+    attributes: { relativeFrom: {
+      key: "relativeFrom",
+      value: relative !== null && relative !== void 0 ? relative : HorizontalPositionRelativeFrom.PAGE
+    } },
+    children: [(() => {
+      if (align) return createAlign(align);
+      else if (offset !== void 0) return createPositionOffset(offset);
+      else throw new Error("There is no configuration provided for floating position (Align or offset)");
+    })()]
+  });
+  var createVerticalPosition = ({ relative, align, offset }) => new BuilderElement({
+    name: "wp:positionV",
+    attributes: { relativeFrom: {
+      key: "relativeFrom",
+      value: relative !== null && relative !== void 0 ? relative : VerticalPositionRelativeFrom.PAGE
+    } },
+    children: [(() => {
+      if (align) return createAlign(align);
+      else if (offset !== void 0) return createPositionOffset(offset);
+      else throw new Error("There is no configuration provided for floating position (Align or offset)");
+    })()]
+  });
+  var createBodyProperties = (options = {}) => {
+    var _options$margins, _options$margins2, _options$margins3, _options$margins4;
+    return new BuilderElement({
+      name: "wps:bodyPr",
+      attributes: {
+        lIns: {
+          key: "lIns",
+          value: (_options$margins = options.margins) === null || _options$margins === void 0 ? void 0 : _options$margins.left
+        },
+        rIns: {
+          key: "rIns",
+          value: (_options$margins2 = options.margins) === null || _options$margins2 === void 0 ? void 0 : _options$margins2.right
+        },
+        tIns: {
+          key: "tIns",
+          value: (_options$margins3 = options.margins) === null || _options$margins3 === void 0 ? void 0 : _options$margins3.top
+        },
+        bIns: {
+          key: "bIns",
+          value: (_options$margins4 = options.margins) === null || _options$margins4 === void 0 ? void 0 : _options$margins4.bottom
+        },
+        anchor: {
+          key: "anchor",
+          value: options.verticalAnchor
+        }
+      },
+      children: [...options.noAutoFit ? [new OnOffElement("a:noAutofit", options.noAutoFit)] : []]
+    });
+  };
+  var createNonVisualShapeProperties = (options = { txBox: "1" }) => new BuilderElement({
+    name: "wps:cNvSpPr",
+    attributes: { txBox: {
+      key: "txBox",
+      value: options.txBox
+    } }
+  });
+  var createTextBoxContent = (children) => new BuilderElement({
+    name: "w:txbxContent",
+    children: [...children]
+  });
+  var createWpsTextBox = (children) => new BuilderElement({
+    name: "wps:txbx",
+    children: [createTextBoxContent(children)]
+  });
+  var ExtentsAttributes = class extends XmlAttributeComponent {
+    constructor(..._args) {
+      super(..._args);
+      _defineProperty(this, "xmlKeys", {
+        cx: "cx",
+        cy: "cy"
+      });
+    }
+  };
+  var Extents = class extends XmlComponent {
+    constructor(x, y) {
+      super("a:ext");
+      _defineProperty(this, "attributes", void 0);
+      this.attributes = new ExtentsAttributes({
+        cx: x,
+        cy: y
+      });
+      this.root.push(this.attributes);
+    }
+  };
+  var OffsetAttributes = class extends XmlAttributeComponent {
+    constructor(..._args) {
+      super(..._args);
+      _defineProperty(this, "xmlKeys", {
+        x: "x",
+        y: "y"
+      });
+    }
+  };
+  var Offset = class extends XmlComponent {
+    constructor(x, y) {
+      super("a:off");
+      this.root.push(new OffsetAttributes({
+        x: x !== null && x !== void 0 ? x : 0,
+        y: y !== null && y !== void 0 ? y : 0
+      }));
+    }
+  };
+  var FormAttributes = class extends XmlAttributeComponent {
+    constructor(..._args) {
+      super(..._args);
+      _defineProperty(this, "xmlKeys", {
+        flipVertical: "flipV",
+        flipHorizontal: "flipH",
+        rotation: "rot"
+      });
+    }
+  };
+  var Form = class extends XmlComponent {
+    constructor(options) {
+      var _options$flip, _options$flip2, _options$offset, _options$offset2;
+      super("a:xfrm");
+      _defineProperty(this, "extents", void 0);
+      _defineProperty(this, "offset", void 0);
+      this.root.push(new FormAttributes({
+        flipVertical: (_options$flip = options.flip) === null || _options$flip === void 0 ? void 0 : _options$flip.vertical,
+        flipHorizontal: (_options$flip2 = options.flip) === null || _options$flip2 === void 0 ? void 0 : _options$flip2.horizontal,
+        rotation: options.rotation
+      }));
+      this.offset = new Offset((_options$offset = options.offset) === null || _options$offset === void 0 || (_options$offset = _options$offset.emus) === null || _options$offset === void 0 ? void 0 : _options$offset.x, (_options$offset2 = options.offset) === null || _options$offset2 === void 0 || (_options$offset2 = _options$offset2.emus) === null || _options$offset2 === void 0 ? void 0 : _options$offset2.y);
+      this.extents = new Extents(options.emus.x, options.emus.y);
+      this.root.push(this.offset);
+      this.root.push(this.extents);
+    }
+  };
+  var createNoFill = () => new BuilderElement({ name: "a:noFill" });
+  var createSolidRgbColor = (options) => new BuilderElement({
+    name: "a:srgbClr",
+    attributes: { value: {
+      key: "val",
+      value: options.value
+    } }
+  });
+  var createSchemeColor = (options) => new BuilderElement({
+    name: "a:schemeClr",
+    attributes: { value: {
+      key: "val",
+      value: options.value
+    } }
+  });
+  var createSolidFill = (options) => new BuilderElement({
+    name: "a:solidFill",
+    children: [options.type === "rgb" ? createSolidRgbColor(options) : createSchemeColor(options)]
+  });
+  var createOutline = (options) => new BuilderElement({
+    name: "a:ln",
+    attributes: {
+      width: {
+        key: "w",
+        value: options.width
+      },
+      cap: {
+        key: "cap",
+        value: options.cap
+      },
+      compoundLine: {
+        key: "cmpd",
+        value: options.compoundLine
+      },
+      align: {
+        key: "algn",
+        value: options.align
+      }
+    },
+    children: [options.type === "noFill" ? createNoFill() : options.solidFillType === "rgb" ? createSolidFill({
+      type: "rgb",
+      value: options.value
+    }) : createSolidFill({
+      type: "scheme",
+      value: options.value
+    })]
+  });
+  var AdjustmentValues = class extends XmlComponent {
+    constructor() {
+      super("a:avLst");
+    }
+  };
+  var PresetGeometryAttributes = class extends XmlAttributeComponent {
+    constructor(..._args) {
+      super(..._args);
+      _defineProperty(this, "xmlKeys", { prst: "prst" });
+    }
+  };
+  var PresetGeometry = class extends XmlComponent {
+    constructor() {
+      super("a:prstGeom");
+      this.root.push(new PresetGeometryAttributes({ prst: "rect" }));
+      this.root.push(new AdjustmentValues());
+    }
+  };
+  var ShapePropertiesAttributes = class extends XmlAttributeComponent {
+    constructor(..._args) {
+      super(..._args);
+      _defineProperty(this, "xmlKeys", { bwMode: "bwMode" });
+    }
+  };
+  var ShapeProperties = class extends XmlComponent {
+    constructor({ element, outline, solidFill, transform }) {
+      super(`${element}:spPr`);
+      _defineProperty(this, "form", void 0);
+      this.root.push(new ShapePropertiesAttributes({ bwMode: "auto" }));
+      this.form = new Form(transform);
+      this.root.push(this.form);
+      this.root.push(new PresetGeometry());
+      if (outline) {
+        this.root.push(createNoFill());
+        this.root.push(createOutline(outline));
+      }
+      if (solidFill) this.root.push(createSolidFill(solidFill));
+    }
+  };
+  var createWpsShape = (options) => new BuilderElement({
+    name: "wps:wsp",
+    children: [
+      createNonVisualShapeProperties(options.nonVisualProperties),
+      new ShapeProperties({
+        element: "wps",
+        transform: options.transformation,
+        outline: options.outline,
+        solidFill: options.solidFill
+      }),
+      createWpsTextBox(options.children),
+      createBodyProperties(options.bodyProperties)
+    ]
+  });
+  var GraphicDataAttributes = class extends XmlAttributeComponent {
+    constructor(..._args) {
+      super(..._args);
+      _defineProperty(this, "xmlKeys", { uri: "uri" });
+    }
+  };
+  var createSvgBlip = (mediaData) => new BuilderElement({
+    name: "asvg:svgBlip",
+    attributes: {
+      asvg: {
+        key: "xmlns:asvg",
+        value: "http://schemas.microsoft.com/office/drawing/2016/SVG/main"
+      },
+      embed: {
+        key: "r:embed",
+        value: `rId{${mediaData.fileName}}`
+      }
+    }
+  });
+  var createExtention = (mediaData) => new BuilderElement({
+    name: "a:ext",
+    attributes: { uri: {
+      key: "uri",
+      value: "{96DAC541-7B7A-43D3-8B79-37D633B846F1}"
+    } },
+    children: [createSvgBlip(mediaData)]
+  });
+  var createExtentionList = (mediaData) => new BuilderElement({
+    name: "a:extLst",
+    children: [createExtention(mediaData)]
+  });
+  var createBlip = (mediaData) => new BuilderElement({
+    name: "a:blip",
+    attributes: {
+      embed: {
+        key: "r:embed",
+        value: `rId{${mediaData.type === "svg" ? mediaData.fallback.fileName : mediaData.fileName}}`
+      },
+      cstate: {
+        key: "cstate",
+        value: "none"
+      }
+    },
+    children: mediaData.type === "svg" ? [createExtentionList(mediaData)] : []
+  });
+  var SourceRectangle = class extends XmlComponent {
+    constructor() {
+      super("a:srcRect");
+    }
+  };
+  var FillRectangle = class extends XmlComponent {
+    constructor() {
+      super("a:fillRect");
+    }
+  };
+  var Stretch = class extends XmlComponent {
+    constructor() {
+      super("a:stretch");
+      this.root.push(new FillRectangle());
+    }
+  };
+  var BlipFill = class extends XmlComponent {
+    constructor(mediaData) {
+      super("pic:blipFill");
+      this.root.push(createBlip(mediaData));
+      this.root.push(new SourceRectangle());
+      this.root.push(new Stretch());
+    }
+  };
+  var PicLocksAttributes = class extends XmlAttributeComponent {
+    constructor(..._args) {
+      super(..._args);
+      _defineProperty(this, "xmlKeys", {
+        noChangeAspect: "noChangeAspect",
+        noChangeArrowheads: "noChangeArrowheads"
+      });
+    }
+  };
+  var PicLocks = class extends XmlComponent {
+    constructor() {
+      super("a:picLocks");
+      this.root.push(new PicLocksAttributes({
+        noChangeAspect: 1,
+        noChangeArrowheads: 1
+      }));
+    }
+  };
+  var ChildNonVisualProperties = class extends XmlComponent {
+    constructor() {
+      super("pic:cNvPicPr");
+      this.root.push(new PicLocks());
+    }
+  };
+  var createHyperlinkClick = (linkId, hasXmlNs) => new BuilderElement({
+    name: "a:hlinkClick",
+    attributes: _objectSpread2(_objectSpread2({}, hasXmlNs ? { xmlns: {
+      key: "xmlns:a",
+      value: "http://schemas.openxmlformats.org/drawingml/2006/main"
+    } } : {}), {}, { id: {
+      key: "r:id",
+      value: `rId${linkId}`
+    } })
+  });
+  var NonVisualPropertiesAttributes = class extends XmlAttributeComponent {
+    constructor(..._args) {
+      super(..._args);
+      _defineProperty(this, "xmlKeys", {
+        id: "id",
+        name: "name",
+        descr: "descr"
+      });
+    }
+  };
+  var NonVisualProperties = class extends XmlComponent {
+    constructor() {
+      super("pic:cNvPr");
+      this.root.push(new NonVisualPropertiesAttributes({
+        id: 0,
+        name: "",
+        descr: ""
+      }));
+    }
+    prepForXml(context) {
+      for (let i = context.stack.length - 1; i >= 0; i--) {
+        const element = context.stack[i];
+        if (!(element instanceof ConcreteHyperlink)) continue;
+        this.root.push(createHyperlinkClick(element.linkId, false));
+        break;
+      }
+      return super.prepForXml(context);
+    }
+  };
+  var NonVisualPicProperties = class extends XmlComponent {
+    constructor() {
+      super("pic:nvPicPr");
+      this.root.push(new NonVisualProperties());
+      this.root.push(new ChildNonVisualProperties());
+    }
+  };
+  var PicAttributes = class extends XmlAttributeComponent {
+    constructor(..._args) {
+      super(..._args);
+      _defineProperty(this, "xmlKeys", { xmlns: "xmlns:pic" });
+    }
+  };
+  var Pic = class extends XmlComponent {
+    constructor({ mediaData, transform, outline }) {
+      super("pic:pic");
+      this.root.push(new PicAttributes({ xmlns: "http://schemas.openxmlformats.org/drawingml/2006/picture" }));
+      this.root.push(new NonVisualPicProperties());
+      this.root.push(new BlipFill(mediaData));
+      this.root.push(new ShapeProperties({
+        element: "pic",
+        transform,
+        outline
+      }));
+    }
+  };
+  var createGroupProperties = (transform) => new BuilderElement({
+    name: "wpg:grpSpPr",
+    children: [new Form(transform)]
+  });
+  var createNonVisualGroupProperties = () => new BuilderElement({ name: "wpg:cNvGrpSpPr" });
+  var createWpgGroup = (options) => new BuilderElement({
+    name: "wpg:wgp",
+    children: [
+      createNonVisualGroupProperties(),
+      createGroupProperties(options.transformation),
+      ...options.children
+    ]
+  });
+  var GraphicData = class extends XmlComponent {
+    constructor({ mediaData, transform, outline, solidFill }) {
+      super("a:graphicData");
+      if (mediaData.type === "wps") {
+        this.root.push(new GraphicDataAttributes({ uri: "http://schemas.microsoft.com/office/word/2010/wordprocessingShape" }));
+        const wps = createWpsShape(_objectSpread2(_objectSpread2({}, mediaData.data), {}, {
+          transformation: transform,
+          outline,
+          solidFill
+        }));
+        this.root.push(wps);
+      } else if (mediaData.type === "wpg") {
+        this.root.push(new GraphicDataAttributes({ uri: "http://schemas.microsoft.com/office/word/2010/wordprocessingGroup" }));
+        const wpg = createWpgGroup({
+          children: mediaData.children.map((child) => {
+            if (child.type === "wps") return createWpsShape(_objectSpread2(_objectSpread2({}, child.data), {}, {
+              transformation: child.transformation,
+              outline: child.outline,
+              solidFill: child.solidFill
+            }));
+            else return new Pic({
+              mediaData: child,
+              transform: child.transformation,
+              outline: child.outline
+            });
+          }),
+          transformation: transform
+        });
+        this.root.push(wpg);
+      } else {
+        this.root.push(new GraphicDataAttributes({ uri: "http://schemas.openxmlformats.org/drawingml/2006/picture" }));
+        const pic = new Pic({
+          mediaData,
+          transform,
+          outline
+        });
+        this.root.push(pic);
+      }
+    }
+  };
+  var GraphicAttributes = class extends XmlAttributeComponent {
+    constructor(..._args) {
+      super(..._args);
+      _defineProperty(this, "xmlKeys", { a: "xmlns:a" });
+    }
+  };
+  var Graphic = class extends XmlComponent {
+    constructor({ mediaData, transform, outline, solidFill }) {
+      super("a:graphic");
+      _defineProperty(this, "data", void 0);
+      this.root.push(new GraphicAttributes({ a: "http://schemas.openxmlformats.org/drawingml/2006/main" }));
+      this.data = new GraphicData({
+        mediaData,
+        transform,
+        outline,
+        solidFill
+      });
+      this.root.push(this.data);
+    }
+  };
+  var TextWrappingType = {
+    NONE: 0,
+    SQUARE: 1,
+    TIGHT: 2,
+    TOP_AND_BOTTOM: 3
+  };
+  var TextWrappingSide = {
+    /** Text wraps on both sides of the drawing */
+    BOTH_SIDES: "bothSides",
+    /** Text wraps only on the left side */
+    LEFT: "left",
+    /** Text wraps only on the right side */
+    RIGHT: "right",
+    /** Text wraps on the side with more space */
+    LARGEST: "largest"
+  };
+  var createWrapNone = () => new BuilderElement({ name: "wp:wrapNone" });
+  var createWrapSquare = (textWrapping, margins = {
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0
+  }) => new BuilderElement({
+    name: "wp:wrapSquare",
+    attributes: {
+      wrapText: {
+        key: "wrapText",
+        value: textWrapping.side || TextWrappingSide.BOTH_SIDES
+      },
+      distT: {
+        key: "distT",
+        value: margins.top
+      },
+      distB: {
+        key: "distB",
+        value: margins.bottom
+      },
+      distL: {
+        key: "distL",
+        value: margins.left
+      },
+      distR: {
+        key: "distR",
+        value: margins.right
+      }
+    }
+  });
+  var createWrapTight = (margins = {
+    top: 0,
+    bottom: 0
+  }) => new BuilderElement({
+    name: "wp:wrapTight",
+    attributes: {
+      distT: {
+        key: "distT",
+        value: margins.top
+      },
+      distB: {
+        key: "distB",
+        value: margins.bottom
+      }
+    }
+  });
+  var createWrapTopAndBottom = (margins = {
+    top: 0,
+    bottom: 0
+  }) => new BuilderElement({
+    name: "wp:wrapTopAndBottom",
+    attributes: {
+      distT: {
+        key: "distT",
+        value: margins.top
+      },
+      distB: {
+        key: "distB",
+        value: margins.bottom
+      }
+    }
+  });
+  var DocProperties = class extends XmlComponent {
+    constructor({ name, description, title, id } = {
+      name: "",
+      description: "",
+      title: ""
+    }) {
+      super("wp:docPr");
+      _defineProperty(this, "docPropertiesUniqueNumericId", docPropertiesUniqueNumericIdGen());
+      const attributes = {
+        id: {
+          key: "id",
+          value: id !== null && id !== void 0 ? id : this.docPropertiesUniqueNumericId()
+        },
+        name: {
+          key: "name",
+          value: name
+        }
+      };
+      if (description !== null && description !== void 0) attributes.description = {
+        key: "descr",
+        value: description
+      };
+      if (title !== null && title !== void 0) attributes.title = {
+        key: "title",
+        value: title
+      };
+      this.root.push(new NextAttributeComponent(attributes));
+    }
+    prepForXml(context) {
+      for (let i = context.stack.length - 1; i >= 0; i--) {
+        const element = context.stack[i];
+        if (!(element instanceof ConcreteHyperlink)) continue;
+        this.root.push(createHyperlinkClick(element.linkId, true));
+        break;
+      }
+      return super.prepForXml(context);
+    }
+  };
+  var createEffectExtent = ({ top, right, bottom, left }) => new BuilderElement({
+    name: "wp:effectExtent",
+    attributes: {
+      top: {
+        key: "t",
+        value: top
+      },
+      right: {
+        key: "r",
+        value: right
+      },
+      bottom: {
+        key: "b",
+        value: bottom
+      },
+      left: {
+        key: "l",
+        value: left
+      }
+    }
+  });
+  var createExtent = ({ x, y }) => new BuilderElement({
+    name: "wp:extent",
+    attributes: {
+      x: {
+        key: "cx",
+        value: x
+      },
+      y: {
+        key: "cy",
+        value: y
+      }
+    }
+  });
+  var GraphicFrameLockAttributes = class extends XmlAttributeComponent {
+    constructor(..._args) {
+      super(..._args);
+      _defineProperty(this, "xmlKeys", {
+        xmlns: "xmlns:a",
+        noChangeAspect: "noChangeAspect"
+      });
+    }
+  };
+  var GraphicFrameLocks = class extends XmlComponent {
+    constructor() {
+      super("a:graphicFrameLocks");
+      this.root.push(new GraphicFrameLockAttributes({
+        xmlns: "http://schemas.openxmlformats.org/drawingml/2006/main",
+        noChangeAspect: 1
+      }));
+    }
+  };
+  var createGraphicFrameProperties = () => new BuilderElement({
+    name: "wp:cNvGraphicFramePr",
+    children: [new GraphicFrameLocks()]
+  });
+  var AnchorAttributes = class extends XmlAttributeComponent {
+    constructor(..._args) {
+      super(..._args);
+      _defineProperty(this, "xmlKeys", {
+        distT: "distT",
+        distB: "distB",
+        distL: "distL",
+        distR: "distR",
+        allowOverlap: "allowOverlap",
+        behindDoc: "behindDoc",
+        layoutInCell: "layoutInCell",
+        locked: "locked",
+        relativeHeight: "relativeHeight",
+        simplePos: "simplePos"
+      });
+    }
+  };
+  var Anchor = class extends XmlComponent {
+    constructor({ mediaData, transform, drawingOptions }) {
+      super("wp:anchor");
+      const floating = _objectSpread2({
+        allowOverlap: true,
+        behindDocument: false,
+        lockAnchor: false,
+        layoutInCell: true,
+        verticalPosition: {},
+        horizontalPosition: {}
+      }, drawingOptions.floating);
+      this.root.push(new AnchorAttributes({
+        distT: floating.margins ? floating.margins.top || 0 : 0,
+        distB: floating.margins ? floating.margins.bottom || 0 : 0,
+        distL: floating.margins ? floating.margins.left || 0 : 0,
+        distR: floating.margins ? floating.margins.right || 0 : 0,
+        simplePos: "0",
+        allowOverlap: floating.allowOverlap === true ? "1" : "0",
+        behindDoc: floating.behindDocument === true ? "1" : "0",
+        locked: floating.lockAnchor === true ? "1" : "0",
+        layoutInCell: floating.layoutInCell === true ? "1" : "0",
+        relativeHeight: floating.zIndex ? floating.zIndex : transform.emus.y
+      }));
+      this.root.push(createSimplePos());
+      this.root.push(createHorizontalPosition(floating.horizontalPosition));
+      this.root.push(createVerticalPosition(floating.verticalPosition));
+      this.root.push(createExtent({
+        x: transform.emus.x,
+        y: transform.emus.y
+      }));
+      this.root.push(createEffectExtent({
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+      }));
+      if (drawingOptions.floating !== void 0 && drawingOptions.floating.wrap !== void 0) switch (drawingOptions.floating.wrap.type) {
+        case TextWrappingType.SQUARE:
+          this.root.push(createWrapSquare(drawingOptions.floating.wrap, drawingOptions.floating.margins));
+          break;
+        case TextWrappingType.TIGHT:
+          this.root.push(createWrapTight(drawingOptions.floating.margins));
+          break;
+        case TextWrappingType.TOP_AND_BOTTOM:
+          this.root.push(createWrapTopAndBottom(drawingOptions.floating.margins));
+          break;
+        case TextWrappingType.NONE:
+        default:
+          this.root.push(createWrapNone());
+      }
+      else this.root.push(createWrapNone());
+      this.root.push(new DocProperties(drawingOptions.docProperties));
+      this.root.push(createGraphicFrameProperties());
+      this.root.push(new Graphic({
+        mediaData,
+        transform,
+        outline: drawingOptions.outline,
+        solidFill: drawingOptions.solidFill
+      }));
+    }
+  };
+  var createInline = ({ mediaData, transform, docProperties, outline, solidFill }) => {
+    var _outline$width, _outline$width2, _outline$width3, _outline$width4;
+    return new BuilderElement({
+      name: "wp:inline",
+      attributes: {
+        distanceTop: {
+          key: "distT",
+          value: 0
+        },
+        distanceBottom: {
+          key: "distB",
+          value: 0
+        },
+        distanceLeft: {
+          key: "distL",
+          value: 0
+        },
+        distanceRight: {
+          key: "distR",
+          value: 0
+        }
+      },
+      children: [
+        createExtent({
+          x: transform.emus.x,
+          y: transform.emus.y
+        }),
+        createEffectExtent(outline ? {
+          top: ((_outline$width = outline.width) !== null && _outline$width !== void 0 ? _outline$width : 9525) * 2,
+          right: ((_outline$width2 = outline.width) !== null && _outline$width2 !== void 0 ? _outline$width2 : 9525) * 2,
+          bottom: ((_outline$width3 = outline.width) !== null && _outline$width3 !== void 0 ? _outline$width3 : 9525) * 2,
+          left: ((_outline$width4 = outline.width) !== null && _outline$width4 !== void 0 ? _outline$width4 : 9525) * 2
+        } : {
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0
+        }),
+        new DocProperties(docProperties),
+        createGraphicFrameProperties(),
+        new Graphic({
+          mediaData,
+          transform,
+          outline,
+          solidFill
+        })
+      ]
+    });
+  };
+  var Drawing = class extends XmlComponent {
+    constructor(imageData, drawingOptions = {}) {
+      super("w:drawing");
+      if (!drawingOptions.floating) this.root.push(createInline({
+        mediaData: imageData,
+        transform: imageData.transformation,
+        docProperties: drawingOptions.docProperties,
+        outline: drawingOptions.outline,
+        solidFill: drawingOptions.solidFill
+      }));
+      else this.root.push(new Anchor({
+        mediaData: imageData,
+        transform: imageData.transformation,
+        drawingOptions
+      }));
+    }
+  };
+  var convertDataURIToBinary = (dataURI) => {
+    const base64Index = dataURI.indexOf(";base64,");
+    const base64IndexWithOffset = base64Index === -1 ? 0 : base64Index + 8;
+    return new Uint8Array(atob(dataURI.substring(base64IndexWithOffset)).split("").map((c) => c.charCodeAt(0)));
+  };
+  var standardizeData = (data) => typeof data === "string" ? convertDataURIToBinary(data) : data;
+  var createImageData = (options, key) => ({
+    data: standardizeData(options.data),
+    fileName: key,
+    transformation: {
+      pixels: {
+        x: Math.round(options.transformation.width),
+        y: Math.round(options.transformation.height)
+      },
+      emus: {
+        x: Math.round(options.transformation.width * 9525),
+        y: Math.round(options.transformation.height * 9525)
+      },
+      flip: options.transformation.flip,
+      rotation: options.transformation.rotation ? options.transformation.rotation * 6e4 : void 0
+    }
+  });
+  var ImageRun = class extends XmlComponent {
+    constructor(options) {
+      var _super = (..._args) => (super(..._args), _defineProperty(this, "imageData", void 0), this);
+      const key = `${hashedId(options.data)}.${options.type}`;
+      const imageData = options.type === "svg" ? _objectSpread2(_objectSpread2({ type: options.type }, createImageData(options, key)), {}, { fallback: _objectSpread2({ type: options.fallback.type }, createImageData(_objectSpread2(_objectSpread2({}, options.fallback), {}, { transformation: options.transformation }), `${hashedId(options.fallback.data)}.${options.fallback.type}`)) }) : _objectSpread2({ type: options.type }, createImageData(options, key));
+      const drawing = new Drawing(imageData, {
+        floating: options.floating,
+        docProperties: options.altText,
+        outline: options.outline
+      });
+      const run = new Run({ children: [drawing] });
+      if (options.insertion) {
+        _super("w:ins");
+        this.root.push(new ChangeAttributes({
+          id: options.insertion.id,
+          author: options.insertion.author,
+          date: options.insertion.date
+        }));
+        this.addChildElement(run);
+      } else if (options.deletion) {
+        _super("w:del");
+        this.root.push(new ChangeAttributes({
+          id: options.deletion.id,
+          author: options.deletion.author,
+          date: options.deletion.date
+        }));
+        this.addChildElement(run);
+      } else {
+        _super("w:r");
+        this.root.push(new RunProperties({}));
+        this.root.push(drawing);
+      }
+      this.imageData = imageData;
+    }
+    prepForXml(context) {
+      context.file.Media.addImage(this.imageData.fileName, this.imageData);
+      if (this.imageData.type === "svg") context.file.Media.addImage(this.imageData.fallback.fileName, this.imageData.fallback);
+      return super.prepForXml(context);
+    }
+  };
   var RelationshipsAttributes = class extends XmlAttributeComponent {
     constructor(..._args) {
       super(..._args);
@@ -21137,7 +22103,8 @@
   var HEADER_CT = "application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml";
   var FOOTER_CT = "application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml";
   var REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/";
-  function findRef(relsXml, kind) {
+  function findRefs(relsXml, kind) {
+    const out = [];
     const rx = /<Relationship\b[^>]*>/g;
     let m;
     while (m = rx.exec(relsXml)) {
@@ -21145,10 +22112,10 @@
       if (tag.includes(`/${kind}"`)) {
         const id = /Id="(rId\d+)"/.exec(tag);
         const tgt = /Target="([^"]*)"/.exec(tag);
-        if (id && tgt) return { id: id[1], target: tgt[1].replace(/^\//, "") };
+        if (id && tgt) out.push({ id: id[1], target: tgt[1].replace(/^\//, "") });
       }
     }
-    return null;
+    return out;
   }
   async function mergeLetterAndForm(letterData, formData) {
     const L = await import_jszip2.default.loadAsync(letterData);
@@ -21163,28 +22130,38 @@
     if (/r:embed=|r:link=|r:id="rId/.test(letterContent)) {
       throw new Error("Brief-inhoud bevat onverwachte relaties (afbeelding/koppeling)");
     }
-    const lh = findRef(lRels, "header");
-    const lf = findRef(lRels, "footer");
-    const headerXml = lh ? await L.file(`word/${lh.target}`).async("string") : null;
-    const footerXml = lf ? await L.file(`word/${lf.target}`).async("string") : null;
+    const parts = [
+      ...findRefs(lRels, "header").map((r) => ({ ...r, kind: "header", ct: HEADER_CT })),
+      ...findRefs(lRels, "footer").map((r) => ({ ...r, kind: "footer", ct: FOOTER_CT }))
+    ];
     let tDoc = await T.file("word/document.xml").async("string");
     let tRels = await T.file("word/_rels/document.xml.rels").async("string");
     let tCT = await T.file("[Content_Types].xml").async("string");
     const maxId = Math.max(0, ...[...tRels.matchAll(/Id="rId(\d+)"/g)].map((m) => +m[1]));
-    const hId = "rId" + (maxId + 1);
-    const fId = "rId" + (maxId + 2);
     let ctAdd = "", relAdd = "";
-    if (headerXml) {
-      T.file("word/headerLetter.xml", headerXml);
-      ctAdd += `<Override PartName="/word/headerLetter.xml" ContentType="${HEADER_CT}"/>`;
-      relAdd += `<Relationship Id="${hId}" Type="${REL}header" Target="headerLetter.xml"/>`;
-      letterSect = letterSect.replace(`r:id="${lh.id}"`, `r:id="${hId}"`);
+    let n = 0;
+    for (const part of parts) {
+      n++;
+      const name = `${part.kind}Letter${n}.xml`;
+      T.file(`word/${name}`, await L.file(`word/${part.target}`).async("string"));
+      const prl = L.file(`word/_rels/${part.target}.rels`);
+      if (prl) {
+        let prels = await prl.async("string");
+        const mediaRefs = [...new Set([...prels.matchAll(/Target="(media\/[^"]+)"/g)].map((m) => m[1]))];
+        for (const mt of mediaRefs) {
+          const newTarget = `media/letter-${mt.split("/").pop()}`;
+          T.file(`word/${newTarget}`, await L.file(`word/${mt}`).async("uint8array"));
+          prels = prels.split(`Target="${mt}"`).join(`Target="${newTarget}"`);
+        }
+        T.file(`word/_rels/${name}.rels`, prels);
+      }
+      const newId = "rId" + (maxId + n);
+      ctAdd += `<Override PartName="/word/${name}" ContentType="${part.ct}"/>`;
+      relAdd += `<Relationship Id="${newId}" Type="${REL}${part.kind}" Target="${name}"/>`;
+      letterSect = letterSect.split(`r:id="${part.id}"`).join(`r:id="${newId}"`);
     }
-    if (footerXml) {
-      T.file("word/footerLetter.xml", footerXml);
-      ctAdd += `<Override PartName="/word/footerLetter.xml" ContentType="${FOOTER_CT}"/>`;
-      relAdd += `<Relationship Id="${fId}" Type="${REL}footer" Target="footerLetter.xml"/>`;
-      letterSect = letterSect.replace(`r:id="${lf.id}"`, `r:id="${fId}"`);
+    if (!/Extension="png"/.test(tCT)) {
+      tCT = tCT.replace("<Default", '<Default Extension="png" ContentType="image/png"/><Default');
     }
     T.file("[Content_Types].xml", tCT.replace("</Types>", ctAdd + "</Types>"));
     T.file("word/_rels/document.xml.rels", tRels.replace("</Relationships>", relAdd + "</Relationships>"));
@@ -21200,38 +22177,119 @@
     });
   }
 
+  // src/brandassets.js
+  var BAND_PNG = "iVBORw0KGgoAAAANSUhEUgAABpAAAAAaCAYAAACw2B9FAAABSUlEQVR42u3ZMREAIAwEwZigxka80OID6SAiDZnZYg188c3FzH2hq3EWQEs+HAAAAICfhREQkAAEJAAAAAAQkBCQAAQkAAAAABCQEJAABCQAAAAAEJAQkAAEJAAAAAAQkBCQAAQkAAAAABCQEJAABCQAAAAAEJBAQAIEJAAAAAAQkEBAAgQkAAAAABCQQEACBCQAAAAAEJBAQAIEJAAAAAAQkEBAAgQkAAAAABCQQEACBCQfDgAAAICABAISgIAEAAAAgIAEAhKAgAQAAACAgAQCEoCABAAAAICABAISgIAEAAAAgIAEAhKAgAQAAACAgAQCEoCABAAAAICABAISgIAEAAAAgIAEAhKAgAQAAAAAAhICEoCABAAAAAACEgISgIAEAAAAAAISAhKAgAQAAAAAAhICEoCABAAAAAACEgISgIAEAAAAAHUPiUPvVTOqFy0AAAAASUVORK5CYII=";
+  var DECO_PNG = "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";
+  var MARK_PNG = "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";
+  function pngBytes(b64) {
+    if (typeof atob === "function") {
+      const bin = atob(b64);
+      const out = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+      return out;
+    }
+    return new Uint8Array(Buffer.from(b64, "base64"));
+  }
+
   // src/download.js
   var NAVY = "1F3864";
+  var NAVY_900 = "14264A";
+  var NAVY_600 = "2C4A7E";
   var NAVY_400 = "5B76A6";
+  var NAVY_50 = "F2F5FA";
   var GREEN = "157F5B";
   var GREY = "69748B";
-  var FAINT = "97A0B2";
   var FLAG = "9A3B2E";
-  function brandHeader() {
+  var LINE = "E3E7EE";
+  var MM_EMU = 36e3;
+  var mmPx = (mm) => Math.round(mm * 96 / 25.4);
+  var CONTENT_W_TWIPS = 9411;
+  function floatImg(b64, wMm, hMm, xMm, yMm, opts = {}) {
+    return new ImageRun({
+      type: "png",
+      data: pngBytes(b64),
+      transformation: { width: mmPx(wMm), height: mmPx(hMm) },
+      floating: {
+        horizontalPosition: { relative: HorizontalPositionRelativeFrom.PAGE, offset: Math.round(xMm * MM_EMU) },
+        verticalPosition: { relative: VerticalPositionRelativeFrom.PAGE, offset: Math.round(yMm * MM_EMU) },
+        behindDocument: opts.front ? false : true,
+        allowOverlap: true,
+        wrap: { type: TextWrappingType.NONE }
+      }
+    });
+  }
+  function markImg(sizeMm, yMm) {
+    return floatImg(MARK_PNG, sizeMm, sizeMm, 22, yMm, { front: true });
+  }
+  function decoRuns() {
+    return [floatImg(BAND_PNG, 210, 3.2, 0, 0), floatImg(DECO_PNG, 210, 52, 0, 245)];
+  }
+  function rightTab(indentTwips = 0) {
+    return {
+      indent: indentTwips ? { left: indentTwips } : void 0,
+      tabStops: [{ type: TabStopType.RIGHT, position: CONTENT_W_TWIPS - indentTwips }]
+    };
+  }
+  var RIGHT_TAB = rightTab(0);
+  var IND_FULL = 907;
+  var IND_COMPACT = 652;
+  function letterHeadFirst() {
     return new Header({ children: [
-      new Paragraph({ spacing: { after: 20 }, children: [
-        new TextRun({ text: "planvanaanpak", bold: true, color: NAVY, size: 30, font: "Calibri" }),
-        new TextRun({ text: "invuller.nl", bold: true, color: NAVY_400, size: 30, font: "Calibri" })
+      new Paragraph({ ...rightTab(IND_FULL), spacing: { after: 30 }, children: [
+        ...decoRuns(),
+        markImg(12, 12.5),
+        new TextRun({ text: "planvanaanpak", bold: true, color: NAVY_900, size: 30, font: FONT }),
+        new TextRun({ text: "invuller.nl", bold: true, color: NAVY_400, size: 30, font: FONT }),
+        new TextRun({ text: "	planvanaanpakinvuller.nl", bold: true, color: NAVY, size: 17, font: FONT })
+      ] }),
+      new Paragraph({ ...rightTab(IND_FULL), spacing: { after: 0 }, children: [
+        new TextRun({ text: "Concept Plan van Aanpak \u2014 Wet verbetering poortwachter", color: GREY, size: 16, font: FONT }),
+        new TextRun({ text: "	contact@planvanaanpakinvuller.nl", color: GREY, size: 17, font: FONT })
       ] }),
       new Paragraph({
+        ...rightTab(IND_FULL),
         spacing: { after: 0 },
-        border: { bottom: { style: BorderStyle.SINGLE, size: 18, color: GREEN } },
-        children: [new TextRun({ text: "Concept Plan van aanpak \xB7 Wet verbetering poortwachter", color: GREY, size: 16, font: "Calibri" })]
+        border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: LINE } },
+        children: [
+          new TextRun({ text: "	[INVULLEN: telefoon]", bold: true, italics: true, color: FLAG, size: 17, font: FONT })
+        ]
+      })
+    ] });
+  }
+  function letterHeadCompact(naam) {
+    const wie = isMissing(naam) ? "" : `, ${naam}`;
+    return new Header({ children: [
+      new Paragraph({
+        ...rightTab(IND_COMPACT),
+        spacing: { after: 0 },
+        border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: LINE } },
+        children: [
+          ...decoRuns(),
+          markImg(8.5, 10.8),
+          new TextRun({ text: "planvanaanpak", bold: true, color: NAVY_900, size: 23, font: FONT }),
+          new TextRun({ text: "invuller.nl", bold: true, color: NAVY_400, size: 23, font: FONT }),
+          new TextRun({ text: "	Vervolg \u2014 ", color: GREY, size: 17, font: FONT }),
+          new TextRun({ text: `Concept Plan van Aanpak${wie}`, bold: true, color: NAVY_600, size: 17, font: FONT })
+        ]
       })
     ] });
   }
   function brandFooter() {
     return new Footer2({ children: [
       new Paragraph({
-        alignment: AlignmentType.CENTER,
-        spacing: { before: 40 },
-        border: { top: { style: BorderStyle.SINGLE, size: 6, color: "E3E7EE" } },
-        children: [new TextRun({ text: "planvanaanpakinvuller.nl \xB7 Privacy by design, mens in de loop \xB7 Verwerking binnen de EER \xB7 Geen training op klantdata", color: GREY, size: 14, font: "Calibri" })]
+        ...RIGHT_TAB,
+        spacing: { before: 40, after: 20 },
+        border: { top: { style: BorderStyle.SINGLE, size: 8, color: "E6EBF4" } },
+        children: [
+          new TextRun({ text: "\u25CF ", color: GREEN, size: 17, font: FONT }),
+          new TextRun({ text: "planvanaanpakinvuller.nl", bold: true, color: NAVY, size: 17, font: FONT }),
+          new TextRun({ text: "	Privacy by design \xB7 verwerking binnen de EER", color: GREY, size: 16, font: FONT })
+        ]
       }),
-      new Paragraph({
-        alignment: AlignmentType.CENTER,
-        children: [new TextRun({ text: "(bedrijfsnaam \xB7 KVK \xB7 contactgegevens van de afzender)", color: FAINT, size: 14, font: "Calibri" })]
-      })
+      new Paragraph({ ...RIGHT_TAB, spacing: { after: 0 }, children: [
+        new TextRun({ text: "	", size: 16 }),
+        new TextRun({ color: GREY, size: 16, font: FONT, children: ["Pagina ", PageNumber.CURRENT, " van ", PageNumber.TOTAL_PAGES] })
+      ] })
     ] });
   }
   var txt = (fields, id) => {
@@ -21309,6 +22367,78 @@
       schema.map((r) => [r.date, `${r.hours} uur`, `${r.pct}%`])
     );
   }
+  var MAANDEN = [
+    "januari",
+    "februari",
+    "maart",
+    "april",
+    "mei",
+    "juni",
+    "juli",
+    "augustus",
+    "september",
+    "oktober",
+    "november",
+    "december"
+  ];
+  function vandaagLang() {
+    const d = /* @__PURE__ */ new Date();
+    return `${d.getDate()} ${MAANDEN[d.getMonth()]} ${d.getFullYear()}`;
+  }
+  function kenmerk(naam) {
+    const d = /* @__PURE__ */ new Date();
+    const p2 = (n) => String(n).padStart(2, "0");
+    const wie = isMissing(naam) ? "" : ` \xB7 ${naam}`;
+    return `PVA-${d.getFullYear()}-${p2(d.getMonth() + 1)}${p2(d.getDate())}${wie}`;
+  }
+  function invullen(text, opts = {}) {
+    return new TextRun({ text, bold: true, italics: true, color: FLAG, size: opts.size || 21, font: FONT });
+  }
+  function addresseeBlock() {
+    const lijn = (children, opts = {}) => new Paragraph({ spacing: { after: 20, before: opts.before || 0 }, children });
+    return [
+      lijn([invullen("[INVULLEN: bedrijfsnaam werkgever]")], { before: 360 }),
+      lijn([new TextRun({ text: "T.a.v. ", color: "18202F", size: 21, font: FONT }), invullen("[INVULLEN: contactpersoon]")]),
+      lijn([invullen("[INVULLEN: adres]")]),
+      lijn([invullen("[INVULLEN: postcode en plaats]")])
+    ];
+  }
+  function metaBlock(naam) {
+    const wie = isMissing(naam) ? "" : ` \u2014 ${naam}`;
+    const rows = [
+      ["Datum", vandaagLang()],
+      ["Ons kenmerk", kenmerk(naam)],
+      ["Onderwerp", `Concept Plan van Aanpak${wie}`],
+      ["Bijlagen", "Opbouwadvies \xB7 Poortwachter-termijnen \xB7 Plan van aanpak (UWV AG140)"]
+    ];
+    const noBorder = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
+    const borders = { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder };
+    const cellOf = (text, head) => new TableCell({
+      width: { size: head ? 20 : 80, type: WidthType.PERCENTAGE },
+      shading: { fill: NAVY_50 },
+      borders,
+      margins: { top: 70, bottom: 70, left: 160, right: 160 },
+      children: [new Paragraph({ spacing: { after: 0 }, children: [new TextRun({
+        text,
+        size: 19,
+        font: FONT,
+        color: head ? GREY : NAVY_900,
+        bold: !head
+      })] })]
+    });
+    return new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: {
+        top: noBorder,
+        bottom: noBorder,
+        left: noBorder,
+        right: noBorder,
+        insideHorizontal: noBorder,
+        insideVertical: noBorder
+      },
+      rows: rows.map(([k, v]) => new TableRow({ children: [cellOf(k, true), cellOf(v, false)] }))
+    });
+  }
   function buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld) {
     const naam = getVal(fields, "naam");
     const hersteld = fullRecoveryDate(schema);
@@ -21324,11 +22454,45 @@
       title: `Plan van Aanpak \u2014 ${naam}`,
       styles: { default: { document: { run: { font: "Calibri" } } } },
       sections: [{
-        properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1900, bottom: 1400, left: 1200, right: 1200 } } },
-        headers: { default: brandHeader() },
-        footers: { default: brandFooter() },
+        properties: {
+          titlePage: true,
+          // eerste pagina: volledige briefkop; vervolg: compacte kop
+          page: {
+            size: { width: 11906, height: 16838 },
+            margin: { top: 2100, bottom: 2300, left: 1247, right: 1247, header: 680, footer: 1e3 }
+          }
+        },
+        headers: { first: letterHeadFirst(), default: letterHeadCompact(naam) },
+        footers: { first: brandFooter(), default: brandFooter() },
         children: [
-          // 1 — Opbouwadvies
+          // ---- PAGINA 1 — het begeleidend bericht als brief (ontwerp Briefpapier v2) ----
+          ...addresseeBlock(),
+          new Paragraph({ spacing: { before: 240, after: 0 }, children: [] }),
+          metaBlock(naam),
+          new Paragraph({
+            spacing: { before: 200, after: 120 },
+            children: [new TextRun({ text: "Beste werkgever,", color: "18202F", size: 22, font: FONT })]
+          }),
+          p(`Hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}. Als bijlagen vind je het opbouwadvies, de poortwachter-termijnen en het ingevulde Plan van aanpak (UWV-formulier AG140).`),
+          ...kern.map((t) => p(t)),
+          ...alineas.map((t) => p(t)),
+          ...taak ? [new Paragraph({ spacing: { after: 120 }, children: [
+            new TextRun({ text: "Suggestie voor aangepaste taken. ", bold: true, color: NAVY, size: 22, font: FONT }),
+            new TextRun({ text: `Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ${taak}. `, size: 22, font: FONT }),
+            new TextRun({ text: "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.", italics: true, size: 22, font: FONT })
+          ] })] : [],
+          p("Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."),
+          new Paragraph({
+            spacing: { before: 200, after: 700 },
+            children: [new TextRun({ text: "Met vriendelijke groet,", color: "3C465A", size: 22, font: FONT })]
+          }),
+          new Paragraph({ spacing: { after: 20 }, children: [invullen("[INVULLEN: naam casemanager]", { size: 22 })] }),
+          new Paragraph({
+            spacing: { after: 0 },
+            children: [new TextRun({ text: "Casemanager verzuim", color: GREY, size: 18, font: FONT })]
+          }),
+          // ---- BIJLAGE 1 — Opbouwadvies ----
+          new Paragraph({ children: [new PageBreak()] }),
           h1("Opbouw- en re-integratieadvies"),
           sub(`Concept op basis van de terugkoppeling bedrijfsarts d.d. ${reportDate} \u2014 ter controle en vaststelling.`),
           h2("Uitgangspunten"),
@@ -21340,23 +22504,8 @@
           h2("Opbouwschema"),
           schemaTable(schema),
           p(`Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.`, { color: GREY }),
-          // 2 — Begeleidend bericht (met de adviezen verweven)
-          new Paragraph({ children: [new PageBreak()] }),
-          h1("Begeleidend bericht"),
-          sub(`Onderwerp: Concept Plan van aanpak${isMissing(naam) ? "" : " \u2014 " + naam}`),
-          p(`Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}.`),
-          ...kern.map((t) => p(t)),
-          ...alineas.map((t) => p(t)),
-          ...taak ? [new Paragraph({ spacing: { after: 120 }, children: [
-            new TextRun({ text: "Suggestie voor aangepaste taken. ", bold: true, color: NAVY, size: 22, font: FONT }),
-            new TextRun({ text: `Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ${taak}. `, size: 22, font: FONT }),
-            new TextRun({ text: "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.", italics: true, size: 22, font: FONT })
-          ] })] : [],
-          p("Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."),
-          p("Met vriendelijke groet,"),
-          new Paragraph({ children: [new TextRun({ text: "(naam en functie van de afzender)", italics: true, color: GREY, size: 22, font: FONT })] }),
-          // 3 — Poortwachter-termijnen: als afsluitend overzicht van de brief,
-          // direct vóór het Plan van aanpak (het UWV-formulier volgt als sectie 2).
+          // ---- BIJLAGE 2 — Poortwachter-termijnen: afsluitend overzicht,
+          // direct vóór het Plan van aanpak (het UWV-formulier volgt als sectie 2). ----
           new Paragraph({ children: [new PageBreak()] }),
           h1("Poortwachter-termijnen"),
           sub("Overzicht van de wettelijke mijlpalen, gerekend vanaf de eerste ziektedag."),

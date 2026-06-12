@@ -10,8 +10,9 @@ const HEADER_CT = "application/vnd.openxmlformats-officedocument.wordprocessingm
 const FOOTER_CT = "application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml";
 const REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/";
 
-// Zoek in een document.xml.rels de eerste header/footer (id + doelbestand).
-function findRef(relsXml, kind) {
+// Zoek in een document.xml.rels alle headers/footers (id + doelbestand).
+function findRefs(relsXml, kind) {
+  const out = [];
   const rx = /<Relationship\b[^>]*>/g;
   let m;
   while ((m = rx.exec(relsXml))) {
@@ -19,10 +20,10 @@ function findRef(relsXml, kind) {
     if (tag.includes(`/${kind}"`)) {
       const id = /Id="(rId\d+)"/.exec(tag);
       const tgt = /Target="([^"]*)"/.exec(tag);
-      if (id && tgt) return { id: id[1], target: tgt[1].replace(/^\//, "") };
+      if (id && tgt) out.push({ id: id[1], target: tgt[1].replace(/^\//, "") });
     }
   }
-  return null;
+  return out;
 }
 
 export async function mergeLetterAndForm(letterData, formData) {
@@ -42,10 +43,11 @@ export async function mergeLetterAndForm(letterData, formData) {
     throw new Error("Brief-inhoud bevat onverwachte relaties (afbeelding/koppeling)");
   }
 
-  const lh = findRef(lRels, "header");
-  const lf = findRef(lRels, "footer");
-  const headerXml = lh ? await L.file(`word/${lh.target}`).async("string") : null;
-  const footerXml = lf ? await L.file(`word/${lf.target}`).async("string") : null;
+  // Alle kop-/voet-parts van de brief (eerste pagina + vervolg + voet).
+  const parts = [
+    ...findRefs(lRels, "header").map((r) => ({ ...r, kind: "header", ct: HEADER_CT })),
+    ...findRefs(lRels, "footer").map((r) => ({ ...r, kind: "footer", ct: FOOTER_CT })),
+  ];
 
   // --- formulier (basis): nieuwe kop/voet-parts toevoegen met verse rIds ---
   let tDoc = await T.file("word/document.xml").async("string");
@@ -53,21 +55,37 @@ export async function mergeLetterAndForm(letterData, formData) {
   let tCT = await T.file("[Content_Types].xml").async("string");
 
   const maxId = Math.max(0, ...[...tRels.matchAll(/Id="rId(\d+)"/g)].map((m) => +m[1]));
-  const hId = "rId" + (maxId + 1);
-  const fId = "rId" + (maxId + 2);
 
   let ctAdd = "", relAdd = "";
-  if (headerXml) {
-    T.file("word/headerLetter.xml", headerXml);
-    ctAdd += `<Override PartName="/word/headerLetter.xml" ContentType="${HEADER_CT}"/>`;
-    relAdd += `<Relationship Id="${hId}" Type="${REL}header" Target="headerLetter.xml"/>`;
-    letterSect = letterSect.replace(`r:id="${lh.id}"`, `r:id="${hId}"`);
+  let n = 0;
+  for (const part of parts) {
+    n++;
+    const name = `${part.kind}Letter${n}.xml`;
+    T.file(`word/${name}`, await L.file(`word/${part.target}`).async("string"));
+
+    // Part-relaties (briefpapier-afbeeldingen): media meenemen onder een
+    // 'letter-'-naam zodat ze niet botsen met de media van het UWV-formulier.
+    const prl = L.file(`word/_rels/${part.target}.rels`);
+    if (prl) {
+      let prels = await prl.async("string");
+      const mediaRefs = [...new Set([...prels.matchAll(/Target="(media\/[^"]+)"/g)].map((m) => m[1]))];
+      for (const mt of mediaRefs) {
+        const newTarget = `media/letter-${mt.split("/").pop()}`;
+        T.file(`word/${newTarget}`, await L.file(`word/${mt}`).async("uint8array"));
+        prels = prels.split(`Target="${mt}"`).join(`Target="${newTarget}"`);
+      }
+      T.file(`word/_rels/${name}.rels`, prels);
+    }
+
+    const newId = "rId" + (maxId + n);
+    ctAdd += `<Override PartName="/word/${name}" ContentType="${part.ct}"/>`;
+    relAdd += `<Relationship Id="${newId}" Type="${REL}${part.kind}" Target="${name}"/>`;
+    letterSect = letterSect.split(`r:id="${part.id}"`).join(`r:id="${newId}"`);
   }
-  if (footerXml) {
-    T.file("word/footerLetter.xml", footerXml);
-    ctAdd += `<Override PartName="/word/footerLetter.xml" ContentType="${FOOTER_CT}"/>`;
-    relAdd += `<Relationship Id="${fId}" Type="${REL}footer" Target="footerLetter.xml"/>`;
-    letterSect = letterSect.replace(`r:id="${lf.id}"`, `r:id="${fId}"`);
+
+  // PNG-extensie registreren als het formulier die nog niet kent.
+  if (!/Extension="png"/.test(tCT)) {
+    tCT = tCT.replace("<Default", '<Default Extension="png" ContentType="image/png"/><Default');
   }
 
   T.file("[Content_Types].xml", tCT.replace("</Types>", ctAdd + "</Types>"));
