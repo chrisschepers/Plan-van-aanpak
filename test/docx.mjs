@@ -62,6 +62,12 @@ check(".docx bevat Begeleidend bericht", xml.includes("Begeleidend bericht"));
 check(".docx bevat begeleidend bericht aan werkgever", xml.includes("Beste werkgever"));
 check(".docx bevat opbouwschema-datum 10-03-2025", xml.includes("10-03-2025"));
 
+// met functieomschrijving → taaksuggestie + disclaimer in het bericht
+const docTaak = buildDocxDocument(INITIAL_FIELDS, schema, CASE.reportDate, "lichte administratieve taken met afwisseling zitten/staan");
+const xmlTaak = await (await JSZip.loadAsync(await Packer.toBuffer(docTaak))).file("word/document.xml").async("string");
+check(".docx bevat taaksuggestie", xmlTaak.includes("Suggestie voor aangepaste taken"));
+check(".docx bevat disclaimer (niet eenzijdig in dossier)", xmlTaak.includes("niet eenzijdig in het dossier"));
+
 // adviezen verweven in het begeleidend bericht
 check(".docx bevat altijd-advies (verzuimdossier)", xml.includes("verzuimdossier"));
 check(".docx bevat procesadvies (PvA uiterlijk week 8)", xml.includes("week 8"));

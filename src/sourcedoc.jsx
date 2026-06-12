@@ -1,5 +1,5 @@
 /* Het brondocument: terugkoppeling bedrijfsarts, met aanklikbare functionele
-   passages (amber) en geredigeerde medische passages (grijs). */
+   passages (amber). Medische passages worden niet getoond en niet overgenomen. */
 
 function HL({ id, active, onSel, children }) {
   return (
@@ -8,15 +8,6 @@ function HL({ id, active, onSel, children }) {
       onClick={(e) => { e.stopPropagation(); onSel(id); }}
       data-src={id}
     >{children}</span>
-  );
-}
-
-function Redact({ children }) {
-  return (
-    <span>
-      <span className="redact">{children}</span>
-      <span className="redact-tag">Medisch — niet overgenomen</span>
-    </span>
   );
 }
 
@@ -45,28 +36,18 @@ export function SourceDoc({ active, onSel }) {
       </div>
       <div className="doc-legend">
         <span><span className="lg-sw amber"></span> Overgenomen (functioneel)</span>
-        <span><span className="lg-sw redact"></span> Gefilterd (medisch)</span>
       </div>
       <div className="srcdoc" ref={ref} style={{ maxHeight: 560, overflowY: "auto" }}>
         <p className="dh">Arbodienst · Spreekuurverslag</p>
         <p className="dtitle">Terugkoppeling spreekuur bedrijfsarts</p>
-        <p className="dmeta">Opgesteld door bedrijfsarts · Spreekuurdatum 06-03-2025 · Vertrouwelijk</p>
+        <p className="dmeta">Opgesteld door bedrijfsarts · Spreekuurdatum 06-03-2025</p>
 
         <h5>Werknemergegevens</h5>
         <p>
-          Betreft <HL id="s-naam" active={active} onSel={onSel}>de heer J. de Vries</HL>,
-          werkzaam als <HL id="s-functie" active={active} onSel={onSel}>administratief medewerker</HL> voor
+          Betreft de heer J. de Vries, werkzaam als{" "}
+          <HL id="s-functie" active={active} onSel={onSel}>administratief medewerker</HL> voor
           {" "}<HL id="s-uren" active={active} onSel={onSel}>32 uur per week</HL>. Werknemer is
           uitgevallen op <HL id="s-eerste" active={active} onSel={onSel}>3 februari 2025</HL>.
-          Geboortedatum <Redact>14-08-1987</Redact> en BSN zijn bekend bij de arbodienst.
-        </p>
-
-        <h5>Aanleiding en medisch beeld</h5>
-        <p>
-          De klachten betreffen <Redact>aanhoudende rugklachten na een hernia-operatie</Redact>.
-          Werknemer staat onder behandeling bij <Redact>de fysiotherapeut en een revalidatiearts</Redact>.
-          Medicatie en behandeltraject zijn besproken; <Redact>het herstel verloopt volgens verwachting</Redact>.
-          Deze medische gegevens zijn vertrouwelijk en worden niet in het Plan van Aanpak opgenomen.
         </p>
 
         <h5>Functionele mogelijkheden (belastbaarheid)</h5>

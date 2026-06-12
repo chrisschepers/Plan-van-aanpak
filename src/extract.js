@@ -11,18 +11,20 @@ function api(path) {
   return BACKEND_URL.replace(/\/$/, "") + path;
 }
 
-export async function extractCasus({ file, text }) {
+export async function extractCasus({ file, text, functieomschrijving }) {
   if (!BACKEND_URL) throw new Error("Geen backend ingesteld.");
+  const fo = (functieomschrijving || "").trim();
   let resp;
   if (file) {
     const fd = new FormData();
     fd.append("document", file);
+    if (fo) fd.append("functieomschrijving", fo);
     resp = await fetch(api("/api/extract"), { method: "POST", body: fd });
   } else {
     resp = await fetch(api("/api/extract"), {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ text, functieomschrijving: fo }),
     });
   }
   if (!resp.ok) {
@@ -30,7 +32,7 @@ export async function extractCasus({ file, text }) {
     throw new Error(e.error || `Serverfout (${resp.status})`);
   }
   const { data } = await resp.json();
-  return mapExtraction(data);
+  return mapExtraction(data, fo);
 }
 
 function isoToNL(iso) {
@@ -42,7 +44,7 @@ function todayNL() {
   return `${p(x.getDate())}-${p(x.getMonth() + 1)}-${x.getFullYear()}`;
 }
 
-function mapExtraction(d) {
+function mapExtraction(d, functieomschrijving) {
   const sources = {};
   const mk = (id, label, value, bron) => {
     const v = (value || "").trim();
@@ -89,5 +91,7 @@ function mapExtraction(d) {
     schema,
     reportDate: (d.spreekuurdatum || "").trim() || todayNL(),
     sources,
+    functieomschrijving: functieomschrijving || "",
+    taaksuggestie: (d.taaksuggestie || "").trim(),
   };
 }

@@ -159,10 +159,11 @@ export function PvaPreview({ fields, schema }) {
 }
 
 // 3 — Begeleidend bericht aan werkgever (met de adviezen verweven)
-export function BerichtPreview({ fields, schema, reportDate }) {
+export function BerichtPreview({ fields, schema, reportDate, taaksuggestie }) {
   const naam = getVal(fields, "naam");
   const werknemer = isMissing(naam) ? "je werknemer" : naam;
   const alineas = adviceParagraphs(fields, reportDate);
+  const taak = (taaksuggestie || "").trim();
   return (
     <div className="doc-preview">
       <DocPreviewHead title="Begeleidend bericht aan werkgever" icon={I.mail} />
@@ -182,6 +183,15 @@ export function BerichtPreview({ fields, schema, reportDate }) {
           {getVal(fields, "beperking").toLowerCase()}.
         </p>
         {alineas.map((t, i) => <p key={i}>{t}</p>)}
+        {taak && (
+          <p>
+            <strong>Suggestie voor aangepaste taken.</strong> Op basis van de functieomschrijving zou je —
+            binnen de afgegeven mogelijkheden — kunnen denken aan {taak}.{" "}
+            <em>Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer;
+            ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier
+            worden opgenomen.</em>
+          </p>
+        )}
         <p>
           Bespreek het concept met je werknemer, vul de open velden ([INVULLEN]) samen in,
           onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van

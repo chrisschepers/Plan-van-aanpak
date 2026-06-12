@@ -42,7 +42,11 @@ function extOf(name) {
 
 function demoCasus() {
   const schema = computeSchema(CASE);
-  return { mode: "demo", fields: INITIAL_FIELDS, schema, reportDate: CASE.reportDate, sources: null, contractHours: CASE.contractHours };
+  return {
+    mode: "demo", fields: INITIAL_FIELDS, schema, reportDate: CASE.reportDate, sources: null, contractHours: CASE.contractHours,
+    functieomschrijving: "Administratief medewerker: postverwerking, gegevensinvoer, factuurcontrole, archiefbeheer en telefonische klantvragen.",
+    taaksuggestie: "lichte administratieve taken zoals gegevensinvoer en het ordenen van dossiers, in blokken van beperkte duur met afwisseling tussen zitten en staan, en zonder taken met piekbelasting of strakke deadlines",
+  };
 }
 
 /* ---------- Stap 1: Upload ---------- */
@@ -55,6 +59,7 @@ function UploadStep({ onResult }) {
   const [busy, setBusy] = React.useState(false);   // AI-aanroep loopt
   const [demoProc, setDemoProc] = React.useState(false);
   const [noMedical, setNoMedical] = React.useState(false);
+  const [functie, setFunctie] = React.useState("");   // optionele functieomschrijving
   const inputRef = React.useRef(null);
 
   const ALLOWED = ["pdf", "doc", "docx", "txt"];
@@ -82,7 +87,8 @@ function UploadStep({ onResult }) {
     }
     setBusy(true);
     try {
-      const casus = await extractCasus(file ? { file: file.file } : { text });
+      const fo = functie.trim();
+      const casus = await extractCasus(file ? { file: file.file, functieomschrijving: fo } : { text, functieomschrijving: fo });
       onResult(casus);
     } catch (e) {
       setError("Verwerking mislukt: " + (e && e.message ? e.message : "onbekende fout"));
@@ -159,6 +165,14 @@ function UploadStep({ onResult }) {
           <p><strong>AI nog niet gekoppeld.</strong> Zonder backend werkt alleen de voorbeeldcasus. Zet je Railway-URL in <code>window.__PVA_BACKEND__</code> om echte documenten te laten uitlezen. Gebruik uitsluitend fictieve terugkoppelingen.</p>
         </div>
       )}
+
+      <div className="func-omschrijving">
+        <label htmlFor="func-omschr"><strong>Functieomschrijving van de werknemer</strong> <span className="optioneel">(optioneel)</span></label>
+        <p className="func-hint">Plak de kerntaken. Dan stelt de tool in het begeleidend bericht passende aangepaste taken voor, binnen de afgegeven mogelijkheden — als gespreksopening met de werknemer.</p>
+        <textarea id="func-omschr" className="paste-area" rows={4} value={functie}
+          onChange={(e) => setFunctie(e.target.value)}
+          placeholder="Bijv. kerntaken, verantwoordelijkheden en typische werkzaamheden…" />
+      </div>
 
       <div className="privacy-note">
         {I.shield}
@@ -319,14 +333,14 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
 
 /* ---------- Stap 3: Preview ---------- */
 function PreviewStep({ onBack, controleOk, casus }) {
-  const { fields, schema, reportDate } = casus;
+  const { fields, schema, reportDate, taaksuggestie } = casus;
   const [tab, setTab] = React.useState(0);
   const [downloaded, setDownloaded] = React.useState(null);
   const [busyKey, setBusyKey] = React.useState(null);
   const tabs = [
     { t: "Opbouwadvies", el: <AdviesPreview fields={fields} schema={schema} reportDate={reportDate} /> },
     { t: "Plan van Aanpak", el: <PvaPreview fields={fields} schema={schema} /> },
-    { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} reportDate={reportDate} /> },
+    { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} reportDate={reportDate} taaksuggestie={taaksuggestie} /> },
   ];
 
   async function run(key, fn) {
@@ -367,7 +381,7 @@ function PreviewStep({ onBack, controleOk, casus }) {
           </div>
         </div>
         <div className="dl-buttons">
-          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("doc", () => downloadCombined(fields, schema, reportDate))}>
+          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("doc", () => downloadCombined(fields, schema, reportDate, taaksuggestie))}>
             {I.download} {busyKey === "doc" ? "Bezig…" : "Download als Word (.docx)"}
           </button>
         </div>

@@ -62,7 +62,8 @@ app.post("/api/extract", upload.single("document"), async (req, res) => {
       return res.status(400).json({ error: "Lever een bestand (veld 'document') of { text } aan." });
     }
 
-    const data = await extractFields(blocks);
+    const functieomschrijving = (req.body && req.body.functieomschrijving ? String(req.body.functieomschrijving) : "").trim();
+    const data = await extractFields(blocks, functieomschrijving);
     res.json({ ok: true, data });
   } catch (err) {
     const status = err && err.status ? err.status : 500;

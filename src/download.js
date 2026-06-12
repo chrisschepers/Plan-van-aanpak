@@ -108,10 +108,11 @@ function schemaTable(schema) {
     schema.map((r) => [r.date, `${r.hours} uur`, `${r.pct}%`]));
 }
 
-export function buildDocxDocument(fields, schema, reportDate) {
+export function buildDocxDocument(fields, schema, reportDate, taaksuggestie) {
   const naam = getVal(fields, "naam");
   const hersteld = fullRecoveryDate(schema);
   const alineas = adviceParagraphs(fields, reportDate);
+  const taak = (taaksuggestie || "").trim();
 
   const doc = new Document({
     creator: "planvanaanpakinvuller.nl",
@@ -142,6 +143,11 @@ export function buildDocxDocument(fields, schema, reportDate) {
         p(`Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}.`),
         p(`Werknemer is belastbaar voor ${getVal(fields, "belast").toLowerCase()}. De bedrijfsarts adviseert een opbouw vanaf ${getVal(fields, "start")}, ${getVal(fields, "opbouw").toLowerCase()}, van ${schema[0].hours} naar ${schema[schema.length - 1].hours} uur. Volledige werkhervatting is voorzien rond ${hersteld}. Houd rekening met de werkaanpassing: ${getVal(fields, "beperking").toLowerCase()}.`),
         ...alineas.map((t) => p(t)),
+        ...(taak ? [new Paragraph({ spacing: { after: 120 }, children: [
+          new TextRun({ text: "Suggestie voor aangepaste taken. ", bold: true, color: NAVY, size: 22, font: FONT }),
+          new TextRun({ text: `Op basis van de functieomschrijving zou je — binnen de afgegeven mogelijkheden — kunnen denken aan ${taak}. `, size: 22, font: FONT }),
+          new TextRun({ text: "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.", italics: true, size: 22, font: FONT }),
+        ] })] : []),
         p("Bespreek het concept met je werknemer, vul de open velden ([INVULLEN]) samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."),
         p("Met vriendelijke groet,"),
         new Paragraph({ children: [new TextRun({ text: "[INVULLEN: naam afzender]", bold: true, color: NAVY, size: 22 })] }),
@@ -187,8 +193,8 @@ export async function downloadUwvPva(fields, schema) {
 
 // Eén document: begeleidend bericht (briefpapier) + ingevuld UWV-PvA erachter.
 // Het UWV-formulier blijft ongewijzigd.
-export async function downloadCombined(fields, schema, reportDate) {
-  const letter = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate));
+export async function downloadCombined(fields, schema, reportDate, taaksuggestie) {
+  const letter = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie));
   const resp = await fetch(new URL("uwv-template.docx", document.baseURI));
   if (!resp.ok) throw new Error("UWV-sjabloon niet gevonden");
   const filled = await fillTemplate(await resp.arrayBuffer(), buildUwvValues(fields, schema));

@@ -70,8 +70,8 @@ check("geboortedatum-veld aanwezig", !!byText(".field-row .flabel", "Geboortedat
 check("einddatum dienstverband-veld aanwezig", !!byText(".field-row .flabel", "Einddatum dienstverband"));
 check("berekend: AOW-datum aanwezig", !!byText(".field-row.computed .flabel", "AOW") && !!byText(".field-row.computed .fval", "2054"));
 check("berekend: einde wachttijd aanwezig", !!byText(".field-row.computed .flabel", "Einde wachttijd") && !!byText(".field-row.computed .fval", "2027"));
-check("bron-highlights aanwezig (9)", $$(".srcdoc .hl").length === 9);
-check("medische redacties aanwezig (4)", $$(".srcdoc span.redact").length === 4);
+check("bron-highlights aanwezig (8)", $$(".srcdoc .hl").length === 8);
+check("geen medische redacties/beeld in bron meer", $$(".srcdoc span.redact").length === 0 && !byText(".srcdoc", "medisch beeld"));
 check("opbouwschema heeft 7 rijen", $$(".schema-table tbody tr").length === 7);
 check("schema eindigt op 100% per 21-04-2025", !!byText(".schema-table tr", "21-04-2025"));
 
@@ -105,6 +105,8 @@ await wait(30);
 check("bericht-tab toont begeleidend bericht", !!byText(".doc-sheet h2", "Begeleidend bericht"));
 check("bericht bevat verweven advies (verzuimdossier)", !!byText(".doc-sheet", "verzuimdossier"));
 check("bericht bevat einddatum-advies", !!byText(".doc-sheet", "einddatum"));
+check("bericht bevat taaksuggestie (aangepaste taken)", !!byText(".doc-sheet", "aangepaste taken"));
+check("bericht bevat disclaimer (niet eenzijdig in dossier)", !!byText(".doc-sheet", "niet eenzijdig in het dossier"));
 // Eén gecombineerde downloadknop, actief na controle (download zelf: zie merge.mjs)
 const dlBtn = byText(".dl-buttons button", "Download als Word");
 check("download-knop aanwezig en actief na controle", !!dlBtn && !dlBtn.disabled);

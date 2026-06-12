@@ -29,6 +29,8 @@ Verzin geen ritme dat de arts niet noemt.
 
 BRONNEN: geef per functioneel veld een kort, letterlijk citaat uit de input waarop je het baseert (voor menselijke controle). Leeg laten ("") als het veld ontbreekt.
 
+TAAKSUGGESTIE: is er een functieomschrijving meegegeven, stel dan in 'taaksuggestie' in lopende tekst 1–3 concrete aangepaste taken voor die binnen de afgegeven belastbaarheid en werkaanpassing passen (bv. lichtere of afgebakende taken). Schrijf alleen de taken zelf, zonder disclaimer (die voegt de applicatie toe). Geen functieomschrijving meegegeven → laat 'taaksuggestie' leeg ("").
+
 Geef uitsluitend het gevraagde JSON-object terug.`;
 
 const str = { type: "string" };
@@ -47,6 +49,7 @@ const SCHEMA = {
     werkaanpassing: str,
     prognose: str,
     spreekuurdatum: str,
+    taaksuggestie: str,
     reken: {
       type: "object",
       additionalProperties: false,
@@ -73,7 +76,7 @@ const SCHEMA = {
     "functie", "contracturen", "eersteZiektedag", "geboortedatum",
     "einddatumDienstverband", "belastbaarheid", "opbouwtempo",
     "startdatumOpbouw", "werkaanpassing", "prognose",
-    "spreekuurdatum", "reken", "bronnen",
+    "spreekuurdatum", "taaksuggestie", "reken", "bronnen",
   ],
 };
 
@@ -84,18 +87,23 @@ const client = new Anthropic(); // leest ANTHROPIC_API_KEY uit de omgeving
 
 /**
  * @param {Array} sourceBlocks  content-blocks: een PDF-document of een tekstblok
+ * @param {string} [functieomschrijving]  optionele functieomschrijving (werkgever)
  * @returns {Promise<object>} gevalideerde extractie
  */
-export async function extractFields(sourceBlocks) {
+export async function extractFields(sourceBlocks, functieomschrijving = "") {
+  const content = [...sourceBlocks];
+  if (functieomschrijving && functieomschrijving.trim()) {
+    content.push({ type: "text", text: `Functieomschrijving van de werknemer (aangeleverd door de werkgever):\n${functieomschrijving.trim()}` });
+  }
+  content.push({ type: "text", text: INSTRUCTION });
+
   const response = await client.messages.create({
     model: MODEL,
     max_tokens: 16000,
     thinking: { type: "adaptive" },
     system: SYSTEM,
     output_config: { effort: "medium", format: { type: "json_schema", schema: SCHEMA } },
-    messages: [
-      { role: "user", content: [...sourceBlocks, { type: "text", text: INSTRUCTION }] },
-    ],
+    messages: [{ role: "user", content }],
   });
 
   const textBlock = response.content.find((b) => b.type === "text");

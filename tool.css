@@ -222,6 +222,11 @@
 .field-row.computed:hover { background: transparent; }
 .field-row.computed .fval { color: var(--navy); }
 .confirm-medical { margin-top: 18px; }
+.func-omschrijving { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line-soft); }
+.func-omschrijving label { font-size: 15px; color: var(--navy-900); }
+.func-omschrijving .optioneel { color: var(--faint); font-weight: 500; }
+.func-hint { font-size: 13.5px; color: var(--muted); margin-top: 4px; }
+.func-omschrijving .paste-area { margin-top: 10px; }
 .paste-area { width: 100%; margin-top: 16px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; font-family: inherit; font-size: 14.5px; line-height: 1.6; color: var(--ink); resize: vertical; background: #fff; }
 .paste-area:focus { outline: 3px solid var(--navy-400); outline-offset: 1px; border-color: var(--navy-400); }
 .demo-note code, .upload-error code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
