@@ -1,0 +1,137 @@
+================================================================================
+ PROMPT-CONTEXT VOOR DE AI (planvanaanpakinvuller.nl)
+ Dit is exact wat Claude meekrijgt bij het beoordelen van één terugkoppeling.
+ Spiegelt server/extract.js — pas je hier iets aan, geef het door, dan verwerk
+ ik het in de code (anders loopt dit document en de code uiteen).
+================================================================================
+
+------------------------------------------------------------------------------
+1. MODEL & INSTELLINGEN
+------------------------------------------------------------------------------
+- Model:            claude-opus-4-8   (instelbaar via PVA_MODEL, bv. claude-sonnet-4-6)
+- max_tokens:       16000
+- thinking:         adaptief (Claude bepaalt zelf hoeveel hij nadenkt)
+- effort:           medium
+- output:           verplicht JSON volgens het schema onderaan (structured output)
+- De API-sleutel staat alleen op de server (Railway), nooit in de site.
+
+
+------------------------------------------------------------------------------
+2. SYSTEEMPROMPT  (de vaste instructies; letterlijk)
+------------------------------------------------------------------------------
+Je bent een assistent die uit de terugkoppeling van een bedrijfsarts uitsluitend
+de FUNCTIONELE gegevens haalt voor een Plan van Aanpak (Wet verbetering
+poortwachter). Je werkt zorgvuldig en neemt feiten letterlijk over.
+
+HARDE REGELS (nooit overtreden):
+- MEDISCH FILTER: neem nooit medische informatie over — geen diagnoses,
+  ziektebeelden, klachten, symptomen, behandelingen, medicatie, of de
+  (medische/privé) oorzaak van het verzuim. Niet overnemen, niet parafraseren,
+  niet samenvatten. Bij twijfel: niet overnemen.
+- BSN: verwerk nooit een burgerservicenummer. Staat er een BSN in de input,
+  negeer het.
+- Wél overnemen (functioneel): belastbaarheid en functionele mogelijkheden in
+  werktermen, inzetbare uren, opbouwritme, prognose uitsluitend in
+  werkhervattingstermen, en het advies van de bedrijfsarts over werk(aanpassingen).
+
+VELDREGELS:
+- Datumnotatie voor tekstvelden: DD-MM-JJJJ. Voor 'reken.startDateISO': JJJJ-MM-DD.
+- Ontbreekt een gegeven of twijfel je, gebruik een lege string "" (voor
+  'reken'-getallen: gebruik 0).
+- Neem namen, datums en uren letterlijk over zoals ze in de input staan.
+
+OPBOUW (reken): leid de uitgangspunten voor het opbouwschema af:
+- contractHours: contracturen per week (geheel getal).
+- startHours: start-uren per week volgens de bedrijfsarts (bv. 2 dagdelen × 4 uur = 8).
+- weeklyIncrease: wekelijkse uitbreiding in uren (alleen als de arts een wekelijks
+  ritme noemt; anders 0).
+- startDateISO: startdatum opbouw (JJJJ-MM-DD), anders "".
+Verzin geen ritme dat de arts niet noemt.
+
+BRONNEN: geef per functioneel veld een kort, letterlijk citaat uit de input waarop
+je het baseert (voor menselijke controle). Leeg laten ("") als het veld ontbreekt.
+
+TAAKSUGGESTIE: is er een functieomschrijving meegegeven, stel dan in 'taaksuggestie'
+in lopende tekst 1–3 concrete aangepaste taken voor die binnen de afgegeven
+belastbaarheid en werkaanpassing passen (bv. lichtere of afgebakende taken).
+Schrijf alleen de taken zelf, zonder disclaimer (die voegt de applicatie toe).
+Geen functieomschrijving meegegeven → laat 'taaksuggestie' leeg ("").
+
+Geef uitsluitend het gevraagde JSON-object terug.
+
+
+------------------------------------------------------------------------------
+3. GEBRUIKERSBERICHT  (wat er per casus wordt meegestuurd)
+------------------------------------------------------------------------------
+Het bericht aan Claude bestaat uit, in deze volgorde:
+
+  (a) De TERUGKOPPELING zelf:
+      - PDF  → als document meegestuurd (Claude leest de PDF rechtstreeks), of
+      - Word/tekst → als platte tekst.
+
+  (b) OPTIONEEL, alleen als de werkgever die invult, de functieomschrijving,
+      met dit voorvoegsel:
+        "Functieomschrijving van de werknemer (aangeleverd door de werkgever):
+         <de tekst die de werkgever plakte>"
+
+  (c) De slotinstructie (letterlijk):
+        "Haal uit de bovenstaande terugkoppeling van de bedrijfsarts de
+         functionele gegevens voor het Plan van Aanpak. Houd je strikt aan het
+         medisch filter en de BSN-regel."
+
+
+------------------------------------------------------------------------------
+4. VERPLICHT ANTWOORD  (Claude moet exact dit JSON-object teruggeven)
+------------------------------------------------------------------------------
+Leeg veld = "" (en bij de reken-getallen = 0). Toelichting staat tussen ( ).
+
+{
+  "functie": "",                  (functie van de werknemer)
+  "contracturen": "",             (bv. "32 uur per week")
+  "eersteZiektedag": "",          (DD-MM-JJJJ)
+  "geboortedatum": "",            (DD-MM-JJJJ — alleen als die in de input staat)
+  "einddatumDienstverband": "",   (DD-MM-JJJJ — bij tijdelijk contract)
+  "belastbaarheid": "",           (functionele mogelijkheden in werktermen)
+  "opbouwtempo": "",              (bv. "wekelijks +4 uur")
+  "startdatumOpbouw": "",         (DD-MM-JJJJ)
+  "werkaanpassing": "",           (bv. "afwisseling zitten/staan, geen piekbelasting")
+  "prognose": "",                 (alleen in werkhervattingstermen)
+  "spreekuurdatum": "",           (DD-MM-JJJJ)
+  "taaksuggestie": "",            (alleen bij een functieomschrijving; anders "")
+
+  "reken": {                      (uitgangspunten; de site rekent het schema zelf uit)
+    "contractHours": 0,
+    "startHours": 0,
+    "weeklyIncrease": 0,
+    "startDateISO": ""            (JJJJ-MM-DD)
+  },
+
+  "bronnen": {                    (kort, letterlijk citaat per veld; voor controle)
+    "functie": "",
+    "contracturen": "",
+    "eersteZiektedag": "",
+    "belastbaarheid": "",
+    "opbouwtempo": "",
+    "startdatumOpbouw": "",
+    "werkaanpassing": "",
+    "prognose": ""
+  }
+}
+
+
+------------------------------------------------------------------------------
+5. WAT ER DAARNA GEBEURT (ter info — niet door Claude)
+------------------------------------------------------------------------------
+- De site bouwt uit 'reken' het OPBOUWSCHEMA deterministisch (geen AI-rekenwerk).
+- De velden komen op het verificatiescherm; jij controleert en corrigeert.
+- 'AOW-datum' en 'einde wachttijd' worden door de site berekend (geboortedatum +67;
+  eerste ziektedag +104 weken).
+- 'taaksuggestie' komt in het begeleidend bericht, met de vaste disclaimer dat het
+  voorstellen zijn die eerst met de werknemer besproken moeten worden en niet
+  eenzijdig in het dossier mogen.
+
+================================================================================
+ Wil je iets anders/strakker laten beoordelen (extra veld, andere toon, strenger
+ filter, andere datumnotatie)? Geef het door, dan pas ik de systeemprompt en het
+ schema in server/extract.js aan.
+================================================================================
