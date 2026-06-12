@@ -1,7 +1,37 @@
 /* Opbouwschema-tabel + bewerkbaar paneel met geëxtraheerde velden */
 
 import { I } from "./data.jsx";
-import { computeDerived } from "./advice.js";
+import { computeDerived, poortwachterTermijnen } from "./advice.js";
+
+// Volledig overzicht van de wettelijke poortwachter-termijnen + wat de werkgever doet.
+export function TermijnenTabel({ fields, compact }) {
+  const rows = poortwachterTermijnen(fields);
+  return (
+    <div className="panel termijnen-panel" style={{ marginTop: compact ? 0 : 22 }}>
+      <div className="panel-head">
+        <div>
+          <h3>Poortwachter-termijnen</h3>
+          <div className="sub">Wat moet wanneer — gerekend vanaf de eerste ziektedag</div>
+        </div>
+        <span className="pill pill-navy"><span className="pdot"></span>Wet verbetering poortwachter</span>
+      </div>
+      <table className="schema-table termijnen-table">
+        <thead>
+          <tr><th>Termijn</th><th>Mijlpaal</th><th>Wat de werkgever doet</th></tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => (
+            <tr key={i}>
+              <td className="date" style={{ whiteSpace: "nowrap" }}>wk {r.week}{r.datum ? <> · {r.datum}</> : null}</td>
+              <td style={{ fontWeight: 600, color: "var(--navy-900)" }}>{r.mijlpaal}</td>
+              <td style={{ color: "var(--ink-soft)" }}>{r.actie}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
 
 export function SchemaRows({ schema }) {
   return (

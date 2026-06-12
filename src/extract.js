@@ -93,5 +93,6 @@ function mapExtraction(d, functieomschrijving) {
     sources,
     functieomschrijving: functieomschrijving || "",
     taaksuggestie: (d.taaksuggestie || "").trim(),
+    signalen: d.signalen || {},
   };
 }

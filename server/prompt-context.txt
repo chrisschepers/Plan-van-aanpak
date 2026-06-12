@@ -115,8 +115,27 @@ Leeg veld = "" (en bij de reken-getallen = 0). Toelichting staat tussen ( ).
     "startdatumOpbouw": "",
     "werkaanpassing": "",
     "prognose": ""
+  },
+
+  "signalen": {                   (true alleen als de terugkoppeling dit duidelijk aangeeft)
+    "geenBenutbareMogelijkheden": false,    (geen benutbare mogelijkheden — GBM)
+    "duurzaamGeenMogelijkheden": false,     (duurzaam geen mogelijkheden → IVA)
+    "marginaleMogelijkheden": false,        (zeer beperkt belastbaar)
+    "arbeidstherapeutisch": false,          (arbeidstherapeutisch werken genoemd)
+    "stagnatie": false,                     (opbouw loopt achter / terugval)
+    "arbeidsconflict": false,               (arbeidsconflict / verstoorde verhouding)
+    "belastbaarheidNaEerstejaars": false,   (belastbaarheid pas na ~1 jaar)
+    "gewijzigdeBelastbaarheidSpoor2": false (gewijzigd terwijl spoor 2 loopt)
   }
 }
+
+NB: de WERKWIJZER-LOGICA zelf zit niet in deze prompt maar in de code
+(src/advice.js), zodat het voorspelbaar en controleerbaar is. De AI detecteert
+alleen de 'signalen'; de code koppelt daar de juiste voorwaardelijke adviezen aan
+(met paragraafverwijzingen: GBM 5.9/3.1, IVA, marginaal 5.8, arbeidstherapeutisch
+3.2.4, stagnatie → deskundigenoordeel 3.2.4/5.4, conflict → mediation 5.3, enz.).
+Ook de poortwachter-termijnen, de leeftijdsregels (AOW/spoor 2 — 5.14; 60+-WIA) en
+het ziek-uit-dienst-blok (RIV-varianten 5.5–5.7) worden deterministisch berekend.
 
 
 ------------------------------------------------------------------------------

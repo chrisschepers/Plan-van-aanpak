@@ -48,10 +48,52 @@ const TIMELINE = [
   { from: 87, to: 93,  title: "Eindevaluatie & WIA-aanvraag",       body: "Laat de bedrijfsarts een Actueel oordeel opstellen, vul samen de Eindevaluatie in en maak het re-integratieverslag compleet; werknemer vraagt uiterlijk week 93 WIA aan." },
 ];
 
+// Volledige poortwachter-tijdlijn (overzicht). who = wat de werkgever moet (laten) doen.
+export const POORTWACHTER = [
+  { week: 1,   mijlpaal: "Ziekmelding",                       actie: "Meld de werknemer ziek bij de arbodienst/bedrijfsarts en leg de eerste ziektedag vast." },
+  { week: 6,   mijlpaal: "Probleemanalyse",                   actie: "De bedrijfsarts stelt de Probleemanalyse op (uiterlijk week 6)." },
+  { week: 8,   mijlpaal: "Plan van Aanpak",                   actie: "Stel samen met de werknemer het Plan van Aanpak op (binnen 2 weken na de Probleemanalyse)." },
+  { week: 42,  mijlpaal: "42e-weeksmelding bij UWV",          actie: "Meld het langdurig verzuim bij UWV (verplicht in week 42)." },
+  { week: 52,  mijlpaal: "Eerstejaarsevaluatie (opschudmoment)", actie: "Evalueer het eerste jaar met de werknemer; beoordeel of het tweede spoor moet starten." },
+  { week: 58,  mijlpaal: "Tweede spoor uiterlijk gestart",    actie: "Start zo nodig het tweede spoor (uiterlijk 6 weken na de eerstejaarsevaluatie), tenzij er concreet perspectief is op terugkeer in de eigen organisatie." },
+  { week: 87,  mijlpaal: "WIA-aanvraag mogelijk",             actie: "Laat de bedrijfsarts een Actueel oordeel opstellen en maak het re-integratieverslag (RIV) compleet." },
+  { week: 93,  mijlpaal: "WIA uiterlijk aanvragen",           actie: "De werknemer vraagt uiterlijk week 93 de WIA-uitkering aan; lever het volledige RIV mee." },
+  { week: 104, mijlpaal: "Einde wachttijd",                   actie: "Einde van de 2 jaar loondoorbetaling; de WIA-beoordeling bepaalt het vervolg." },
+];
+
+/** Volledige poortwachter-termijnen met berekende datums (vanaf eerste ziektedag). */
+export function poortwachterTermijnen(fields) {
+  const eersteZ = parseNL(getVal(fields, "eersteZ"));
+  return POORTWACHTER.map((m) => ({
+    ...m,
+    datum: eersteZ ? fmtNL(addWeeks(eersteZ, m.week)) : "",
+  }));
+}
+
+// Voorwaardelijke Werkwijzer-adviezen, afgevuurd op signaalwoorden die de AI detecteert.
+const SIGNAAL_ADVIES = {
+  geenBenutbareMogelijkheden: { level: "risk", title: "Geen benutbare mogelijkheden (GBM)",
+    body: "Forceer nu geen re-integratieactiviteiten. De bedrijfsarts houdt de vinger aan de pols: plan vervolgconsulten en leg elke terugkoppeling vast. Duurt de GBM-situatie de volle 2 jaar, dan volstaat een beperkt re-integratieverslag (Werkwijzer 5.9, 3.1)." },
+  duurzaamGeenMogelijkheden: { level: "risk", title: "Duurzaam geen mogelijkheden — overweeg vervroegde IVA",
+    body: "Is er duurzaam geen benutbare mogelijkheid én geen herstelverwachting, wijs dan op een vervroegde IVA-aanvraag (mogelijk tot week 68 van het verzuim)." },
+  marginaleMogelijkheden: { level: "attention", title: "Marginale mogelijkheden",
+    body: "Lever extra inspanning om de geringe mogelijkheden bij de eigen werkgever te benutten (taken, uren, begeleiding). Het tweede spoor is hierbij niet snel aan de orde (Werkwijzer 5.8)." },
+  arbeidstherapeutisch: { level: "attention", title: "Arbeidstherapeutisch werken — begrenzen",
+    body: "Begrens werken op arbeidstherapeutische basis in tijd en bouw door naar uren mét loonwaarde. Te lang arbeidstherapeutisch zonder loonwaarde is een grond om het Plan van Aanpak bij te stellen (Werkwijzer 3.2.4)." },
+  stagnatie: { level: "attention", title: "Stagnatie / hervatting instabiel",
+    body: "Stel het Plan van Aanpak bij. Loopt de re-integratie vast en komen werkgever en werknemer er samen niet uit, vraag dan een deskundigenoordeel aan bij UWV (Werkwijzer 3.2.4, 5.4)." },
+  arbeidsconflict: { level: "risk", title: "Arbeidsconflict genoemd",
+    body: "Zet mediation of een gesprek onder begeleiding in. Een ziekmelding is geen oplossing voor een conflict (Werkwijzer 5.3)." },
+  belastbaarheidNaEerstejaars: { level: "attention", title: "Belastbaarheid ontstaat pas na de eerstejaarsevaluatie",
+    body: "Houd maximaal 8 weken aan tussen het vaststellen van de belastbaarheid en de start van de activiteiten: 2 weken voor bijstelling van het PvA en 6 weken tot uitvoering (Werkwijzer 4.3.2)." },
+  gewijzigdeBelastbaarheidSpoor2: { level: "attention", title: "Gewijzigde belastbaarheid terwijl spoor 2 loopt",
+    body: "Informeer het re-integratiebureau direct over de gewijzigde belastbaarheid (Werkwijzer 4.3.4)." },
+};
+
 /**
  * @returns {Array<{level:'deadline'|'risk'|'attention'|'flag', title, body, deadlines?}>}
  */
-export function computeAdvice(fields, reportDate) {
+export function computeAdvice(fields, reportDate, signalen = {}) {
   const advies = [];
   const eersteZ = parseNL(getVal(fields, "eersteZ"));
   const gebd = parseNL(getVal(fields, "geboortedatum"));
@@ -96,8 +138,8 @@ export function computeAdvice(fields, reportDate) {
     if (aow <= addYears(eindeWacht, 1)) {
       advies.push({
         level: "attention",
-        title: "AOW binnen 1 jaar na einde wachttijd — spoor 2 (Werkwijzer 5.14)",
-        body: `De werknemer bereikt rond ${fmtNL(aow)} de AOW-leeftijd (indicatief — controleer bij de SVB). Van een tweede-spoortraject mag worden afgezien, mits werkgever én werknemer hier beiden mee instemmen; leg die instemming schriftelijk vast.`,
+        title: "Geen tweede spoor nodig — AOW binnen 1 jaar na de WIA-poort (Werkwijzer 5.14)",
+        body: `De werknemer bereikt rond ${fmtNL(aow)} de AOW-leeftijd — dat is binnen één jaar na het einde van de wachttijd (de WIA-poort, ${fmtNL(eindeWacht)}). Daarom hóeft een tweede-spoortraject niet te worden ingezet, mits werkgever én werknemer hier beiden mee instemmen; leg die instemming schriftelijk vast. (AOW-datum indicatief — controleer bij de SVB.)`,
       });
     }
     const venster0109_2025 = new Date(2025, 8, 1);
@@ -106,7 +148,7 @@ export function computeAdvice(fields, reportDate) {
       advies.push({
         level: "attention",
         title: "60-plusser — vereenvoudigde WIA-beoordeling",
-        body: `De werknemer is rond het einde van de wachttijd (${fmtNL(eindeWacht)}) ${leeftijdEW} jaar. Meld bij het WIA-venster (week 87–93): er bestaat een vereenvoudigde WIA-beoordeling voor 60-plussers, zonder verzekeringsarts; beide partijen moeten ermee instemmen.`,
+        body: `De werknemer is bij het einde van de wachttijd (${fmtNL(eindeWacht)}) ${leeftijdEW} jaar. Meld bij het WIA-venster (week 87–93): er bestaat een vereenvoudigde WIA-beoordeling voor 60-plussers, zonder verzekeringsarts; beide partijen moeten ermee instemmen. (Geldig voor einde wachttijd t/m 01-09-2027.)`,
       });
     }
   } else if (!gebd) {
@@ -145,12 +187,17 @@ export function computeAdvice(fields, reportDate) {
     });
   }
 
+  // ---- Voorwaardelijke adviezen op signaalwoorden (door de AI gedetecteerd) ----
+  for (const key of Object.keys(SIGNAAL_ADVIES)) {
+    if (signalen && signalen[key]) advies.push(SIGNAAL_ADVIES[key]);
+  }
+
   return advies;
 }
 
 /** Zet de adviezen om naar lopende alinea's voor het begeleidend bericht. */
-export function adviceParagraphs(fields, reportDate) {
-  const advies = computeAdvice(fields, reportDate);
+export function adviceParagraphs(fields, reportDate, signalen = {}) {
+  const advies = computeAdvice(fields, reportDate, signalen);
   const alineas = [];
   for (const a of advies) {
     if (a.deadlines && a.deadlines.length) {

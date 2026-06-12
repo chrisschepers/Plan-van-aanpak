@@ -72,8 +72,9 @@ check("berekend: AOW-datum aanwezig", !!byText(".field-row.computed .flabel", "A
 check("berekend: einde wachttijd aanwezig", !!byText(".field-row.computed .flabel", "Einde wachttijd") && !!byText(".field-row.computed .fval", "2027"));
 check("bron-highlights aanwezig (8)", $$(".srcdoc .hl").length === 8);
 check("geen medische redacties/beeld in bron meer", $$(".srcdoc span.redact").length === 0 && !byText(".srcdoc", "medisch beeld"));
-check("opbouwschema heeft 7 rijen", $$(".schema-table tbody tr").length === 7);
+check("opbouwschema heeft 7 rijen", $$(".schema-table:not(.termijnen-table) tbody tr").length === 7);
 check("schema eindigt op 100% per 21-04-2025", !!byText(".schema-table tr", "21-04-2025"));
+check("poortwachter-termijnen zichtbaar", !!byText(".termijnen-panel h3", "Poortwachter-termijnen") && !!byText(".termijnen-table", "42e-weeksmelding"));
 
 // veld → bron koppeling
 click($$(".field-row")[1]);

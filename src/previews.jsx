@@ -6,7 +6,7 @@
 
 import { I, getVal, isMissing } from "./data.jsx";
 import { fullRecoveryDate } from "./engine.js";
-import { SchemaRows } from "./fields.jsx";
+import { SchemaRows, TermijnenTabel } from "./fields.jsx";
 import { adviceParagraphs } from "./advice.js";
 
 function DocPreviewHead({ title, icon }) {
@@ -51,6 +51,9 @@ export function AdviesPreview({ fields, schema, reportDate }) {
           Volledige werkhervatting voorzien per {fullRecoveryDate(schema)}. Tussentijdse evaluatie aanbevolen;
           bij terugval wordt het schema in overleg bijgesteld.
         </p>
+
+        <h3>Poortwachter-termijnen</h3>
+        <TermijnenTabel fields={fields} compact />
       </div>
     </div>
   );
@@ -159,10 +162,10 @@ export function PvaPreview({ fields, schema, functieomschrijving }) {
 }
 
 // 3 — Begeleidend bericht aan werkgever (met de adviezen verweven)
-export function BerichtPreview({ fields, schema, reportDate, taaksuggestie }) {
+export function BerichtPreview({ fields, schema, reportDate, taaksuggestie, signalen }) {
   const naam = getVal(fields, "naam");
   const werknemer = isMissing(naam) ? "je werknemer" : naam;
-  const alineas = adviceParagraphs(fields, reportDate);
+  const alineas = adviceParagraphs(fields, reportDate, signalen);
   const taak = (taaksuggestie || "").trim();
   return (
     <div className="doc-preview">

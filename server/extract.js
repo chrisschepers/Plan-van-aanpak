@@ -31,6 +31,16 @@ BRONNEN: geef per functioneel veld een kort, letterlijk citaat uit de input waar
 
 TAAKSUGGESTIE: is er een functieomschrijving meegegeven, stel dan in 'taaksuggestie' in lopende tekst 1–3 concrete aangepaste taken voor die binnen de afgegeven belastbaarheid en werkaanpassing passen (bv. lichtere of afgebakende taken). Schrijf alleen de taken zelf, zonder disclaimer (die voegt de applicatie toe). Geen functieomschrijving meegegeven → laat 'taaksuggestie' leeg ("").
 
+SIGNALEN: zet elk signaal op true ALLEEN als de terugkoppeling dit duidelijk aangeeft, anders false (de applicatie koppelt hieraan de juiste Werkwijzer-adviezen):
+- geenBenutbareMogelijkheden: de bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn.
+- duurzaamGeenMogelijkheden: duurzaam geen mogelijkheden én geen herstelverwachting.
+- marginaleMogelijkheden: zeer beperkte/marginale belastbaarheid (slechts enkele uren of taken).
+- arbeidstherapeutisch: werken op arbeidstherapeutische basis (zonder loonwaarde) wordt genoemd.
+- stagnatie: de opbouw loopt achter op schema, de hervatting is instabiel, of er is uitval/terugval.
+- arbeidsconflict: er is sprake van een arbeidsconflict of verstoorde arbeidsverhouding.
+- belastbaarheidNaEerstejaars: de belastbaarheid ontstaat pas (ruim) na ongeveer een jaar verzuim.
+- gewijzigdeBelastbaarheidSpoor2: de belastbaarheid is gewijzigd terwijl een tweede-spoortraject loopt.
+
 Geef uitsluitend het gevraagde JSON-object terug.`;
 
 const str = { type: "string" };
@@ -71,12 +81,27 @@ const SCHEMA = {
       },
       required: ["functie", "contracturen", "eersteZiektedag", "belastbaarheid", "opbouwtempo", "startdatumOpbouw", "werkaanpassing", "prognose"],
     },
+    signalen: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        geenBenutbareMogelijkheden: { type: "boolean" },
+        duurzaamGeenMogelijkheden: { type: "boolean" },
+        marginaleMogelijkheden: { type: "boolean" },
+        arbeidstherapeutisch: { type: "boolean" },
+        stagnatie: { type: "boolean" },
+        arbeidsconflict: { type: "boolean" },
+        belastbaarheidNaEerstejaars: { type: "boolean" },
+        gewijzigdeBelastbaarheidSpoor2: { type: "boolean" },
+      },
+      required: ["geenBenutbareMogelijkheden", "duurzaamGeenMogelijkheden", "marginaleMogelijkheden", "arbeidstherapeutisch", "stagnatie", "arbeidsconflict", "belastbaarheidNaEerstejaars", "gewijzigdeBelastbaarheidSpoor2"],
+    },
   },
   required: [
     "functie", "contracturen", "eersteZiektedag", "geboortedatum",
     "einddatumDienstverband", "belastbaarheid", "opbouwtempo",
     "startdatumOpbouw", "werkaanpassing", "prognose",
-    "spreekuurdatum", "taaksuggestie", "reken", "bronnen",
+    "spreekuurdatum", "taaksuggestie", "reken", "bronnen", "signalen",
   ],
 };
 

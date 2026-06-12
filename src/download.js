@@ -10,7 +10,7 @@ import {
 } from "docx";
 import { getVal, isMissing } from "./casedata.js";
 import { fullRecoveryDate } from "./engine.js";
-import { adviceParagraphs } from "./advice.js";
+import { adviceParagraphs, poortwachterTermijnen } from "./advice.js";
 import { fillTemplate, buildUwvValues } from "./filltemplate.js";
 import { mergeLetterAndForm } from "./merge.js";
 
@@ -108,11 +108,12 @@ function schemaTable(schema) {
     schema.map((r) => [r.date, `${r.hours} uur`, `${r.pct}%`]));
 }
 
-export function buildDocxDocument(fields, schema, reportDate, taaksuggestie) {
+export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen) {
   const naam = getVal(fields, "naam");
   const hersteld = fullRecoveryDate(schema);
-  const alineas = adviceParagraphs(fields, reportDate);
+  const alineas = adviceParagraphs(fields, reportDate, signalen);
   const taak = (taaksuggestie || "").trim();
+  const termijnen = poortwachterTermijnen(fields);
 
   const doc = new Document({
     creator: "planvanaanpakinvuller.nl",
@@ -134,6 +135,8 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie) {
         h2("Opbouwschema"),
         schemaTable(schema),
         p(`Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.`, { color: GREY }),
+        h2("Poortwachter-termijnen"),
+        table(["Termijn", "Mijlpaal", "Wat de werkgever doet"], termijnen.map((m) => [`wk ${m.week}${m.datum ? " · " + m.datum : ""}`, m.mijlpaal, m.actie])),
         p("Het ingevulde Plan van aanpak is bijgevoegd als apart document in het officiële UWV-formulier (AG140).", { color: GREY }),
 
         // 2 — Begeleidend bericht (met de adviezen verweven)
@@ -193,8 +196,8 @@ export async function downloadUwvPva(fields, schema) {
 
 // Eén document: begeleidend bericht (briefpapier) + ingevuld UWV-PvA erachter.
 // Het UWV-formulier blijft ongewijzigd.
-export async function downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving) {
-  const letter = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie));
+export async function downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen) {
+  const letter = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen));
   const resp = await fetch(new URL("uwv-template.docx", document.baseURI));
   if (!resp.ok) throw new Error("UWV-sjabloon niet gevonden");
   const filled = await fillTemplate(await resp.arrayBuffer(), buildUwvValues(fields, schema, functieomschrijving));

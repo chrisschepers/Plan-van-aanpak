@@ -222,6 +222,9 @@
 .field-row.computed:hover { background: transparent; }
 .field-row.computed .fval { color: var(--navy); }
 .confirm-medical { margin-top: 18px; }
+.termijnen-table td { font-size: 13.5px; vertical-align: top; }
+.termijnen-table th:first-child, .termijnen-table td:first-child { width: 130px; }
+.termijnen-table th:nth-child(2), .termijnen-table td:nth-child(2) { width: 26%; }
 .func-omschrijving { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line-soft); }
 .func-omschrijving label { font-size: 15px; color: var(--navy-900); }
 .func-omschrijving .optioneel { color: var(--faint); font-weight: 500; }

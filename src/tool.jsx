@@ -5,7 +5,7 @@
 
 import { I, CASE, INITIAL_FIELDS, MISSING } from "./data.jsx";
 import { computeSchema } from "./engine.js";
-import { SchemaTable, FieldsPanel } from "./fields.jsx";
+import { SchemaTable, FieldsPanel, TermijnenTabel } from "./fields.jsx";
 import { SourceDoc } from "./sourcedoc.jsx";
 import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
 import { downloadCombined } from "./download.js";
@@ -46,6 +46,7 @@ function demoCasus() {
     mode: "demo", fields: INITIAL_FIELDS, schema, reportDate: CASE.reportDate, sources: null, contractHours: CASE.contractHours,
     functieomschrijving: "Administratief medewerker: postverwerking, gegevensinvoer, factuurcontrole, archiefbeheer en telefonische klantvragen.",
     taaksuggestie: "lichte administratieve taken zoals gegevensinvoer en het ordenen van dossiers, in blokken van beperkte duur met afwisseling tussen zitten en staan, en zonder taken met piekbelasting of strakke deadlines",
+    signalen: {},
   };
 }
 
@@ -310,6 +311,8 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
 
       <SchemaTable schema={schema} contractHours={contractHours} />
 
+      <TermijnenTabel fields={fields} />
+
       <div className="verify-foot">
         <label className={"control-check" + (checked ? " on" : "")} onClick={() => setChecked(!checked)}>
           <span className="box">{I.checkSm}</span>
@@ -333,14 +336,14 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
 
 /* ---------- Stap 3: Preview ---------- */
 function PreviewStep({ onBack, controleOk, casus }) {
-  const { fields, schema, reportDate, taaksuggestie, functieomschrijving } = casus;
+  const { fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen } = casus;
   const [tab, setTab] = React.useState(0);
   const [downloaded, setDownloaded] = React.useState(null);
   const [busyKey, setBusyKey] = React.useState(null);
   const tabs = [
     { t: "Opbouwadvies", el: <AdviesPreview fields={fields} schema={schema} reportDate={reportDate} /> },
     { t: "Plan van Aanpak", el: <PvaPreview fields={fields} schema={schema} functieomschrijving={functieomschrijving} /> },
-    { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} reportDate={reportDate} taaksuggestie={taaksuggestie} /> },
+    { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} reportDate={reportDate} taaksuggestie={taaksuggestie} signalen={signalen} /> },
   ];
 
   async function run(key, fn) {
@@ -381,7 +384,7 @@ function PreviewStep({ onBack, controleOk, casus }) {
           </div>
         </div>
         <div className="dl-buttons">
-          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("doc", () => downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving))}>
+          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("doc", () => downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen))}>
             {I.download} {busyKey === "doc" ? "Bezig…" : "Download als Word (.docx)"}
           </button>
         </div>

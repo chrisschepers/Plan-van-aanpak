@@ -2593,7 +2593,67 @@
     { from: 52, to: 999, title: "Bewaak spoor 2", body: "Bewaak dat spoor 2 daadwerkelijk loopt naast spoor 1, zolang volledige terugkeer niet zeker is." },
     { from: 87, to: 93, title: "Eindevaluatie & WIA-aanvraag", body: "Laat de bedrijfsarts een Actueel oordeel opstellen, vul samen de Eindevaluatie in en maak het re-integratieverslag compleet; werknemer vraagt uiterlijk week 93 WIA aan." }
   ];
-  function computeAdvice(fields, reportDate) {
+  var POORTWACHTER = [
+    { week: 1, mijlpaal: "Ziekmelding", actie: "Meld de werknemer ziek bij de arbodienst/bedrijfsarts en leg de eerste ziektedag vast." },
+    { week: 6, mijlpaal: "Probleemanalyse", actie: "De bedrijfsarts stelt de Probleemanalyse op (uiterlijk week 6)." },
+    { week: 8, mijlpaal: "Plan van Aanpak", actie: "Stel samen met de werknemer het Plan van Aanpak op (binnen 2 weken na de Probleemanalyse)." },
+    { week: 42, mijlpaal: "42e-weeksmelding bij UWV", actie: "Meld het langdurig verzuim bij UWV (verplicht in week 42)." },
+    { week: 52, mijlpaal: "Eerstejaarsevaluatie (opschudmoment)", actie: "Evalueer het eerste jaar met de werknemer; beoordeel of het tweede spoor moet starten." },
+    { week: 58, mijlpaal: "Tweede spoor uiterlijk gestart", actie: "Start zo nodig het tweede spoor (uiterlijk 6 weken na de eerstejaarsevaluatie), tenzij er concreet perspectief is op terugkeer in de eigen organisatie." },
+    { week: 87, mijlpaal: "WIA-aanvraag mogelijk", actie: "Laat de bedrijfsarts een Actueel oordeel opstellen en maak het re-integratieverslag (RIV) compleet." },
+    { week: 93, mijlpaal: "WIA uiterlijk aanvragen", actie: "De werknemer vraagt uiterlijk week 93 de WIA-uitkering aan; lever het volledige RIV mee." },
+    { week: 104, mijlpaal: "Einde wachttijd", actie: "Einde van de 2 jaar loondoorbetaling; de WIA-beoordeling bepaalt het vervolg." }
+  ];
+  function poortwachterTermijnen(fields) {
+    const eersteZ = parseNL(getVal(fields, "eersteZ"));
+    return POORTWACHTER.map((m) => ({
+      ...m,
+      datum: eersteZ ? fmtNL(addWeeks(eersteZ, m.week)) : ""
+    }));
+  }
+  var SIGNAAL_ADVIES = {
+    geenBenutbareMogelijkheden: {
+      level: "risk",
+      title: "Geen benutbare mogelijkheden (GBM)",
+      body: "Forceer nu geen re-integratieactiviteiten. De bedrijfsarts houdt de vinger aan de pols: plan vervolgconsulten en leg elke terugkoppeling vast. Duurt de GBM-situatie de volle 2 jaar, dan volstaat een beperkt re-integratieverslag (Werkwijzer 5.9, 3.1)."
+    },
+    duurzaamGeenMogelijkheden: {
+      level: "risk",
+      title: "Duurzaam geen mogelijkheden \u2014 overweeg vervroegde IVA",
+      body: "Is er duurzaam geen benutbare mogelijkheid \xE9n geen herstelverwachting, wijs dan op een vervroegde IVA-aanvraag (mogelijk tot week 68 van het verzuim)."
+    },
+    marginaleMogelijkheden: {
+      level: "attention",
+      title: "Marginale mogelijkheden",
+      body: "Lever extra inspanning om de geringe mogelijkheden bij de eigen werkgever te benutten (taken, uren, begeleiding). Het tweede spoor is hierbij niet snel aan de orde (Werkwijzer 5.8)."
+    },
+    arbeidstherapeutisch: {
+      level: "attention",
+      title: "Arbeidstherapeutisch werken \u2014 begrenzen",
+      body: "Begrens werken op arbeidstherapeutische basis in tijd en bouw door naar uren m\xE9t loonwaarde. Te lang arbeidstherapeutisch zonder loonwaarde is een grond om het Plan van Aanpak bij te stellen (Werkwijzer 3.2.4)."
+    },
+    stagnatie: {
+      level: "attention",
+      title: "Stagnatie / hervatting instabiel",
+      body: "Stel het Plan van Aanpak bij. Loopt de re-integratie vast en komen werkgever en werknemer er samen niet uit, vraag dan een deskundigenoordeel aan bij UWV (Werkwijzer 3.2.4, 5.4)."
+    },
+    arbeidsconflict: {
+      level: "risk",
+      title: "Arbeidsconflict genoemd",
+      body: "Zet mediation of een gesprek onder begeleiding in. Een ziekmelding is geen oplossing voor een conflict (Werkwijzer 5.3)."
+    },
+    belastbaarheidNaEerstejaars: {
+      level: "attention",
+      title: "Belastbaarheid ontstaat pas na de eerstejaarsevaluatie",
+      body: "Houd maximaal 8 weken aan tussen het vaststellen van de belastbaarheid en de start van de activiteiten: 2 weken voor bijstelling van het PvA en 6 weken tot uitvoering (Werkwijzer 4.3.2)."
+    },
+    gewijzigdeBelastbaarheidSpoor2: {
+      level: "attention",
+      title: "Gewijzigde belastbaarheid terwijl spoor 2 loopt",
+      body: "Informeer het re-integratiebureau direct over de gewijzigde belastbaarheid (Werkwijzer 4.3.4)."
+    }
+  };
+  function computeAdvice(fields, reportDate, signalen = {}) {
     const advies = [];
     const eersteZ = parseNL(getVal(fields, "eersteZ"));
     const gebd = parseNL(getVal(fields, "geboortedatum"));
@@ -2632,8 +2692,8 @@
       if (aow <= addYears(eindeWacht, 1)) {
         advies.push({
           level: "attention",
-          title: "AOW binnen 1 jaar na einde wachttijd \u2014 spoor 2 (Werkwijzer 5.14)",
-          body: `De werknemer bereikt rond ${fmtNL(aow)} de AOW-leeftijd (indicatief \u2014 controleer bij de SVB). Van een tweede-spoortraject mag worden afgezien, mits werkgever \xE9n werknemer hier beiden mee instemmen; leg die instemming schriftelijk vast.`
+          title: "Geen tweede spoor nodig \u2014 AOW binnen 1 jaar na de WIA-poort (Werkwijzer 5.14)",
+          body: `De werknemer bereikt rond ${fmtNL(aow)} de AOW-leeftijd \u2014 dat is binnen \xE9\xE9n jaar na het einde van de wachttijd (de WIA-poort, ${fmtNL(eindeWacht)}). Daarom h\xF3eft een tweede-spoortraject niet te worden ingezet, mits werkgever \xE9n werknemer hier beiden mee instemmen; leg die instemming schriftelijk vast. (AOW-datum indicatief \u2014 controleer bij de SVB.)`
         });
       }
       const venster0109_2025 = new Date(2025, 8, 1);
@@ -2642,7 +2702,7 @@
         advies.push({
           level: "attention",
           title: "60-plusser \u2014 vereenvoudigde WIA-beoordeling",
-          body: `De werknemer is rond het einde van de wachttijd (${fmtNL(eindeWacht)}) ${leeftijdEW} jaar. Meld bij het WIA-venster (week 87\u201393): er bestaat een vereenvoudigde WIA-beoordeling voor 60-plussers, zonder verzekeringsarts; beide partijen moeten ermee instemmen.`
+          body: `De werknemer is bij het einde van de wachttijd (${fmtNL(eindeWacht)}) ${leeftijdEW} jaar. Meld bij het WIA-venster (week 87\u201393): er bestaat een vereenvoudigde WIA-beoordeling voor 60-plussers, zonder verzekeringsarts; beide partijen moeten ermee instemmen. (Geldig voor einde wachttijd t/m 01-09-2027.)`
         });
       }
     } else if (!gebd) {
@@ -2678,10 +2738,13 @@
         body: "Bij een tijdelijk contract: geef de einddatum door. Eindigt het contract tijdens de ziekte, dan bepaalt de ziekteduur op de einddatum welk re-integratieverslag nodig is (geen / verkort / volledig) en gelden Ziektewet-regels."
       });
     }
+    for (const key of Object.keys(SIGNAAL_ADVIES)) {
+      if (signalen && signalen[key]) advies.push(SIGNAAL_ADVIES[key]);
+    }
     return advies;
   }
-  function adviceParagraphs(fields, reportDate) {
-    const advies = computeAdvice(fields, reportDate);
+  function adviceParagraphs(fields, reportDate, signalen = {}) {
+    const advies = computeAdvice(fields, reportDate, signalen);
     const alineas = [];
     for (const a of advies) {
       if (a.deadlines && a.deadlines.length) {
@@ -2695,6 +2758,10 @@
   }
 
   // src/fields.jsx
+  function TermijnenTabel({ fields, compact }) {
+    const rows = poortwachterTermijnen(fields);
+    return /* @__PURE__ */ React.createElement("div", { className: "panel termijnen-panel", style: { marginTop: compact ? 0 : 22 } }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Poortwachter-termijnen"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Wat moet wanneer \u2014 gerekend vanaf de eerste ziektedag")), /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Wet verbetering poortwachter")), /* @__PURE__ */ React.createElement("table", { className: "schema-table termijnen-table" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Termijn"), /* @__PURE__ */ React.createElement("th", null, "Mijlpaal"), /* @__PURE__ */ React.createElement("th", null, "Wat de werkgever doet"))), /* @__PURE__ */ React.createElement("tbody", null, rows.map((r, i) => /* @__PURE__ */ React.createElement("tr", { key: i }, /* @__PURE__ */ React.createElement("td", { className: "date", style: { whiteSpace: "nowrap" } }, "wk ", r.week, r.datum ? /* @__PURE__ */ React.createElement(React.Fragment, null, " \xB7 ", r.datum) : null), /* @__PURE__ */ React.createElement("td", { style: { fontWeight: 600, color: "var(--navy-900)" } }, r.mijlpaal), /* @__PURE__ */ React.createElement("td", { style: { color: "var(--ink-soft)" } }, r.actie))))));
+  }
   function SchemaRows({ schema }) {
     return /* @__PURE__ */ React.createElement("tbody", null, schema.map((r, i) => /* @__PURE__ */ React.createElement("tr", { key: i }, /* @__PURE__ */ React.createElement("td", { className: "date" }, r.date), /* @__PURE__ */ React.createElement("td", { className: "hours" }, r.hours, " uur"), /* @__PURE__ */ React.createElement("td", { className: "pct-cell" }, /* @__PURE__ */ React.createElement("div", { className: "pct-bar" }, /* @__PURE__ */ React.createElement("div", { className: "pct-track" }, /* @__PURE__ */ React.createElement("div", { className: "pct-fill", style: { width: r.pct + "%" } })), /* @__PURE__ */ React.createElement("span", { className: "pct-num" }, r.pct, "%"))))));
   }
@@ -2812,7 +2879,7 @@
     return isMissing(v) ? /* @__PURE__ */ React.createElement("dd", { className: "flag" }, "[INVULLEN]") : /* @__PURE__ */ React.createElement("dd", null, v);
   }
   function AdviesPreview({ fields, schema, reportDate }) {
-    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Opbouw- en re-integratieadvies", icon: I.scale }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet" }, /* @__PURE__ */ React.createElement("h2", null, "Opbouw- en re-integratieadvies"), /* @__PURE__ */ React.createElement("p", { className: "wvp" }, "Concept op basis van de terugkoppeling bedrijfsarts d.d. ", reportDate), /* @__PURE__ */ React.createElement("h3", null, "Uitgangspunten"), /* @__PURE__ */ React.createElement("dl", { className: "kv" }, /* @__PURE__ */ React.createElement("dt", null, "Contracturen"), /* @__PURE__ */ React.createElement(Val, { fields, id: "uren" }), /* @__PURE__ */ React.createElement("dt", null, "Belastbaarheid"), /* @__PURE__ */ React.createElement(Val, { fields, id: "belast" }), /* @__PURE__ */ React.createElement("dt", null, "Opbouwtempo"), /* @__PURE__ */ React.createElement(Val, { fields, id: "opbouw" }), /* @__PURE__ */ React.createElement("dt", null, "Startdatum opbouw"), /* @__PURE__ */ React.createElement(Val, { fields, id: "start" })), /* @__PURE__ */ React.createElement("h3", null, "Opbouwschema"), /* @__PURE__ */ React.createElement("table", { className: "schema-table", style: { marginTop: 4 } }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Per datum"), /* @__PURE__ */ React.createElement("th", null, "Uren per week"), /* @__PURE__ */ React.createElement("th", null, "Hersteld"))), /* @__PURE__ */ React.createElement(SchemaRows, { schema })), /* @__PURE__ */ React.createElement("p", { style: { marginTop: 16, fontSize: 13.5, color: "var(--muted)" } }, "Volledige werkhervatting voorzien per ", fullRecoveryDate(schema), ". Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.")));
+    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Opbouw- en re-integratieadvies", icon: I.scale }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet" }, /* @__PURE__ */ React.createElement("h2", null, "Opbouw- en re-integratieadvies"), /* @__PURE__ */ React.createElement("p", { className: "wvp" }, "Concept op basis van de terugkoppeling bedrijfsarts d.d. ", reportDate), /* @__PURE__ */ React.createElement("h3", null, "Uitgangspunten"), /* @__PURE__ */ React.createElement("dl", { className: "kv" }, /* @__PURE__ */ React.createElement("dt", null, "Contracturen"), /* @__PURE__ */ React.createElement(Val, { fields, id: "uren" }), /* @__PURE__ */ React.createElement("dt", null, "Belastbaarheid"), /* @__PURE__ */ React.createElement(Val, { fields, id: "belast" }), /* @__PURE__ */ React.createElement("dt", null, "Opbouwtempo"), /* @__PURE__ */ React.createElement(Val, { fields, id: "opbouw" }), /* @__PURE__ */ React.createElement("dt", null, "Startdatum opbouw"), /* @__PURE__ */ React.createElement(Val, { fields, id: "start" })), /* @__PURE__ */ React.createElement("h3", null, "Opbouwschema"), /* @__PURE__ */ React.createElement("table", { className: "schema-table", style: { marginTop: 4 } }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Per datum"), /* @__PURE__ */ React.createElement("th", null, "Uren per week"), /* @__PURE__ */ React.createElement("th", null, "Hersteld"))), /* @__PURE__ */ React.createElement(SchemaRows, { schema })), /* @__PURE__ */ React.createElement("p", { style: { marginTop: 16, fontSize: 13.5, color: "var(--muted)" } }, "Volledige werkhervatting voorzien per ", fullRecoveryDate(schema), ". Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld."), /* @__PURE__ */ React.createElement("h3", null, "Poortwachter-termijnen"), /* @__PURE__ */ React.createElement(TermijnenTabel, { fields, compact: true })));
   }
   function UwvBar({ nr, children }) {
     return /* @__PURE__ */ React.createElement("div", { className: "uwv-bar" }, /* @__PURE__ */ React.createElement("span", { className: "uwv-nr" }, nr), children);
@@ -2839,10 +2906,10 @@
       ["Werknemer verschijnt op het vervolgconsult bij de bedrijfsarts.", "Werknemer", "Conform oproep arbodienst"]
     ] }), /* @__PURE__ */ React.createElement("div", { className: "uwv-cat" }, "7F  Overige activiteiten"), /* @__PURE__ */ React.createElement(ActTable, { rows: [["Werkgever en werknemer evalueren de voortgang en stellen het Plan van aanpak bij wanneer de belastbaarheid wijzigt.", "Werkgever en werknemer", "Elke 6 weken"]] }), /* @__PURE__ */ React.createElement(UwvBar, { nr: "8" }, "Mening over de gemaakte afspraken"), /* @__PURE__ */ React.createElement(UwvHelp, null, "In te vullen door werknemer en werkgever zelf."), /* @__PURE__ */ React.createElement(UwvBar, { nr: "9" }, "Te laat opgesteld Plan van aanpak"), /* @__PURE__ */ React.createElement(UwvRow, { label: "Reden", value: "" }), /* @__PURE__ */ React.createElement(UwvBar, { nr: "10" }, "Ondertekening"), /* @__PURE__ */ React.createElement("div", { className: "uwv-sign" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, "Werkgever"), /* @__PURE__ */ React.createElement("span", null, "Datum: ____________"), /* @__PURE__ */ React.createElement("span", null, "Handtekening:")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, "Werknemer"), /* @__PURE__ */ React.createElement("span", null, "Datum: ____________"), /* @__PURE__ */ React.createElement("span", null, "Handtekening:"))), /* @__PURE__ */ React.createElement("div", { className: "uwv-foot" }, "AG140  03041  05-23")));
   }
-  function BerichtPreview({ fields, schema, reportDate, taaksuggestie }) {
+  function BerichtPreview({ fields, schema, reportDate, taaksuggestie, signalen }) {
     const naam = getVal(fields, "naam");
     const werknemer = isMissing(naam) ? "je werknemer" : naam;
-    const alineas = adviceParagraphs(fields, reportDate);
+    const alineas = adviceParagraphs(fields, reportDate, signalen);
     const taak = (taaksuggestie || "").trim();
     return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), /* @__PURE__ */ React.createElement("p", null, "Werknemer is belastbaar voor ", getVal(fields, "belast").toLowerCase(), ". De bedrijfsarts adviseert een opbouw vanaf ", getVal(fields, "start"), ", ", getVal(fields, "opbouw").toLowerCase(), ", van ", schema[0].hours, " naar ", schema[schema.length - 1].hours, " uur. Volledige werkhervatting is voorzien rond ", fullRecoveryDate(schema), ". Houd rekening met de werkaanpassing:", " ", getVal(fields, "beperking").toLowerCase(), "."), alineas.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: i }, t)), taak && /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Suggestie voor aangepaste taken."), " Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ", taak, ".", " ", /* @__PURE__ */ React.createElement("em", null, "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.")), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de open velden ([INVULLEN]) samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("strong", { style: { color: "var(--navy-900)" } }, "[INVULLEN: naam afzender]"))));
   }
@@ -21160,11 +21227,12 @@
       schema.map((r) => [r.date, `${r.hours} uur`, `${r.pct}%`])
     );
   }
-  function buildDocxDocument(fields, schema, reportDate, taaksuggestie) {
+  function buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen) {
     const naam = getVal(fields, "naam");
     const hersteld = fullRecoveryDate(schema);
-    const alineas = adviceParagraphs(fields, reportDate);
+    const alineas = adviceParagraphs(fields, reportDate, signalen);
     const taak = (taaksuggestie || "").trim();
+    const termijnen = poortwachterTermijnen(fields);
     const doc = new File({
       creator: "planvanaanpakinvuller.nl",
       title: `Plan van Aanpak \u2014 ${naam}`,
@@ -21185,6 +21253,8 @@
           h2("Opbouwschema"),
           schemaTable(schema),
           p(`Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.`, { color: GREY }),
+          h2("Poortwachter-termijnen"),
+          table(["Termijn", "Mijlpaal", "Wat de werkgever doet"], termijnen.map((m) => [`wk ${m.week}${m.datum ? " \xB7 " + m.datum : ""}`, m.mijlpaal, m.actie])),
           p("Het ingevulde Plan van aanpak is bijgevoegd als apart document in het offici\xEBle UWV-formulier (AG140).", { color: GREY }),
           // 2 — Begeleidend bericht (met de adviezen verweven)
           new Paragraph({ children: [new PageBreak()] }),
@@ -21222,8 +21292,8 @@
     setTimeout(() => URL.revokeObjectURL(url), 4e3);
     return filename;
   }
-  async function downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving) {
-    const letter = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie));
+  async function downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen) {
+    const letter = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen));
     const resp = await fetch(new URL("uwv-template.docx", document.baseURI));
     if (!resp.ok) throw new Error("UWV-sjabloon niet gevonden");
     const filled = await fillTemplate(await resp.arrayBuffer(), buildUwvValues(fields, schema, functieomschrijving));
@@ -21317,7 +21387,8 @@
       reportDate: (d.spreekuurdatum || "").trim() || todayNL(),
       sources,
       functieomschrijving: functieomschrijving || "",
-      taaksuggestie: (d.taaksuggestie || "").trim()
+      taaksuggestie: (d.taaksuggestie || "").trim(),
+      signalen: d.signalen || {}
     };
   }
 
@@ -21345,7 +21416,8 @@
       sources: null,
       contractHours: CASE.contractHours,
       functieomschrijving: "Administratief medewerker: postverwerking, gegevensinvoer, factuurcontrole, archiefbeheer en telefonische klantvragen.",
-      taaksuggestie: "lichte administratieve taken zoals gegevensinvoer en het ordenen van dossiers, in blokken van beperkte duur met afwisseling tussen zitten en staan, en zonder taken met piekbelasting of strakke deadlines"
+      taaksuggestie: "lichte administratieve taken zoals gegevensinvoer en het ordenen van dossiers, in blokken van beperkte duur met afwisseling tussen zitten en staan, en zonder taken met piekbelasting of strakke deadlines",
+      signalen: {}
     };
   }
   function UploadStep({ onResult }) {
@@ -21497,17 +21569,17 @@
     return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 2 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Controleer de ge\xEBxtraheerde gegevens"), /* @__PURE__ */ React.createElement("p", null, "Links de ingevulde velden, rechts de bron. Klik een veld om de bijbehorende passage te zien. Corrigeer waar nodig en vul ontbrekende velden aan.")), /* @__PURE__ */ React.createElement("div", { className: "gate-banner" }, I.hand, /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("strong", null, "Menselijke controle is verplicht."), " Niets wordt vastgesteld of gedownload zonder dat jij het hebt nagelopen en bevestigd.")), /* @__PURE__ */ React.createElement("div", { className: "verify-grid" }, /* @__PURE__ */ React.createElement(FieldsPanel, { fields, selected, onSelect: select, onEdit }), mode === "demo" ? /* @__PURE__ */ React.createElement(SourceDoc, { active: activeSrc, onSel: (id) => {
       const f = allItems.find((it) => it.src === id);
       if (f) setSelectedId(f.id);
-    } }) : /* @__PURE__ */ React.createElement(AiSourcePanel, { selected, sources })), /* @__PURE__ */ React.createElement(SchemaTable, { schema, contractHours }), /* @__PURE__ */ React.createElement("div", { className: "verify-foot" }, /* @__PURE__ */ React.createElement("label", { className: "control-check" + (checked ? " on" : ""), onClick: () => setChecked(!checked) }, /* @__PURE__ */ React.createElement("span", { className: "box" }, I.checkSm), /* @__PURE__ */ React.createElement("span", { className: "ct" }, /* @__PURE__ */ React.createElement("strong", null, "Ik heb de gegevens gecontroleerd"), "Ik bevestig dat ik de ge\xEBxtraheerde gegevens heb nagelopen en corrigeer ontbrekende velden v\xF3\xF3r vaststelling.")), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !checked, onClick: onNext }, "Naar preview ", I.arrowRight)), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar upload"), /* @__PURE__ */ React.createElement("span", null)));
+    } }) : /* @__PURE__ */ React.createElement(AiSourcePanel, { selected, sources })), /* @__PURE__ */ React.createElement(SchemaTable, { schema, contractHours }), /* @__PURE__ */ React.createElement(TermijnenTabel, { fields }), /* @__PURE__ */ React.createElement("div", { className: "verify-foot" }, /* @__PURE__ */ React.createElement("label", { className: "control-check" + (checked ? " on" : ""), onClick: () => setChecked(!checked) }, /* @__PURE__ */ React.createElement("span", { className: "box" }, I.checkSm), /* @__PURE__ */ React.createElement("span", { className: "ct" }, /* @__PURE__ */ React.createElement("strong", null, "Ik heb de gegevens gecontroleerd"), "Ik bevestig dat ik de ge\xEBxtraheerde gegevens heb nagelopen en corrigeer ontbrekende velden v\xF3\xF3r vaststelling.")), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !checked, onClick: onNext }, "Naar preview ", I.arrowRight)), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar upload"), /* @__PURE__ */ React.createElement("span", null)));
   }
   function PreviewStep({ onBack, controleOk, casus }) {
-    const { fields, schema, reportDate, taaksuggestie, functieomschrijving } = casus;
+    const { fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen } = casus;
     const [tab, setTab] = React.useState(0);
     const [downloaded, setDownloaded] = React.useState(null);
     const [busyKey, setBusyKey] = React.useState(null);
     const tabs = [
       { t: "Opbouwadvies", el: /* @__PURE__ */ React.createElement(AdviesPreview, { fields, schema, reportDate }) },
       { t: "Plan van Aanpak", el: /* @__PURE__ */ React.createElement(PvaPreview, { fields, schema, functieomschrijving }) },
-      { t: "Begeleidend bericht", el: /* @__PURE__ */ React.createElement(BerichtPreview, { fields, schema, reportDate, taaksuggestie }) }
+      { t: "Begeleidend bericht", el: /* @__PURE__ */ React.createElement(BerichtPreview, { fields, schema, reportDate, taaksuggestie, signalen }) }
     ];
     async function run(key, fn) {
       setBusyKey(key);
@@ -21519,7 +21591,7 @@
         setBusyKey(null);
       }
     }
-    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 3 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Preview en download"), /* @__PURE__ */ React.createElement("p", null, "Bekijk de drie onderdelen. Stel het concept samen met de werknemer vast en download het als Word-document.")), /* @__PURE__ */ React.createElement("div", { className: "preview-tabs" }, tabs.map((tb, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: tab === i ? "active" : "", onClick: () => setTab(i) }, /* @__PURE__ */ React.createElement("span", { className: "tnum" }, i + 1), /* @__PURE__ */ React.createElement("span", { className: "txt" }, tb.t)))), tabs[tab].el, /* @__PURE__ */ React.createElement("div", { className: "download-bar" }, /* @__PURE__ */ React.createElement("div", { className: "dl-info" }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.download), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "E\xE9n Word-document: begeleidend bericht + Plan van aanpak (UWV)"), /* @__PURE__ */ React.createElement("p", null, controleOk ? /* @__PURE__ */ React.createElement("span", { className: "review-confirm" }, I.checkSm, " Menselijke controle bevestigd in stap 2") : "Controle in stap 2 is vereist v\xF3\xF3r downloaden"))), /* @__PURE__ */ React.createElement("div", { className: "dl-buttons" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-accent btn-lg", disabled: !controleOk || busyKey, onClick: () => run("doc", () => downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving)) }, I.download, " ", busyKey === "doc" ? "Bezig\u2026" : "Download als Word (.docx)"))), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar controle"), /* @__PURE__ */ React.createElement("span", null)), downloaded && /* @__PURE__ */ React.createElement("div", { className: "toast", onClick: () => setDownloaded(null) }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.checkSm), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tt" }, downloaded, " gedownload"), /* @__PURE__ */ React.createElement("div", { className: "ts" }, "Concept \xB7 controleer en stel vast met de werknemer"))));
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 3 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Preview en download"), /* @__PURE__ */ React.createElement("p", null, "Bekijk de drie onderdelen. Stel het concept samen met de werknemer vast en download het als Word-document.")), /* @__PURE__ */ React.createElement("div", { className: "preview-tabs" }, tabs.map((tb, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: tab === i ? "active" : "", onClick: () => setTab(i) }, /* @__PURE__ */ React.createElement("span", { className: "tnum" }, i + 1), /* @__PURE__ */ React.createElement("span", { className: "txt" }, tb.t)))), tabs[tab].el, /* @__PURE__ */ React.createElement("div", { className: "download-bar" }, /* @__PURE__ */ React.createElement("div", { className: "dl-info" }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.download), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "E\xE9n Word-document: begeleidend bericht + Plan van aanpak (UWV)"), /* @__PURE__ */ React.createElement("p", null, controleOk ? /* @__PURE__ */ React.createElement("span", { className: "review-confirm" }, I.checkSm, " Menselijke controle bevestigd in stap 2") : "Controle in stap 2 is vereist v\xF3\xF3r downloaden"))), /* @__PURE__ */ React.createElement("div", { className: "dl-buttons" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-accent btn-lg", disabled: !controleOk || busyKey, onClick: () => run("doc", () => downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen)) }, I.download, " ", busyKey === "doc" ? "Bezig\u2026" : "Download als Word (.docx)"))), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar controle"), /* @__PURE__ */ React.createElement("span", null)), downloaded && /* @__PURE__ */ React.createElement("div", { className: "toast", onClick: () => setDownloaded(null) }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.checkSm), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tt" }, downloaded, " gedownload"), /* @__PURE__ */ React.createElement("div", { className: "ts" }, "Concept \xB7 controleer en stel vast met de werknemer"))));
   }
   function Tool({ onClose }) {
     const [step, setStep] = React.useState(0);
