@@ -147,7 +147,7 @@ L.push(
 const TRIGGERS = {
   geenBenutbareMogelijkheden: "De bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn.",
   duurzaamGeenMogelijkheden: "Duurzaam geen mogelijkheden én geen herstelverwachting.",
-  marginaleMogelijkheden: "Zeer beperkte/marginale belastbaarheid (slechts enkele uren of taken).",
+  marginaleMogelijkheden: "Marginale belastbaarheid: maximaal circa 2 uur per dag inzetbaar én zonder uitzicht op opbouw. Bij een opbouwperspectief (tempo genoemd of volgt op het vervolgconsult) gaat dit signaal niet aan.",
   arbeidstherapeutisch: "Werken op arbeidstherapeutische basis (zonder loonwaarde) wordt genoemd.",
   stagnatie: "De opbouw loopt achter op schema, de hervatting is instabiel, of er is uitval/terugval.",
   arbeidsconflict: "Er is sprake van een arbeidsconflict of verstoorde arbeidsverhouding.",

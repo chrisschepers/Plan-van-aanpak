@@ -36,7 +36,7 @@ TAAKSUGGESTIE: is er een functieomschrijving meegegeven, stel dan in 'taaksugges
 SIGNALEN: zet elk signaal op true ALLEEN als de terugkoppeling dit duidelijk aangeeft, anders false (de applicatie koppelt hieraan de juiste Werkwijzer-adviezen):
 - geenBenutbareMogelijkheden: de bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn.
 - duurzaamGeenMogelijkheden: duurzaam geen mogelijkheden én geen herstelverwachting.
-- marginaleMogelijkheden: zeer beperkte/marginale belastbaarheid (slechts enkele uren of taken).
+- marginaleMogelijkheden: de belastbaarheid is marginaal: maximaal circa 2 uur per dag inzetbaar én zonder uitzicht op opbouw. Noemt de bedrijfsarts wél een opbouwperspectief (bv. een tempo, of dat het tempo op een vervolgconsult wordt bepaald), dan is dit signaal false.
 - arbeidstherapeutisch: werken op arbeidstherapeutische basis (zonder loonwaarde) wordt genoemd.
 - stagnatie: de opbouw loopt achter op schema, de hervatting is instabiel, of er is uitval/terugval.
 - arbeidsconflict: er is sprake van een arbeidsconflict of verstoorde arbeidsverhouding.
