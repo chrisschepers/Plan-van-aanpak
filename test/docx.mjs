@@ -63,6 +63,7 @@ check(".docx bevat begeleidend bericht aan werkgever", xml.includes("Beste werkg
 check(".docx bevat opbouwschema-datum 10-03-2025", xml.includes("10-03-2025"));
 
 check(".docx bevat poortwachter-termijnen", xml.includes("Poortwachter-termijnen") && xml.includes("42e-weeksmelding"));
+check("termijnen staan aan het einde van de brief (na de afzender)", xml.indexOf("Poortwachter-termijnen") > xml.indexOf("Met vriendelijke groet"));
 
 // met functieomschrijving → taaksuggestie + disclaimer in het bericht
 const docTaak = buildDocxDocument(INITIAL_FIELDS, schema, CASE.reportDate, "lichte administratieve taken met afwisseling zitten/staan");

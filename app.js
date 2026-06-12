@@ -21340,9 +21340,6 @@
           h2("Opbouwschema"),
           schemaTable(schema),
           p(`Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.`, { color: GREY }),
-          h2("Poortwachter-termijnen"),
-          table(["Termijn", "Mijlpaal", "Wat de werkgever doet"], termijnen.map((m) => [`wk ${m.week}${m.datum ? " \xB7 " + m.datum : ""}`, m.mijlpaal, m.actie])),
-          p("Het ingevulde Plan van aanpak is bijgevoegd als apart document in het offici\xEBle UWV-formulier (AG140).", { color: GREY }),
           // 2 — Begeleidend bericht (met de adviezen verweven)
           new Paragraph({ children: [new PageBreak()] }),
           h1("Begeleidend bericht"),
@@ -21357,7 +21354,14 @@
           ] })] : [],
           p("Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."),
           p("Met vriendelijke groet,"),
-          new Paragraph({ children: [new TextRun({ text: "(naam en functie van de afzender)", italics: true, color: GREY, size: 22, font: FONT })] })
+          new Paragraph({ children: [new TextRun({ text: "(naam en functie van de afzender)", italics: true, color: GREY, size: 22, font: FONT })] }),
+          // 3 — Poortwachter-termijnen: als afsluitend overzicht van de brief,
+          // direct vóór het Plan van aanpak (het UWV-formulier volgt als sectie 2).
+          new Paragraph({ children: [new PageBreak()] }),
+          h1("Poortwachter-termijnen"),
+          sub("Overzicht van de wettelijke mijlpalen, gerekend vanaf de eerste ziektedag."),
+          table(["Termijn", "Mijlpaal", "Wat de werkgever doet"], termijnen.map((m) => [`wk ${m.week}${m.datum ? " \xB7 " + m.datum : ""}`, m.mijlpaal, m.actie])),
+          p("Hierna volgt het ingevulde Plan van aanpak in het offici\xEBle UWV-formulier (AG140).", { color: GREY })
         ]
       }]
     });
