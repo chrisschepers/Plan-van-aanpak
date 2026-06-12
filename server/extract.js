@@ -135,5 +135,9 @@ export async function extractFields(sourceBlocks, functieomschrijving = "") {
 
   const textBlock = response.content.find((b) => b.type === "text");
   if (!textBlock) throw new Error("Geen tekstantwoord van het model");
-  return JSON.parse(textBlock.text);
+  const data = JSON.parse(textBlock.text);
+  // Harde regel, niet afhankelijk van prompt-gehoorzaamheid: zonder meegegeven
+  // functieomschrijving komt er nooit een taaksuggestie in de output.
+  if (!functieomschrijving || !functieomschrijving.trim()) data.taaksuggestie = "";
+  return data;
 }
