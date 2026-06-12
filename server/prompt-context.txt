@@ -39,6 +39,9 @@ VELDREGELS:
 - Ontbreekt een gegeven of twijfel je, gebruik een lege string "" (voor
   'reken'-getallen: gebruik 0).
 - Neem namen, datums en uren letterlijk over zoals ze in de input staan.
+- naam: naam van de werknemer (voorletters + achternaam). Een naam is geen medisch
+  gegeven en mag wél worden overgenomen; een BSN nooit. Leeg laten als die ontbreekt.
+- naamBedrijfsarts: naam van de bedrijfsarts die de terugkoppeling opstelde.
 
 OPBOUW (reken): leid de uitgangspunten voor het opbouwschema af:
 - contractHours: contracturen per week (geheel getal).
@@ -107,6 +110,8 @@ Het bericht aan Claude bestaat uit, in deze volgorde:
 Leeg veld = "" (en bij de reken-getallen = 0). Toelichting staat tussen ( ).
 
 {
+  "naam": "",                     (voorletters + achternaam werknemer; géén BSN)
+  "naamBedrijfsarts": "",         (naam van de bedrijfsarts die terugkoppelt)
   "functie": "",                  (functie van de werknemer)
   "contracturen": "",             (bv. "32 uur per week")
   "eersteZiektedag": "",          (DD-MM-JJJJ)
@@ -170,6 +175,13 @@ het ziek-uit-dienst-blok (RIV-varianten 5.5–5.7) worden deterministisch bereke
 5. WAT ER DAARNA GEBEURT (ter info — niet door Claude)
 ------------------------------------------------------------------------------
 - De site bouwt uit 'reken' het OPBOUWSCHEMA deterministisch (geen AI-rekenwerk).
+  Noemt de bedrijfsarts GEEN concreet ritme (weeklyIncrease = 0, vaak het geval —
+  bv. "enkele uren per week"), dan stelt de site ZELF een schema op: tweewekelijks
+  één uur per werkdag erbij (36/38/40 u → 5 werkdagen; 28–35 → 4; 22–27 → 3; enz.),
+  oplopend tot de contracturen. Dit wordt in het concept expliciet vermeld als een
+  zelf opgesteld schema. Verzin dus zelf nooit een ritme dat de arts niet noemt.
+- Ontbreekt de einddatum dienstverband, dan gaat de site uit van een VAST contract
+  en meldt daarover niets (geen ziek-uit-dienst-blok).
 - De velden komen op het verificatiescherm; jij controleert en corrigeert.
 - 'AOW-datum' en 'einde wachttijd' worden door de site berekend (geboortedatum +67;
   eerste ziektedag +104 weken).

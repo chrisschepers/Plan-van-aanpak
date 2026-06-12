@@ -63,9 +63,10 @@ await wait(2300);
 
 // Stap 2 — verificatie
 check("stap 2: verificatiescherm", !!byText("h1", "Controleer de geëxtraheerde gegevens"));
-check("data-velden aanwezig (10)", $$(".field-row:not(.computed)").length === 10);
+check("data-velden aanwezig (12)", $$(".field-row:not(.computed)").length === 12);
 check("1 veld ontbreekt (einddatum)", $$(".field-row.missing").length === 1);
-check("naam/werkgever/evaluatie verwijderd", !byText(".field-row .flabel", "Naam werknemer") && !byText(".field-row .flabel", "Eerstvolgende evaluatie"));
+check("naam werknemer + bedrijfsarts aanwezig", !!byText(".field-row .flabel", "Naam werknemer") && !!byText(".field-row .flabel", "Naam bedrijfsarts"));
+check("werkgever/evaluatie verwijderd", !byText(".field-row .flabel", "Bedrijfsnaam") && !byText(".field-row .flabel", "Eerstvolgende evaluatie"));
 check("geboortedatum-veld aanwezig", !!byText(".field-row .flabel", "Geboortedatum"));
 check("einddatum dienstverband-veld aanwezig", !!byText(".field-row .flabel", "Einddatum dienstverband"));
 check("berekend: AOW-datum aanwezig", !!byText(".field-row.computed .flabel", "AOW") && !!byText(".field-row.computed .fval", "2054"));
@@ -76,8 +77,8 @@ check("opbouwschema heeft 7 rijen", $$(".schema-table:not(.termijnen-table) tbod
 check("schema eindigt op 100% per 21-04-2025", !!byText(".schema-table tr", "21-04-2025"));
 check("poortwachter-termijnen zichtbaar", !!byText(".termijnen-panel h3", "Poortwachter-termijnen") && !!byText(".termijnen-table", "42e-weeksmelding"));
 
-// veld → bron koppeling
-click($$(".field-row")[1]);
+// veld → bron koppeling (klik op een veld mét bronpassage, bv. Functie)
+click(byText(".field-row .flabel", "Functie").closest(".field-row"));
 await wait(30);
 check("veldklik activeert bron-highlight", $$(".hl.active").length === 1);
 
@@ -105,7 +106,9 @@ click($$(".preview-tabs button")[2]);
 await wait(30);
 check("bericht-tab toont begeleidend bericht", !!byText(".doc-sheet h2", "Begeleidend bericht"));
 check("bericht bevat verweven advies (verzuimdossier)", !!byText(".doc-sheet", "verzuimdossier"));
-check("bericht bevat einddatum-advies", !!byText(".doc-sheet", "einddatum"));
+check("bericht bevat kernzin belastbaarheid", !!byText(".doc-sheet", "belastbaarheid"));
+check("geen einddatum-ontbreekt-advies (vast contract aangenomen)", !byText(".doc-sheet", "Einddatum dienstverband ontbreekt"));
+check("geen letterlijke [INVULLEN] in bericht", !byText(".doc-sheet", "[INVULLEN]"));
 check("bericht bevat taaksuggestie (aangepaste taken)", !!byText(".doc-sheet", "aangepaste taken"));
 check("bericht bevat disclaimer (niet eenzijdig in dossier)", !!byText(".doc-sheet", "niet eenzijdig in het dossier"));
 // Eén gecombineerde downloadknop, actief na controle (download zelf: zie merge.mjs)

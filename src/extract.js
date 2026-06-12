@@ -3,7 +3,7 @@
    Het schema wordt hier deterministisch berekend (rekenmotor), niet door de AI. */
 
 import { BACKEND_URL } from "./config.js";
-import { computeSchema } from "./engine.js";
+import { computeSchema, computeDefaultSchema } from "./engine.js";
 
 const MISSING = "[INVULLEN]";
 
@@ -38,6 +38,14 @@ export async function extractCasus({ file, text, functieomschrijving }) {
 function isoToNL(iso) {
   return /^\d{4}-\d{2}-\d{2}$/.test(iso || "") ? iso.split("-").reverse().join("-") : "";
 }
+function nlToISO(nl) {
+  return /^\d{2}-\d{2}-\d{4}$/.test(nl || "") ? nl.split("-").reverse().join("-") : "";
+}
+function todayISO() {
+  const x = new Date();
+  const p = (n) => String(n).padStart(2, "0");
+  return `${x.getFullYear()}-${p(x.getMonth() + 1)}-${p(x.getDate())}`;
+}
 function todayNL() {
   const x = new Date();
   const p = (n) => String(n).padStart(2, "0");
@@ -55,6 +63,8 @@ function mapExtraction(d, functieomschrijving) {
 
   const fields = [
     { group: "Werknemer & dienstverband", items: [
+      mk("naam", "Naam werknemer", d.naam, null),
+      mk("naamBedrijfsarts", "Naam bedrijfsarts", d.naamBedrijfsarts, null),
       mk("functie", "Functie", d.functie, b.functie),
       mk("uren", "Contracturen", d.contracturen, b.contracturen),
       mk("eersteZ", "Eerste ziektedag", d.eersteZiektedag, b.eersteZiektedag),
@@ -74,21 +84,33 @@ function mapExtraction(d, functieomschrijving) {
 
   const r = d.reken || {};
   let schema;
+  let schemaZelfOpgesteld = false;
   if (r.contractHours > 0 && r.startHours > 0 && r.weeklyIncrease > 0 && /^\d{4}-\d{2}-\d{2}$/.test(r.startDateISO || "")) {
+    // De bedrijfsarts noemt een concreet wekelijks ritme → dat volgen.
     schema = computeSchema({
       contractHours: r.contractHours, startHours: r.startHours,
       weeklyIncrease: r.weeklyIncrease, startDate: r.startDateISO,
     });
+  } else if (r.contractHours > 0) {
+    // Geen concreet ritme doorgegeven → zelf een opbouwschema opstellen
+    // (tweewekelijks één uur per werkdag erbij). Dat mag; we melden het expliciet.
+    const startISO = /^\d{4}-\d{2}-\d{2}$/.test(r.startDateISO || "")
+      ? r.startDateISO
+      : nlToISO((d.startdatumOpbouw || "").trim()) || todayISO();
+    schema = computeDefaultSchema({ contractHours: r.contractHours, startDate: startISO });
+    schemaZelfOpgesteld = true;
   } else {
-    // Geen concreet ritme: één regel zodat de rest van de flow blijft werken.
+    // Zelfs de contracturen ontbreken: één regel zodat de rest van de flow blijft werken.
     const disp = isoToNL(r.startDateISO) || (d.startdatumOpbouw || "").trim() || "—";
-    schema = [{ date: disp, hours: r.contractHours || 0, pct: 100 }];
+    schema = [{ date: disp, hours: 0, pct: 100 }];
+    schemaZelfOpgesteld = true;
   }
 
   return {
     mode: "ai",
     fields,
     schema,
+    schemaZelfOpgesteld,
     reportDate: (d.spreekuurdatum || "").trim() || todayNL(),
     sources,
     functieomschrijving: functieomschrijving || "",

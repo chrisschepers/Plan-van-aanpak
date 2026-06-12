@@ -250,12 +250,6 @@
    Geef de eerste ziektedag door, dan stem ik de procesadviezen af op de
    verzuimduur.
 
- • Einddatum dienstverband ontbreekt   [aanvul-verzoek]
-   Bij een tijdelijk contract: geef de einddatum door. Eindigt het contract
-   tijdens de ziekte, dan bepaalt de ziekteduur op de einddatum welk
-   re-integratieverslag nodig is (geen / verkort / volledig) en gelden
-   Ziektewet-regels.
-
  • Geboortedatum ontbreekt   [aanvul-verzoek]
    Geef de geboortedatum door; voor oudere werknemers gelden uitzonderingen rond
    spoor 2 (AOW) en de WIA-beoordeling (60-plus).

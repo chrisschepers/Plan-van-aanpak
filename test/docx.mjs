@@ -51,7 +51,7 @@ const headers = await allText(zip0, "word/header");
 const footers = await allText(zip0, "word/footer");
 check("briefhoofd bevat merknaam", headers.includes("planvanaanpak") && headers.includes("invuller.nl"));
 check("briefvoet bevat EER/privacy-regel", footers.includes("EER") && footers.includes("Privacy by design"));
-check("briefvoet heeft [INVULLEN] bedrijfsnaam/KVK", footers.includes("bedrijfsnaam") && footers.includes("KVK"));
+check("briefvoet noemt afzender (bedrijfsnaam/KVK), zonder letterlijke [INVULLEN]", footers.includes("bedrijfsnaam") && footers.includes("KVK") && !footers.includes("[INVULLEN]"));
 
 // Dit document is het begeleidend bericht (met opbouwadvies + verweven adviezen);
 // het ingevulde Plan van aanpak zelf zit in het echte UWV-sjabloon (zie template.mjs).
@@ -78,7 +78,8 @@ check(".docx vuurt voorwaardelijk advies (arbeidsconflict → mediation 5.3)", x
 // adviezen verweven in het begeleidend bericht
 check(".docx bevat altijd-advies (verzuimdossier)", xml.includes("verzuimdossier"));
 check(".docx bevat procesadvies (PvA uiterlijk week 8)", xml.includes("week 8"));
-check(".docx vraagt om einddatum dienstverband", xml.includes("einddatum"));
+check(".docx neemt vast contract aan bij ontbrekende einddatum (geen flag)", !xml.includes("Einddatum dienstverband ontbreekt"));
+check(".docx bevat geen letterlijke [INVULLEN]", !xml.includes("[INVULLEN]"));
 
 // ---- 2. Met ingevulde einddatum tijdens ziekte -> ZUD-advies (verkort/volledig RIV) ----
 const adviesZud = computeAdvice(setField(INITIAL_FIELDS, "einddatum", "30-06-2025"), CASE.reportDate);

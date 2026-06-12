@@ -10,7 +10,7 @@ import {
 } from "docx";
 import { getVal, isMissing } from "./casedata.js";
 import { fullRecoveryDate } from "./engine.js";
-import { adviceParagraphs, poortwachterTermijnen } from "./advice.js";
+import { adviceParagraphs, poortwachterTermijnen, berichtKern } from "./advice.js";
 import { fillTemplate, buildUwvValues } from "./filltemplate.js";
 import { mergeLetterAndForm } from "./merge.js";
 
@@ -45,7 +45,7 @@ function brandFooter() {
       children: [new TextRun({ text: "planvanaanpakinvuller.nl · Privacy by design, mens in de loop · Verwerking binnen de EER · Geen training op klantdata", color: GREY, size: 14, font: "Calibri" })],
     }),
     new Paragraph({ alignment: AlignmentType.CENTER,
-      children: [new TextRun({ text: "[INVULLEN: bedrijfsnaam · KVK · contactgegevens]", color: FAINT, size: 14, font: "Calibri" })] }),
+      children: [new TextRun({ text: "(bedrijfsnaam · KVK · contactgegevens van de afzender)", color: FAINT, size: 14, font: "Calibri" })] }),
   ] });
 }
 
@@ -108,12 +108,17 @@ function schemaTable(schema) {
     schema.map((r) => [r.date, `${r.hours} uur`, `${r.pct}%`]));
 }
 
-export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen) {
+export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld) {
   const naam = getVal(fields, "naam");
   const hersteld = fullRecoveryDate(schema);
   const alineas = adviceParagraphs(fields, reportDate, signalen);
+  const kern = berichtKern(fields, schema, schemaZelfOpgesteld);
   const taak = (taaksuggestie || "").trim();
   const termijnen = poortwachterTermijnen(fields);
+  const startRaw = getVal(fields, "start");
+  const startDisplay = isMissing(startRaw) ? (schema[0] ? schema[0].date : "—") : startRaw;
+  const opbouwDisplay = schemaZelfOpgesteld || isMissing(getVal(fields, "opbouw"))
+    ? "Niet door de bedrijfsarts gespecificeerd" : getVal(fields, "opbouw");
 
   const doc = new Document({
     creator: "planvanaanpakinvuller.nl",
@@ -130,8 +135,9 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
         h2("Uitgangspunten"),
         kv("Contracturen", txt(fields, "uren")),
         kv("Belastbaarheid", txt(fields, "belast")),
-        kv("Opbouwtempo", txt(fields, "opbouw")),
-        kv("Startdatum opbouw", txt(fields, "start")),
+        kv("Opbouwtempo", opbouwDisplay),
+        kv("Startdatum opbouw", startDisplay),
+        ...(schemaZelfOpgesteld ? [p("De bedrijfsarts heeft geen concreet opbouwtempo gespecificeerd. Daarom is hieronder zelf een opbouwschema opgesteld: tweewekelijks één uur per werkdag erbij, oplopend naar de contracturen. Stem dit af met de werknemer en bedrijfsarts.", { color: GREY })] : []),
         h2("Opbouwschema"),
         schemaTable(schema),
         p(`Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.`, { color: GREY }),
@@ -144,16 +150,16 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
         h1("Begeleidend bericht"),
         sub(`Onderwerp: Concept Plan van aanpak${isMissing(naam) ? "" : " — " + naam}`),
         p(`Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}.`),
-        p(`Werknemer is belastbaar voor ${getVal(fields, "belast").toLowerCase()}. De bedrijfsarts adviseert een opbouw vanaf ${getVal(fields, "start")}, ${getVal(fields, "opbouw").toLowerCase()}, van ${schema[0].hours} naar ${schema[schema.length - 1].hours} uur. Volledige werkhervatting is voorzien rond ${hersteld}. Houd rekening met de werkaanpassing: ${getVal(fields, "beperking").toLowerCase()}.`),
+        ...kern.map((t) => p(t)),
         ...alineas.map((t) => p(t)),
         ...(taak ? [new Paragraph({ spacing: { after: 120 }, children: [
           new TextRun({ text: "Suggestie voor aangepaste taken. ", bold: true, color: NAVY, size: 22, font: FONT }),
           new TextRun({ text: `Op basis van de functieomschrijving zou je — binnen de afgegeven mogelijkheden — kunnen denken aan ${taak}. `, size: 22, font: FONT }),
           new TextRun({ text: "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.", italics: true, size: 22, font: FONT }),
         ] })] : []),
-        p("Bespreek het concept met je werknemer, vul de open velden ([INVULLEN]) samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."),
+        p("Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."),
         p("Met vriendelijke groet,"),
-        new Paragraph({ children: [new TextRun({ text: "[INVULLEN: naam afzender]", bold: true, color: NAVY, size: 22 })] }),
+        new Paragraph({ children: [new TextRun({ text: "(naam en functie van de afzender)", italics: true, color: GREY, size: 22, font: FONT })] }),
       ],
     }],
   });
@@ -196,8 +202,8 @@ export async function downloadUwvPva(fields, schema) {
 
 // Eén document: begeleidend bericht (briefpapier) + ingevuld UWV-PvA erachter.
 // Het UWV-formulier blijft ongewijzigd.
-export async function downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen) {
-  const letter = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen));
+export async function downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld) {
+  const letter = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld));
   const resp = await fetch(new URL("uwv-template.docx", document.baseURI));
   if (!resp.ok) throw new Error("UWV-sjabloon niet gevonden");
   const filled = await fillTemplate(await resp.arrayBuffer(), buildUwvValues(fields, schema, functieomschrijving));

@@ -44,6 +44,14 @@ export function fillDocumentXml(xml, values) {
   repls.sort((a, b) => b[0] - a[0]);
   let out = xml;
   for (const [s, e, t] of repls) out = out.slice(0, s) + t + out.slice(e);
+
+  // Einddoel: kruis altijd het eerste vakje aan — "Werkhervatting in de eigen
+  // functie". Dat is in dit formulier de eerste FORMCHECKBOX, dus we zetten de
+  // default van de eerste checkbox op aangevinkt (1).
+  out = out.replace(
+    '<w:checkBox><w:sizeAuto/><w:default w:val="0"/></w:checkBox>',
+    '<w:checkBox><w:sizeAuto/><w:default w:val="1"/></w:checkBox>'
+  );
   return out;
 }
 
@@ -56,25 +64,35 @@ export function fillDocumentXml(xml, values) {
  * BSN (veld 2) blijft altijd leeg.
  */
 export function buildUwvValues(fields, schema, functieomschrijving) {
-  const start = getVal(fields, "start");
-  const lastH = schema[schema.length - 1].hours;
   const v = (id) => { const x = getVal(fields, id); return isMissing(x) ? "" : x; };
-  const opbouw = `Werknemer hervat/bouwt op conform het opbouwschema van de bedrijfsarts (start ${start}, ${getVal(fields, "opbouw").toLowerCase()} tot ${lastH} uur).`;
+  const startRaw = getVal(fields, "start");
+  const start = isMissing(startRaw) ? (schema[0] ? schema[0].date : "") : startRaw;
+  const fromH = schema[0] ? schema[0].hours : 0;
+  const lastH = schema[schema.length - 1] ? schema[schema.length - 1].hours : 0;
+  const opbouwVal = getVal(fields, "opbouw");
+  const ritme = isMissing(opbouwVal) ? "tweewekelijks één uur per werkdag erbij" : opbouwVal.toLowerCase();
+  const opbouw = `Werknemer bouwt op van ${fromH} naar ${lastH} uur volgens het opbouwschema (start ${start}, ${ritme}).`;
+  const beperkingVal = getVal(fields, "beperking");
+  const arbeidsinhoud = isMissing(beperkingVal)
+    ? "Werkgever en werknemer stellen samen passende werkzaamheden vast binnen de aangegeven mogelijkheden."
+    : `Werkgever en werknemer stellen samen passende werkzaamheden vast binnen de aangegeven mogelijkheden (${beperkingVal.toLowerCase()}).`;
   const fo = (functieomschrijving || "").trim();
 
   return {
-    1: v("naam"),
-    3: v("werkgever"),
-    6: v("functie"),
-    7: fo, // 4.2 Omschrijving van de werkzaamheden (uit de functieomschrijving)
+    1: v("naam"),               // 1.1 Voorletters en achternaam
+    5: v("naamBedrijfsarts"),   // 3.1 Naam bedrijfsarts
+    6: v("functie"),            // 4.1 Functie
+    7: fo,                      // 4.2 Omschrijving van de werkzaamheden (uit de functieomschrijving)
+    8: "Door de werknemer zelf in te vullen.",  // 5.1 Mening werknemer
+    9: "Door de werkgever zelf in te vullen.",  // 5.2 Mening werkgever
     // 7A Arbeidsinhoud — rij 1
-    11: `Werkgever en werknemer stellen samen passende werkzaamheden vast binnen de aangegeven mogelijkheden (${getVal(fields, "beperking").toLowerCase()}).`,
+    11: arbeidsinhoud,
     12: "Werkgever en werknemer",
-    13: `Per ${start}`,
+    13: start ? `Per ${start}` : "In overleg",
     // 7E Sociaal-medische zaken — rij 1 (opbouw) en rij 2 (vervolgconsult)
     59: opbouw,
     60: "Werknemer en werkgever",
-    61: `Per ${start}`,
+    61: start ? `Per ${start}` : "In overleg",
     62: "Werknemer verschijnt op het vervolgconsult bij de bedrijfsarts.",
     63: "Werknemer",
     64: "Conform oproep arbodienst",

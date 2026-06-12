@@ -19,6 +19,8 @@ VELDREGELS:
 - Datumnotatie voor tekstvelden: DD-MM-JJJJ. Voor 'reken.startDateISO': JJJJ-MM-DD.
 - Ontbreekt een gegeven of twijfel je, gebruik een lege string "" (voor 'reken'-getallen: gebruik 0).
 - Neem namen, datums en uren letterlijk over zoals ze in de input staan.
+- naam: de naam van de werknemer (voorletters en achternaam) zoals die in de terugkoppeling staat. Een naam is geen medisch gegeven en mag wél worden overgenomen. Geen BSN. Leeg laten ("") als de naam ontbreekt.
+- naamBedrijfsarts: de naam van de bedrijfsarts/arbo-arts die de terugkoppeling heeft opgesteld (bv. "drs. A. Heijmans"). Leeg laten ("") als die ontbreekt.
 
 OPBOUW (reken): leid de uitgangspunten voor het opbouwschema af:
 - contractHours: contracturen per week (geheel getal).
@@ -49,6 +51,8 @@ const SCHEMA = {
   type: "object",
   additionalProperties: false,
   properties: {
+    naam: str,
+    naamBedrijfsarts: str,
     functie: str,
     contracturen: str,
     eersteZiektedag: str,
@@ -100,6 +104,7 @@ const SCHEMA = {
     },
   },
   required: [
+    "naam", "naamBedrijfsarts",
     "functie", "contracturen", "eersteZiektedag", "geboortedatum",
     "einddatumDienstverband", "belastbaarheid", "opbouwtempo",
     "startdatumOpbouw", "werkaanpassing", "prognose",

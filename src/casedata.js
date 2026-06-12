@@ -17,6 +17,8 @@ export const CASE = {
 // die vult de werkgever zelf in. Geboortedatum en einddatum sturen de adviezen.
 export const INITIAL_FIELDS = [
   { group: "Werknemer & dienstverband", items: [
+    { id: "naam",         label: "Naam werknemer",          value: "J. de Vries",               status: "ok",      src: null },
+    { id: "naamBedrijfsarts", label: "Naam bedrijfsarts",   value: "drs. A. Heijmans",          status: "ok",      src: null },
     { id: "functie",      label: "Functie",                 value: "Administratief medewerker", status: "ok",      src: "s-functie" },
     { id: "uren",         label: "Contracturen",            value: "32 uur per week",           status: "ok",      src: "s-uren" },
     { id: "eersteZ",      label: "Eerste ziektedag",        value: "03-02-2025",                status: "ok",      src: "s-eerste" },

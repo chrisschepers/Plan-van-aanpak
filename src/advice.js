@@ -4,7 +4,8 @@
    Poortwachter. Datums in de cards: DD-MM-JJJJ (jaar erbij omdat 104 weken twee
    kalenderjaren beslaat); het opbouwschema/PvA volgt de DD-MM-notatie. */
 
-import { getVal } from "./casedata.js";
+import { getVal, isMissing } from "./casedata.js";
+import { fullRecoveryDate } from "./engine.js";
 
 function parseNL(s) {
   if (!s) return null;
@@ -187,20 +188,59 @@ export function computeAdvice(fields, reportDate, signalen = {}) {
         body: `Het dienstverband eindigt op ${fmtNL(einddienst)}, na het einde van de wachttijd. De gebruikelijke re-integratieverplichtingen gedurende de eerste 104 weken blijven van toepassing.`,
       });
     }
-  } else if (!einddienst) {
-    advies.push({
-      level: "flag",
-      title: "Einddatum dienstverband ontbreekt",
-      body: "Bij een tijdelijk contract: geef de einddatum door. Eindigt het contract tijdens de ziekte, dan bepaalt de ziekteduur op de einddatum welk re-integratieverslag nodig is (geen / verkort / volledig) en gelden Ziektewet-regels.",
-    });
   }
+  // Geen einddatum doorgegeven → uitgaan van een vast contract; hierover niets melden.
 
   // ---- Voorwaardelijke adviezen op signaalwoorden (door de AI gedetecteerd) ----
+  const verzuimweek = eersteZ ? Math.max(0, weeksBetween(eersteZ, peil)) : 0;
   for (const key of Object.keys(SIGNAAL_ADVIES)) {
-    if (signalen && signalen[key]) advies.push(SIGNAAL_ADVIES[key]);
+    if (!signalen || !signalen[key]) continue;
+    if (key === "marginaleMogelijkheden") {
+      // De opmerking 'spoor 2 is niet snel aan de orde' speelt pas rond het eerste
+      // ziektejaar. Bij een paar weken verzuim laten we die bewust weg.
+      const rondJaar = eersteZ && verzuimweek >= 46;
+      advies.push({
+        level: "attention",
+        title: "Marginale mogelijkheden",
+        body: rondJaar
+          ? "De belastbaarheid is op dit moment zeer beperkt (marginale mogelijkheden). Lever extra inspanning om juist die geringe mogelijkheden bij de eigen werkgever te benutten — in taken, uren en begeleiding. Gezien de duur van het verzuim is het tweede spoor hier voorlopig niet snel aan de orde (Werkwijzer 5.8); beoordeel dit rond de eerstejaarsevaluatie opnieuw."
+          : "De belastbaarheid is op dit moment zeer beperkt (marginale mogelijkheden). Lever extra inspanning om juist die geringe mogelijkheden bij de eigen werkgever te benutten — in taken, uren en begeleiding, en bouw uit zodra de belastbaarheid dat toelaat.",
+      });
+      continue;
+    }
+    advies.push(SIGNAAL_ADVIES[key]);
   }
 
   return advies;
+}
+
+function ensureDot(s) { s = String(s).trim(); return s && !/[.!?]$/.test(s) ? s + "." : s; }
+
+/** Kernzinnen van het begeleidend bericht (belastbaarheid + opbouw + werkaanpassing).
+ *  Robuust bij waarden die hele zinnen zijn; geen [INVULLEN] in de tekst. */
+export function berichtKern(fields, schema, schemaZelfOpgesteld) {
+  const naam = getVal(fields, "naam");
+  const werknemer = isMissing(naam) ? "de werknemer" : naam;
+  const belast = getVal(fields, "belast");
+  const opbouw = getVal(fields, "opbouw");
+  const start = getVal(fields, "start");
+  const beperking = getVal(fields, "beperking");
+  const startD = schema[0] ? schema[0].date : "";
+  const eindD = schema.length ? fullRecoveryDate(schema) : "";
+  const fromH = schema[0] ? schema[0].hours : 0;
+  const toH = schema.length ? schema[schema.length - 1].hours : 0;
+
+  const zinnen = [];
+  if (!isMissing(belast)) zinnen.push(ensureDot(`De bedrijfsarts beschrijft de belastbaarheid van ${werknemer} als volgt: ${belast}`));
+  if (schema.length >= 2) {
+    if (schemaZelfOpgesteld) {
+      zinnen.push(`De bedrijfsarts heeft geen concreet opbouwtempo gespecificeerd. Op basis van de afgegeven mogelijkheden is een opbouwschema opgesteld dat vanaf ${startD} tweewekelijks met één uur per werkdag oploopt van ${fromH} naar ${toH} uur; volledige werkhervatting is daarmee voorzien rond ${eindD}.`);
+    } else {
+      zinnen.push(`De geadviseerde opbouw start op ${isMissing(start) ? startD : start} en loopt op van ${fromH} naar ${toH} uur${isMissing(opbouw) ? "" : ` (${opbouw.toLowerCase()})`}; volledige werkhervatting is voorzien rond ${eindD}.`);
+    }
+  }
+  if (!isMissing(beperking)) zinnen.push(ensureDot(`Houd rekening met de werkaanpassing: ${beperking}`));
+  return zinnen;
 }
 
 /** Zet de adviezen om naar lopende alinea's voor het begeleidend bericht. */

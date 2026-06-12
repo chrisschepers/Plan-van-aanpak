@@ -45,14 +45,17 @@ function readResults(doc) {
 const res = readResults(filled);
 
 check("91 FORMTEXT-velden", Object.keys(res).length === 91);
-check("veld 1 (naam) blijft leeg — werkgever vult zelf in", (res[1] || "").trim() === "");
+check("veld 1 (naam) = naam werknemer (AI kent deze)", res[1] === "J. de Vries");
 check("veld 2 (BSN) blijft leeg", (res[2] || "").trim() === "");
 check("veld 3 (bedrijfsnaam) blijft leeg — werkgever vult zelf in", (res[3] || "").trim() === "");
+check("veld 5 (bedrijfsarts) = naam bedrijfsarts", res[5] === "drs. A. Heijmans");
 check("veld 6 = functie", res[6] === "Administratief medewerker");
+check("veld 8 (5.1 werknemer) — zelf invullen", res[8].includes("werknemer zelf"));
+check("veld 9 (5.2 werkgever) — zelf invullen", res[9].includes("werkgever zelf"));
 check("7A activiteit (11) gevuld", res[11].startsWith("Werkgever en werknemer stellen"));
 check("7A wie (12)", res[12] === "Werkgever en werknemer");
 check("7A planning (13)", res[13] === "Per 10-03-2025");
-check("7E opbouw-activiteit (59)", res[59].startsWith("Werknemer hervat/bouwt op"));
+check("7E opbouw-activiteit (59)", res[59].startsWith("Werknemer bouwt op van"));
 check("7E vervolgconsult (62)", res[62].includes("vervolgconsult"));
 check("7F evaluatie (71)", res[71].includes("evalueren de voortgang"));
 
