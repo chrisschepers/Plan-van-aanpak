@@ -22163,6 +22163,23 @@
     if (!/Extension="png"/.test(tCT)) {
       tCT = tCT.replace("<Default", '<Default Extension="png" ContentType="image/png"/><Default');
     }
+    const formSectRe = /<w:sectPr\b[^>]*>([\s\S]*?)<\/w:sectPr>/g;
+    const formSects = [...tDoc.matchAll(formSectRe)];
+    const lastSect = formSects[formSects.length - 1];
+    if (lastSect && !/w:headerReference[^>]*w:type="first"/.test(lastSect[1])) {
+      const blankId = "rId" + (maxId + parts.length + 1);
+      T.file(
+        "word/headerBlank.xml",
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p/></w:hdr>'
+      );
+      ctAdd += `<Override PartName="/word/headerBlank.xml" ContentType="${HEADER_CT}"/>`;
+      relAdd += `<Relationship Id="${blankId}" Type="${REL}header" Target="headerBlank.xml"/>`;
+      const patched = lastSect[0].replace(
+        /^(<w:sectPr\b[^>]*>)/,
+        `$1<w:headerReference w:type="first" r:id="${blankId}"/>`
+      );
+      tDoc = tDoc.slice(0, lastSect.index) + patched + tDoc.slice(lastSect.index + lastSect[0].length);
+    }
     T.file("[Content_Types].xml", tCT.replace("</Types>", ctAdd + "</Types>"));
     T.file("word/_rels/document.xml.rels", tRels.replace("</Relationships>", relAdd + "</Relationships>"));
     const sect1Para = `<w:p><w:pPr>${letterSect}</w:pPr></w:p>`;

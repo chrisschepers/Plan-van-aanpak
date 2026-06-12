@@ -22,6 +22,9 @@ const fields = INITIAL_FIELDS.map((g) => ({ ...g, items: g.items.map((it) =>
 const tpl = await JSZip.loadAsync(readFileSync("uwv-template.docx"));
 const formXml = fillDocumentXml(await tpl.file("word/document.xml").async("string"), buildUwvValues(fields, schema));
 const formBodyInner = formXml.slice(formXml.indexOf("<w:body>") + 8, formXml.lastIndexOf("</w:body>"));
+// De formulier-INHOUD (alles vóór de body-sectPr) moet letterlijk behouden blijven;
+// de merge mag wél de sectPr aanvullen (lege eerste-pagina-header, zie hieronder).
+const formContent = formBodyInner.slice(0, formBodyInner.lastIndexOf("<w:sectPr"));
 
 // Bouw los formulier-pakket (zoals downloadUwvPva doet)
 const formZip = await JSZip.loadAsync(readFileSync("uwv-template.docx"));
@@ -38,9 +41,13 @@ const mDoc = await M.file("word/document.xml").async("string");
 const mCT = await M.file("[Content_Types].xml").async("string");
 const mRels = await M.file("word/_rels/document.xml.rels").async("string");
 
-// 1) Formulier ongewijzigd: het hele formulier-body komt letterlijk voor in het merge-document
-check("UWV-formulier letterlijk ongewijzigd aanwezig", mDoc.includes(formBodyInner));
+// 1) Formulier-inhoud ongewijzigd: alle formuliervelden/-tekst komen letterlijk voor
+check("UWV-formulierinhoud letterlijk ongewijzigd aanwezig", mDoc.includes(formContent));
 check("91 FORMTEXT-velden behouden", (mDoc.match(/FORMTEXT/g) || []).length === 91);
+// De formuliersectie krijgt een eigen lege eerste-pagina-header (geen briefhoofd-lek)
+check("formuliersectie heeft eigen eerste-pagina-header", mDoc.includes('w:headerReference w:type="first"') && !!M.file("word/headerBlank.xml"));
+const formSectPr = mDoc.slice(mDoc.lastIndexOf("<w:sectPr"));
+check("formulier behoudt eigen default-header (UWV)", /w:headerReference[^>]*w:type="default"[^>]*r:id="rId12"/.test(formSectPr));
 check("UWV-logo/fonts behouden", !!M.file("word/media/image1.png") && !!M.file("word/fontTable.xml"));
 check("AG140-footer behouden", !!M.file("word/footer1.xml"));
 
