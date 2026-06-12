@@ -27,6 +27,16 @@ function yearsBetween(from, to) {
 
 const AOW_LEEFTIJD = 67; // indicatief; exacte AOW-leeftijd opvragen bij SVB
 
+/** Automatisch berekende waarden uit de gegevens (alleen-lezen weergave). */
+export function computeDerived(fields) {
+  const eersteZ = parseNL(getVal(fields, "eersteZ"));
+  const gebd = parseNL(getVal(fields, "geboortedatum"));
+  return {
+    aow: gebd ? fmtNL(addYears(gebd, AOW_LEEFTIJD)) : "",
+    eindeWacht: eersteZ ? fmtNL(addWeeks(eersteZ, 104)) : "",
+  };
+}
+
 // Adviestijdlijn (Agentprompt v2). weekTo: 999 = open einde.
 const TIMELINE = [
   { from: 0,  to: 8,   title: "Plan van Aanpak op tijd",            body: "Stel het Plan van Aanpak uiterlijk in week 8 op (2 weken na de probleemanalyse)." },

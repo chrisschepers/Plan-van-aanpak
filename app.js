@@ -2410,13 +2410,11 @@
   };
   var INITIAL_FIELDS = [
     { group: "Werknemer & dienstverband", items: [
-      { id: "naam", label: "Naam werknemer", value: "J. de Vries", status: "ok", src: "s-naam" },
       { id: "functie", label: "Functie", value: "Administratief medewerker", status: "ok", src: "s-functie" },
       { id: "uren", label: "Contracturen", value: "32 uur per week", status: "ok", src: "s-uren" },
       { id: "eersteZ", label: "Eerste ziektedag", value: "03-02-2025", status: "ok", src: "s-eerste" },
       { id: "geboortedatum", label: "Geboortedatum", value: "14-08-1987", status: "ok", src: null },
-      { id: "einddatum", label: "Einddatum dienstverband", value: "[INVULLEN]", status: "missing", src: null },
-      { id: "werkgever", label: "Werkgever", value: "[INVULLEN]", status: "missing", src: null }
+      { id: "einddatum", label: "Einddatum dienstverband", value: "[INVULLEN]", status: "missing", src: null }
     ] },
     { group: "Belastbaarheid & opbouw", items: [
       { id: "belast", label: "Belastbaarheid", value: "Licht werk, opbouw vanaf 2\xD74 uur", status: "ok", src: "s-belast" },
@@ -2425,8 +2423,7 @@
       { id: "beperking", label: "Werkaanpassing", value: "Afwisseling zitten/staan, geen piekbelasting", status: "ok", src: "s-aanpassing" }
     ] },
     { group: "Prognose", items: [
-      { id: "prognose", label: "Prognose herstel", value: "Volledige werkhervatting binnen \xB17 weken", status: "ok", src: "s-prognose" },
-      { id: "evaluatie", label: "Eerstvolgende evaluatie", value: "[INVULLEN]", status: "missing", src: null }
+      { id: "prognose", label: "Prognose herstel", value: "Volledige werkhervatting binnen \xB17 weken", status: "ok", src: "s-prognose" }
     ] }
   ];
   var MISSING = "[INVULLEN]";
@@ -2549,110 +2546,6 @@
     return schema[schema.length - 1].date;
   }
 
-  // src/fields.jsx
-  function SchemaRows({ schema }) {
-    return /* @__PURE__ */ React.createElement("tbody", null, schema.map((r, i) => /* @__PURE__ */ React.createElement("tr", { key: i }, /* @__PURE__ */ React.createElement("td", { className: "date" }, r.date), /* @__PURE__ */ React.createElement("td", { className: "hours" }, r.hours, " uur"), /* @__PURE__ */ React.createElement("td", { className: "pct-cell" }, /* @__PURE__ */ React.createElement("div", { className: "pct-bar" }, /* @__PURE__ */ React.createElement("div", { className: "pct-track" }, /* @__PURE__ */ React.createElement("div", { className: "pct-fill", style: { width: r.pct + "%" } })), /* @__PURE__ */ React.createElement("span", { className: "pct-num" }, r.pct, "%"))))));
-  }
-  function SchemaTable({ schema, contractHours }) {
-    return /* @__PURE__ */ React.createElement("div", { className: "panel", style: { marginTop: 22 } }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Opbouwschema"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Berekend door de rekenmotor \xB7 ", contractHours, " contracturen")), /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Deterministisch")), /* @__PURE__ */ React.createElement("table", { className: "schema-table" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Per datum"), /* @__PURE__ */ React.createElement("th", null, "Uren per week"), /* @__PURE__ */ React.createElement("th", null, "Hersteld"))), /* @__PURE__ */ React.createElement(SchemaRows, { schema })));
-  }
-  function FieldRow({ f, selected, onSelect, onEdit }) {
-    const [editing, setEditing] = React.useState(false);
-    const [val, setVal] = React.useState(f.value);
-    const isMissing2 = f.status === "missing";
-    function commit() {
-      setEditing(false);
-      onEdit(f.id, val);
-    }
-    return /* @__PURE__ */ React.createElement(
-      "div",
-      {
-        className: "field-row" + (selected ? " sel" : "") + (isMissing2 ? " missing" : ""),
-        onClick: () => onSelect(f),
-        tabIndex: 0,
-        onKeyDown: (e) => {
-          if (e.key === "Enter") onSelect(f);
-        }
-      },
-      /* @__PURE__ */ React.createElement("div", { className: "flabel" }, f.label),
-      editing ? /* @__PURE__ */ React.createElement(
-        "input",
-        {
-          className: "field-input",
-          value: val,
-          autoFocus: true,
-          onChange: (e) => setVal(e.target.value),
-          onBlur: commit,
-          onClick: (e) => e.stopPropagation(),
-          onKeyDown: (e) => {
-            if (e.key === "Enter") commit();
-          }
-        }
-      ) : /* @__PURE__ */ React.createElement("div", { className: "fval" }, f.value),
-      !editing && /* @__PURE__ */ React.createElement(
-        "button",
-        {
-          className: "fedit",
-          title: "Corrigeer",
-          onClick: (e) => {
-            e.stopPropagation();
-            setVal(f.value);
-            setEditing(true);
-          },
-          style: { background: "none", border: "none", cursor: "pointer", padding: 4 }
-        },
-        I.edit
-      ),
-      /* @__PURE__ */ React.createElement("div", { className: "fstatus", style: { opacity: 1 } }, isMissing2 ? /* @__PURE__ */ React.createElement("span", { className: "pill pill-flag" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Ontbreekt") : /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Ingevuld"))
-    );
-  }
-  function FieldsPanel({ fields, selected, onSelect, onEdit }) {
-    const okCount = fields.flatMap((g) => g.items).filter((i) => i.status === "ok").length;
-    const missCount = fields.flatMap((g) => g.items).filter((i) => i.status === "missing").length;
-    return /* @__PURE__ */ React.createElement("div", { className: "panel fields-panel" }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Ge\xEBxtraheerde velden"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Klik een veld om de bron te zien")), /* @__PURE__ */ React.createElement("div", { className: "summary-chips" }, /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), okCount, " ingevuld"), missCount > 0 && /* @__PURE__ */ React.createElement("span", { className: "pill pill-flag" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), missCount, " ontbreekt"))), /* @__PURE__ */ React.createElement("div", { style: { maxHeight: 560, overflowY: "auto" } }, fields.map((g, gi) => /* @__PURE__ */ React.createElement("div", { className: "field-group", key: gi }, /* @__PURE__ */ React.createElement("div", { className: "gh" }, g.group), g.items.map((f) => /* @__PURE__ */ React.createElement(
-      FieldRow,
-      {
-        key: f.id,
-        f,
-        selected: selected && selected.id === f.id,
-        onSelect,
-        onEdit
-      }
-    ))))));
-  }
-
-  // src/sourcedoc.jsx
-  function HL({ id, active, onSel, children }) {
-    return /* @__PURE__ */ React.createElement(
-      "span",
-      {
-        className: "hl" + (active === id ? " active" : ""),
-        onClick: (e) => {
-          e.stopPropagation();
-          onSel(id);
-        },
-        "data-src": id
-      },
-      children
-    );
-  }
-  function Redact({ children }) {
-    return /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("span", { className: "redact" }, children), /* @__PURE__ */ React.createElement("span", { className: "redact-tag" }, "Medisch \u2014 niet overgenomen"));
-  }
-  function SourceDoc({ active, onSel }) {
-    const ref = React.useRef(null);
-    React.useEffect(() => {
-      if (!active || !ref.current) return;
-      const el = ref.current.querySelector(`[data-src="${active}"]`);
-      if (el) {
-        const c = ref.current;
-        const top = el.offsetTop - c.offsetTop - c.clientHeight / 2 + el.clientHeight / 2;
-        c.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-      }
-    }, [active]);
-    return /* @__PURE__ */ React.createElement("div", { className: "panel" }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Bron \xB7 terugkoppeling bedrijfsarts"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "terugkoppeling-bedrijfsarts.pdf")), /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Origineel")), /* @__PURE__ */ React.createElement("div", { className: "doc-legend" }, /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("span", { className: "lg-sw amber" }), " Overgenomen (functioneel)"), /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("span", { className: "lg-sw redact" }), " Gefilterd (medisch)")), /* @__PURE__ */ React.createElement("div", { className: "srcdoc", ref, style: { maxHeight: 560, overflowY: "auto" } }, /* @__PURE__ */ React.createElement("p", { className: "dh" }, "Arbodienst \xB7 Spreekuurverslag"), /* @__PURE__ */ React.createElement("p", { className: "dtitle" }, "Terugkoppeling spreekuur bedrijfsarts"), /* @__PURE__ */ React.createElement("p", { className: "dmeta" }, "Opgesteld door bedrijfsarts \xB7 Spreekuurdatum 06-03-2025 \xB7 Vertrouwelijk"), /* @__PURE__ */ React.createElement("h5", null, "Werknemergegevens"), /* @__PURE__ */ React.createElement("p", null, "Betreft ", /* @__PURE__ */ React.createElement(HL, { id: "s-naam", active, onSel }, "de heer J. de Vries"), ", werkzaam als ", /* @__PURE__ */ React.createElement(HL, { id: "s-functie", active, onSel }, "administratief medewerker"), " voor", " ", /* @__PURE__ */ React.createElement(HL, { id: "s-uren", active, onSel }, "32 uur per week"), ". Werknemer is uitgevallen op ", /* @__PURE__ */ React.createElement(HL, { id: "s-eerste", active, onSel }, "3 februari 2025"), ". Geboortedatum ", /* @__PURE__ */ React.createElement(Redact, null, "14-08-1987"), " en BSN zijn bekend bij de arbodienst."), /* @__PURE__ */ React.createElement("h5", null, "Aanleiding en medisch beeld"), /* @__PURE__ */ React.createElement("p", null, "De klachten betreffen ", /* @__PURE__ */ React.createElement(Redact, null, "aanhoudende rugklachten na een hernia-operatie"), ". Werknemer staat onder behandeling bij ", /* @__PURE__ */ React.createElement(Redact, null, "de fysiotherapeut en een revalidatiearts"), ". Medicatie en behandeltraject zijn besproken; ", /* @__PURE__ */ React.createElement(Redact, null, "het herstel verloopt volgens verwachting"), ". Deze medische gegevens zijn vertrouwelijk en worden niet in het Plan van Aanpak opgenomen."), /* @__PURE__ */ React.createElement("h5", null, "Functionele mogelijkheden (belastbaarheid)"), /* @__PURE__ */ React.createElement("p", null, "Werknemer is belastbaar voor ", /* @__PURE__ */ React.createElement(HL, { id: "s-belast", active, onSel }, "licht werk, met een opbouw vanaf twee dagdelen van 4 uur"), ". Geadviseerd wordt een", " ", /* @__PURE__ */ React.createElement(HL, { id: "s-opbouw", active, onSel }, "wekelijkse opbouw van 4 uur"), ", startend op ", /* @__PURE__ */ React.createElement(HL, { id: "s-start", active, onSel }, "10 maart 2025"), ". Aandachtspunt: ", /* @__PURE__ */ React.createElement(HL, { id: "s-aanpassing", active, onSel }, "afwisseling tussen zitten en staan, geen piekbelasting"), "."), /* @__PURE__ */ React.createElement("h5", null, "Prognose"), /* @__PURE__ */ React.createElement("p", null, "De verwachting is een ", /* @__PURE__ */ React.createElement(HL, { id: "s-prognose", active, onSel }, "volledige werkhervatting binnen circa 7 weken"), ", mits de opbouw zonder terugval verloopt. Een tussentijdse evaluatie wordt aanbevolen.")));
-  }
-
   // src/advice.js
   function parseNL(s) {
     if (!s) return null;
@@ -2683,6 +2576,14 @@
     return y;
   }
   var AOW_LEEFTIJD = 67;
+  function computeDerived(fields) {
+    const eersteZ = parseNL(getVal(fields, "eersteZ"));
+    const gebd = parseNL(getVal(fields, "geboortedatum"));
+    return {
+      aow: gebd ? fmtNL(addYears(gebd, AOW_LEEFTIJD)) : "",
+      eindeWacht: eersteZ ? fmtNL(addWeeks(eersteZ, 104)) : ""
+    };
+  }
   var TIMELINE = [
     { from: 0, to: 8, title: "Plan van Aanpak op tijd", body: "Stel het Plan van Aanpak uiterlijk in week 8 op (2 weken na de probleemanalyse)." },
     { from: 40, to: 42, title: "42e-weeksmelding bij UWV", body: "Doe de 42e-weeksmelding bij UWV." },
@@ -2793,6 +2694,118 @@
     return alineas;
   }
 
+  // src/fields.jsx
+  function SchemaRows({ schema }) {
+    return /* @__PURE__ */ React.createElement("tbody", null, schema.map((r, i) => /* @__PURE__ */ React.createElement("tr", { key: i }, /* @__PURE__ */ React.createElement("td", { className: "date" }, r.date), /* @__PURE__ */ React.createElement("td", { className: "hours" }, r.hours, " uur"), /* @__PURE__ */ React.createElement("td", { className: "pct-cell" }, /* @__PURE__ */ React.createElement("div", { className: "pct-bar" }, /* @__PURE__ */ React.createElement("div", { className: "pct-track" }, /* @__PURE__ */ React.createElement("div", { className: "pct-fill", style: { width: r.pct + "%" } })), /* @__PURE__ */ React.createElement("span", { className: "pct-num" }, r.pct, "%"))))));
+  }
+  function SchemaTable({ schema, contractHours }) {
+    return /* @__PURE__ */ React.createElement("div", { className: "panel", style: { marginTop: 22 } }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Opbouwschema"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Berekend door de rekenmotor \xB7 ", contractHours, " contracturen")), /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Deterministisch")), /* @__PURE__ */ React.createElement("table", { className: "schema-table" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Per datum"), /* @__PURE__ */ React.createElement("th", null, "Uren per week"), /* @__PURE__ */ React.createElement("th", null, "Hersteld"))), /* @__PURE__ */ React.createElement(SchemaRows, { schema })));
+  }
+  function FieldRow({ f, selected, onSelect, onEdit }) {
+    const [editing, setEditing] = React.useState(false);
+    const [val, setVal] = React.useState(f.value);
+    const isMissing2 = f.status === "missing";
+    function commit() {
+      setEditing(false);
+      onEdit(f.id, val);
+    }
+    return /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        className: "field-row" + (selected ? " sel" : "") + (isMissing2 ? " missing" : ""),
+        onClick: () => onSelect(f),
+        tabIndex: 0,
+        onKeyDown: (e) => {
+          if (e.key === "Enter") onSelect(f);
+        }
+      },
+      /* @__PURE__ */ React.createElement("div", { className: "flabel" }, f.label),
+      editing ? /* @__PURE__ */ React.createElement(
+        "input",
+        {
+          className: "field-input",
+          value: val,
+          autoFocus: true,
+          onChange: (e) => setVal(e.target.value),
+          onBlur: commit,
+          onClick: (e) => e.stopPropagation(),
+          onKeyDown: (e) => {
+            if (e.key === "Enter") commit();
+          }
+        }
+      ) : /* @__PURE__ */ React.createElement("div", { className: "fval" }, f.value),
+      !editing && /* @__PURE__ */ React.createElement(
+        "button",
+        {
+          className: "fedit",
+          title: "Corrigeer",
+          onClick: (e) => {
+            e.stopPropagation();
+            setVal(f.value);
+            setEditing(true);
+          },
+          style: { background: "none", border: "none", cursor: "pointer", padding: 4 }
+        },
+        I.edit
+      ),
+      /* @__PURE__ */ React.createElement("div", { className: "fstatus", style: { opacity: 1 } }, isMissing2 ? /* @__PURE__ */ React.createElement("span", { className: "pill pill-flag" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Ontbreekt") : /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Ingevuld"))
+    );
+  }
+  function FieldsPanel({ fields, selected, onSelect, onEdit }) {
+    const okCount = fields.flatMap((g) => g.items).filter((i) => i.status === "ok").length;
+    const missCount = fields.flatMap((g) => g.items).filter((i) => i.status === "missing").length;
+    return /* @__PURE__ */ React.createElement("div", { className: "panel fields-panel" }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Ge\xEBxtraheerde velden"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Klik een veld om de bron te zien")), /* @__PURE__ */ React.createElement("div", { className: "summary-chips" }, /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), okCount, " ingevuld"), missCount > 0 && /* @__PURE__ */ React.createElement("span", { className: "pill pill-flag" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), missCount, " ontbreekt"))), /* @__PURE__ */ React.createElement("div", { style: { maxHeight: 560, overflowY: "auto" } }, fields.map((g, gi) => /* @__PURE__ */ React.createElement("div", { className: "field-group", key: gi }, /* @__PURE__ */ React.createElement("div", { className: "gh" }, g.group), g.items.map((f) => /* @__PURE__ */ React.createElement(
+      FieldRow,
+      {
+        key: f.id,
+        f,
+        selected: selected && selected.id === f.id,
+        onSelect,
+        onEdit
+      }
+    )))), /* @__PURE__ */ React.createElement(DerivedGroup, { fields })));
+  }
+  function DerivedGroup({ fields }) {
+    const d = computeDerived(fields);
+    const rows = [
+      { label: "AOW-gerechtigde leeftijd (datum)", value: d.aow, hint: "geboortedatum + 67 jaar \xB7 indicatief, controleer bij SVB" },
+      { label: "Einde wachttijd", value: d.eindeWacht, hint: "eerste ziektedag + 104 weken" }
+    ];
+    return /* @__PURE__ */ React.createElement("div", { className: "field-group" }, /* @__PURE__ */ React.createElement("div", { className: "gh" }, "Berekend (automatisch)"), rows.map((r) => /* @__PURE__ */ React.createElement("div", { className: "field-row computed", key: r.label }, /* @__PURE__ */ React.createElement("div", { className: "flabel" }, r.label), /* @__PURE__ */ React.createElement("div", { className: "fval" }, r.value || "\u2014"), /* @__PURE__ */ React.createElement("div", { className: "fstatus", style: { opacity: 1 } }, /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Berekend")), /* @__PURE__ */ React.createElement("div", { className: "fhint", style: { gridColumn: 1, fontSize: 12, color: "var(--faint)", marginTop: 2 } }, r.hint))));
+  }
+
+  // src/sourcedoc.jsx
+  function HL({ id, active, onSel, children }) {
+    return /* @__PURE__ */ React.createElement(
+      "span",
+      {
+        className: "hl" + (active === id ? " active" : ""),
+        onClick: (e) => {
+          e.stopPropagation();
+          onSel(id);
+        },
+        "data-src": id
+      },
+      children
+    );
+  }
+  function Redact({ children }) {
+    return /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("span", { className: "redact" }, children), /* @__PURE__ */ React.createElement("span", { className: "redact-tag" }, "Medisch \u2014 niet overgenomen"));
+  }
+  function SourceDoc({ active, onSel }) {
+    const ref = React.useRef(null);
+    React.useEffect(() => {
+      if (!active || !ref.current) return;
+      const el = ref.current.querySelector(`[data-src="${active}"]`);
+      if (el) {
+        const c = ref.current;
+        const top = el.offsetTop - c.offsetTop - c.clientHeight / 2 + el.clientHeight / 2;
+        c.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+      }
+    }, [active]);
+    return /* @__PURE__ */ React.createElement("div", { className: "panel" }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Bron \xB7 terugkoppeling bedrijfsarts"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "terugkoppeling-bedrijfsarts.pdf")), /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Origineel")), /* @__PURE__ */ React.createElement("div", { className: "doc-legend" }, /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("span", { className: "lg-sw amber" }), " Overgenomen (functioneel)"), /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("span", { className: "lg-sw redact" }), " Gefilterd (medisch)")), /* @__PURE__ */ React.createElement("div", { className: "srcdoc", ref, style: { maxHeight: 560, overflowY: "auto" } }, /* @__PURE__ */ React.createElement("p", { className: "dh" }, "Arbodienst \xB7 Spreekuurverslag"), /* @__PURE__ */ React.createElement("p", { className: "dtitle" }, "Terugkoppeling spreekuur bedrijfsarts"), /* @__PURE__ */ React.createElement("p", { className: "dmeta" }, "Opgesteld door bedrijfsarts \xB7 Spreekuurdatum 06-03-2025 \xB7 Vertrouwelijk"), /* @__PURE__ */ React.createElement("h5", null, "Werknemergegevens"), /* @__PURE__ */ React.createElement("p", null, "Betreft ", /* @__PURE__ */ React.createElement(HL, { id: "s-naam", active, onSel }, "de heer J. de Vries"), ", werkzaam als ", /* @__PURE__ */ React.createElement(HL, { id: "s-functie", active, onSel }, "administratief medewerker"), " voor", " ", /* @__PURE__ */ React.createElement(HL, { id: "s-uren", active, onSel }, "32 uur per week"), ". Werknemer is uitgevallen op ", /* @__PURE__ */ React.createElement(HL, { id: "s-eerste", active, onSel }, "3 februari 2025"), ". Geboortedatum ", /* @__PURE__ */ React.createElement(Redact, null, "14-08-1987"), " en BSN zijn bekend bij de arbodienst."), /* @__PURE__ */ React.createElement("h5", null, "Aanleiding en medisch beeld"), /* @__PURE__ */ React.createElement("p", null, "De klachten betreffen ", /* @__PURE__ */ React.createElement(Redact, null, "aanhoudende rugklachten na een hernia-operatie"), ". Werknemer staat onder behandeling bij ", /* @__PURE__ */ React.createElement(Redact, null, "de fysiotherapeut en een revalidatiearts"), ". Medicatie en behandeltraject zijn besproken; ", /* @__PURE__ */ React.createElement(Redact, null, "het herstel verloopt volgens verwachting"), ". Deze medische gegevens zijn vertrouwelijk en worden niet in het Plan van Aanpak opgenomen."), /* @__PURE__ */ React.createElement("h5", null, "Functionele mogelijkheden (belastbaarheid)"), /* @__PURE__ */ React.createElement("p", null, "Werknemer is belastbaar voor ", /* @__PURE__ */ React.createElement(HL, { id: "s-belast", active, onSel }, "licht werk, met een opbouw vanaf twee dagdelen van 4 uur"), ". Geadviseerd wordt een", " ", /* @__PURE__ */ React.createElement(HL, { id: "s-opbouw", active, onSel }, "wekelijkse opbouw van 4 uur"), ", startend op ", /* @__PURE__ */ React.createElement(HL, { id: "s-start", active, onSel }, "10 maart 2025"), ". Aandachtspunt: ", /* @__PURE__ */ React.createElement(HL, { id: "s-aanpassing", active, onSel }, "afwisseling tussen zitten en staan, geen piekbelasting"), "."), /* @__PURE__ */ React.createElement("h5", null, "Prognose"), /* @__PURE__ */ React.createElement("p", null, "De verwachting is een ", /* @__PURE__ */ React.createElement(HL, { id: "s-prognose", active, onSel }, "volledige werkhervatting binnen circa 7 weken"), ", mits de opbouw zonder terugval verloopt. Een tussentijdse evaluatie wordt aanbevolen.")));
+  }
+
   // src/previews.jsx
   function DocPreviewHead({ title, icon }) {
     return /* @__PURE__ */ React.createElement("div", { className: "doc-preview-head" }, /* @__PURE__ */ React.createElement("div", { className: "t" }, icon, " ", title), /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Concept"));
@@ -2802,7 +2815,7 @@
     return isMissing(v) ? /* @__PURE__ */ React.createElement("dd", { className: "flag" }, "[INVULLEN]") : /* @__PURE__ */ React.createElement("dd", null, v);
   }
   function AdviesPreview({ fields, schema, reportDate }) {
-    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Opbouw- en re-integratieadvies", icon: I.scale }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet" }, /* @__PURE__ */ React.createElement("h2", null, "Opbouw- en re-integratieadvies"), /* @__PURE__ */ React.createElement("p", { className: "wvp" }, "Concept op basis van de terugkoppeling bedrijfsarts d.d. ", reportDate), /* @__PURE__ */ React.createElement("h3", null, "Uitgangspunten"), /* @__PURE__ */ React.createElement("dl", { className: "kv" }, /* @__PURE__ */ React.createElement("dt", null, "Werknemer"), /* @__PURE__ */ React.createElement(Val, { fields, id: "naam" }), /* @__PURE__ */ React.createElement("dt", null, "Contracturen"), /* @__PURE__ */ React.createElement(Val, { fields, id: "uren" }), /* @__PURE__ */ React.createElement("dt", null, "Belastbaarheid"), /* @__PURE__ */ React.createElement(Val, { fields, id: "belast" }), /* @__PURE__ */ React.createElement("dt", null, "Opbouwtempo"), /* @__PURE__ */ React.createElement(Val, { fields, id: "opbouw" }), /* @__PURE__ */ React.createElement("dt", null, "Startdatum opbouw"), /* @__PURE__ */ React.createElement(Val, { fields, id: "start" })), /* @__PURE__ */ React.createElement("h3", null, "Opbouwschema"), /* @__PURE__ */ React.createElement("table", { className: "schema-table", style: { marginTop: 4 } }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Per datum"), /* @__PURE__ */ React.createElement("th", null, "Uren per week"), /* @__PURE__ */ React.createElement("th", null, "Hersteld"))), /* @__PURE__ */ React.createElement(SchemaRows, { schema })), /* @__PURE__ */ React.createElement("p", { style: { marginTop: 16, fontSize: 13.5, color: "var(--muted)" } }, "Volledige werkhervatting voorzien per ", fullRecoveryDate(schema), ". Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.")));
+    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Opbouw- en re-integratieadvies", icon: I.scale }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet" }, /* @__PURE__ */ React.createElement("h2", null, "Opbouw- en re-integratieadvies"), /* @__PURE__ */ React.createElement("p", { className: "wvp" }, "Concept op basis van de terugkoppeling bedrijfsarts d.d. ", reportDate), /* @__PURE__ */ React.createElement("h3", null, "Uitgangspunten"), /* @__PURE__ */ React.createElement("dl", { className: "kv" }, /* @__PURE__ */ React.createElement("dt", null, "Contracturen"), /* @__PURE__ */ React.createElement(Val, { fields, id: "uren" }), /* @__PURE__ */ React.createElement("dt", null, "Belastbaarheid"), /* @__PURE__ */ React.createElement(Val, { fields, id: "belast" }), /* @__PURE__ */ React.createElement("dt", null, "Opbouwtempo"), /* @__PURE__ */ React.createElement(Val, { fields, id: "opbouw" }), /* @__PURE__ */ React.createElement("dt", null, "Startdatum opbouw"), /* @__PURE__ */ React.createElement(Val, { fields, id: "start" })), /* @__PURE__ */ React.createElement("h3", null, "Opbouwschema"), /* @__PURE__ */ React.createElement("table", { className: "schema-table", style: { marginTop: 4 } }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Per datum"), /* @__PURE__ */ React.createElement("th", null, "Uren per week"), /* @__PURE__ */ React.createElement("th", null, "Hersteld"))), /* @__PURE__ */ React.createElement(SchemaRows, { schema })), /* @__PURE__ */ React.createElement("p", { style: { marginTop: 16, fontSize: 13.5, color: "var(--muted)" } }, "Volledige werkhervatting voorzien per ", fullRecoveryDate(schema), ". Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.")));
   }
   function UwvBar({ nr, children }) {
     return /* @__PURE__ */ React.createElement("div", { className: "uwv-bar" }, /* @__PURE__ */ React.createElement("span", { className: "uwv-nr" }, nr), children);
@@ -2831,9 +2844,9 @@
   }
   function BerichtPreview({ fields, schema, reportDate }) {
     const naam = getVal(fields, "naam");
-    const werkgever = getVal(fields, "werkgever");
+    const werknemer = isMissing(naam) ? "je werknemer" : naam;
     const alineas = adviceParagraphs(fields, reportDate);
-    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak \u2014 ", naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste ", isMissing(werkgever) ? "werkgever" : werkgever, ", hierbij ontvang je het concept-Plan van aanpak voor je werknemer ", naam, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), /* @__PURE__ */ React.createElement("p", null, "Werknemer is belastbaar voor ", getVal(fields, "belast").toLowerCase(), ". De bedrijfsarts adviseert een opbouw vanaf ", getVal(fields, "start"), ", ", getVal(fields, "opbouw").toLowerCase(), ", van ", schema[0].hours, " naar ", schema[schema.length - 1].hours, " uur. Volledige werkhervatting is voorzien rond ", fullRecoveryDate(schema), ". Houd rekening met de werkaanpassing:", " ", getVal(fields, "beperking").toLowerCase(), "."), alineas.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: i }, t)), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de open velden ([INVULLEN]) samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("strong", { style: { color: "var(--navy-900)" } }, "[INVULLEN: naam afzender]"))));
+    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), /* @__PURE__ */ React.createElement("p", null, "Werknemer is belastbaar voor ", getVal(fields, "belast").toLowerCase(), ". De bedrijfsarts adviseert een opbouw vanaf ", getVal(fields, "start"), ", ", getVal(fields, "opbouw").toLowerCase(), ", van ", schema[0].hours, " naar ", schema[schema.length - 1].hours, " uur. Volledige werkhervatting is voorzien rond ", fullRecoveryDate(schema), ". Houd rekening met de werkaanpassing:", " ", getVal(fields, "beperking").toLowerCase(), "."), alineas.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: i }, t)), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de open velden ([INVULLEN]) samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("strong", { style: { color: "var(--navy-900)" } }, "[INVULLEN: naam afzender]"))));
   }
 
   // node_modules/docx/dist/index.mjs
@@ -21163,7 +21176,6 @@
           h1("Opbouw- en re-integratieadvies"),
           sub(`Concept op basis van de terugkoppeling bedrijfsarts d.d. ${reportDate} \u2014 ter controle en vaststelling.`),
           h2("Uitgangspunten"),
-          kv("Werknemer", txt(fields, "naam")),
           kv("Contracturen", txt(fields, "uren")),
           kv("Belastbaarheid", txt(fields, "belast")),
           kv("Opbouwtempo", txt(fields, "opbouw")),
@@ -21175,8 +21187,8 @@
           // 2 — Begeleidend bericht (met de adviezen verweven)
           new Paragraph({ children: [new PageBreak()] }),
           h1("Begeleidend bericht"),
-          sub(`Onderwerp: Concept Plan van aanpak \u2014 ${naam}`),
-          p(`Beste ${isMissing(getVal(fields, "werkgever")) ? "werkgever" : getVal(fields, "werkgever")}, hierbij ontvang je het concept-Plan van aanpak voor je werknemer ${naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}.`),
+          sub(`Onderwerp: Concept Plan van aanpak${isMissing(naam) ? "" : " \u2014 " + naam}`),
+          p(`Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}.`),
           p(`Werknemer is belastbaar voor ${getVal(fields, "belast").toLowerCase()}. De bedrijfsarts adviseert een opbouw vanaf ${getVal(fields, "start")}, ${getVal(fields, "opbouw").toLowerCase()}, van ${schema[0].hours} naar ${schema[schema.length - 1].hours} uur. Volledige werkhervatting is voorzien rond ${hersteld}. Houd rekening met de werkaanpassing: ${getVal(fields, "beperking").toLowerCase()}.`),
           ...alineas.map((t) => p(t)),
           p("Bespreek het concept met je werknemer, vul de open velden ([INVULLEN]) samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."),
@@ -21189,6 +21201,7 @@
   }
   function safeName(fields) {
     const naam = getVal(fields, "naam");
+    if (isMissing(naam)) return "concept";
     return naam.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "") || "concept";
   }
   function triggerDownload(blob, filename) {
@@ -21259,13 +21272,11 @@
     const b = d.bronnen || {};
     const fields = [
       { group: "Werknemer & dienstverband", items: [
-        mk("naam", "Naam werknemer", d.naam, b.naam),
         mk("functie", "Functie", d.functie, b.functie),
         mk("uren", "Contracturen", d.contracturen, b.contracturen),
         mk("eersteZ", "Eerste ziektedag", d.eersteZiektedag, b.eersteZiektedag),
         mk("geboortedatum", "Geboortedatum", d.geboortedatum, null),
-        mk("einddatum", "Einddatum dienstverband", d.einddatumDienstverband, null),
-        mk("werkgever", "Werkgever", d.werkgever, null)
+        mk("einddatum", "Einddatum dienstverband", d.einddatumDienstverband, null)
       ] },
       { group: "Belastbaarheid & opbouw", items: [
         mk("belast", "Belastbaarheid", d.belastbaarheid, b.belastbaarheid),
@@ -21274,8 +21285,7 @@
         mk("beperking", "Werkaanpassing", d.werkaanpassing, b.werkaanpassing)
       ] },
       { group: "Prognose", items: [
-        mk("prognose", "Prognose herstel", d.prognose, b.prognose),
-        mk("evaluatie", "Eerstvolgende evaluatie", d.evaluatie, null)
+        mk("prognose", "Prognose herstel", d.prognose, b.prognose)
       ] }
     ];
     const r = d.reken || {};
@@ -21326,6 +21336,7 @@
     const [error, setError] = React.useState(null);
     const [busy, setBusy] = React.useState(false);
     const [demoProc, setDemoProc] = React.useState(false);
+    const [noMedical, setNoMedical] = React.useState(false);
     const inputRef = React.useRef(null);
     const ALLOWED = ["pdf", "doc", "docx", "txt"];
     function acceptFile(f) {
@@ -21369,7 +21380,8 @@
     }
     if (demoProc) return /* @__PURE__ */ React.createElement(Processing, { onDone: () => onResult(demoCasus()) });
     if (busy) return /* @__PURE__ */ React.createElement(AiBusy, null);
-    const canSubmit = !!file || paste && text.trim().length > 20;
+    const isReal = file && file.real || paste && text.trim().length > 20;
+    const canSubmit = (!!file || paste && text.trim().length > 20) && (!isReal || noMedical);
     return /* @__PURE__ */ React.createElement("div", { className: "upload-wrap" }, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 1 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Lever de terugkoppeling van de bedrijfsarts aan"), /* @__PURE__ */ React.createElement("p", null, "Upload het spreekuurverslag (PDF/Word) of plak de tekst. De AI leest de functionele gegevens uit \u2014 medische informatie en BSN blijven buiten het Plan van Aanpak.")), /* @__PURE__ */ React.createElement(
       "input",
       {
@@ -21415,7 +21427,7 @@
     } }, "Plak de tekst"), " \xB7 ") : /* @__PURE__ */ React.createElement(React.Fragment, null, "Toch een bestand? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => {
       setPaste(false);
       setText("");
-    } }, "Kies een bestand"), " \xB7 "), "Geen casus bij de hand? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: pickExample }, "Gebruik de voorbeeldcasus (J. de Vries)")), !hasBackend() && /* @__PURE__ */ React.createElement("div", { className: "demo-note" }, I.info, /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "AI nog niet gekoppeld."), " Zonder backend werkt alleen de voorbeeldcasus. Zet je Railway-URL in ", /* @__PURE__ */ React.createElement("code", null, "window.__PVA_BACKEND__"), " om echte documenten te laten uitlezen. Gebruik uitsluitend fictieve terugkoppelingen.")), /* @__PURE__ */ React.createElement("div", { className: "privacy-note" }, I.shield, /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Privacy by design."), " Bijzondere persoonsgegevens (diagnose, behandeling, klachten) en het BSN worden ", /* @__PURE__ */ React.createElement("strong", null, "niet"), " overgenomen in het concept.")), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("span", null), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !canSubmit, onClick: process3 }, "Verwerk ", I.arrowRight)));
+    } }, "Kies een bestand"), " \xB7 "), "Geen casus bij de hand? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: pickExample }, "Gebruik de voorbeeldcasus (J. de Vries)")), !hasBackend() && /* @__PURE__ */ React.createElement("div", { className: "demo-note" }, I.info, /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "AI nog niet gekoppeld."), " Zonder backend werkt alleen de voorbeeldcasus. Zet je Railway-URL in ", /* @__PURE__ */ React.createElement("code", null, "window.__PVA_BACKEND__"), " om echte documenten te laten uitlezen. Gebruik uitsluitend fictieve terugkoppelingen.")), /* @__PURE__ */ React.createElement("div", { className: "privacy-note" }, I.shield, /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Privacy by design."), " Bijzondere persoonsgegevens (diagnose, behandeling, klachten) en het BSN worden ", /* @__PURE__ */ React.createElement("strong", null, "niet"), " overgenomen in het concept.")), isReal && /* @__PURE__ */ React.createElement("label", { className: "control-check confirm-medical" + (noMedical ? " on" : ""), onClick: () => setNoMedical(!noMedical) }, /* @__PURE__ */ React.createElement("span", { className: "box" }, I.checkSm), /* @__PURE__ */ React.createElement("span", { className: "ct" }, /* @__PURE__ */ React.createElement("strong", null, "Ik heb geen medische gegevens ge\xFCpload"), "Ik bevestig dat dit document uitsluitend functionele gegevens bevat (geen diagnose, klachten of behandeling) en dat ik een fictieve terugkoppeling gebruik.")), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("span", null), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !canSubmit, onClick: process3 }, "Verwerk ", I.arrowRight)));
   }
   function AiBusy() {
     return /* @__PURE__ */ React.createElement("div", { className: "processing" }, /* @__PURE__ */ React.createElement("div", { className: "proc-ring" }), /* @__PURE__ */ React.createElement("h3", { style: { fontSize: 21 } }, "De AI leest de terugkoppeling\u2026"), /* @__PURE__ */ React.createElement("p", { style: { color: "var(--muted)", marginTop: 8 } }, "Functionele gegevens worden uitgelezen; medische informatie wordt gefilterd. Dit duurt meestal 5\u201320 seconden."));
@@ -21444,12 +21456,15 @@
   }
   function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
     const { fields, schema, mode, sources } = casus;
-    const [selected, setSelected] = React.useState(fields[0].items[0]);
+    const allItems = fields.flatMap((g) => g.items);
+    const [selectedId, setSelectedId] = React.useState(allItems[0] ? allItems[0].id : null);
+    const selected = allItems.find((it) => it.id === selectedId) || allItems[0] || null;
+    const select = (f) => setSelectedId(f.id);
     const activeSrc = selected ? selected.src : null;
     const contractHours = schema[schema.length - 1] ? schema[schema.length - 1].hours : 0;
-    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 2 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Controleer de ge\xEBxtraheerde gegevens"), /* @__PURE__ */ React.createElement("p", null, "Links de ingevulde velden, rechts de bron. Klik een veld om de bijbehorende passage te zien. Corrigeer waar nodig en vul ontbrekende velden aan.")), /* @__PURE__ */ React.createElement("div", { className: "gate-banner" }, I.hand, /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("strong", null, "Menselijke controle is verplicht."), " Niets wordt vastgesteld of gedownload zonder dat jij het hebt nagelopen en bevestigd.")), /* @__PURE__ */ React.createElement("div", { className: "verify-grid" }, /* @__PURE__ */ React.createElement(FieldsPanel, { fields, selected, onSelect: setSelected, onEdit }), mode === "demo" ? /* @__PURE__ */ React.createElement(SourceDoc, { active: activeSrc, onSel: (id) => {
-      const f = fields.flatMap((g) => g.items).find((it) => it.src === id);
-      if (f) setSelected(f);
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 2 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Controleer de ge\xEBxtraheerde gegevens"), /* @__PURE__ */ React.createElement("p", null, "Links de ingevulde velden, rechts de bron. Klik een veld om de bijbehorende passage te zien. Corrigeer waar nodig en vul ontbrekende velden aan.")), /* @__PURE__ */ React.createElement("div", { className: "gate-banner" }, I.hand, /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("strong", null, "Menselijke controle is verplicht."), " Niets wordt vastgesteld of gedownload zonder dat jij het hebt nagelopen en bevestigd.")), /* @__PURE__ */ React.createElement("div", { className: "verify-grid" }, /* @__PURE__ */ React.createElement(FieldsPanel, { fields, selected, onSelect: select, onEdit }), mode === "demo" ? /* @__PURE__ */ React.createElement(SourceDoc, { active: activeSrc, onSel: (id) => {
+      const f = allItems.find((it) => it.src === id);
+      if (f) setSelectedId(f.id);
     } }) : /* @__PURE__ */ React.createElement(AiSourcePanel, { selected, sources })), /* @__PURE__ */ React.createElement(SchemaTable, { schema, contractHours }), /* @__PURE__ */ React.createElement("div", { className: "verify-foot" }, /* @__PURE__ */ React.createElement("label", { className: "control-check" + (checked ? " on" : ""), onClick: () => setChecked(!checked) }, /* @__PURE__ */ React.createElement("span", { className: "box" }, I.checkSm), /* @__PURE__ */ React.createElement("span", { className: "ct" }, /* @__PURE__ */ React.createElement("strong", null, "Ik heb de gegevens gecontroleerd"), "Ik bevestig dat ik de ge\xEBxtraheerde gegevens heb nagelopen en corrigeer ontbrekende velden v\xF3\xF3r vaststelling.")), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !checked, onClick: onNext }, "Naar preview ", I.arrowRight)), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar upload"), /* @__PURE__ */ React.createElement("span", null)));
   }
   function PreviewStep({ onBack, controleOk, casus }) {

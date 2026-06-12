@@ -59,7 +59,7 @@ check(".docx bevat opbouwadvies", xml.includes("Opbouw- en re-integratieadvies")
 check(".docx verwijst naar UWV-formulier (AG140)", xml.includes("AG140"));
 check(".docx bevat Begeleidend bericht", xml.includes("Begeleidend bericht"));
 
-check(".docx bevat naam J. de Vries", xml.includes("J. de Vries"));
+check(".docx bevat begeleidend bericht aan werkgever", xml.includes("Beste werkgever"));
 check(".docx bevat opbouwschema-datum 10-03-2025", xml.includes("10-03-2025"));
 
 // adviezen verweven in het begeleidend bericht

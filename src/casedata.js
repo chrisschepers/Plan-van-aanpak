@@ -17,13 +17,11 @@ export const CASE = {
 // die vult de werkgever zelf in. Geboortedatum en einddatum sturen de adviezen.
 export const INITIAL_FIELDS = [
   { group: "Werknemer & dienstverband", items: [
-    { id: "naam",         label: "Naam werknemer",          value: "J. de Vries",               status: "ok",      src: "s-naam" },
     { id: "functie",      label: "Functie",                 value: "Administratief medewerker", status: "ok",      src: "s-functie" },
     { id: "uren",         label: "Contracturen",            value: "32 uur per week",           status: "ok",      src: "s-uren" },
     { id: "eersteZ",      label: "Eerste ziektedag",        value: "03-02-2025",                status: "ok",      src: "s-eerste" },
     { id: "geboortedatum",label: "Geboortedatum",           value: "14-08-1987",                status: "ok",      src: null },
     { id: "einddatum",    label: "Einddatum dienstverband", value: "[INVULLEN]",                status: "missing", src: null },
-    { id: "werkgever",    label: "Werkgever",               value: "[INVULLEN]",                status: "missing", src: null },
   ]},
   { group: "Belastbaarheid & opbouw", items: [
     { id: "belast",    label: "Belastbaarheid",     value: "Licht werk, opbouw vanaf 2×4 uur", status: "ok", src: "s-belast" },
@@ -33,7 +31,6 @@ export const INITIAL_FIELDS = [
   ]},
   { group: "Prognose", items: [
     { id: "prognose",  label: "Prognose herstel",   value: "Volledige werkhervatting binnen ±7 weken", status: "ok", src: "s-prognose" },
-    { id: "evaluatie", label: "Eerstvolgende evaluatie", value: "[INVULLEN]",             status: "missing", src: null },
   ]},
 ];
 

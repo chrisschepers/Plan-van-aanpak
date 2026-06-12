@@ -53,13 +53,11 @@ function mapExtraction(d) {
 
   const fields = [
     { group: "Werknemer & dienstverband", items: [
-      mk("naam", "Naam werknemer", d.naam, b.naam),
       mk("functie", "Functie", d.functie, b.functie),
       mk("uren", "Contracturen", d.contracturen, b.contracturen),
       mk("eersteZ", "Eerste ziektedag", d.eersteZiektedag, b.eersteZiektedag),
       mk("geboortedatum", "Geboortedatum", d.geboortedatum, null),
       mk("einddatum", "Einddatum dienstverband", d.einddatumDienstverband, null),
-      mk("werkgever", "Werkgever", d.werkgever, null),
     ]},
     { group: "Belastbaarheid & opbouw", items: [
       mk("belast", "Belastbaarheid", d.belastbaarheid, b.belastbaarheid),
@@ -69,7 +67,6 @@ function mapExtraction(d) {
     ]},
     { group: "Prognose", items: [
       mk("prognose", "Prognose herstel", d.prognose, b.prognose),
-      mk("evaluatie", "Eerstvolgende evaluatie", d.evaluatie, null),
     ]},
   ];
 

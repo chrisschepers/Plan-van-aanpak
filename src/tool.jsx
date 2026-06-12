@@ -54,6 +54,7 @@ function UploadStep({ onResult }) {
   const [error, setError] = React.useState(null);
   const [busy, setBusy] = React.useState(false);   // AI-aanroep loopt
   const [demoProc, setDemoProc] = React.useState(false);
+  const [noMedical, setNoMedical] = React.useState(false);
   const inputRef = React.useRef(null);
 
   const ALLOWED = ["pdf", "doc", "docx", "txt"];
@@ -93,7 +94,8 @@ function UploadStep({ onResult }) {
   if (demoProc) return <Processing onDone={() => onResult(demoCasus())} />;
   if (busy) return <AiBusy />;
 
-  const canSubmit = !!file || (paste && text.trim().length > 20);
+  const isReal = (file && file.real) || (paste && text.trim().length > 20);
+  const canSubmit = (!!file || (paste && text.trim().length > 20)) && (!isReal || noMedical);
 
   return (
     <div className="upload-wrap">
@@ -162,6 +164,16 @@ function UploadStep({ onResult }) {
         {I.shield}
         <p><strong>Privacy by design.</strong> Bijzondere persoonsgegevens (diagnose, behandeling, klachten) en het BSN worden <strong>niet</strong> overgenomen in het concept.</p>
       </div>
+
+      {isReal && (
+        <label className={"control-check confirm-medical" + (noMedical ? " on" : "")} onClick={() => setNoMedical(!noMedical)}>
+          <span className="box">{I.checkSm}</span>
+          <span className="ct">
+            <strong>Ik heb geen medische gegevens geüpload</strong>
+            Ik bevestig dat dit document uitsluitend functionele gegevens bevat (geen diagnose, klachten of behandeling) en dat ik een fictieve terugkoppeling gebruik.
+          </span>
+        </label>
+      )}
 
       <div className="tool-actions">
         <span></span>
@@ -252,7 +264,10 @@ function AiSourcePanel({ selected, sources }) {
 /* ---------- Stap 2: Verificatie ---------- */
 function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
   const { fields, schema, mode, sources } = casus;
-  const [selected, setSelected] = React.useState(fields[0].items[0]);
+  const allItems = fields.flatMap((g) => g.items);
+  const [selectedId, setSelectedId] = React.useState(allItems[0] ? allItems[0].id : null);
+  const selected = allItems.find((it) => it.id === selectedId) || allItems[0] || null;
+  const select = (f) => setSelectedId(f.id);
   const activeSrc = selected ? selected.src : null;
   const contractHours = schema[schema.length - 1] ? schema[schema.length - 1].hours : 0;
 
@@ -270,11 +285,11 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
       </div>
 
       <div className="verify-grid">
-        <FieldsPanel fields={fields} selected={selected} onSelect={setSelected} onEdit={onEdit} />
+        <FieldsPanel fields={fields} selected={selected} onSelect={select} onEdit={onEdit} />
         {mode === "demo"
           ? <SourceDoc active={activeSrc} onSel={(id) => {
-              const f = fields.flatMap(g => g.items).find(it => it.src === id);
-              if (f) setSelected(f);
+              const f = allItems.find(it => it.src === id);
+              if (f) setSelectedId(f.id);
             }} />
           : <AiSourcePanel selected={selected} sources={sources} />}
       </div>

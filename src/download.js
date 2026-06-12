@@ -126,7 +126,6 @@ export function buildDocxDocument(fields, schema, reportDate) {
         h1("Opbouw- en re-integratieadvies"),
         sub(`Concept op basis van de terugkoppeling bedrijfsarts d.d. ${reportDate} — ter controle en vaststelling.`),
         h2("Uitgangspunten"),
-        kv("Werknemer", txt(fields, "naam")),
         kv("Contracturen", txt(fields, "uren")),
         kv("Belastbaarheid", txt(fields, "belast")),
         kv("Opbouwtempo", txt(fields, "opbouw")),
@@ -139,8 +138,8 @@ export function buildDocxDocument(fields, schema, reportDate) {
         // 2 — Begeleidend bericht (met de adviezen verweven)
         new Paragraph({ children: [new PageBreak()] }),
         h1("Begeleidend bericht"),
-        sub(`Onderwerp: Concept Plan van aanpak — ${naam}`),
-        p(`Beste ${isMissing(getVal(fields, "werkgever")) ? "werkgever" : getVal(fields, "werkgever")}, hierbij ontvang je het concept-Plan van aanpak voor je werknemer ${naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}.`),
+        sub(`Onderwerp: Concept Plan van aanpak${isMissing(naam) ? "" : " — " + naam}`),
+        p(`Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}.`),
         p(`Werknemer is belastbaar voor ${getVal(fields, "belast").toLowerCase()}. De bedrijfsarts adviseert een opbouw vanaf ${getVal(fields, "start")}, ${getVal(fields, "opbouw").toLowerCase()}, van ${schema[0].hours} naar ${schema[schema.length - 1].hours} uur. Volledige werkhervatting is voorzien rond ${hersteld}. Houd rekening met de werkaanpassing: ${getVal(fields, "beperking").toLowerCase()}.`),
         ...alineas.map((t) => p(t)),
         p("Bespreek het concept met je werknemer, vul de open velden ([INVULLEN]) samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."),
@@ -154,6 +153,7 @@ export function buildDocxDocument(fields, schema, reportDate) {
 
 function safeName(fields) {
   const naam = getVal(fields, "naam");
+  if (isMissing(naam)) return "concept";
   return naam.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "") || "concept";
 }
 

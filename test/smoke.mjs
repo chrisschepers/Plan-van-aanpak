@@ -63,10 +63,13 @@ await wait(2300);
 
 // Stap 2 — verificatie
 check("stap 2: verificatiescherm", !!byText("h1", "Controleer de geëxtraheerde gegevens"));
-check("velden aanwezig (13)", $$(".field-row").length === 13);
-check("3 velden ontbreken", $$(".field-row.missing").length === 3);
+check("data-velden aanwezig (10)", $$(".field-row:not(.computed)").length === 10);
+check("1 veld ontbreekt (einddatum)", $$(".field-row.missing").length === 1);
+check("naam/werkgever/evaluatie verwijderd", !byText(".field-row .flabel", "Naam werknemer") && !byText(".field-row .flabel", "Eerstvolgende evaluatie"));
 check("geboortedatum-veld aanwezig", !!byText(".field-row .flabel", "Geboortedatum"));
 check("einddatum dienstverband-veld aanwezig", !!byText(".field-row .flabel", "Einddatum dienstverband"));
+check("berekend: AOW-datum aanwezig", !!byText(".field-row.computed .flabel", "AOW") && !!byText(".field-row.computed .fval", "2054"));
+check("berekend: einde wachttijd aanwezig", !!byText(".field-row.computed .flabel", "Einde wachttijd") && !!byText(".field-row.computed .fval", "2027"));
 check("bron-highlights aanwezig (9)", $$(".srcdoc .hl").length === 9);
 check("medische redacties aanwezig (4)", $$(".srcdoc span.redact").length === 4);
 check("opbouwschema heeft 7 rijen", $$(".schema-table tbody tr").length === 7);
@@ -92,7 +95,7 @@ check("3 preview-tabs", $$(".preview-tabs button").length === 3);
 click($$(".preview-tabs button")[1]);
 await wait(30);
 check("PvA-tab toont UWV-formulierweergave", !!byText(".uwv-bar", "Werknemer"));
-check("PvA toont ingevulde naam", !!byText(".uwv-val", "J. de Vries"));
+check("PvA toont ingevulde functie", !!byText(".uwv-val", "Administratief medewerker"));
 check("PvA heeft einddoel-vinkje aangekruist", $$(".uwv-box.on").length >= 1);
 check("PvA toont sectie 7E (sociaal-medisch)", !!byText(".uwv-cat", "Sociaal-medische"));
 check("PvA toont AG140-footer", !!byText(".uwv-foot", "AG140"));

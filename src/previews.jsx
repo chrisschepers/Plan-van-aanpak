@@ -34,7 +34,6 @@ export function AdviesPreview({ fields, schema, reportDate }) {
 
         <h3>Uitgangspunten</h3>
         <dl className="kv">
-          <dt>Werknemer</dt><Val fields={fields} id="naam" />
           <dt>Contracturen</dt><Val fields={fields} id="uren" />
           <dt>Belastbaarheid</dt><Val fields={fields} id="belast" />
           <dt>Opbouwtempo</dt><Val fields={fields} id="opbouw" />
@@ -162,19 +161,18 @@ export function PvaPreview({ fields, schema }) {
 // 3 — Begeleidend bericht aan werkgever (met de adviezen verweven)
 export function BerichtPreview({ fields, schema, reportDate }) {
   const naam = getVal(fields, "naam");
-  const werkgever = getVal(fields, "werkgever");
+  const werknemer = isMissing(naam) ? "je werknemer" : naam;
   const alineas = adviceParagraphs(fields, reportDate);
   return (
     <div className="doc-preview">
       <DocPreviewHead title="Begeleidend bericht aan werkgever" icon={I.mail} />
       <div className="doc-sheet msg-sheet">
         <h2 style={{ fontSize: 19 }}>Begeleidend bericht</h2>
-        <p className="wvp" style={{ marginBottom: 18 }}>Onderwerp: Concept Plan van aanpak — {naam}</p>
+        <p className="wvp" style={{ marginBottom: 18 }}>Onderwerp: Concept Plan van aanpak{isMissing(naam) ? "" : " — " + naam}</p>
 
         <p className="greeting">
-          Beste {isMissing(werkgever) ? "werkgever" : werkgever}, hierbij ontvang je het
-          concept-Plan van aanpak voor je werknemer {naam}, opgesteld naar aanleiding van de
-          terugkoppeling van de bedrijfsarts d.d. {reportDate}.
+          Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor {werknemer},
+          opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. {reportDate}.
         </p>
         <p>
           Werknemer is belastbaar voor {getVal(fields, "belast").toLowerCase()}. De bedrijfsarts

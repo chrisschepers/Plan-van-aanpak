@@ -45,9 +45,9 @@ function readResults(doc) {
 const res = readResults(filled);
 
 check("91 FORMTEXT-velden", Object.keys(res).length === 91);
-check("veld 1 = naam (J. de Vries)", res[1] === "J. de Vries");
+check("veld 1 (naam) blijft leeg — werkgever vult zelf in", (res[1] || "").trim() === "");
 check("veld 2 (BSN) blijft leeg", (res[2] || "").trim() === "");
-check("veld 3 = bedrijfsnaam", res[3] === "Voorbeeld Transport B.V.");
+check("veld 3 (bedrijfsnaam) blijft leeg — werkgever vult zelf in", (res[3] || "").trim() === "");
 check("veld 6 = functie", res[6] === "Administratief medewerker");
 check("7A activiteit (11) gevuld", res[11].startsWith("Werkgever en werknemer stellen"));
 check("7A wie (12)", res[12] === "Werkgever en werknemer");

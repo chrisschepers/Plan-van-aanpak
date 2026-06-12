@@ -1,6 +1,7 @@
 /* Opbouwschema-tabel + bewerkbaar paneel met geëxtraheerde velden */
 
 import { I } from "./data.jsx";
+import { computeDerived } from "./advice.js";
 
 export function SchemaRows({ schema }) {
   return (
@@ -123,7 +124,32 @@ export function FieldsPanel({ fields, selected, onSelect, onEdit }) {
             ))}
           </div>
         ))}
+        <DerivedGroup fields={fields} />
       </div>
+    </div>
+  );
+}
+
+// Automatisch berekende, alleen-lezen waarden (geen invoer/controle nodig).
+function DerivedGroup({ fields }) {
+  const d = computeDerived(fields);
+  const rows = [
+    { label: "AOW-gerechtigde leeftijd (datum)", value: d.aow, hint: "geboortedatum + 67 jaar · indicatief, controleer bij SVB" },
+    { label: "Einde wachttijd", value: d.eindeWacht, hint: "eerste ziektedag + 104 weken" },
+  ];
+  return (
+    <div className="field-group">
+      <div className="gh">Berekend (automatisch)</div>
+      {rows.map((r) => (
+        <div className="field-row computed" key={r.label}>
+          <div className="flabel">{r.label}</div>
+          <div className="fval">{r.value || "—"}</div>
+          <div className="fstatus" style={{ opacity: 1 }}>
+            <span className="pill pill-navy"><span className="pdot"></span>Berekend</span>
+          </div>
+          <div className="fhint" style={{ gridColumn: 1, fontSize: 12, color: "var(--faint)", marginTop: 2 }}>{r.hint}</div>
+        </div>
+      ))}
     </div>
   );
 }
