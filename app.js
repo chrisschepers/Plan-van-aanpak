@@ -21211,6 +21211,95 @@
     return triggerDownload(merged, `Plan-van-Aanpak-${safeName(fields)}.docx`);
   }
 
+  // src/config.js
+  var BACKEND_URL = typeof window !== "undefined" && window.__PVA_BACKEND__ || "";
+  var hasBackend = () => !!BACKEND_URL;
+
+  // src/extract.js
+  var MISSING2 = "[INVULLEN]";
+  function api(path) {
+    return BACKEND_URL.replace(/\/$/, "") + path;
+  }
+  async function extractCasus({ file, text }) {
+    if (!BACKEND_URL) throw new Error("Geen backend ingesteld.");
+    let resp;
+    if (file) {
+      const fd = new FormData();
+      fd.append("document", file);
+      resp = await fetch(api("/api/extract"), { method: "POST", body: fd });
+    } else {
+      resp = await fetch(api("/api/extract"), {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ text })
+      });
+    }
+    if (!resp.ok) {
+      const e = await resp.json().catch(() => ({}));
+      throw new Error(e.error || `Serverfout (${resp.status})`);
+    }
+    const { data } = await resp.json();
+    return mapExtraction(data);
+  }
+  function isoToNL(iso) {
+    return /^\d{4}-\d{2}-\d{2}$/.test(iso || "") ? iso.split("-").reverse().join("-") : "";
+  }
+  function todayNL() {
+    const x = /* @__PURE__ */ new Date();
+    const p2 = (n) => String(n).padStart(2, "0");
+    return `${p2(x.getDate())}-${p2(x.getMonth() + 1)}-${x.getFullYear()}`;
+  }
+  function mapExtraction(d) {
+    const sources = {};
+    const mk = (id, label, value, bron) => {
+      const v = (value || "").trim();
+      if (bron && bron.trim()) sources[id] = bron.trim();
+      return { id, label, value: v || MISSING2, status: v ? "ok" : "missing", src: bron && bron.trim() ? id : null };
+    };
+    const b = d.bronnen || {};
+    const fields = [
+      { group: "Werknemer & dienstverband", items: [
+        mk("naam", "Naam werknemer", d.naam, b.naam),
+        mk("functie", "Functie", d.functie, b.functie),
+        mk("uren", "Contracturen", d.contracturen, b.contracturen),
+        mk("eersteZ", "Eerste ziektedag", d.eersteZiektedag, b.eersteZiektedag),
+        mk("geboortedatum", "Geboortedatum", d.geboortedatum, null),
+        mk("einddatum", "Einddatum dienstverband", d.einddatumDienstverband, null),
+        mk("werkgever", "Werkgever", d.werkgever, null)
+      ] },
+      { group: "Belastbaarheid & opbouw", items: [
+        mk("belast", "Belastbaarheid", d.belastbaarheid, b.belastbaarheid),
+        mk("opbouw", "Opbouwtempo", d.opbouwtempo, b.opbouwtempo),
+        mk("start", "Startdatum opbouw", d.startdatumOpbouw, b.startdatumOpbouw),
+        mk("beperking", "Werkaanpassing", d.werkaanpassing, b.werkaanpassing)
+      ] },
+      { group: "Prognose", items: [
+        mk("prognose", "Prognose herstel", d.prognose, b.prognose),
+        mk("evaluatie", "Eerstvolgende evaluatie", d.evaluatie, null)
+      ] }
+    ];
+    const r = d.reken || {};
+    let schema;
+    if (r.contractHours > 0 && r.startHours > 0 && r.weeklyIncrease > 0 && /^\d{4}-\d{2}-\d{2}$/.test(r.startDateISO || "")) {
+      schema = computeSchema({
+        contractHours: r.contractHours,
+        startHours: r.startHours,
+        weeklyIncrease: r.weeklyIncrease,
+        startDate: r.startDateISO
+      });
+    } else {
+      const disp = isoToNL(r.startDateISO) || (d.startdatumOpbouw || "").trim() || "\u2014";
+      schema = [{ date: disp, hours: r.contractHours || 0, pct: 100 }];
+    }
+    return {
+      mode: "ai",
+      fields,
+      schema,
+      reportDate: (d.spreekuurdatum || "").trim() || todayNL(),
+      sources
+    };
+  }
+
   // src/tool.jsx
   var TOOL_STEPS = ["Upload", "Controleren", "Downloaden"];
   function Stepper({ step }) {
@@ -21225,18 +21314,25 @@
     const m = /\.([a-z0-9]+)$/i.exec(name);
     return m ? m[1].toLowerCase() : "";
   }
-  function UploadStep({ onProcessed }) {
+  function demoCasus() {
+    const schema = computeSchema(CASE);
+    return { mode: "demo", fields: INITIAL_FIELDS, schema, reportDate: CASE.reportDate, sources: null, contractHours: CASE.contractHours };
+  }
+  function UploadStep({ onResult }) {
     const [file, setFile] = React.useState(null);
+    const [paste, setPaste] = React.useState(false);
+    const [text, setText] = React.useState("");
     const [drag, setDrag] = React.useState(false);
     const [error, setError] = React.useState(null);
-    const [processing, setProcessing] = React.useState(false);
+    const [busy, setBusy] = React.useState(false);
+    const [demoProc, setDemoProc] = React.useState(false);
     const inputRef = React.useRef(null);
-    const ALLOWED = ["pdf", "doc", "docx"];
+    const ALLOWED = ["pdf", "doc", "docx", "txt"];
     function acceptFile(f) {
       if (!f) return;
       const ext = extOf(f.name);
       if (!ALLOWED.includes(ext)) {
-        setError("Alleen PDF of Word (.pdf, .doc, .docx) wordt ondersteund.");
+        setError("Ondersteund: PDF, Word (.doc/.docx) of platte tekst (.txt).");
         return;
       }
       if (f.size > 20 * MB) {
@@ -21244,23 +21340,46 @@
         return;
       }
       setError(null);
-      setFile({ name: f.name, size: fmtSize(f.size), type: ext === "pdf" ? "pdf" : "doc", real: true });
+      setFile({ name: f.name, size: fmtSize(f.size), type: ext === "pdf" ? "pdf" : "doc", real: true, file: f });
     }
     function pickExample() {
       setError(null);
+      setPaste(false);
       setFile({ name: "terugkoppeling-bedrijfsarts.pdf", size: "248 kB", type: "pdf", real: false });
     }
-    if (processing) return /* @__PURE__ */ React.createElement(Processing, { onDone: onProcessed });
-    return /* @__PURE__ */ React.createElement("div", { className: "upload-wrap" }, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 1 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Upload de terugkoppeling van de bedrijfsarts"), /* @__PURE__ */ React.createElement("p", null, "Sleep het spreekuurverslag erin of kies een bestand. De tool leest de functionele gegevens uit \u2014 medische informatie blijft buiten het Plan van Aanpak.")), /* @__PURE__ */ React.createElement(
+    async function process3() {
+      setError(null);
+      if (file && !file.real) {
+        setDemoProc(true);
+        return;
+      }
+      if (!hasBackend()) {
+        setError("Er is nog geen AI-backend gekoppeld. Gebruik voorlopig de voorbeeldcasus, of stel de backend-URL in (window.__PVA_BACKEND__).");
+        return;
+      }
+      setBusy(true);
+      try {
+        const casus = await extractCasus(file ? { file: file.file } : { text });
+        onResult(casus);
+      } catch (e) {
+        setError("Verwerking mislukt: " + (e && e.message ? e.message : "onbekende fout"));
+      } finally {
+        setBusy(false);
+      }
+    }
+    if (demoProc) return /* @__PURE__ */ React.createElement(Processing, { onDone: () => onResult(demoCasus()) });
+    if (busy) return /* @__PURE__ */ React.createElement(AiBusy, null);
+    const canSubmit = !!file || paste && text.trim().length > 20;
+    return /* @__PURE__ */ React.createElement("div", { className: "upload-wrap" }, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 1 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Lever de terugkoppeling van de bedrijfsarts aan"), /* @__PURE__ */ React.createElement("p", null, "Upload het spreekuurverslag (PDF/Word) of plak de tekst. De AI leest de functionele gegevens uit \u2014 medische informatie en BSN blijven buiten het Plan van Aanpak.")), /* @__PURE__ */ React.createElement(
       "input",
       {
         ref: inputRef,
         type: "file",
-        accept: ".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        accept: ".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain",
         style: { display: "none" },
         onChange: (e) => acceptFile(e.target.files && e.target.files[0])
       }
-    ), !file ? /* @__PURE__ */ React.createElement(
+    ), !file && !paste && /* @__PURE__ */ React.createElement(
       "div",
       {
         className: "dropzone" + (drag ? " drag" : ""),
@@ -21279,11 +21398,30 @@
       /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.upload),
       /* @__PURE__ */ React.createElement("h3", null, "Sleep je bestand hierheen"),
       /* @__PURE__ */ React.createElement("p", null, "of klik om een PDF of Word-bestand te kiezen"),
-      /* @__PURE__ */ React.createElement("div", { className: "formats" }, "PDF of Word \xB7 max. 20 MB \xB7 verwerking binnen de EER")
-    ) : /* @__PURE__ */ React.createElement("div", { className: "file-chip" }, /* @__PURE__ */ React.createElement("span", { className: "fico " + file.type }, file.type === "pdf" ? "PDF" : "DOC"), /* @__PURE__ */ React.createElement("div", { className: "meta" }, /* @__PURE__ */ React.createElement("div", { className: "nm" }, file.name), /* @__PURE__ */ React.createElement("div", { className: "sz" }, file.size, " \xB7 klaar om te verwerken")), /* @__PURE__ */ React.createElement("button", { className: "x", title: "Verwijder", onClick: () => setFile(null) }, I.x)), error && /* @__PURE__ */ React.createElement("div", { className: "upload-error" }, error), !file && /* @__PURE__ */ React.createElement("p", { className: "example-link" }, "Geen bestand bij de hand? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: pickExample }, "Gebruik de voorbeeldcasus (J. de Vries)")), file && file.real && /* @__PURE__ */ React.createElement("div", { className: "demo-note" }, I.info, /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Demo-modus."), " Je bestand is ingelezen, maar de AI-extractie van echte documenten volgt in de volgende fase. Ter controle van de werking vult de tool nu de voorbeeldgegevens in. Gebruik fictieve terugkoppelingen.")), /* @__PURE__ */ React.createElement("div", { className: "privacy-note" }, I.shield, /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Privacy by design."), " Bijzondere persoonsgegevens (diagnose, behandeling, klachten) worden herkend en ", /* @__PURE__ */ React.createElement("strong", null, "niet"), " overgenomen in het concept. Het bestand wordt na verwerking automatisch verwijderd.")), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("span", null), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !file, onClick: () => setProcessing(true) }, "Verwerk document ", I.arrowRight)));
+      /* @__PURE__ */ React.createElement("div", { className: "formats" }, "PDF, Word of tekst \xB7 max. 20 MB")
+    ), file && /* @__PURE__ */ React.createElement("div", { className: "file-chip" }, /* @__PURE__ */ React.createElement("span", { className: "fico " + file.type }, file.type === "pdf" ? "PDF" : "DOC"), /* @__PURE__ */ React.createElement("div", { className: "meta" }, /* @__PURE__ */ React.createElement("div", { className: "nm" }, file.name), /* @__PURE__ */ React.createElement("div", { className: "sz" }, file.size, " \xB7 klaar om te verwerken")), /* @__PURE__ */ React.createElement("button", { className: "x", title: "Verwijder", onClick: () => setFile(null) }, I.x)), paste && !file && /* @__PURE__ */ React.createElement(
+      "textarea",
+      {
+        className: "paste-area",
+        rows: 9,
+        value: text,
+        autoFocus: true,
+        onChange: (e) => setText(e.target.value),
+        placeholder: "Plak hier de (fictieve) terugkoppeling van de bedrijfsarts\u2026"
+      }
+    ), error && /* @__PURE__ */ React.createElement("div", { className: "upload-error" }, error), !file && /* @__PURE__ */ React.createElement("p", { className: "example-link" }, !paste ? /* @__PURE__ */ React.createElement(React.Fragment, null, "Liever tekst plakken? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => {
+      setPaste(true);
+      setError(null);
+    } }, "Plak de tekst"), " \xB7 ") : /* @__PURE__ */ React.createElement(React.Fragment, null, "Toch een bestand? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => {
+      setPaste(false);
+      setText("");
+    } }, "Kies een bestand"), " \xB7 "), "Geen casus bij de hand? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: pickExample }, "Gebruik de voorbeeldcasus (J. de Vries)")), !hasBackend() && /* @__PURE__ */ React.createElement("div", { className: "demo-note" }, I.info, /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "AI nog niet gekoppeld."), " Zonder backend werkt alleen de voorbeeldcasus. Zet je Railway-URL in ", /* @__PURE__ */ React.createElement("code", null, "window.__PVA_BACKEND__"), " om echte documenten te laten uitlezen. Gebruik uitsluitend fictieve terugkoppelingen.")), /* @__PURE__ */ React.createElement("div", { className: "privacy-note" }, I.shield, /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Privacy by design."), " Bijzondere persoonsgegevens (diagnose, behandeling, klachten) en het BSN worden ", /* @__PURE__ */ React.createElement("strong", null, "niet"), " overgenomen in het concept.")), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("span", null), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !canSubmit, onClick: process3 }, "Verwerk ", I.arrowRight)));
+  }
+  function AiBusy() {
+    return /* @__PURE__ */ React.createElement("div", { className: "processing" }, /* @__PURE__ */ React.createElement("div", { className: "proc-ring" }), /* @__PURE__ */ React.createElement("h3", { style: { fontSize: 21 } }, "De AI leest de terugkoppeling\u2026"), /* @__PURE__ */ React.createElement("p", { style: { color: "var(--muted)", marginTop: 8 } }, "Functionele gegevens worden uitgelezen; medische informatie wordt gefilterd. Dit duurt meestal 5\u201320 seconden."));
   }
   var PROC = [
-    "Document inlezen (PDF)",
+    "Document inlezen",
     "Medische gegevens filteren",
     "Functionele gegevens extraheren",
     "Opbouwschema berekenen"
@@ -21300,46 +21438,59 @@
     }, []);
     return /* @__PURE__ */ React.createElement("div", { className: "processing" }, /* @__PURE__ */ React.createElement("div", { className: "proc-ring" }), /* @__PURE__ */ React.createElement("h3", { style: { fontSize: 21 } }, "Concept wordt opgesteld\u2026"), /* @__PURE__ */ React.createElement("p", { style: { color: "var(--muted)", marginTop: 8 } }, "Dit duurt normaal een paar seconden."), /* @__PURE__ */ React.createElement("div", { className: "proc-steps" }, PROC.map((p2, i) => /* @__PURE__ */ React.createElement("div", { className: "proc-line" + (stage > i ? " ok" : stage === i ? " active" : ""), key: i }, /* @__PURE__ */ React.createElement("span", { className: "tick" }, stage > i ? React.cloneElement(I.checkSm, { style: { width: 12, height: 12 } }) : null), p2))));
   }
-  function VerifyStep({ onBack, onNext, checked, setChecked, fields, onEdit, schema }) {
+  function AiSourcePanel({ selected, sources }) {
+    const snippet = selected && sources ? sources[selected.id] : null;
+    return /* @__PURE__ */ React.createElement("div", { className: "panel" }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Bron \xB7 terugkoppeling bedrijfsarts"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Door de AI uitgelezen passages")), /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "AI-extractie")), /* @__PURE__ */ React.createElement("div", { className: "doc-legend" }, /* @__PURE__ */ React.createElement("span", null, I.shield, " Medische gegevens en BSN zijn gefilterd")), /* @__PURE__ */ React.createElement("div", { className: "srcdoc", style: { maxHeight: 560, overflowY: "auto" } }, /* @__PURE__ */ React.createElement("p", { className: "dh" }, "Geselecteerd veld"), /* @__PURE__ */ React.createElement("p", { className: "dtitle" }, selected ? selected.label : "\u2014"), snippet ? /* @__PURE__ */ React.createElement("p", { style: { marginTop: 14 } }, /* @__PURE__ */ React.createElement("span", { className: "hl active" }, snippet)) : /* @__PURE__ */ React.createElement("p", { className: "dmeta", style: { marginTop: 14 } }, "Geen bronpassage voor dit veld \u2014 dit gegeven komt niet uit de terugkoppeling (vul je zelf aan) of is door het medisch filter weggelaten."), /* @__PURE__ */ React.createElement("p", { style: { marginTop: 20, fontSize: 13, color: "var(--muted)" } }, "Klik links op een veld om de bijbehorende passage te tonen. Controleer elk veld v\xF3\xF3r vaststelling.")));
+  }
+  function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
+    const { fields, schema, mode, sources } = casus;
     const [selected, setSelected] = React.useState(fields[0].items[0]);
     const activeSrc = selected ? selected.src : null;
-    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 2 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Controleer de ge\xEBxtraheerde gegevens"), /* @__PURE__ */ React.createElement("p", null, "Links de ingevulde velden, rechts de bron. Klik een veld om de bijbehorende passage te zien. Corrigeer waar nodig en vul ontbrekende velden aan.")), /* @__PURE__ */ React.createElement("div", { className: "gate-banner" }, I.hand, /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("strong", null, "Menselijke controle is verplicht."), " Niets wordt vastgesteld of gedownload zonder dat jij het hebt nagelopen en bevestigd.")), /* @__PURE__ */ React.createElement("div", { className: "verify-grid" }, /* @__PURE__ */ React.createElement(FieldsPanel, { fields, selected, onSelect: setSelected, onEdit }), /* @__PURE__ */ React.createElement(SourceDoc, { active: activeSrc, onSel: (id) => {
+    const contractHours = schema[schema.length - 1] ? schema[schema.length - 1].hours : 0;
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 2 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Controleer de ge\xEBxtraheerde gegevens"), /* @__PURE__ */ React.createElement("p", null, "Links de ingevulde velden, rechts de bron. Klik een veld om de bijbehorende passage te zien. Corrigeer waar nodig en vul ontbrekende velden aan.")), /* @__PURE__ */ React.createElement("div", { className: "gate-banner" }, I.hand, /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("strong", null, "Menselijke controle is verplicht."), " Niets wordt vastgesteld of gedownload zonder dat jij het hebt nagelopen en bevestigd.")), /* @__PURE__ */ React.createElement("div", { className: "verify-grid" }, /* @__PURE__ */ React.createElement(FieldsPanel, { fields, selected, onSelect: setSelected, onEdit }), mode === "demo" ? /* @__PURE__ */ React.createElement(SourceDoc, { active: activeSrc, onSel: (id) => {
       const f = fields.flatMap((g) => g.items).find((it) => it.src === id);
       if (f) setSelected(f);
-    } })), /* @__PURE__ */ React.createElement(SchemaTable, { schema, contractHours: CASE.contractHours }), /* @__PURE__ */ React.createElement("div", { className: "verify-foot" }, /* @__PURE__ */ React.createElement("label", { className: "control-check" + (checked ? " on" : ""), onClick: () => setChecked(!checked) }, /* @__PURE__ */ React.createElement("span", { className: "box" }, I.checkSm), /* @__PURE__ */ React.createElement("span", { className: "ct" }, /* @__PURE__ */ React.createElement("strong", null, "Ik heb de gegevens gecontroleerd"), "Ik bevestig dat ik de ge\xEBxtraheerde gegevens heb nagelopen en corrigeer ontbrekende velden v\xF3\xF3r vaststelling.")), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !checked, onClick: onNext }, "Naar preview ", I.arrowRight)), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar upload"), /* @__PURE__ */ React.createElement("span", null)));
+    } }) : /* @__PURE__ */ React.createElement(AiSourcePanel, { selected, sources })), /* @__PURE__ */ React.createElement(SchemaTable, { schema, contractHours }), /* @__PURE__ */ React.createElement("div", { className: "verify-foot" }, /* @__PURE__ */ React.createElement("label", { className: "control-check" + (checked ? " on" : ""), onClick: () => setChecked(!checked) }, /* @__PURE__ */ React.createElement("span", { className: "box" }, I.checkSm), /* @__PURE__ */ React.createElement("span", { className: "ct" }, /* @__PURE__ */ React.createElement("strong", null, "Ik heb de gegevens gecontroleerd"), "Ik bevestig dat ik de ge\xEBxtraheerde gegevens heb nagelopen en corrigeer ontbrekende velden v\xF3\xF3r vaststelling.")), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !checked, onClick: onNext }, "Naar preview ", I.arrowRight)), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar upload"), /* @__PURE__ */ React.createElement("span", null)));
   }
-  function PreviewStep({ onBack, controleOk, fields, schema }) {
+  function PreviewStep({ onBack, controleOk, casus }) {
+    const { fields, schema, reportDate } = casus;
     const [tab, setTab] = React.useState(0);
     const [downloaded, setDownloaded] = React.useState(null);
-    const tabs = [
-      { t: "Opbouwadvies", el: /* @__PURE__ */ React.createElement(AdviesPreview, { fields, schema, reportDate: CASE.reportDate }) },
-      { t: "Plan van Aanpak", el: /* @__PURE__ */ React.createElement(PvaPreview, { fields, schema }) },
-      { t: "Begeleidend bericht", el: /* @__PURE__ */ React.createElement(BerichtPreview, { fields, schema, reportDate: CASE.reportDate }) }
-    ];
     const [busyKey, setBusyKey] = React.useState(null);
+    const tabs = [
+      { t: "Opbouwadvies", el: /* @__PURE__ */ React.createElement(AdviesPreview, { fields, schema, reportDate }) },
+      { t: "Plan van Aanpak", el: /* @__PURE__ */ React.createElement(PvaPreview, { fields, schema }) },
+      { t: "Begeleidend bericht", el: /* @__PURE__ */ React.createElement(BerichtPreview, { fields, schema, reportDate }) }
+    ];
     async function run(key, fn) {
       setBusyKey(key);
       try {
-        const filename = await fn();
-        setDownloaded(filename);
+        setDownloaded(await fn());
       } catch (e) {
         setDownloaded("FOUT: " + (e && e.message ? e.message : "download mislukt"));
       } finally {
         setBusyKey(null);
       }
     }
-    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 3 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Preview en download"), /* @__PURE__ */ React.createElement("p", null, "Bekijk de drie onderdelen. Stel het concept samen met de werknemer vast en download het als Word-document.")), /* @__PURE__ */ React.createElement("div", { className: "preview-tabs" }, tabs.map((tb, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: tab === i ? "active" : "", onClick: () => setTab(i) }, /* @__PURE__ */ React.createElement("span", { className: "tnum" }, i + 1), /* @__PURE__ */ React.createElement("span", { className: "txt" }, tb.t)))), tabs[tab].el, /* @__PURE__ */ React.createElement("div", { className: "download-bar" }, /* @__PURE__ */ React.createElement("div", { className: "dl-info" }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.download), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "E\xE9n Word-document: begeleidend bericht + Plan van aanpak (UWV)"), /* @__PURE__ */ React.createElement("p", null, controleOk ? /* @__PURE__ */ React.createElement("span", { className: "review-confirm" }, I.checkSm, " Menselijke controle bevestigd in stap 2") : "Controle in stap 2 is vereist v\xF3\xF3r downloaden"))), /* @__PURE__ */ React.createElement("div", { className: "dl-buttons" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-accent btn-lg", disabled: !controleOk || busyKey, onClick: () => run("doc", () => downloadCombined(fields, schema, CASE.reportDate)) }, I.download, " ", busyKey === "doc" ? "Bezig\u2026" : "Download als Word (.docx)"))), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar controle"), /* @__PURE__ */ React.createElement("span", null)), downloaded && /* @__PURE__ */ React.createElement("div", { className: "toast", onClick: () => setDownloaded(null) }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.checkSm), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tt" }, downloaded, " gedownload"), /* @__PURE__ */ React.createElement("div", { className: "ts" }, "Concept \xB7 controleer en stel vast met de werknemer"))));
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 3 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Preview en download"), /* @__PURE__ */ React.createElement("p", null, "Bekijk de drie onderdelen. Stel het concept samen met de werknemer vast en download het als Word-document.")), /* @__PURE__ */ React.createElement("div", { className: "preview-tabs" }, tabs.map((tb, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: tab === i ? "active" : "", onClick: () => setTab(i) }, /* @__PURE__ */ React.createElement("span", { className: "tnum" }, i + 1), /* @__PURE__ */ React.createElement("span", { className: "txt" }, tb.t)))), tabs[tab].el, /* @__PURE__ */ React.createElement("div", { className: "download-bar" }, /* @__PURE__ */ React.createElement("div", { className: "dl-info" }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.download), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "E\xE9n Word-document: begeleidend bericht + Plan van aanpak (UWV)"), /* @__PURE__ */ React.createElement("p", null, controleOk ? /* @__PURE__ */ React.createElement("span", { className: "review-confirm" }, I.checkSm, " Menselijke controle bevestigd in stap 2") : "Controle in stap 2 is vereist v\xF3\xF3r downloaden"))), /* @__PURE__ */ React.createElement("div", { className: "dl-buttons" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-accent btn-lg", disabled: !controleOk || busyKey, onClick: () => run("doc", () => downloadCombined(fields, schema, reportDate)) }, I.download, " ", busyKey === "doc" ? "Bezig\u2026" : "Download als Word (.docx)"))), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar controle"), /* @__PURE__ */ React.createElement("span", null)), downloaded && /* @__PURE__ */ React.createElement("div", { className: "toast", onClick: () => setDownloaded(null) }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.checkSm), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tt" }, downloaded, " gedownload"), /* @__PURE__ */ React.createElement("div", { className: "ts" }, "Concept \xB7 controleer en stel vast met de werknemer"))));
   }
   function Tool({ onClose }) {
     const [step, setStep] = React.useState(0);
     const [checked, setChecked] = React.useState(false);
-    const [fields, setFields] = React.useState(INITIAL_FIELDS);
-    const schema = React.useMemo(() => computeSchema(CASE), []);
+    const [casus, setCasus] = React.useState(null);
+    function handleResult(c) {
+      setCasus(c);
+      setChecked(false);
+      setStep(1);
+    }
     function handleEdit(id, value) {
-      setFields((prev) => prev.map((g) => ({
-        ...g,
-        items: g.items.map((it) => it.id === id ? { ...it, value, status: value && value !== MISSING ? "ok" : "missing" } : it)
-      })));
+      setCasus((prev) => !prev ? prev : {
+        ...prev,
+        fields: prev.fields.map((g) => ({
+          ...g,
+          items: g.items.map((it) => it.id === id ? { ...it, value, status: value && value !== MISSING ? "ok" : "missing" } : it)
+        }))
+      });
     }
     React.useEffect(() => {
       const body = document.querySelector(".tool-body");
@@ -21349,7 +21500,7 @@
     return /* @__PURE__ */ React.createElement("div", { className: "tool" }, /* @__PURE__ */ React.createElement("div", { className: "tool-bar" }, /* @__PURE__ */ React.createElement("div", { className: "tool-bar-inner" }, /* @__PURE__ */ React.createElement("button", { className: "tool-back", onClick: onClose }, I.arrowLeft, " Terug naar site"), /* @__PURE__ */ React.createElement(Stepper, { step }), /* @__PURE__ */ React.createElement("a", { className: "brand", href: "#", onClick: (e) => {
       e.preventDefault();
       onClose();
-    }, style: { fontSize: 15 } }, /* @__PURE__ */ React.createElement("span", { className: "mark", style: { width: 28, height: 28 } }, I.doc)))), /* @__PURE__ */ React.createElement("div", { className: "tool-body" }, step === 0 && /* @__PURE__ */ React.createElement(UploadStep, { onProcessed: () => setStep(1) }), step === 1 && /* @__PURE__ */ React.createElement(VerifyStep, { onBack: () => setStep(0), onNext: () => setStep(2), checked, setChecked, fields, onEdit: handleEdit, schema }), step === 2 && /* @__PURE__ */ React.createElement(PreviewStep, { onBack: () => setStep(1), controleOk: checked, fields, schema })));
+    }, style: { fontSize: 15 } }, /* @__PURE__ */ React.createElement("span", { className: "mark", style: { width: 28, height: 28 } }, I.doc)))), /* @__PURE__ */ React.createElement("div", { className: "tool-body" }, step === 0 && /* @__PURE__ */ React.createElement(UploadStep, { onResult: handleResult }), step === 1 && casus && /* @__PURE__ */ React.createElement(VerifyStep, { onBack: () => setStep(0), onNext: () => setStep(2), checked, setChecked, casus, onEdit: handleEdit }), step === 2 && casus && /* @__PURE__ */ React.createElement(PreviewStep, { onBack: () => setStep(1), controleOk: checked, casus })));
   }
 
   // src/app.jsx

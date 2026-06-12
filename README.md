@@ -65,10 +65,22 @@ npm test        # smoke-test: klikt de hele flow door in jsdom
 Tests: `test/docx.mjs` (echte .docx genereren en de inhoud valideren) en
 `test/smoke.mjs` (de volledige klik-flow in jsdom).
 
+## AI-backend (echte documenten uitlezen)
+
+De map `server/` bevat een Node-backend die met **Claude** (`@anthropic-ai/sdk`)
+de terugkoppeling van de bedrijfsarts uitleest en de functionele gegevens
+teruggeeft (medisch filter + BSN-regel). Deploy die op Railway en zet de URL in
+`index.html` (`window.__PVA_BACKEND__`). Zie **`server/README.md`** voor de
+stappen. Zonder backend werkt de site in demo-modus (voorbeeldcasus).
+
+Flow: upload/plak → backend (Claude extraheert) → frontend bouwt het opbouwschema
+(rekenmotor) → verificatie → UWV-PvA + brief. De API-sleutel staat **alleen** op
+Railway, nooit in de repo of de frontend.
+
 ## Volgende stappen
 
-- [ ] Backend: echte documenten verwerken (AI-extractie met bronverwijzing + medisch filter)
-- [ ] Repo terug naar privé + AVG-proof hosting binnen de EER vóór echte data
-- [ ] Adviesregels 1-op-1 afstemmen op het kennisdocument (Agentprompt PvA v2)
-- [ ] Bedrijfsnaam, KVK en privacyverklaring invullen (nu `[INVULLEN]`)
-- [ ] Huisstijlsjabloon in de `.docx`-export
+- [x] Backend: echte documenten verwerken (AI-extractie met bronverwijzing + medisch filter)
+- [ ] Repo terug naar privé + AVG-proof hosting binnen de EER + DPA met Anthropic vóór echte data
+- [ ] Einddoel-vinkje automatisch aankruisen in het UWV-formulier
+- [ ] Bedrijfsnaam, KVK, logo en privacyverklaring invullen (nu `[INVULLEN]`)
+- [ ] Adviesregels fijnslijpen tegen het kennisdocument (Agentprompt PvA v2)

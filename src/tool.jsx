@@ -1,4 +1,7 @@
-/* Tool-orchestrator — stap 1 upload · stap 2 verificatie · stap 3 preview */
+/* Tool-orchestrator — stap 1 upload · stap 2 verificatie · stap 3 preview.
+   Twee bronnen voor de gegevens:
+   - Demo: de voorbeeldcasus (J. de Vries), volledig client-side.
+   - AI: een geüpload bestand of geplakte tekst → backend (Claude) → gegevens. */
 
 import { I, CASE, INITIAL_FIELDS, MISSING } from "./data.jsx";
 import { computeSchema } from "./engine.js";
@@ -6,6 +9,8 @@ import { SchemaTable, FieldsPanel } from "./fields.jsx";
 import { SourceDoc } from "./sourcedoc.jsx";
 import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
 import { downloadCombined } from "./download.js";
+import { hasBackend } from "./config.js";
+import { extractCasus } from "./extract.js";
 
 const TOOL_STEPS = ["Upload", "Controleren", "Downloaden"];
 
@@ -25,7 +30,6 @@ function Stepper({ step }) {
   );
 }
 
-/* ---------- Stap 1: Upload ---------- */
 const MB = 1024 * 1024;
 function fmtSize(bytes) {
   if (bytes >= MB) return (bytes / MB).toFixed(1) + " MB";
@@ -36,54 +40,75 @@ function extOf(name) {
   return m ? m[1].toLowerCase() : "";
 }
 
-function UploadStep({ onProcessed }) {
-  const [file, setFile] = React.useState(null);
+function demoCasus() {
+  const schema = computeSchema(CASE);
+  return { mode: "demo", fields: INITIAL_FIELDS, schema, reportDate: CASE.reportDate, sources: null, contractHours: CASE.contractHours };
+}
+
+/* ---------- Stap 1: Upload ---------- */
+function UploadStep({ onResult }) {
+  const [file, setFile] = React.useState(null);   // { name,size,type,real,file? }
+  const [paste, setPaste] = React.useState(false);
+  const [text, setText] = React.useState("");
   const [drag, setDrag] = React.useState(false);
   const [error, setError] = React.useState(null);
-  const [processing, setProcessing] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);   // AI-aanroep loopt
+  const [demoProc, setDemoProc] = React.useState(false);
   const inputRef = React.useRef(null);
 
-  const ALLOWED = ["pdf", "doc", "docx"];
+  const ALLOWED = ["pdf", "doc", "docx", "txt"];
 
   function acceptFile(f) {
     if (!f) return;
     const ext = extOf(f.name);
-    if (!ALLOWED.includes(ext)) {
-      setError("Alleen PDF of Word (.pdf, .doc, .docx) wordt ondersteund.");
-      return;
-    }
-    if (f.size > 20 * MB) {
-      setError("Het bestand is groter dan 20 MB.");
-      return;
-    }
+    if (!ALLOWED.includes(ext)) { setError("Ondersteund: PDF, Word (.doc/.docx) of platte tekst (.txt)."); return; }
+    if (f.size > 20 * MB) { setError("Het bestand is groter dan 20 MB."); return; }
     setError(null);
-    setFile({ name: f.name, size: fmtSize(f.size), type: ext === "pdf" ? "pdf" : "doc", real: true });
+    setFile({ name: f.name, size: fmtSize(f.size), type: ext === "pdf" ? "pdf" : "doc", real: true, file: f });
   }
 
   function pickExample() {
-    setError(null);
+    setError(null); setPaste(false);
     setFile({ name: "terugkoppeling-bedrijfsarts.pdf", size: "248 kB", type: "pdf", real: false });
   }
 
-  if (processing) return <Processing onDone={onProcessed} />;
+  async function process() {
+    setError(null);
+    if (file && !file.real) { setDemoProc(true); return; }          // voorbeeldcasus
+    if (!hasBackend()) {
+      setError("Er is nog geen AI-backend gekoppeld. Gebruik voorlopig de voorbeeldcasus, of stel de backend-URL in (window.__PVA_BACKEND__).");
+      return;
+    }
+    setBusy(true);
+    try {
+      const casus = await extractCasus(file ? { file: file.file } : { text });
+      onResult(casus);
+    } catch (e) {
+      setError("Verwerking mislukt: " + (e && e.message ? e.message : "onbekende fout"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (demoProc) return <Processing onDone={() => onResult(demoCasus())} />;
+  if (busy) return <AiBusy />;
+
+  const canSubmit = !!file || (paste && text.trim().length > 20);
 
   return (
     <div className="upload-wrap">
       <div className="step-kicker">Stap 1 van 3</div>
       <div className="tool-head">
-        <h1>Upload de terugkoppeling van de bedrijfsarts</h1>
-        <p>Sleep het spreekuurverslag erin of kies een bestand. De tool leest de functionele gegevens uit — medische informatie blijft buiten het Plan van Aanpak.</p>
+        <h1>Lever de terugkoppeling van de bedrijfsarts aan</h1>
+        <p>Upload het spreekuurverslag (PDF/Word) of plak de tekst. De AI leest de functionele gegevens uit — medische informatie en BSN blijven buiten het Plan van Aanpak.</p>
       </div>
 
-      <input
-        ref={inputRef}
-        type="file"
-        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      <input ref={inputRef} type="file"
+        accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
         style={{ display: "none" }}
-        onChange={(e) => acceptFile(e.target.files && e.target.files[0])}
-      />
+        onChange={(e) => acceptFile(e.target.files && e.target.files[0])} />
 
-      {!file ? (
+      {!file && !paste && (
         <div
           className={"dropzone" + (drag ? " drag" : "")}
           onClick={() => inputRef.current && inputRef.current.click()}
@@ -94,9 +119,11 @@ function UploadStep({ onProcessed }) {
           <span className="ico">{I.upload}</span>
           <h3>Sleep je bestand hierheen</h3>
           <p>of klik om een PDF of Word-bestand te kiezen</p>
-          <div className="formats">PDF of Word · max. 20 MB · verwerking binnen de EER</div>
+          <div className="formats">PDF, Word of tekst · max. 20 MB</div>
         </div>
-      ) : (
+      )}
+
+      {file && (
         <div className="file-chip">
           <span className={"fico " + file.type}>{file.type === "pdf" ? "PDF" : "DOC"}</span>
           <div className="meta">
@@ -107,38 +134,57 @@ function UploadStep({ onProcessed }) {
         </div>
       )}
 
+      {paste && !file && (
+        <textarea className="paste-area" rows={9} value={text} autoFocus
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Plak hier de (fictieve) terugkoppeling van de bedrijfsarts…" />
+      )}
+
       {error && <div className="upload-error">{error}</div>}
 
       {!file && (
         <p className="example-link">
-          Geen bestand bij de hand? <button type="button" onClick={pickExample}>Gebruik de voorbeeldcasus (J. de Vries)</button>
+          {!paste
+            ? <>Liever tekst plakken? <button type="button" onClick={() => { setPaste(true); setError(null); }}>Plak de tekst</button> · </>
+            : <>Toch een bestand? <button type="button" onClick={() => { setPaste(false); setText(""); }}>Kies een bestand</button> · </>}
+          Geen casus bij de hand? <button type="button" onClick={pickExample}>Gebruik de voorbeeldcasus (J. de Vries)</button>
         </p>
       )}
 
-      {file && file.real && (
+      {!hasBackend() && (
         <div className="demo-note">
           {I.info}
-          <p><strong>Demo-modus.</strong> Je bestand is ingelezen, maar de AI-extractie van echte documenten volgt in de volgende fase. Ter controle van de werking vult de tool nu de voorbeeldgegevens in. Gebruik fictieve terugkoppelingen.</p>
+          <p><strong>AI nog niet gekoppeld.</strong> Zonder backend werkt alleen de voorbeeldcasus. Zet je Railway-URL in <code>window.__PVA_BACKEND__</code> om echte documenten te laten uitlezen. Gebruik uitsluitend fictieve terugkoppelingen.</p>
         </div>
       )}
 
       <div className="privacy-note">
         {I.shield}
-        <p><strong>Privacy by design.</strong> Bijzondere persoonsgegevens (diagnose, behandeling, klachten) worden herkend en <strong>niet</strong> overgenomen in het concept. Het bestand wordt na verwerking automatisch verwijderd.</p>
+        <p><strong>Privacy by design.</strong> Bijzondere persoonsgegevens (diagnose, behandeling, klachten) en het BSN worden <strong>niet</strong> overgenomen in het concept.</p>
       </div>
 
       <div className="tool-actions">
         <span></span>
-        <button className="btn btn-primary btn-lg" disabled={!file} onClick={() => setProcessing(true)}>
-          Verwerk document {I.arrowRight}
+        <button className="btn btn-primary btn-lg" disabled={!canSubmit} onClick={process}>
+          Verwerk {I.arrowRight}
         </button>
       </div>
     </div>
   );
 }
 
+function AiBusy() {
+  return (
+    <div className="processing">
+      <div className="proc-ring"></div>
+      <h3 style={{ fontSize: 21 }}>De AI leest de terugkoppeling…</h3>
+      <p style={{ color: "var(--muted)", marginTop: 8 }}>Functionele gegevens worden uitgelezen; medische informatie wordt gefilterd. Dit duurt meestal 5–20 seconden.</p>
+    </div>
+  );
+}
+
 const PROC = [
-  "Document inlezen (PDF)",
+  "Document inlezen",
   "Medische gegevens filteren",
   "Functionele gegevens extraheren",
   "Opbouwschema berekenen",
@@ -168,10 +214,47 @@ function Processing({ onDone }) {
   );
 }
 
+/* Bronpaneel voor AI-modus: toont de bronpassage bij het geselecteerde veld. */
+function AiSourcePanel({ selected, sources }) {
+  const snippet = selected && sources ? sources[selected.id] : null;
+  return (
+    <div className="panel">
+      <div className="panel-head">
+        <div>
+          <h3>Bron · terugkoppeling bedrijfsarts</h3>
+          <div className="sub">Door de AI uitgelezen passages</div>
+        </div>
+        <span className="pill pill-navy"><span className="pdot"></span>AI-extractie</span>
+      </div>
+      <div className="doc-legend">
+        <span>{I.shield} Medische gegevens en BSN zijn gefilterd</span>
+      </div>
+      <div className="srcdoc" style={{ maxHeight: 560, overflowY: "auto" }}>
+        <p className="dh">Geselecteerd veld</p>
+        <p className="dtitle">{selected ? selected.label : "—"}</p>
+        {snippet ? (
+          <p style={{ marginTop: 14 }}>
+            <span className="hl active">{snippet}</span>
+          </p>
+        ) : (
+          <p className="dmeta" style={{ marginTop: 14 }}>
+            Geen bronpassage voor dit veld — dit gegeven komt niet uit de terugkoppeling (vul je zelf aan) of is door het medisch filter weggelaten.
+          </p>
+        )}
+        <p style={{ marginTop: 20, fontSize: 13, color: "var(--muted)" }}>
+          Klik links op een veld om de bijbehorende passage te tonen. Controleer elk veld vóór vaststelling.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 /* ---------- Stap 2: Verificatie ---------- */
-function VerifyStep({ onBack, onNext, checked, setChecked, fields, onEdit, schema }) {
+function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
+  const { fields, schema, mode, sources } = casus;
   const [selected, setSelected] = React.useState(fields[0].items[0]);
   const activeSrc = selected ? selected.src : null;
+  const contractHours = schema[schema.length - 1] ? schema[schema.length - 1].hours : 0;
 
   return (
     <div>
@@ -188,13 +271,15 @@ function VerifyStep({ onBack, onNext, checked, setChecked, fields, onEdit, schem
 
       <div className="verify-grid">
         <FieldsPanel fields={fields} selected={selected} onSelect={setSelected} onEdit={onEdit} />
-        <SourceDoc active={activeSrc} onSel={(id) => {
-          const f = fields.flatMap(g => g.items).find(it => it.src === id);
-          if (f) setSelected(f);
-        }} />
+        {mode === "demo"
+          ? <SourceDoc active={activeSrc} onSel={(id) => {
+              const f = fields.flatMap(g => g.items).find(it => it.src === id);
+              if (f) setSelected(f);
+            }} />
+          : <AiSourcePanel selected={selected} sources={sources} />}
       </div>
 
-      <SchemaTable schema={schema} contractHours={CASE.contractHours} />
+      <SchemaTable schema={schema} contractHours={contractHours} />
 
       <div className="verify-foot">
         <label className={"control-check" + (checked ? " on" : "")} onClick={() => setChecked(!checked)}>
@@ -218,27 +303,22 @@ function VerifyStep({ onBack, onNext, checked, setChecked, fields, onEdit, schem
 }
 
 /* ---------- Stap 3: Preview ---------- */
-function PreviewStep({ onBack, controleOk, fields, schema }) {
+function PreviewStep({ onBack, controleOk, casus }) {
+  const { fields, schema, reportDate } = casus;
   const [tab, setTab] = React.useState(0);
   const [downloaded, setDownloaded] = React.useState(null);
-  const tabs = [
-    { t: "Opbouwadvies", el: <AdviesPreview fields={fields} schema={schema} reportDate={CASE.reportDate} /> },
-    { t: "Plan van Aanpak", el: <PvaPreview fields={fields} schema={schema} /> },
-    { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} reportDate={CASE.reportDate} /> },
-  ];
-
   const [busyKey, setBusyKey] = React.useState(null);
+  const tabs = [
+    { t: "Opbouwadvies", el: <AdviesPreview fields={fields} schema={schema} reportDate={reportDate} /> },
+    { t: "Plan van Aanpak", el: <PvaPreview fields={fields} schema={schema} /> },
+    { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} reportDate={reportDate} /> },
+  ];
 
   async function run(key, fn) {
     setBusyKey(key);
-    try {
-      const filename = await fn();
-      setDownloaded(filename);
-    } catch (e) {
-      setDownloaded("FOUT: " + (e && e.message ? e.message : "download mislukt"));
-    } finally {
-      setBusyKey(null);
-    }
+    try { setDownloaded(await fn()); }
+    catch (e) { setDownloaded("FOUT: " + (e && e.message ? e.message : "download mislukt")); }
+    finally { setBusyKey(null); }
   }
 
   return (
@@ -272,7 +352,7 @@ function PreviewStep({ onBack, controleOk, fields, schema }) {
           </div>
         </div>
         <div className="dl-buttons">
-          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("doc", () => downloadCombined(fields, schema, CASE.reportDate))}>
+          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("doc", () => downloadCombined(fields, schema, reportDate))}>
             {I.download} {busyKey === "doc" ? "Bezig…" : "Download als Word (.docx)"}
           </button>
         </div>
@@ -300,16 +380,20 @@ function PreviewStep({ onBack, controleOk, fields, schema }) {
 export function Tool({ onClose }) {
   const [step, setStep] = React.useState(0);
   const [checked, setChecked] = React.useState(false);
-  const [fields, setFields] = React.useState(INITIAL_FIELDS);
-  const schema = React.useMemo(() => computeSchema(CASE), []);
+  const [casus, setCasus] = React.useState(null);
+
+  function handleResult(c) { setCasus(c); setChecked(false); setStep(1); }
 
   function handleEdit(id, value) {
-    setFields(prev => prev.map(g => ({
-      ...g,
-      items: g.items.map(it => it.id === id
-        ? { ...it, value, status: value && value !== MISSING ? "ok" : "missing" }
-        : it)
-    })));
+    setCasus(prev => !prev ? prev : {
+      ...prev,
+      fields: prev.fields.map(g => ({
+        ...g,
+        items: g.items.map(it => it.id === id
+          ? { ...it, value, status: value && value !== MISSING ? "ok" : "missing" }
+          : it),
+      })),
+    });
   }
 
   React.useEffect(() => {
@@ -330,9 +414,9 @@ export function Tool({ onClose }) {
         </div>
       </div>
       <div className="tool-body">
-        {step === 0 && <UploadStep onProcessed={() => setStep(1)} />}
-        {step === 1 && <VerifyStep onBack={() => setStep(0)} onNext={() => setStep(2)} checked={checked} setChecked={setChecked} fields={fields} onEdit={handleEdit} schema={schema} />}
-        {step === 2 && <PreviewStep onBack={() => setStep(1)} controleOk={checked} fields={fields} schema={schema} />}
+        {step === 0 && <UploadStep onResult={handleResult} />}
+        {step === 1 && casus && <VerifyStep onBack={() => setStep(0)} onNext={() => setStep(2)} checked={checked} setChecked={setChecked} casus={casus} onEdit={handleEdit} />}
+        {step === 2 && casus && <PreviewStep onBack={() => setStep(1)} controleOk={checked} casus={casus} />}
       </div>
     </div>
   );

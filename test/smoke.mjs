@@ -50,13 +50,13 @@ check("landing heeft 4 stappen", $$(".step").length === 4);
 // Open de tool
 click(byText("button", "Probeer de PvA-invuller"));
 await wait(50);
-check("tool opent op stap 1 (upload)", !!byText("h1", "Upload de terugkoppeling"));
+check("tool opent op stap 1 (upload)", !!byText("h1", "Lever de terugkoppeling"));
 
 // Voorbeeldcasus laden en verwerken (via de voorbeeld-link)
 click(byText(".example-link button", "voorbeeldcasus"));
 await wait(50);
 check("voorbeeldbestand geladen", !!byText(".file-chip .nm", "terugkoppeling-bedrijfsarts.pdf"));
-click(byText("button", "Verwerk document"));
+click(byText("button", "Verwerk"));
 await wait(50);
 check("verwerken toont voortgang", !!byText("h3", "Concept wordt opgesteld"));
 await wait(2300);
