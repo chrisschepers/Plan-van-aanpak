@@ -12997,22 +12997,6 @@
       }
     }
   });
-  var HeadingLevel = {
-    /** Heading 1 style */
-    HEADING_1: "Heading1",
-    /** Heading 2 style */
-    HEADING_2: "Heading2",
-    /** Heading 3 style */
-    HEADING_3: "Heading3",
-    /** Heading 4 style */
-    HEADING_4: "Heading4",
-    /** Heading 5 style */
-    HEADING_5: "Heading5",
-    /** Heading 6 style */
-    HEADING_6: "Heading6",
-    /** Title style */
-    TITLE: "Title"
-  };
   var createParagraphStyle = (styleId) => new BuilderElement({
     name: "w:pStyle",
     attributes: { val: {
@@ -20985,6 +20969,74 @@
     });
   }
 
+  // src/merge.js
+  var import_jszip2 = __toESM(require_jszip_min2(), 1);
+  var HEADER_CT = "application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml";
+  var FOOTER_CT = "application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml";
+  var REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/";
+  function findRef(relsXml, kind) {
+    const rx = /<Relationship\b[^>]*>/g;
+    let m;
+    while (m = rx.exec(relsXml)) {
+      const tag = m[0];
+      if (tag.includes(`/${kind}"`)) {
+        const id = /Id="(rId\d+)"/.exec(tag);
+        const tgt = /Target="([^"]*)"/.exec(tag);
+        if (id && tgt) return { id: id[1], target: tgt[1].replace(/^\//, "") };
+      }
+    }
+    return null;
+  }
+  async function mergeLetterAndForm(letterData, formData) {
+    const L = await import_jszip2.default.loadAsync(letterData);
+    const T = await import_jszip2.default.loadAsync(formData);
+    const lDoc = await L.file("word/document.xml").async("string");
+    const lRels = await L.file("word/_rels/document.xml.rels").async("string");
+    const bodyInner = lDoc.slice(lDoc.indexOf("<w:body>") + 8, lDoc.lastIndexOf("</w:body>"));
+    const sectStart = bodyInner.lastIndexOf("<w:sectPr");
+    if (sectStart < 0) throw new Error("Brief mist sectie-eigenschappen");
+    const letterContent = bodyInner.slice(0, sectStart);
+    let letterSect = bodyInner.slice(sectStart);
+    if (/r:embed=|r:link=|r:id="rId/.test(letterContent)) {
+      throw new Error("Brief-inhoud bevat onverwachte relaties (afbeelding/koppeling)");
+    }
+    const lh = findRef(lRels, "header");
+    const lf = findRef(lRels, "footer");
+    const headerXml = lh ? await L.file(`word/${lh.target}`).async("string") : null;
+    const footerXml = lf ? await L.file(`word/${lf.target}`).async("string") : null;
+    let tDoc = await T.file("word/document.xml").async("string");
+    let tRels = await T.file("word/_rels/document.xml.rels").async("string");
+    let tCT = await T.file("[Content_Types].xml").async("string");
+    const maxId = Math.max(0, ...[...tRels.matchAll(/Id="rId(\d+)"/g)].map((m) => +m[1]));
+    const hId = "rId" + (maxId + 1);
+    const fId = "rId" + (maxId + 2);
+    let ctAdd = "", relAdd = "";
+    if (headerXml) {
+      T.file("word/headerLetter.xml", headerXml);
+      ctAdd += `<Override PartName="/word/headerLetter.xml" ContentType="${HEADER_CT}"/>`;
+      relAdd += `<Relationship Id="${hId}" Type="${REL}header" Target="headerLetter.xml"/>`;
+      letterSect = letterSect.replace(`r:id="${lh.id}"`, `r:id="${hId}"`);
+    }
+    if (footerXml) {
+      T.file("word/footerLetter.xml", footerXml);
+      ctAdd += `<Override PartName="/word/footerLetter.xml" ContentType="${FOOTER_CT}"/>`;
+      relAdd += `<Relationship Id="${fId}" Type="${REL}footer" Target="footerLetter.xml"/>`;
+      letterSect = letterSect.replace(`r:id="${lf.id}"`, `r:id="${fId}"`);
+    }
+    T.file("[Content_Types].xml", tCT.replace("</Types>", ctAdd + "</Types>"));
+    T.file("word/_rels/document.xml.rels", tRels.replace("</Relationships>", relAdd + "</Relationships>"));
+    const sect1Para = `<w:p><w:pPr>${letterSect}</w:pPr></w:p>`;
+    const at = tDoc.indexOf("<w:body>") + 8;
+    tDoc = tDoc.slice(0, at) + letterContent + sect1Para + tDoc.slice(at);
+    T.file("word/document.xml", tDoc);
+    const isNode = typeof window === "undefined";
+    return T.generateAsync({
+      type: isNode ? "nodebuffer" : "blob",
+      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      compression: "DEFLATE"
+    });
+  }
+
   // src/download.js
   var NAVY = "1F3864";
   var NAVY_400 = "5B76A6";
@@ -20995,13 +21047,13 @@
   function brandHeader() {
     return new Header({ children: [
       new Paragraph({ spacing: { after: 20 }, children: [
-        new TextRun({ text: "planvanaanpak", bold: true, color: NAVY, size: 30 }),
-        new TextRun({ text: "invuller.nl", bold: true, color: NAVY_400, size: 30 })
+        new TextRun({ text: "planvanaanpak", bold: true, color: NAVY, size: 30, font: "Calibri" }),
+        new TextRun({ text: "invuller.nl", bold: true, color: NAVY_400, size: 30, font: "Calibri" })
       ] }),
       new Paragraph({
         spacing: { after: 0 },
         border: { bottom: { style: BorderStyle.SINGLE, size: 18, color: GREEN } },
-        children: [new TextRun({ text: "Concept Plan van aanpak \xB7 Wet verbetering poortwachter", color: GREY, size: 16 })]
+        children: [new TextRun({ text: "Concept Plan van aanpak \xB7 Wet verbetering poortwachter", color: GREY, size: 16, font: "Calibri" })]
       })
     ] });
   }
@@ -21011,11 +21063,11 @@
         alignment: AlignmentType.CENTER,
         spacing: { before: 40 },
         border: { top: { style: BorderStyle.SINGLE, size: 6, color: "E3E7EE" } },
-        children: [new TextRun({ text: "planvanaanpakinvuller.nl \xB7 Privacy by design, mens in de loop \xB7 Verwerking binnen de EER \xB7 Geen training op klantdata", color: GREY, size: 14 })]
+        children: [new TextRun({ text: "planvanaanpakinvuller.nl \xB7 Privacy by design, mens in de loop \xB7 Verwerking binnen de EER \xB7 Geen training op klantdata", color: GREY, size: 14, font: "Calibri" })]
       }),
       new Paragraph({
         alignment: AlignmentType.CENTER,
-        children: [new TextRun({ text: "[INVULLEN: bedrijfsnaam \xB7 KVK \xB7 contactgegevens]", color: FAINT, size: 14 })]
+        children: [new TextRun({ text: "[INVULLEN: bedrijfsnaam \xB7 KVK \xB7 contactgegevens]", color: FAINT, size: 14, font: "Calibri" })]
       })
     ] });
   }
@@ -21023,39 +21075,39 @@
     const v = getVal(fields, id);
     return isMissing(v) ? "[INVULLEN]" : v;
   };
+  var FONT = "Calibri";
   function h1(text) {
     return new Paragraph({
-      heading: HeadingLevel.HEADING_1,
       spacing: { before: 240, after: 120 },
-      children: [new TextRun({ text, bold: true, color: NAVY, size: 32 })]
+      children: [new TextRun({ text, bold: true, color: NAVY, size: 32, font: FONT })]
     });
   }
   function h2(text) {
     return new Paragraph({
-      heading: HeadingLevel.HEADING_2,
       spacing: { before: 200, after: 80 },
-      children: [new TextRun({ text, bold: true, color: NAVY, size: 24 })]
+      children: [new TextRun({ text, bold: true, color: NAVY, size: 24, font: FONT })]
     });
   }
   function p(text, opts = {}) {
     return new Paragraph({
       spacing: { after: 120 },
-      children: [new TextRun({ text, color: opts.color, italics: opts.italics, size: 22 })]
+      children: [new TextRun({ text, color: opts.color, italics: opts.italics, size: 22, font: FONT })]
     });
   }
   function sub(text) {
-    return new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text, color: GREY, size: 20 })] });
+    return new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text, color: GREY, size: 20, font: FONT })] });
   }
   function kv(label, value) {
     const missing = isMissing(value);
     return new Paragraph({ spacing: { after: 60 }, children: [
-      new TextRun({ text: label + ": ", color: GREY, size: 22 }),
+      new TextRun({ text: label + ": ", color: GREY, size: 22, font: FONT }),
       new TextRun({
         text: missing ? "[INVULLEN]" : value,
         bold: true,
         color: missing ? FLAG : "18202F",
         italics: missing,
-        size: 22
+        size: 22,
+        font: FONT
       })
     ] });
   }
@@ -21066,7 +21118,8 @@
       text,
       bold: !!opts.head,
       size: 20,
-      color: opts.head ? NAVY : "3C465A"
+      color: opts.head ? NAVY : "3C465A",
+      font: FONT
     })] })]
   });
   function table(headers, rows) {
@@ -21102,7 +21155,7 @@
       title: `Plan van Aanpak \u2014 ${naam}`,
       styles: { default: { document: { run: { font: "Calibri" } } } },
       sections: [{
-        properties: { page: { margin: { top: 1900, bottom: 1400, left: 1200, right: 1200 } } },
+        properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1900, bottom: 1400, left: 1200, right: 1200 } } },
         headers: { default: brandHeader() },
         footers: { default: brandFooter() },
         children: [
@@ -21149,17 +21202,13 @@
     setTimeout(() => URL.revokeObjectURL(url), 4e3);
     return filename;
   }
-  async function downloadDocx(fields, schema, reportDate) {
-    const filename = `Begeleidend-bericht-${safeName(fields)}.docx`;
-    const blob = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate));
-    return triggerDownload(blob, filename);
-  }
-  async function downloadUwvPva(fields, schema) {
+  async function downloadCombined(fields, schema, reportDate) {
+    const letter = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate));
     const resp = await fetch(new URL("uwv-template.docx", document.baseURI));
     if (!resp.ok) throw new Error("UWV-sjabloon niet gevonden");
-    const buf = await resp.arrayBuffer();
-    const blob = await fillTemplate(buf, buildUwvValues(fields, schema));
-    return triggerDownload(blob, `Plan-van-Aanpak-${safeName(fields)}.docx`);
+    const filled = await fillTemplate(await resp.arrayBuffer(), buildUwvValues(fields, schema));
+    const merged = await mergeLetterAndForm(letter, filled);
+    return triggerDownload(merged, `Plan-van-Aanpak-${safeName(fields)}.docx`);
   }
 
   // src/tool.jsx
@@ -21279,7 +21328,7 @@
         setBusyKey(null);
       }
     }
-    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 3 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Preview en download"), /* @__PURE__ */ React.createElement("p", null, "Bekijk de drie onderdelen. Stel het concept samen met de werknemer vast en download het als Word-document.")), /* @__PURE__ */ React.createElement("div", { className: "preview-tabs" }, tabs.map((tb, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: tab === i ? "active" : "", onClick: () => setTab(i) }, /* @__PURE__ */ React.createElement("span", { className: "tnum" }, i + 1), /* @__PURE__ */ React.createElement("span", { className: "txt" }, tb.t)))), tabs[tab].el, /* @__PURE__ */ React.createElement("div", { className: "download-bar" }, /* @__PURE__ */ React.createElement("div", { className: "dl-info" }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.download), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Download als Word (.docx)"), /* @__PURE__ */ React.createElement("p", null, controleOk ? /* @__PURE__ */ React.createElement("span", { className: "review-confirm" }, I.checkSm, " Menselijke controle bevestigd in stap 2") : "Controle in stap 2 is vereist v\xF3\xF3r downloaden"))), /* @__PURE__ */ React.createElement("div", { className: "dl-buttons" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-accent btn-lg", disabled: !controleOk || busyKey, onClick: () => run("pva", () => downloadUwvPva(fields, schema)) }, I.download, " ", busyKey === "pva" ? "Bezig\u2026" : "Plan van Aanpak (UWV)"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost btn-lg", disabled: !controleOk || busyKey, onClick: () => run("bericht", () => downloadDocx(fields, schema, CASE.reportDate)) }, I.mail, " ", busyKey === "bericht" ? "Bezig\u2026" : "Begeleidend bericht"))), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar controle"), /* @__PURE__ */ React.createElement("span", null)), downloaded && /* @__PURE__ */ React.createElement("div", { className: "toast", onClick: () => setDownloaded(null) }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.checkSm), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tt" }, downloaded, " gedownload"), /* @__PURE__ */ React.createElement("div", { className: "ts" }, "Concept \xB7 controleer en stel vast met de werknemer"))));
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 3 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Preview en download"), /* @__PURE__ */ React.createElement("p", null, "Bekijk de drie onderdelen. Stel het concept samen met de werknemer vast en download het als Word-document.")), /* @__PURE__ */ React.createElement("div", { className: "preview-tabs" }, tabs.map((tb, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: tab === i ? "active" : "", onClick: () => setTab(i) }, /* @__PURE__ */ React.createElement("span", { className: "tnum" }, i + 1), /* @__PURE__ */ React.createElement("span", { className: "txt" }, tb.t)))), tabs[tab].el, /* @__PURE__ */ React.createElement("div", { className: "download-bar" }, /* @__PURE__ */ React.createElement("div", { className: "dl-info" }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.download), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "E\xE9n Word-document: begeleidend bericht + Plan van aanpak (UWV)"), /* @__PURE__ */ React.createElement("p", null, controleOk ? /* @__PURE__ */ React.createElement("span", { className: "review-confirm" }, I.checkSm, " Menselijke controle bevestigd in stap 2") : "Controle in stap 2 is vereist v\xF3\xF3r downloaden"))), /* @__PURE__ */ React.createElement("div", { className: "dl-buttons" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-accent btn-lg", disabled: !controleOk || busyKey, onClick: () => run("doc", () => downloadCombined(fields, schema, CASE.reportDate)) }, I.download, " ", busyKey === "doc" ? "Bezig\u2026" : "Download als Word (.docx)"))), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar controle"), /* @__PURE__ */ React.createElement("span", null)), downloaded && /* @__PURE__ */ React.createElement("div", { className: "toast", onClick: () => setDownloaded(null) }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.checkSm), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tt" }, downloaded, " gedownload"), /* @__PURE__ */ React.createElement("div", { className: "ts" }, "Concept \xB7 controleer en stel vast met de werknemer"))));
   }
   function Tool({ onClose }) {
     const [step, setStep] = React.useState(0);

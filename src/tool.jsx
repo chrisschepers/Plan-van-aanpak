@@ -5,7 +5,7 @@ import { computeSchema } from "./engine.js";
 import { SchemaTable, FieldsPanel } from "./fields.jsx";
 import { SourceDoc } from "./sourcedoc.jsx";
 import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
-import { downloadDocx, downloadUwvPva } from "./download.js";
+import { downloadCombined } from "./download.js";
 
 const TOOL_STEPS = ["Upload", "Controleren", "Downloaden"];
 
@@ -263,7 +263,7 @@ function PreviewStep({ onBack, controleOk, fields, schema }) {
         <div className="dl-info">
           <span className="ico">{I.download}</span>
           <div>
-            <h4>Download als Word (.docx)</h4>
+            <h4>Eén Word-document: begeleidend bericht + Plan van aanpak (UWV)</h4>
             <p>
               {controleOk
                 ? <span className="review-confirm">{I.checkSm} Menselijke controle bevestigd in stap 2</span>
@@ -272,11 +272,8 @@ function PreviewStep({ onBack, controleOk, fields, schema }) {
           </div>
         </div>
         <div className="dl-buttons">
-          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("pva", () => downloadUwvPva(fields, schema))}>
-            {I.download} {busyKey === "pva" ? "Bezig…" : "Plan van Aanpak (UWV)"}
-          </button>
-          <button className="btn btn-ghost btn-lg" disabled={!controleOk || busyKey} onClick={() => run("bericht", () => downloadDocx(fields, schema, CASE.reportDate))}>
-            {I.mail} {busyKey === "bericht" ? "Bezig…" : "Begeleidend bericht"}
+          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("doc", () => downloadCombined(fields, schema, CASE.reportDate))}>
+            {I.download} {busyKey === "doc" ? "Bezig…" : "Download als Word (.docx)"}
           </button>
         </div>
       </div>

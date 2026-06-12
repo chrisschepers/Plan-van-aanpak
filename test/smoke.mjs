@@ -102,11 +102,10 @@ await wait(30);
 check("bericht-tab toont begeleidend bericht", !!byText(".doc-sheet h2", "Begeleidend bericht"));
 check("bericht bevat verweven advies (verzuimdossier)", !!byText(".doc-sheet", "verzuimdossier"));
 check("bericht bevat einddatum-advies", !!byText(".doc-sheet", "einddatum"));
-// Twee downloadknoppen aanwezig en actief na controle (download zelf: zie template.mjs/docx.mjs)
-const pvaBtn = byText(".dl-buttons button", "Plan van Aanpak");
-const berBtn = byText(".dl-buttons button", "Begeleidend bericht");
-check("knop 'Plan van Aanpak (UWV)' aanwezig en actief", !!pvaBtn && !pvaBtn.disabled);
-check("knop 'Begeleidend bericht' aanwezig en actief", !!berBtn && !berBtn.disabled);
+// Eén gecombineerde downloadknop, actief na controle (download zelf: zie merge.mjs)
+const dlBtn = byText(".dl-buttons button", "Download als Word");
+check("download-knop aanwezig en actief na controle", !!dlBtn && !dlBtn.disabled);
+check("download-bar noemt één document (bericht + PvA)", !!byText(".dl-info h4", "Plan van aanpak"));
 
 console.log(failures === 0 ? "\nAlle checks geslaagd." : `\n${failures} check(s) gefaald.`);
 process.exit(failures === 0 ? 0 : 1);

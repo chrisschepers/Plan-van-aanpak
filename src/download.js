@@ -12,6 +12,7 @@ import { getVal, isMissing } from "./casedata.js";
 import { fullRecoveryDate } from "./engine.js";
 import { adviceParagraphs } from "./advice.js";
 import { fillTemplate, buildUwvValues } from "./filltemplate.js";
+import { mergeLetterAndForm } from "./merge.js";
 
 const NAVY = "1F3864";
 const NAVY_400 = "5B76A6";
@@ -25,13 +26,13 @@ const FLAG = "9A3B2E";
 function brandHeader() {
   return new Header({ children: [
     new Paragraph({ spacing: { after: 20 }, children: [
-      new TextRun({ text: "planvanaanpak", bold: true, color: NAVY, size: 30 }),
-      new TextRun({ text: "invuller.nl", bold: true, color: NAVY_400, size: 30 }),
+      new TextRun({ text: "planvanaanpak", bold: true, color: NAVY, size: 30, font: "Calibri" }),
+      new TextRun({ text: "invuller.nl", bold: true, color: NAVY_400, size: 30, font: "Calibri" }),
     ] }),
     new Paragraph({
       spacing: { after: 0 },
       border: { bottom: { style: BorderStyle.SINGLE, size: 18, color: GREEN } },
-      children: [new TextRun({ text: "Concept Plan van aanpak · Wet verbetering poortwachter", color: GREY, size: 16 })],
+      children: [new TextRun({ text: "Concept Plan van aanpak · Wet verbetering poortwachter", color: GREY, size: 16, font: "Calibri" })],
     }),
   ] });
 }
@@ -41,10 +42,10 @@ function brandFooter() {
     new Paragraph({
       alignment: AlignmentType.CENTER, spacing: { before: 40 },
       border: { top: { style: BorderStyle.SINGLE, size: 6, color: "E3E7EE" } },
-      children: [new TextRun({ text: "planvanaanpakinvuller.nl · Privacy by design, mens in de loop · Verwerking binnen de EER · Geen training op klantdata", color: GREY, size: 14 })],
+      children: [new TextRun({ text: "planvanaanpakinvuller.nl · Privacy by design, mens in de loop · Verwerking binnen de EER · Geen training op klantdata", color: GREY, size: 14, font: "Calibri" })],
     }),
     new Paragraph({ alignment: AlignmentType.CENTER,
-      children: [new TextRun({ text: "[INVULLEN: bedrijfsnaam · KVK · contactgegevens]", color: FAINT, size: 14 })] }),
+      children: [new TextRun({ text: "[INVULLEN: bedrijfsnaam · KVK · contactgegevens]", color: FAINT, size: 14, font: "Calibri" })] }),
   ] });
 }
 
@@ -53,29 +54,32 @@ const txt = (fields, id) => {
   return isMissing(v) ? "[INVULLEN]" : v;
 };
 
+// Koppen zonder heading-stijl (alleen expliciete opmaak) zodat het brief-
+// document ook zonder eigen styles.xml correct oogt — nodig bij samenvoegen.
+const FONT = "Calibri";
 function h1(text) {
-  return new Paragraph({ heading: HeadingLevel.HEADING_1, spacing: { before: 240, after: 120 },
-    children: [new TextRun({ text, bold: true, color: NAVY, size: 32 })] });
+  return new Paragraph({ spacing: { before: 240, after: 120 },
+    children: [new TextRun({ text, bold: true, color: NAVY, size: 32, font: FONT })] });
 }
 function h2(text) {
-  return new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 80 },
-    children: [new TextRun({ text, bold: true, color: NAVY, size: 24 })] });
+  return new Paragraph({ spacing: { before: 200, after: 80 },
+    children: [new TextRun({ text, bold: true, color: NAVY, size: 24, font: FONT })] });
 }
 function p(text, opts = {}) {
   return new Paragraph({ spacing: { after: 120 },
-    children: [new TextRun({ text, color: opts.color, italics: opts.italics, size: 22 })] });
+    children: [new TextRun({ text, color: opts.color, italics: opts.italics, size: 22, font: FONT })] });
 }
 function sub(text) {
-  return new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text, color: GREY, size: 20 })] });
+  return new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text, color: GREY, size: 20, font: FONT })] });
 }
 
 // Sleutel/waarde-rij; markeert ontbrekende waarden.
 function kv(label, value) {
   const missing = isMissing(value);
   return new Paragraph({ spacing: { after: 60 }, children: [
-    new TextRun({ text: label + ": ", color: GREY, size: 22 }),
+    new TextRun({ text: label + ": ", color: GREY, size: 22, font: FONT }),
     new TextRun({ text: missing ? "[INVULLEN]" : value, bold: true, color: missing ? FLAG : "18202F",
-      italics: missing, size: 22 }),
+      italics: missing, size: 22, font: FONT }),
   ] });
 }
 
@@ -83,7 +87,7 @@ const cell = (text, opts = {}) => new TableCell({
   width: { size: opts.w || 33, type: WidthType.PERCENTAGE },
   shading: opts.head ? { fill: "E6EBF4" } : undefined,
   children: [new Paragraph({ children: [new TextRun({ text, bold: !!opts.head, size: 20,
-    color: opts.head ? NAVY : "3C465A" })] })],
+    color: opts.head ? NAVY : "3C465A", font: FONT })] })],
 });
 
 function table(headers, rows) {
@@ -114,7 +118,7 @@ export function buildDocxDocument(fields, schema, reportDate) {
     title: `Plan van Aanpak — ${naam}`,
     styles: { default: { document: { run: { font: "Calibri" } } } },
     sections: [{
-      properties: { page: { margin: { top: 1900, bottom: 1400, left: 1200, right: 1200 } } },
+      properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1900, bottom: 1400, left: 1200, right: 1200 } } },
       headers: { default: brandHeader() },
       footers: { default: brandFooter() },
       children: [
@@ -179,4 +183,15 @@ export async function downloadUwvPva(fields, schema) {
   const buf = await resp.arrayBuffer();
   const blob = await fillTemplate(buf, buildUwvValues(fields, schema));
   return triggerDownload(blob, `Plan-van-Aanpak-${safeName(fields)}.docx`);
+}
+
+// Eén document: begeleidend bericht (briefpapier) + ingevuld UWV-PvA erachter.
+// Het UWV-formulier blijft ongewijzigd.
+export async function downloadCombined(fields, schema, reportDate) {
+  const letter = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate));
+  const resp = await fetch(new URL("uwv-template.docx", document.baseURI));
+  if (!resp.ok) throw new Error("UWV-sjabloon niet gevonden");
+  const filled = await fillTemplate(await resp.arrayBuffer(), buildUwvValues(fields, schema));
+  const merged = await mergeLetterAndForm(letter, filled);
+  return triggerDownload(merged, `Plan-van-Aanpak-${safeName(fields)}.docx`);
 }
