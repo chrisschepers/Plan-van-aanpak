@@ -286,9 +286,8 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
         p("Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."),
         new Paragraph({ spacing: { before: 200, after: 700 },
           children: [new TextRun({ text: "Met vriendelijke groet,", color: "3C465A", size: 22, font: FONT })] }),
-        new Paragraph({ spacing: { after: 20 }, children: [invullen("[INVULLEN: naam casemanager]", { size: 22 })] }),
-        new Paragraph({ spacing: { after: 0 },
-          children: [new TextRun({ text: "Casemanager verzuim", color: GREY, size: 18, font: FONT })] }),
+        new Paragraph({ spacing: { after: 20 }, children: [invullen("[INVULLEN: naam afzender]", { size: 22 })] }),
+        new Paragraph({ spacing: { after: 0 }, children: [invullen("[INVULLEN: functie, bv. casemanager verzuim]", { size: 18 })] }),
 
         // ---- BIJLAGE 1 — Opbouwadvies ----
         new Paragraph({ children: [new PageBreak()] }),

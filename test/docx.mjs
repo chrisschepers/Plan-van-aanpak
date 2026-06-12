@@ -58,7 +58,7 @@ check("briefhoofd heeft eerste + vervolgpagina-variant (afbeeldingen)", headers.
 // het ingevulde Plan van aanpak zelf zit in het echte UWV-sjabloon (zie template.mjs).
 check(".docx bevat opbouwadvies", xml.includes("Opbouw- en re-integratieadvies"));
 check(".docx verwijst naar UWV-formulier (AG140)", xml.includes("AG140"));
-check(".docx is een brief (meta-blok + ondertekening, ontwerp Briefpapier v2)", xml.includes("Ons kenmerk") && xml.includes("Casemanager verzuim") && xml.includes("[INVULLEN: naam casemanager]"));
+check(".docx is een brief (meta-blok + ondertekening, ontwerp Briefpapier v2)", xml.includes("Ons kenmerk") && xml.includes("[INVULLEN: naam afzender]") && xml.includes("[INVULLEN: functie"));
 
 check(".docx bevat begeleidend bericht aan werkgever", xml.includes("Beste werkgever"));
 check(".docx bevat opbouwschema-datum 10-03-2025", xml.includes("10-03-2025"));

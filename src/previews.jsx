@@ -216,8 +216,8 @@ export function BerichtPreview({ fields, schema, reportDate, taaksuggestie, sign
         </p>
         <p className="sign">
           Met vriendelijke groet,<br/>
-          <span style={{ color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 }}>[INVULLEN: naam casemanager]</span><br/>
-          <span style={{ color: "var(--muted)", fontSize: 13 }}>Casemanager verzuim</span>
+          <span style={{ color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 }}>[INVULLEN: naam afzender]</span><br/>
+          <span style={{ color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontSize: 13 }}>[INVULLEN: functie, bv. casemanager verzuim]</span>
         </p>
       </div>
     </div>
