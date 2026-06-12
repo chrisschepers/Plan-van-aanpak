@@ -86,7 +86,7 @@ function ActTable({ rows }) {
   );
 }
 
-export function PvaPreview({ fields, schema }) {
+export function PvaPreview({ fields, schema, functieomschrijving }) {
   const start = getVal(fields, "start");
   const opbouw = `Werknemer hervat/bouwt op conform het opbouwschema van de bedrijfsarts (start ${start}, ${getVal(fields, "opbouw").toLowerCase()} tot ${schema[schema.length - 1].hours} uur).`;
   const taak = `Werkgever en werknemer stellen samen passende werkzaamheden vast binnen de aangegeven mogelijkheden (${getVal(fields, "beperking").toLowerCase()}).`;
@@ -115,7 +115,7 @@ export function PvaPreview({ fields, schema }) {
         <UwvBar nr="4">Functie van de werknemer</UwvBar>
         <UwvRow label="4.1  Functie" value={getVal(fields, "functie")} />
         <UwvHelp>4.2  Omschrijving van de werkzaamheden van het laatste werk vóór de ziekmelding.</UwvHelp>
-        <UwvRow label="" value="" />
+        <UwvRow label="Werkzaamheden" value={(functieomschrijving || "").trim()} />
 
         <UwvBar nr="5">Mening werknemer en werkgever over de arbeidsmogelijkheden</UwvBar>
         <UwvRow label="5.1  Werknemer" value="" />

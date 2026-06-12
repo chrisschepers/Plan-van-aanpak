@@ -333,13 +333,13 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
 
 /* ---------- Stap 3: Preview ---------- */
 function PreviewStep({ onBack, controleOk, casus }) {
-  const { fields, schema, reportDate, taaksuggestie } = casus;
+  const { fields, schema, reportDate, taaksuggestie, functieomschrijving } = casus;
   const [tab, setTab] = React.useState(0);
   const [downloaded, setDownloaded] = React.useState(null);
   const [busyKey, setBusyKey] = React.useState(null);
   const tabs = [
     { t: "Opbouwadvies", el: <AdviesPreview fields={fields} schema={schema} reportDate={reportDate} /> },
-    { t: "Plan van Aanpak", el: <PvaPreview fields={fields} schema={schema} /> },
+    { t: "Plan van Aanpak", el: <PvaPreview fields={fields} schema={schema} functieomschrijving={functieomschrijving} /> },
     { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} reportDate={reportDate} taaksuggestie={taaksuggestie} /> },
   ];
 
@@ -381,7 +381,7 @@ function PreviewStep({ onBack, controleOk, casus }) {
           </div>
         </div>
         <div className="dl-buttons">
-          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("doc", () => downloadCombined(fields, schema, reportDate, taaksuggestie))}>
+          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("doc", () => downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving))}>
             {I.download} {busyKey === "doc" ? "Bezig…" : "Download als Word (.docx)"}
           </button>
         </div>

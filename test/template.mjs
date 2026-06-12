@@ -56,6 +56,10 @@ check("7E opbouw-activiteit (59)", res[59].startsWith("Werknemer hervat/bouwt op
 check("7E vervolgconsult (62)", res[62].includes("vervolgconsult"));
 check("7F evaluatie (71)", res[71].includes("evalueren de voortgang"));
 
+// 4.2 omschrijving werkzaamheden vult uit de functieomschrijving
+const res2 = readResults(fillDocumentXml(xml, buildUwvValues(fields, schema, "Postverwerking, gegevensinvoer en archiefbeheer")));
+check("4.2 werkzaamheden (7) gevuld uit functieomschrijving", res2[7].startsWith("Postverwerking"));
+
 // docx blijft geldig: terugzetten en opnieuw inladen
 zip.file("word/document.xml", filled);
 const out = await zip.generateAsync({ type: "nodebuffer" });

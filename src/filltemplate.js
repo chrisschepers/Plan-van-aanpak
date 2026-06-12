@@ -55,16 +55,18 @@ export function fillDocumentXml(xml, values) {
  *  7A Arbeidsinhoud 11–22 · 7B 23–34 · 7C 35–46 · 7D 47–58 · 7E 59–70 · 7F 71–82
  * BSN (veld 2) blijft altijd leeg.
  */
-export function buildUwvValues(fields, schema) {
+export function buildUwvValues(fields, schema, functieomschrijving) {
   const start = getVal(fields, "start");
   const lastH = schema[schema.length - 1].hours;
   const v = (id) => { const x = getVal(fields, id); return isMissing(x) ? "" : x; };
   const opbouw = `Werknemer hervat/bouwt op conform het opbouwschema van de bedrijfsarts (start ${start}, ${getVal(fields, "opbouw").toLowerCase()} tot ${lastH} uur).`;
+  const fo = (functieomschrijving || "").trim();
 
   return {
     1: v("naam"),
     3: v("werkgever"),
     6: v("functie"),
+    7: fo, // 4.2 Omschrijving van de werkzaamheden (uit de functieomschrijving)
     // 7A Arbeidsinhoud — rij 1
     11: `Werkgever en werknemer stellen samen passende werkzaamheden vast binnen de aangegeven mogelijkheden (${getVal(fields, "beperking").toLowerCase()}).`,
     12: "Werkgever en werknemer",

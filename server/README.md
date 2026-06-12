@@ -20,6 +20,27 @@ npm start                                # luistert op poort 8080
 curl -s localhost:8080/health
 ```
 
+## Uitproberen hoe de bot terugkoppelingen leest (lokaal, zonder site)
+Met een API-sleutel kun je direct zien hoe de bot een terugkoppeling interpreteert:
+```bash
+cd server
+npm install
+export ANTHROPIC_API_KEY=sk-ant-...
+node try.mjs samples/1-standaard.txt
+node try.mjs samples/3-tijdelijk-contract.txt
+```
+Je krijgt de gestructureerde JSON terug (functionele velden + bronnen + reken-
+uitgangspunten). In `samples/` staan fictieve voorbeelden met edge-cases (geen
+concreet opbouwritme, tijdelijk contract dat tijdens ziekte eindigt, oudere
+werknemer, geen benutbare mogelijkheden). De voorbeelden bevatten bewust ook
+medische zinnen en een BSN, zodat je kunt controleren dat die **niet** worden
+overgenomen.
+
+Een functieomschrijving meegeven (voor de taaksuggestie):
+```bash
+node try.mjs samples/3-tijdelijk-contract.txt mijn-functieomschrijving.txt
+```
+
 ## Deployen op Railway
 1. **railway.app** → *New Project* → *Deploy from GitHub repo* → kies deze repo.
 2. **Root Directory** instellen op **`server`** (Settings → Root Directory).

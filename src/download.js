@@ -193,11 +193,11 @@ export async function downloadUwvPva(fields, schema) {
 
 // Eén document: begeleidend bericht (briefpapier) + ingevuld UWV-PvA erachter.
 // Het UWV-formulier blijft ongewijzigd.
-export async function downloadCombined(fields, schema, reportDate, taaksuggestie) {
+export async function downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving) {
   const letter = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie));
   const resp = await fetch(new URL("uwv-template.docx", document.baseURI));
   if (!resp.ok) throw new Error("UWV-sjabloon niet gevonden");
-  const filled = await fillTemplate(await resp.arrayBuffer(), buildUwvValues(fields, schema));
+  const filled = await fillTemplate(await resp.arrayBuffer(), buildUwvValues(fields, schema, functieomschrijving));
   const merged = await mergeLetterAndForm(letter, filled);
   return triggerDownload(merged, `Plan-van-Aanpak-${safeName(fields)}.docx`);
 }
