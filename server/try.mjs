@@ -3,8 +3,8 @@
 
    Gebruik:
      export ANTHROPIC_API_KEY=sk-ant-...
-     node try.mjs samples/1-standaard.txt
-     node try.mjs samples/3-tijdelijk-contract.txt  functieomschrijving.txt
+     node try.mjs samples/terugkoppeling-01.txt
+     node try.mjs samples/terugkoppeling-03.txt  functieomschrijving.txt
 */
 
 import { readFileSync } from "fs";

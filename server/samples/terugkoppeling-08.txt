@@ -1,26 +1,30 @@
-Bedrijfsartsen Online (fictief) — gestructureerd spreekuurverslag
+Bedrijfsartsen Online (fictief) — terugkoppeling verzuimspreekuur
 
 1. ALGEMEEN
-   1.1 Spreekuurdatum: 14 april 2026
+   1.1 Spreekuurdatum: 14 april 2026 (vervolgconsult)
    1.2 Werknemer: dhr. M. de Groot
    1.3 Geboortedatum: 29-08-1983
    1.4 Functie: productiemedewerker, 36 uur per week
-   1.5 Eerste ziektedag: 2 maart 2026
+   1.5 Eerste verzuimdag: 2 maart 2026
+   1.6 Bedrijfsarts: A. Petersen
 
-2. MEDISCH (VERTROUWELIJK, NIET VOOR PVA)
-   2.1 Chronische aandoening met wisselend beloop; onder behandeling specialist.
+2. BEVINDINGEN
+   2.1 Er is sprake van forse beperkingen als gevolg van ziekte. Deze
+       rapportage bevat geen medische gegevens (AVG).
 
-3. BELASTBAARHEID
-   3.1 Zeer beperkt belastbaar. Werknemer kan op dit moment maximaal twee keer
-       twee uur per week licht, zittend werk verrichten.
+3. MOGELIJKHEDEN EN BEPERKINGEN
+   3.1 De belastbaarheid is op dit moment zeer beperkt: maximaal twee keer
+       twee uur per week licht, zittend werk.
    3.2 Geen fysieke belasting, geen tijdsdruk.
 
 4. ADVIES
    4.1 Benut deze geringe mogelijkheden zo goed mogelijk binnen de eigen
-       organisatie (aangepaste, lichte taken).
+       organisatie (aangepaste, lichte taken met begeleiding).
    4.2 Herbeoordeling van de belastbaarheid over zes weken.
 
 5. PROGNOSE
-   5.1 Onzeker; uitbreiding van uren is op korte termijn niet te verwachten.
+   5.1 Uitbreiding van uren is op korte termijn niet te verwachten.
 
-Bedrijfsarts: A. Petersen
+6. VERVOLG
+   6.1 Vervolgconsult over 6 weken; werkgever en werknemer ontvangen een
+       gelijkluidende terugkoppeling.

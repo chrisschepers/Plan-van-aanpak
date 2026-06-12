@@ -26,19 +26,19 @@ Met een API-sleutel kun je direct zien hoe de bot een terugkoppeling interpretee
 cd server
 npm install
 export ANTHROPIC_API_KEY=sk-ant-...
-node try.mjs samples/1-standaard.txt
-node try.mjs samples/3-tijdelijk-contract.txt
+node try.mjs samples/terugkoppeling-01.txt
+node try.mjs samples/terugkoppeling-03.txt
 ```
 Je krijgt de gestructureerde JSON terug (functionele velden + bronnen + reken-
-uitgangspunten). In `samples/` staan fictieve voorbeelden met edge-cases (geen
-concreet opbouwritme, tijdelijk contract dat tijdens ziekte eindigt, oudere
-werknemer, geen benutbare mogelijkheden). De voorbeelden bevatten bewust ook
-medische zinnen en een BSN, zodat je kunt controleren dat die **niet** worden
-overgenomen.
+uitgangspunten + signalen). In `samples/` staan 10 realistische fictieve
+terugkoppelingen (conform AVG/NVAB: zonder medische informatie of BSN), elk met
+een ander scenario — zie `samples/00-overzicht-terugkoppelingen.txt` voor wat je
+per casus mag verwachten. `samples/99-filtertest.txt` is een bewust fout document
+(mét diagnose/BSN) om te controleren dat het filter zulke gegevens tegenhoudt.
 
 Een functieomschrijving meegeven (voor de taaksuggestie):
 ```bash
-node try.mjs samples/3-tijdelijk-contract.txt mijn-functieomschrijving.txt
+node try.mjs samples/terugkoppeling-03.txt mijn-functieomschrijving.txt
 ```
 
 ## Deployen op Railway

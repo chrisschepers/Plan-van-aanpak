@@ -1,27 +1,30 @@
-Arbo Unie-Noord (fictief)  ::  Verslag arbeidsgezondheidskundig spreekuur
+Arbo Unie-Noord (fictief)  ::  Terugkoppeling arbeidsgezondheidskundig spreekuur
 
   Onderdeel            | Gegeven
   ---------------------+--------------------------------------------------
-  Spreekuurdatum       | 21-04-2026
-  Naam                 | dhr. T. Bakker
+  Spreekuurdatum       | 21-04-2026 (eerste verzuimconsult)
+  Werknemer            | dhr. T. Bakker
   Geboortedatum        | 22-02-1996
-  BSN                  | 2987.65.431
   Functie              | logistiek medewerker (magazijn)
   Contracturen         | 38 uur/week
-  Eerste ziektedag     | 16-03-2026
+  Eerste verzuimdag    | 16-03-2026
   Dienstverband        | bepaalde tijd, einddatum 31-07-2026
+  Bedrijfsarts         | mw. R. de Lange
   ---------------------+--------------------------------------------------
 
-Medisch (vertrouwelijk): knieklachten na een sportblessure, onder behandeling bij
-de fysiotherapeut. Niet relevant voor het Plan van Aanpak.
+Bevindingen: er is sprake van beperkingen door ziekte. Deze rapportage bevat
+conform de privacyregels geen medische informatie.
 
-Belastbaarheid: zittend en licht staand werk is mogelijk. Niet tillen boven 5 kg,
-geen langdurig staan of lopen, geen klimmen/knielen.
+Mogelijkheden en beperkingen: werknemer is beperkt voor langdurig staan en lopen,
+tillen boven 5 kg en voor knielen/hurken. Zittend en licht staand werk is
+mogelijk. Werknemer is op dit moment voor ongeveer 50% arbeidsongeschikt voor de
+eigen functie.
 
-Opbouwadvies: vanaf 28-04-2026 starten met 4 uur per dag (20 uur per week) in
-aangepast, lichter werk; wekelijks uitbreiden met 4 uur.
+Advies: vanaf 28-04-2026 hervatten in aangepast, lichter werk voor 4 uur per dag
+(20 uur per week) en dit wekelijks met 4 uur uitbreiden.
 
 Prognose: volledige hervatting in de eigen (fysiek belastende) magazijnfunctie is
-op korte termijn onzeker. Aangepast werk is nu wél mogelijk.
+op korte termijn onzeker; in aangepast werk verwacht ik een goede opbouw.
 
-Bedrijfsarts: mw. R. de Lange
+Vervolgconsult: over 4 weken. Werkgever en werknemer ontvangen een gelijkluidende
+terugkoppeling.
