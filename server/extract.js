@@ -45,6 +45,11 @@ SIGNALEN: zet elk signaal op true ALLEEN als de terugkoppeling dit duidelijk aan
 - gewijzigdeBelastbaarheidSpoor2: de belastbaarheid is gewijzigd terwijl een tweede-spoortraject loopt.
 - herstelVerwachtBinnen3Maanden: de bedrijfsarts verwacht volledig herstel/volledige werkhervatting binnen circa 3 maanden.
 
+De belastbaarheidstoestanden sluiten elkaar uit: kies er hooguit één van
+geenBenutbareMogelijkheden/duurzaamGeenMogelijkheden, marginaleMogelijkheden of
+volledigInzetbaar. Is er een gewone (gedeeltelijke) opbouw, dan staan die drie
+alle op false.
+
 Geef uitsluitend het gevraagde JSON-object terug.`;
 
 const str = { type: "string" };

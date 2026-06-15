@@ -22536,7 +22536,37 @@
     const p2 = (n) => String(n).padStart(2, "0");
     return `${p2(x.getDate())}-${p2(x.getMonth() + 1)}-${x.getFullYear()}`;
   }
+  function normalizeExtraction(d) {
+    const data = { ...d || {} };
+    const sig = { ...data.signalen || {} };
+    const r = { ...data.reken || {} };
+    if (sig.duurzaamGeenMogelijkheden) {
+      sig.geenBenutbareMogelijkheden = true;
+      sig.herstelVerwachtBinnen3Maanden = false;
+    }
+    if (sig.geenBenutbareMogelijkheden) {
+      sig.marginaleMogelijkheden = false;
+      sig.volledigInzetbaar = false;
+      sig.arbeidstherapeutisch = false;
+    } else if (sig.volledigInzetbaar) {
+      sig.marginaleMogelijkheden = false;
+      sig.arbeidstherapeutisch = false;
+    } else if (sig.marginaleMogelijkheden) {
+      sig.volledigInzetbaar = false;
+    }
+    if (sig.geenBenutbareMogelijkheden || sig.marginaleMogelijkheden) {
+      r.startHours = 0;
+      r.weeklyIncrease = 0;
+    } else if (sig.volledigInzetbaar && r.contractHours > 0) {
+      r.startHours = r.contractHours;
+      r.weeklyIncrease = 0;
+    }
+    data.signalen = sig;
+    data.reken = r;
+    return data;
+  }
   function mapExtraction(d, functieomschrijving) {
+    d = normalizeExtraction(d);
     const sources = {};
     const mk = (id, label, value, bron) => {
       const v = (value || "").trim();

@@ -52,7 +52,52 @@ function todayNL() {
   return `${p(x.getDate())}-${p(x.getMonth() + 1)}-${x.getFullYear()}`;
 }
 
+// Strijkt wisselende/tegenstrijdige AI-signalen deterministisch glad, zodat
+// dezelfde feiten tot dezelfde uitkomst leiden. Raakt nooit de feitelijke
+// velden (naam, datums, uren) — alleen de onderling uitsluitende
+// belastbaarheidstoestanden en de reken-consistentie die daarbij hoort.
+export function normalizeExtraction(d) {
+  const data = { ...(d || {}) };
+  const sig = { ...(data.signalen || {}) };
+  const r = { ...(data.reken || {}) };
+
+  // Duurzaam geen mogelijkheden impliceert geen benutbare mogelijkheden, en
+  // sluit "herstel binnen 3 maanden" uit (de route is juist richting IVA).
+  if (sig.duurzaamGeenMogelijkheden) {
+    sig.geenBenutbareMogelijkheden = true;
+    sig.herstelVerwachtBinnen3Maanden = false;
+  }
+
+  // Onderling uitsluitende belastbaarheidstoestanden, op volgorde van zwaarte.
+  // De zwaarste wint; lichtere/tegenstrijdige worden uitgezet.
+  if (sig.geenBenutbareMogelijkheden) {
+    sig.marginaleMogelijkheden = false;
+    sig.volledigInzetbaar = false;
+    sig.arbeidstherapeutisch = false;
+  } else if (sig.volledigInzetbaar) {
+    sig.marginaleMogelijkheden = false;
+    sig.arbeidstherapeutisch = false;
+  } else if (sig.marginaleMogelijkheden) {
+    sig.volledigInzetbaar = false;
+  }
+
+  // Reken-consistentie. In "geen opbouw"-toestanden hoort geen oplopend ritme;
+  // bij volledig inzetbaar start je per definitie op de contracturen.
+  if (sig.geenBenutbareMogelijkheden || sig.marginaleMogelijkheden) {
+    r.startHours = 0;
+    r.weeklyIncrease = 0;
+  } else if (sig.volledigInzetbaar && r.contractHours > 0) {
+    r.startHours = r.contractHours;
+    r.weeklyIncrease = 0;
+  }
+
+  data.signalen = sig;
+  data.reken = r;
+  return data;
+}
+
 function mapExtraction(d, functieomschrijving) {
+  d = normalizeExtraction(d);
   const sources = {};
   const mk = (id, label, value, bron) => {
     const v = (value || "").trim();
