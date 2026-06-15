@@ -8,7 +8,7 @@ import { computeSchema } from "./engine.js";
 import { SchemaTable, FieldsPanel, TermijnenTabel } from "./fields.jsx";
 import { SourceDoc } from "./sourcedoc.jsx";
 import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
-import { downloadCombined } from "./download.js";
+import { downloadBericht, downloadUwvPva } from "./download.js";
 import { hasBackend } from "./config.js";
 import { extractCasus } from "./extract.js";
 
@@ -381,17 +381,20 @@ function PreviewStep({ onBack, controleOk, casus }) {
         <div className="dl-info">
           <span className="ico">{I.download}</span>
           <div>
-            <h4>Eén Word-document: begeleidend bericht + Plan van aanpak (UWV)</h4>
+            <h4>Twee aparte documenten</h4>
             <p>
               {controleOk
-                ? <span className="review-confirm">{I.checkSm} Menselijke controle bevestigd in stap 2</span>
+                ? <><span className="review-confirm">{I.checkSm} Menselijke controle bevestigd in stap 2.</span> Het Plan van aanpak hoort in het personeelsdossier; de adviezen niet — daarom apart.</>
                 : "Controle in stap 2 is vereist vóór downloaden"}
             </p>
           </div>
         </div>
         <div className="dl-buttons">
-          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("doc", () => downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld, opbouwReden))}>
-            {I.download} {busyKey === "doc" ? "Bezig…" : "Download als Word (.docx)"}
+          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("pva", () => downloadUwvPva(fields, schema, functieomschrijving, opbouwReden))}>
+            {I.download} {busyKey === "pva" ? "Bezig…" : "Plan van aanpak (UWV) — voor dossier"}
+          </button>
+          <button className="btn btn-primary btn-lg" disabled={!controleOk || busyKey} onClick={() => run("bericht", () => downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden))}>
+            {I.download} {busyKey === "bericht" ? "Bezig…" : "Begeleidend bericht & adviezen"}
           </button>
         </div>
       </div>

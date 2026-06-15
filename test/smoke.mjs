@@ -82,6 +82,10 @@ click(byText(".field-row .flabel", "Functie").closest(".field-row"));
 await wait(30);
 check("veldklik activeert bron-highlight", $$(".hl.active").length === 1);
 
+// bewerk-knop: eigen, altijd-zichtbare tikknop met label (niet meer hover-only/overlappend)
+check("bewerk-knop aanwezig met label", !!byText(".field-row .fedit", "Bewerk"));
+check("ontbrekend veld toont 'Invullen'-knop", !!byText(".field-row.missing .fedit", "Invullen"));
+
 // gate: knop disabled tot vinkje
 const naarPreview = byText("button", "Naar preview");
 check("preview-knop geblokkeerd zonder controle", naarPreview.disabled);
@@ -112,9 +116,10 @@ check("geen letterlijke [INVULLEN] in bericht", !byText(".doc-sheet", "[INVULLEN
 check("bericht bevat taaksuggestie (aangepaste taken)", !!byText(".doc-sheet", "aangepaste taken"));
 check("bericht bevat disclaimer (niet eenzijdig in dossier)", !!byText(".doc-sheet", "niet eenzijdig in het dossier"));
 // Eén gecombineerde downloadknop, actief na controle (download zelf: zie merge.mjs)
-const dlBtn = byText(".dl-buttons button", "Download als Word");
-check("download-knop aanwezig en actief na controle", !!dlBtn && !dlBtn.disabled);
-check("download-bar noemt één document (bericht + PvA)", !!byText(".dl-info h4", "Plan van aanpak"));
+const dlPva = byText(".dl-buttons button", "Plan van aanpak");
+const dlBericht = byText(".dl-buttons button", "Begeleidend bericht");
+check("twee download-knoppen (PvA + bericht), actief na controle", !!dlPva && !dlPva.disabled && !!dlBericht && !dlBericht.disabled);
+check("download-bar legt scheiding uit (twee aparte documenten)", !!byText(".dl-info h4", "Twee aparte documenten"));
 
 console.log(failures === 0 ? "\nAlle checks geslaagd." : `\n${failures} check(s) gefaald.`);
 process.exit(failures === 0 ? 0 : 1);

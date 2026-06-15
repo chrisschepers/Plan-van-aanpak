@@ -14,7 +14,6 @@ import { getVal, isMissing } from "./casedata.js";
 import { fullRecoveryDate } from "./engine.js";
 import { adviceParagraphs, poortwachterTermijnen, berichtKern } from "./advice.js";
 import { fillTemplate, buildUwvValues } from "./filltemplate.js";
-import { mergeLetterAndForm } from "./merge.js";
 import { BAND_PNG, DECO_PNG, MARK_PNG, pngBytes } from "./brandassets.js";
 
 const NAVY = "1F3864";
@@ -222,7 +221,7 @@ function metaBlock(naam) {
     ["Datum", vandaagLang()],
     ["Ons kenmerk", kenmerk(naam)],
     ["Onderwerp", `Concept Plan van Aanpak${wie}`],
-    ["Bijlagen", "Opbouwadvies · Poortwachter-termijnen · Plan van aanpak (UWV AG140)"],
+    ["Bijlagen", "Plan van aanpak (UWV-formulier AG140) — apart document voor het personeelsdossier"],
   ];
   const noBorder = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
   const borders = { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder };
@@ -278,7 +277,7 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
         metaBlock(naam),
         new Paragraph({ spacing: { before: 200, after: 120 },
           children: [new TextRun({ text: "Beste werkgever,", color: "18202F", size: 22, font: FONT })] }),
-        p(`Hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}. Als bijlagen vind je het opbouwadvies, de poortwachter-termijnen en het ingevulde Plan van aanpak (UWV-formulier AG140).`),
+        p(`Hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}. Dit document bevat het opbouwadvies en de poortwachter-termijnen ter ondersteuning. Het ingevulde Plan van aanpak (UWV-formulier AG140) ontvang je als apart document; dat hoort in het personeelsdossier.`),
         ...kern.map((t) => p(t)),
         ...alineas.map((t) => p(t)),
         ...(taak ? [new Paragraph({ spacing: { after: 120 }, children: [
@@ -316,7 +315,7 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
         h1("Poortwachter-termijnen"),
         sub("Overzicht van de wettelijke mijlpalen, gerekend vanaf de eerste ziektedag."),
         table(["Termijn", "Mijlpaal", "Wat de werkgever doet"], termijnen.map((m) => [`wk ${m.week}${m.datum ? " · " + m.datum : ""}`, m.mijlpaal, m.actie])),
-        p("Hierna volgt het ingevulde Plan van aanpak in het officiële UWV-formulier (AG140).", { color: GREY }),
+        p("Het ingevulde Plan van aanpak ontvang je als apart document (UWV-formulier AG140); dat hoort in het personeelsdossier. De adviezen in dit document zijn bedoeld als ondersteuning voor werkgever en werknemer en horen niet in het personeelsdossier.", { color: GREY }),
       ],
     }],
   });
@@ -341,29 +340,21 @@ function triggerDownload(blob, filename) {
   return filename;
 }
 
-// Begeleidend bericht (met opbouwadvies + verweven adviezen) als .docx.
-export async function downloadDocx(fields, schema, reportDate) {
+// Begeleidend bericht op briefpapier: opbouwadvies + poortwachter-termijnen +
+// verweven adviezen ("verzuimtips"). Bewust LOS van het Plan van aanpak, want
+// dit hoort niet in het personeelsdossier.
+export async function downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden) {
   const filename = `Begeleidend-bericht-${safeName(fields)}.docx`;
-  const blob = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate));
+  const blob = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden));
   return triggerDownload(blob, filename);
 }
 
-// Het ingevulde Plan van aanpak in het échte UWV-formulier (AG140).
-export async function downloadUwvPva(fields, schema) {
+// Het ingevulde Plan van aanpak in het échte UWV-formulier (AG140) — apart
+// document dat in het personeelsdossier hoort.
+export async function downloadUwvPva(fields, schema, functieomschrijving, opbouwReden) {
   const resp = await fetch(new URL("uwv-template.docx", document.baseURI));
   if (!resp.ok) throw new Error("UWV-sjabloon niet gevonden");
   const buf = await resp.arrayBuffer();
-  const blob = await fillTemplate(buf, buildUwvValues(fields, schema));
+  const blob = await fillTemplate(buf, buildUwvValues(fields, schema, functieomschrijving, opbouwReden));
   return triggerDownload(blob, `Plan-van-Aanpak-${safeName(fields)}.docx`);
-}
-
-// Eén document: begeleidend bericht (briefpapier) + ingevuld UWV-PvA erachter.
-// Het UWV-formulier blijft ongewijzigd.
-export async function downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld, opbouwReden) {
-  const letter = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden));
-  const resp = await fetch(new URL("uwv-template.docx", document.baseURI));
-  if (!resp.ok) throw new Error("UWV-sjabloon niet gevonden");
-  const filled = await fillTemplate(await resp.arrayBuffer(), buildUwvValues(fields, schema, functieomschrijving, opbouwReden));
-  const merged = await mergeLetterAndForm(letter, filled);
-  return triggerDownload(merged, `Plan-van-Aanpak-${safeName(fields)}.docx`);
 }

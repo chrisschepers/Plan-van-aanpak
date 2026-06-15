@@ -109,11 +109,12 @@ function FieldRow({ f, selected, onSelect, onEdit }) {
       )}
       {!editing && (
         <button
+          type="button"
           className="fedit"
-          title="Corrigeer"
-          onClick={(e) => { e.stopPropagation(); setVal(f.value); setEditing(true); }}
-          style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}
-        >{I.edit}</button>
+          title={isMissing ? "Vul dit veld in" : "Bewerk dit veld"}
+          aria-label={isMissing ? "Vul dit veld in" : "Bewerk dit veld"}
+          onClick={(e) => { e.stopPropagation(); setVal(f.value === "[INVULLEN]" ? "" : f.value); setEditing(true); }}
+        >{I.edit}<span className="fedit-txt">{isMissing ? "Invullen" : "Bewerk"}</span></button>
       )}
       <div className="fstatus" style={{ opacity: 1 }}>
         {isMissing

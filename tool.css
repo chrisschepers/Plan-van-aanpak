@@ -91,7 +91,7 @@
 .field-group .gh { font-size: 12.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--navy-400); padding: 14px 8px 8px; }
 
 .field-row {
-  display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center;
+  display: grid; grid-template-columns: 1fr auto auto; gap: 4px 10px; align-items: center;
   padding: 12px 12px; border-radius: 11px; border: 1px solid transparent; cursor: pointer;
   transition: all .15s var(--ease);
 }
@@ -101,9 +101,21 @@
 .field-row .flabel { font-size: 13px; color: var(--muted); font-weight: 500; grid-column: 1; }
 .field-row .fval { grid-column: 1; font-size: 15.5px; font-weight: 600; color: var(--navy-900); }
 .field-row.missing .fval { color: var(--flag-text); font-style: italic; font-weight: 600; }
-.field-row .fstatus { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
-.field-row .fedit { grid-column: 2; grid-row: 1 / span 2; align-self: center; opacity: 0; color: var(--navy-400); transition: opacity .15s; }
-.field-row:hover .fedit { opacity: 1; }
+/* Bewerk-knop: eigen kolom (niet meer onder de status-badge), altijd zichtbaar
+   en als duidelijke tikknop — ook op mobiel waar geen hover bestaat. */
+.field-row .fedit {
+  grid-column: 2; grid-row: 1 / span 2; align-self: center;
+  display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+  font: inherit; font-size: 12.5px; font-weight: 600; color: var(--navy-600);
+  background: #fff; border: 1px solid var(--line); border-radius: 9px;
+  padding: 7px 11px; cursor: pointer; transition: all .12s var(--ease);
+}
+.field-row .fedit:hover { background: var(--navy-50); border-color: var(--navy-400); color: var(--navy-900); }
+.field-row .fedit svg { width: 15px; height: 15px; }
+.field-row.missing .fedit { color: var(--flag-text); border-color: var(--flag-line); background: #fff; }
+.field-row.missing .fedit:hover { background: var(--flag-bg); }
+.field-row .fstatus { grid-column: 3; grid-row: 1 / span 2; align-self: center; }
+@media (max-width: 560px) { .field-row .fedit-txt { display: none; } }
 .field-input { font-family: inherit; font-size: 15.5px; font-weight: 600; color: var(--navy-900); border: 1px solid var(--navy-400); border-radius: 7px; padding: 7px 10px; width: 100%; background: #fff; }
 
 /* Source document panel */
@@ -240,7 +252,7 @@
 
 /* ---- Twee downloadknoppen ---- */
 .dl-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
-@media (max-width: 560px) { .dl-buttons { width: 100%; } .dl-buttons .btn { flex: 1; } }
+@media (max-width: 560px) { .dl-buttons { width: 100%; flex-direction: column; } .dl-buttons .btn { width: 100%; } }
 
 /* ---- UWV-formulier (schermweergave 1-op-1) ---- */
 .uwvform { padding: 34px 38px; }

@@ -2861,16 +2861,18 @@
       !editing && /* @__PURE__ */ React.createElement(
         "button",
         {
+          type: "button",
           className: "fedit",
-          title: "Corrigeer",
+          title: isMissing2 ? "Vul dit veld in" : "Bewerk dit veld",
+          "aria-label": isMissing2 ? "Vul dit veld in" : "Bewerk dit veld",
           onClick: (e) => {
             e.stopPropagation();
-            setVal(f.value);
+            setVal(f.value === "[INVULLEN]" ? "" : f.value);
             setEditing(true);
-          },
-          style: { background: "none", border: "none", cursor: "pointer", padding: 4 }
+          }
         },
-        I.edit
+        I.edit,
+        /* @__PURE__ */ React.createElement("span", { className: "fedit-txt" }, isMissing2 ? "Invullen" : "Bewerk")
       ),
       /* @__PURE__ */ React.createElement("div", { className: "fstatus", style: { opacity: 1 } }, isMissing2 ? /* @__PURE__ */ React.createElement("span", { className: "pill pill-flag" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Ontbreekt") : /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Ingevuld"))
     );
@@ -22105,102 +22107,6 @@
     });
   }
 
-  // src/merge.js
-  var import_jszip2 = __toESM(require_jszip_min2(), 1);
-  var HEADER_CT = "application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml";
-  var FOOTER_CT = "application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml";
-  var REL = "http://schemas.openxmlformats.org/officeDocument/2006/relationships/";
-  function findRefs(relsXml, kind) {
-    const out = [];
-    const rx = /<Relationship\b[^>]*>/g;
-    let m;
-    while (m = rx.exec(relsXml)) {
-      const tag = m[0];
-      if (tag.includes(`/${kind}"`)) {
-        const id = /Id="(rId\d+)"/.exec(tag);
-        const tgt = /Target="([^"]*)"/.exec(tag);
-        if (id && tgt) out.push({ id: id[1], target: tgt[1].replace(/^\//, "") });
-      }
-    }
-    return out;
-  }
-  async function mergeLetterAndForm(letterData, formData) {
-    const L = await import_jszip2.default.loadAsync(letterData);
-    const T = await import_jszip2.default.loadAsync(formData);
-    const lDoc = await L.file("word/document.xml").async("string");
-    const lRels = await L.file("word/_rels/document.xml.rels").async("string");
-    const bodyInner = lDoc.slice(lDoc.indexOf("<w:body>") + 8, lDoc.lastIndexOf("</w:body>"));
-    const sectStart = bodyInner.lastIndexOf("<w:sectPr");
-    if (sectStart < 0) throw new Error("Brief mist sectie-eigenschappen");
-    const letterContent = bodyInner.slice(0, sectStart);
-    let letterSect = bodyInner.slice(sectStart);
-    if (/r:embed=|r:link=|r:id="rId/.test(letterContent)) {
-      throw new Error("Brief-inhoud bevat onverwachte relaties (afbeelding/koppeling)");
-    }
-    const parts = [
-      ...findRefs(lRels, "header").map((r) => ({ ...r, kind: "header", ct: HEADER_CT })),
-      ...findRefs(lRels, "footer").map((r) => ({ ...r, kind: "footer", ct: FOOTER_CT }))
-    ];
-    let tDoc = await T.file("word/document.xml").async("string");
-    let tRels = await T.file("word/_rels/document.xml.rels").async("string");
-    let tCT = await T.file("[Content_Types].xml").async("string");
-    const maxId = Math.max(0, ...[...tRels.matchAll(/Id="rId(\d+)"/g)].map((m) => +m[1]));
-    let ctAdd = "", relAdd = "";
-    let n = 0;
-    for (const part of parts) {
-      n++;
-      const name = `${part.kind}Letter${n}.xml`;
-      T.file(`word/${name}`, await L.file(`word/${part.target}`).async("string"));
-      const prl = L.file(`word/_rels/${part.target}.rels`);
-      if (prl) {
-        let prels = await prl.async("string");
-        const mediaRefs = [...new Set([...prels.matchAll(/Target="(media\/[^"]+)"/g)].map((m) => m[1]))];
-        for (const mt of mediaRefs) {
-          const newTarget = `media/letter-${mt.split("/").pop()}`;
-          T.file(`word/${newTarget}`, await L.file(`word/${mt}`).async("uint8array"));
-          prels = prels.split(`Target="${mt}"`).join(`Target="${newTarget}"`);
-        }
-        T.file(`word/_rels/${name}.rels`, prels);
-      }
-      const newId = "rId" + (maxId + n);
-      ctAdd += `<Override PartName="/word/${name}" ContentType="${part.ct}"/>`;
-      relAdd += `<Relationship Id="${newId}" Type="${REL}${part.kind}" Target="${name}"/>`;
-      letterSect = letterSect.split(`r:id="${part.id}"`).join(`r:id="${newId}"`);
-    }
-    if (!/Extension="png"/.test(tCT)) {
-      tCT = tCT.replace("<Default", '<Default Extension="png" ContentType="image/png"/><Default');
-    }
-    const formSectRe = /<w:sectPr\b[^>]*>([\s\S]*?)<\/w:sectPr>/g;
-    const formSects = [...tDoc.matchAll(formSectRe)];
-    const lastSect = formSects[formSects.length - 1];
-    if (lastSect && !/w:headerReference[^>]*w:type="first"/.test(lastSect[1])) {
-      const blankId = "rId" + (maxId + parts.length + 1);
-      T.file(
-        "word/headerBlank.xml",
-        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p/></w:hdr>'
-      );
-      ctAdd += `<Override PartName="/word/headerBlank.xml" ContentType="${HEADER_CT}"/>`;
-      relAdd += `<Relationship Id="${blankId}" Type="${REL}header" Target="headerBlank.xml"/>`;
-      const patched = lastSect[0].replace(
-        /^(<w:sectPr\b[^>]*>)/,
-        `$1<w:headerReference w:type="first" r:id="${blankId}"/>`
-      );
-      tDoc = tDoc.slice(0, lastSect.index) + patched + tDoc.slice(lastSect.index + lastSect[0].length);
-    }
-    T.file("[Content_Types].xml", tCT.replace("</Types>", ctAdd + "</Types>"));
-    T.file("word/_rels/document.xml.rels", tRels.replace("</Relationships>", relAdd + "</Relationships>"));
-    const sect1Para = `<w:p><w:pPr>${letterSect}</w:pPr></w:p>`;
-    const at = tDoc.indexOf("<w:body>") + 8;
-    tDoc = tDoc.slice(0, at) + letterContent + sect1Para + tDoc.slice(at);
-    T.file("word/document.xml", tDoc);
-    const isNode = typeof window === "undefined";
-    return T.generateAsync({
-      type: isNode ? "nodebuffer" : "blob",
-      mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      compression: "DEFLATE"
-    });
-  }
-
   // src/brandassets.js
   var BAND_PNG = "iVBORw0KGgoAAAANSUhEUgAABpAAAAAaCAYAAACw2B9FAAABSUlEQVR42u3ZMREAIAwEwZigxka80OID6SAiDZnZYg188c3FzH2hq3EWQEs+HAAAAICfhREQkAAEJAAAAAAQkBCQAAQkAAAAABCQEJAABCQAAAAAEJAQkAAEJAAAAAAQkBCQAAQkAAAAABCQEJAABCQAAAAAEJBAQAIEJAAAAAAQkEBAAgQkAAAAABCQQEACBCQAAAAAEJBAQAIEJAAAAAAQkEBAAgQkAAAAABCQQEACBCQfDgAAAICABAISgIAEAAAAgIAEAhKAgAQAAACAgAQCEoCABAAAAICABAISgIAEAAAAgIAEAhKAgAQAAACAgAQCEoCABAAAAICABAISgIAEAAAAgIAEAhKAgAQAAAAAAhICEoCABAAAAAACEgISgIAEAAAAAAISAhKAgAQAAAAAAhICEoCABAAAAAACEgISgIAEAAAAAHUPiUPvVTOqFy0AAAAASUVORK5CYII=";
   var DECO_PNG = "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";
@@ -22433,7 +22339,7 @@
       ["Datum", vandaagLang()],
       ["Ons kenmerk", kenmerk(naam)],
       ["Onderwerp", `Concept Plan van Aanpak${wie}`],
-      ["Bijlagen", "Opbouwadvies \xB7 Poortwachter-termijnen \xB7 Plan van aanpak (UWV AG140)"]
+      ["Bijlagen", "Plan van aanpak (UWV-formulier AG140) \u2014 apart document voor het personeelsdossier"]
     ];
     const noBorder = { style: BorderStyle.NONE, size: 0, color: "FFFFFF" };
     const borders = { top: noBorder, bottom: noBorder, left: noBorder, right: noBorder };
@@ -22498,7 +22404,7 @@
             spacing: { before: 200, after: 120 },
             children: [new TextRun({ text: "Beste werkgever,", color: "18202F", size: 22, font: FONT })]
           }),
-          p(`Hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}. Als bijlagen vind je het opbouwadvies, de poortwachter-termijnen en het ingevulde Plan van aanpak (UWV-formulier AG140).`),
+          p(`Hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}. Dit document bevat het opbouwadvies en de poortwachter-termijnen ter ondersteuning. Het ingevulde Plan van aanpak (UWV-formulier AG140) ontvang je als apart document; dat hoort in het personeelsdossier.`),
           ...kern.map((t) => p(t)),
           ...alineas.map((t) => p(t)),
           ...taak ? [new Paragraph({ spacing: { after: 120 }, children: [
@@ -22534,7 +22440,7 @@
           h1("Poortwachter-termijnen"),
           sub("Overzicht van de wettelijke mijlpalen, gerekend vanaf de eerste ziektedag."),
           table(["Termijn", "Mijlpaal", "Wat de werkgever doet"], termijnen.map((m) => [`wk ${m.week}${m.datum ? " \xB7 " + m.datum : ""}`, m.mijlpaal, m.actie])),
-          p("Hierna volgt het ingevulde Plan van aanpak in het offici\xEBle UWV-formulier (AG140).", { color: GREY })
+          p("Het ingevulde Plan van aanpak ontvang je als apart document (UWV-formulier AG140); dat hoort in het personeelsdossier. De adviezen in dit document zijn bedoeld als ondersteuning voor werkgever en werknemer en horen niet in het personeelsdossier.", { color: GREY })
         ]
       }]
     });
@@ -22556,13 +22462,17 @@
     setTimeout(() => URL.revokeObjectURL(url), 4e3);
     return filename;
   }
-  async function downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld, opbouwReden) {
-    const letter = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden));
+  async function downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden) {
+    const filename = `Begeleidend-bericht-${safeName(fields)}.docx`;
+    const blob = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden));
+    return triggerDownload(blob, filename);
+  }
+  async function downloadUwvPva(fields, schema, functieomschrijving, opbouwReden) {
     const resp = await fetch(new URL("uwv-template.docx", document.baseURI));
     if (!resp.ok) throw new Error("UWV-sjabloon niet gevonden");
-    const filled = await fillTemplate(await resp.arrayBuffer(), buildUwvValues(fields, schema, functieomschrijving, opbouwReden));
-    const merged = await mergeLetterAndForm(letter, filled);
-    return triggerDownload(merged, `Plan-van-Aanpak-${safeName(fields)}.docx`);
+    const buf = await resp.arrayBuffer();
+    const blob = await fillTemplate(buf, buildUwvValues(fields, schema, functieomschrijving, opbouwReden));
+    return triggerDownload(blob, `Plan-van-Aanpak-${safeName(fields)}.docx`);
   }
 
   // src/config.js
@@ -22882,7 +22792,7 @@
         setBusyKey(null);
       }
     }
-    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 3 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Preview en download"), /* @__PURE__ */ React.createElement("p", null, "Bekijk de drie onderdelen. Stel het concept samen met de werknemer vast en download het als Word-document.")), /* @__PURE__ */ React.createElement("div", { className: "preview-tabs" }, tabs.map((tb, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: tab === i ? "active" : "", onClick: () => setTab(i) }, /* @__PURE__ */ React.createElement("span", { className: "tnum" }, i + 1), /* @__PURE__ */ React.createElement("span", { className: "txt" }, tb.t)))), tabs[tab].el, /* @__PURE__ */ React.createElement("div", { className: "download-bar" }, /* @__PURE__ */ React.createElement("div", { className: "dl-info" }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.download), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "E\xE9n Word-document: begeleidend bericht + Plan van aanpak (UWV)"), /* @__PURE__ */ React.createElement("p", null, controleOk ? /* @__PURE__ */ React.createElement("span", { className: "review-confirm" }, I.checkSm, " Menselijke controle bevestigd in stap 2") : "Controle in stap 2 is vereist v\xF3\xF3r downloaden"))), /* @__PURE__ */ React.createElement("div", { className: "dl-buttons" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-accent btn-lg", disabled: !controleOk || busyKey, onClick: () => run("doc", () => downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld, opbouwReden)) }, I.download, " ", busyKey === "doc" ? "Bezig\u2026" : "Download als Word (.docx)"))), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar controle"), /* @__PURE__ */ React.createElement("span", null)), downloaded && /* @__PURE__ */ React.createElement("div", { className: "toast", onClick: () => setDownloaded(null) }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.checkSm), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tt" }, downloaded, " gedownload"), /* @__PURE__ */ React.createElement("div", { className: "ts" }, "Concept \xB7 controleer en stel vast met de werknemer"))));
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 3 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Preview en download"), /* @__PURE__ */ React.createElement("p", null, "Bekijk de drie onderdelen. Stel het concept samen met de werknemer vast en download het als Word-document.")), /* @__PURE__ */ React.createElement("div", { className: "preview-tabs" }, tabs.map((tb, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: tab === i ? "active" : "", onClick: () => setTab(i) }, /* @__PURE__ */ React.createElement("span", { className: "tnum" }, i + 1), /* @__PURE__ */ React.createElement("span", { className: "txt" }, tb.t)))), tabs[tab].el, /* @__PURE__ */ React.createElement("div", { className: "download-bar" }, /* @__PURE__ */ React.createElement("div", { className: "dl-info" }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.download), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Twee aparte documenten"), /* @__PURE__ */ React.createElement("p", null, controleOk ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("span", { className: "review-confirm" }, I.checkSm, " Menselijke controle bevestigd in stap 2."), " Het Plan van aanpak hoort in het personeelsdossier; de adviezen niet \u2014 daarom apart.") : "Controle in stap 2 is vereist v\xF3\xF3r downloaden"))), /* @__PURE__ */ React.createElement("div", { className: "dl-buttons" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-accent btn-lg", disabled: !controleOk || busyKey, onClick: () => run("pva", () => downloadUwvPva(fields, schema, functieomschrijving, opbouwReden)) }, I.download, " ", busyKey === "pva" ? "Bezig\u2026" : "Plan van aanpak (UWV) \u2014 voor dossier"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !controleOk || busyKey, onClick: () => run("bericht", () => downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden)) }, I.download, " ", busyKey === "bericht" ? "Bezig\u2026" : "Begeleidend bericht & adviezen"))), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar controle"), /* @__PURE__ */ React.createElement("span", null)), downloaded && /* @__PURE__ */ React.createElement("div", { className: "toast", onClick: () => setDownloaded(null) }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.checkSm), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tt" }, downloaded, " gedownload"), /* @__PURE__ */ React.createElement("div", { className: "ts" }, "Concept \xB7 controleer en stel vast met de werknemer"))));
   }
   function Tool({ onClose }) {
     const [step, setStep] = React.useState(0);
