@@ -52,6 +52,39 @@ function todayNL() {
   return `${p(x.getDate())}-${p(x.getMonth() + 1)}-${x.getFullYear()}`;
 }
 
+// Vangnet voor gemiste signalen: leidt belastbaarheidstoestanden af uit
+// ondubbelzinnige domeintaal in de geëxtraheerde tekst. Zet signalen alleen
+// AAN (nooit uit) — normalizeExtraction lost daarna de onderlinge prioriteit op.
+// Bewust hoge precisie: alleen heldere markers, geen brede gok.
+export function reviewSignals(d) {
+  const data = { ...(d || {}) };
+  const sig = { ...(data.signalen || {}) };
+  const r = data.reken || {};
+  const belast = (data.belastbaarheid || "").toLowerCase();
+  const prognose = (data.prognose || "").toLowerCase();
+  const tekst = `${belast} ${prognose}`;
+
+  if (/geen benutbare mogelijkheden/.test(tekst)) sig.geenBenutbareMogelijkheden = true;
+  if (/duurzaam geen\b/.test(belast) || /\(iva\)/.test(prognose) || /vervroegde\s+(wia|iva)/.test(prognose)) {
+    sig.duurzaamGeenMogelijkheden = true;
+  }
+  if (/volledig inzetbaar/.test(tekst) || /geen (functionele|medische) beperkingen/.test(tekst)) {
+    sig.volledigInzetbaar = true;
+  }
+  // Marginaal alleen bij géén opbouwperspectief ÉN lage belastbaarheid — zo
+  // blijft "weinig uren mét opbouw" (bv. stagnatie) buiten schot.
+  const geenUitzicht = /uitbreiding[^.]{0,40}niet te verwachten/.test(tekst)
+    || /geen uitzicht op (opbouw|uitbreiding|meer uren|urenuitbreiding)/.test(tekst)
+    || /\bmargina/.test(tekst);
+  const lageBelastbaarheid = (r.contractHours > 0 && r.startHours > 0 && r.startHours <= r.contractHours * 0.4)
+    || /maximaal\b[^.]{0,25}\b(uur|uren)\b/.test(belast);
+  if (geenUitzicht && lageBelastbaarheid) sig.marginaleMogelijkheden = true;
+  if (/arbeidstherapeut/.test(tekst)) sig.arbeidstherapeutisch = true;
+
+  data.signalen = sig;
+  return data;
+}
+
 // Strijkt wisselende/tegenstrijdige AI-signalen deterministisch glad, zodat
 // dezelfde feiten tot dezelfde uitkomst leiden. Raakt nooit de feitelijke
 // velden (naam, datums, uren) — alleen de onderling uitsluitende
@@ -97,7 +130,7 @@ export function normalizeExtraction(d) {
 }
 
 function mapExtraction(d, functieomschrijving) {
-  d = normalizeExtraction(d);
+  d = normalizeExtraction(reviewSignals(d));
   const sources = {};
   const mk = (id, label, value, bron) => {
     const v = (value || "").trim();

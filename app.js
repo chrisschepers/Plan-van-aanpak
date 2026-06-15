@@ -22536,6 +22536,27 @@
     const p2 = (n) => String(n).padStart(2, "0");
     return `${p2(x.getDate())}-${p2(x.getMonth() + 1)}-${x.getFullYear()}`;
   }
+  function reviewSignals(d) {
+    const data = { ...d || {} };
+    const sig = { ...data.signalen || {} };
+    const r = data.reken || {};
+    const belast = (data.belastbaarheid || "").toLowerCase();
+    const prognose = (data.prognose || "").toLowerCase();
+    const tekst = `${belast} ${prognose}`;
+    if (/geen benutbare mogelijkheden/.test(tekst)) sig.geenBenutbareMogelijkheden = true;
+    if (/duurzaam geen\b/.test(belast) || /\(iva\)/.test(prognose) || /vervroegde\s+(wia|iva)/.test(prognose)) {
+      sig.duurzaamGeenMogelijkheden = true;
+    }
+    if (/volledig inzetbaar/.test(tekst) || /geen (functionele|medische) beperkingen/.test(tekst)) {
+      sig.volledigInzetbaar = true;
+    }
+    const geenUitzicht = /uitbreiding[^.]{0,40}niet te verwachten/.test(tekst) || /geen uitzicht op (opbouw|uitbreiding|meer uren|urenuitbreiding)/.test(tekst) || /\bmargina/.test(tekst);
+    const lageBelastbaarheid = r.contractHours > 0 && r.startHours > 0 && r.startHours <= r.contractHours * 0.4 || /maximaal\b[^.]{0,25}\b(uur|uren)\b/.test(belast);
+    if (geenUitzicht && lageBelastbaarheid) sig.marginaleMogelijkheden = true;
+    if (/arbeidstherapeut/.test(tekst)) sig.arbeidstherapeutisch = true;
+    data.signalen = sig;
+    return data;
+  }
   function normalizeExtraction(d) {
     const data = { ...d || {} };
     const sig = { ...data.signalen || {} };
@@ -22566,7 +22587,7 @@
     return data;
   }
   function mapExtraction(d, functieomschrijving) {
-    d = normalizeExtraction(d);
+    d = normalizeExtraction(reviewSignals(d));
     const sources = {};
     const mk = (id, label, value, bron) => {
       const v = (value || "").trim();
