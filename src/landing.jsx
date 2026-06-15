@@ -202,7 +202,7 @@ const COMP = [
   { icon: I.shield, t: "DPIA beschikbaar", d: "Data protection impact assessment op te vragen voor je inkoop." },
 ];
 
-function Compliance() {
+function Compliance({ onOpenPrivacy }) {
   return (
     <section className="section tint" id="privacy">
       <div className="wrap compliance">
@@ -224,6 +224,10 @@ function Compliance() {
               </div>
             ))}
           </div>
+          <button className="btn btn-quiet" style={{ marginTop: 22 }}
+            onClick={(e) => { e.preventDefault(); onOpenPrivacy && onOpenPrivacy(); }}>
+            Lees de privacyverklaring & AI-transparantie {I.arrowRight}
+          </button>
         </div>
         <div className="badge-stack reveal">
           <div className="badge">
@@ -305,7 +309,8 @@ function CtaBand({ onOpenTool }) {
   );
 }
 
-function Footer() {
+function Footer({ onOpenPrivacy }) {
+  const openPrivacy = (e) => { e.preventDefault(); onOpenPrivacy && onOpenPrivacy(); };
   return (
     <footer className="footer">
       <div className="wrap">
@@ -329,9 +334,9 @@ function Footer() {
           <div>
             <h4>Vertrouwen</h4>
             <a href="#privacy">Privacy & AVG</a>
-            <a href="#">Privacyverklaring</a>
-            <a href="#">Verwerkersovereenkomst</a>
-            <a href="#">DPIA opvragen</a>
+            <a href="#privacyverklaring" onClick={openPrivacy}>Privacyverklaring &amp; AI</a>
+            <a href="mailto:contact@planvanaanpakinvuller.nl?subject=Verwerkersovereenkomst">Verwerkersovereenkomst</a>
+            <a href="mailto:contact@planvanaanpakinvuller.nl?subject=DPIA%20opvragen">DPIA opvragen</a>
           </div>
           <div>
             <h4>Contact</h4>
@@ -349,7 +354,7 @@ function Footer() {
   );
 }
 
-export function Landing({ onOpenTool }) {
+export function Landing({ onOpenTool, onOpenPrivacy }) {
   return (
     <div className="site">
       <Nav onOpenTool={onOpenTool} />
@@ -357,10 +362,10 @@ export function Landing({ onOpenTool }) {
       <HowItWorks />
       <USP />
       <Hybrid />
-      <Compliance />
+      <Compliance onOpenPrivacy={onOpenPrivacy} />
       <Faq />
       <CtaBand onOpenTool={onOpenTool} />
-      <Footer />
+      <Footer onOpenPrivacy={onOpenPrivacy} />
     </div>
   );
 }

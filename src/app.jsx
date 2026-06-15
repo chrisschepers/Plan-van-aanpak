@@ -2,6 +2,7 @@
 
 import { Landing } from "./landing.jsx";
 import { Tool } from "./tool.jsx";
+import { PrivacyVerklaring } from "./privacy.jsx";
 
 const { useState, useEffect } = React;
 
@@ -27,17 +28,18 @@ function useReveal() {
 }
 
 function App() {
-  const [view, setView] = useState("landing"); // landing | tool
+  const [view, setView] = useState("landing"); // landing | tool | privacy
   useReveal();
 
   useEffect(() => {
-    document.body.style.overflow = view === "tool" ? "hidden" : "";
+    document.body.style.overflow = view === "landing" ? "" : "hidden";
   }, [view]);
 
   return (
     <React.Fragment>
-      <Landing onOpenTool={() => setView("tool")} />
+      <Landing onOpenTool={() => setView("tool")} onOpenPrivacy={() => setView("privacy")} />
       {view === "tool" && <Tool onClose={() => setView("landing")} />}
+      {view === "privacy" && <PrivacyVerklaring onClose={() => setView("landing")} />}
     </React.Fragment>
   );
 }

@@ -47,6 +47,16 @@ check("landing rendert hero", !!byText("h1", "automatisch ingevuld"));
 check("landing heeft FAQ", !!byText("h2", "privacy en verantwoordelijkheid"));
 check("landing heeft 4 stappen", $$(".step").length === 4);
 
+// Privacyverklaring-pagina (concept) opent en sluit
+click(byText("button", "Lees de privacyverklaring"));
+await wait(50);
+check("privacyverklaring opent", !!byText("h1", "Privacyverklaring") && !!byText(".tool-body", "AI-transparantie"));
+check("privacyverklaring is gemarkeerd als concept", !!byText(".tool-body", "Concept"));
+check("privacyverklaring noemt verwerker-rol", !!byText(".tool-body", "verwerker"));
+click(byText(".tool-back", "Terug naar site"));
+await wait(40);
+check("privacyverklaring sluit terug naar landing", !byText("h1", "Privacyverklaring") && !!byText("h1", "automatisch ingevuld"));
+
 // Open de tool
 click(byText("button", "Probeer de PvA-invuller"));
 await wait(50);
