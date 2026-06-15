@@ -1,0 +1,242 @@
+================================================================================
+ AVG & AI BIJ VERZUIM — ANALYSE ADO PRO + STAPPENPLAN VOOR DE PvA-INVULLER
+ Onderzoeksdatum: 15 juni 2026
+================================================================================
+
+
+1. WAT DOET ADO PRO EN HOE REGELEN ZIJ AVG + AI?
+--------------------------------------------------------------------------------
+ADO Pro (adopro.nl = informatiesite, app.adopro.nl = de webapplicatie) levert
+AI-ondersteunde software voor arbeidsdeskundigen: documenten worden geupload,
+een AI-model analyseert en extraheert de gegevens, de arbeidsdeskundige
+controleert en past aan, en daarna wordt met sjablonen een rapport gegenereerd.
+Dat is functioneel bijna hetzelfde patroon als de Plan van Aanpak-invuller
+(upload -> AI-extractie -> menselijke controle -> gegenereerd document).
+
+
+1.1 VERWERKT ADO PRO MEDISCHE GEGEVENS?
+In de privacyverklaring staan de gegevenscategorieen expliciet opgesomd:
+  - Gewone persoonsgegevens: NAW, geslacht, vaardigheden, vrijetijdsbesteding,
+    geboortedatum, telefoon, e-mail.
+  - Educatiegegevens: opleiding, niveau, periode, status.
+  - Arbeidsgegevens: functie, type dienstverband, datum indiensttreding,
+    einde wachttijd WIA, salaris, werkuren, werkervaring, cao.
+  - Transactiegegevens, datalogs, cookies.
+
+  >> Er staat GEEN categorie "gezondheidsgegevens" in de lijst. ADO Pro houdt
+     zich net als jouw tool bij functionele en arbeidsgegevens en laat de
+     medische diagnose buiten beschouwing. Dit is exact de lijn van de
+     Autoriteit Persoonsgegevens: functionele beperkingen mogen ("u kunt nu
+     niet tillen"), aard/oorzaak van de ziekte niet.
+
+
+1.2 OP WELKE GRONDSLAG (EN WIE IS VERANTWOORDELIJK)?
+Voor de webapplicatie kiezen zij GERECHTVAARDIGD BELANG (AVG art. 6 lid 1 sub
+f), met drie onderbouwende voorwaarden, letterlijk:
+  "Voorwaarde 1: De functionaliteit van de applicatie heeft een preventieve of
+   (arbeids)geneeskundige aard ... Voorwaarde 2: De modellen ... vereisen
+   invoergegevens. ... Alleen de benodigde gegevens ... worden verzameld.
+   Voorwaarde 3: De applicatie is ontwikkeld in het belang van de betrokkenen."
+
+En de rolverdeling, letterlijk:
+  "Wanneer een arbeidsdeskundige persoonsgegevens van werknemers invoert in de
+   applicatie, ligt de verantwoordelijkheid bij de arbeidsdeskundige om de
+   betrokken werknemers en werkgevers te informeren over de verwerking van hun
+   gegevens."
+
+  >> De arbeidsdeskundige (klant) is verwerkingsverantwoordelijke; ADO Pro is
+     verwerker. Dit is het model dat ook voor jou geldt (zie hoofdstuk 3 en 3.1).
+
+
+1.3 WAT HEBBEN ZIJ AANTOONBAAR GEREGELD?
+  - DPIA uitgevoerd ("bevindingen ... gedocumenteerd en geimplementeerd").
+  - ISO 27001-gecertificeerd, jaarlijkse externe penetratietests.
+  - Data in beveiligde Europese datacenters (EER).
+  - AI Act als uitgangspunt: "privacy, transparantie en verantwoord AI-gebruik".
+  - Verwerkersovereenkomsten met derden "indien nodig".
+  - Menselijke controle ingebouwd (stap 3: review door de expert) -> relevant
+    voor het verbod op uitsluitend geautomatiseerde besluitvorming (art. 22).
+  - Subverwerkers die zij noemen: AWS (hosting EU), Azure (documentanalyse/
+    -export — vrijwel zeker Azure OpenAI), Encodian (documentgeneratie),
+    LangSmith (tracen van LLM-verzoeken), LangChain (chat-hosting), Moneybird,
+    Payt, HubSpot, CookieYes, Flowlined, MailJet, Sentry, Hotjar.
+
+
+1.4 WAAR ADO PRO ZWAKKER/ONDUIDELIJK IS (LEERPUNTEN VOOR JOU)
+  - Geen expliciete "wij trainen geen AI-modellen op klantdata"-belofte. Dat
+    ontbreekt in hun verklaring — terwijl dat juist een sterk vertrouwenspunt is.
+    Maak dit bij jou WEL expliciet (Anthropic traint standaard niet op API-data).
+  - Bewaartermijn alleen procesmatig ("zolang de arbeidsdeskundige het dossier
+    heeft"). Geen harde maximale termijn. Jij kunt scherper zijn.
+  - Veel subverwerkers (HubSpot, Hotjar, Sentry, LangSmith...). Elke extra partij
+    is AVG-oppervlak. Houd jouw keten zo kort mogelijk.
+  - Grondslag gerechtvaardigd belang werkt bij hen omdat de gebruiker een
+    arbeidsdeskundige met (arbeids)geneeskundige taak is. Voor jou ligt dit
+    anders (zie hoofdstuk 3).
+
+
+2. HET JURIDISCHE KADER IN HET KORT
+--------------------------------------------------------------------------------
+  - Gezondheidsgegevens: bijzondere persoonsgegevens (AVG art. 9). Verwerking in
+    beginsel VERBODEN.
+  - Uitzondering arbo: alleen bedrijfsarts/arbodienst mag medische gegevens
+    verwerken (UAVG art. 30, beroepsgeheim).
+  - Werkgever: mag GEEN aard/oorzaak/diagnose verwerken — alleen functionele
+    beperkingen, inzetbare uren, afspraken (AP "Mijn zieke werknemer").
+  - Plan van aanpak: valt onder dezelfde beperking: enkel werk- en
+    re-integratiegegevens, geen medische details.
+  - Geautomatiseerde besluiten: art. 22 — geen besluit uitsluitend op AI;
+    menselijke controle verplicht.
+  - AI Act: transparantie over AI-gebruik; risicobeoordeling; menselijk toezicht.
+
+
+3. WAT BETEKENT DIT VOOR DE PLAN VAN AANPAK-INVULLER?
+--------------------------------------------------------------------------------
+Het cruciale verschil met ADO Pro: hun gebruiker is een arbeidsdeskundige; jouw
+gebruiker is de werkgever/casemanager. En een werkgever mag — anders dan een
+bedrijfsarts — HELEMAAL GEEN gezondheidsgegevens verwerken.
+
+Gevolgen:
+  1. Jouw medisch filter is geen "nice to have" maar de juridische kern. Omdat de
+     werkgever verwerkingsverantwoordelijke is, mag er nooit diagnose/aard/
+     oorzaak in. Dat jij dat in code afdwingt (en op de server hard leegmaakt) is
+     precies wat het product AVG-proof maakt. Dit is jouw sterkste argument.
+  2. Grondslag is bij jou niet "gerechtvaardigd belang" maar de WETTELIJKE
+     VERPLICHTING van de werkgever uit de Wet verbetering poortwachter +
+     Arbeidsomstandighedenwet (art. 6 lid 1 sub c), aangevuld met gerechtvaardigd
+     belang voor de verwerking via de tool. Geen toestemming van de werknemer
+     nodig (en toestemming zou in de werkgever-werknemerrelatie sowieso wankel
+     zijn).
+  3. Rolverdeling vastleggen: werkgever = verwerkingsverantwoordelijke, jij
+     (planvanaanpakinvuller.nl) = verwerker, Anthropic = subverwerker. Hiervoor
+     zijn verwerkersovereenkomsten nodig (jij<->werkgever en jij<->Anthropic).
+  4. Mens in de loop is verplicht, niet optioneel (art. 22) — jouw verplichte
+     controlestap dekt dit al af; benoem het expliciet als waarborg.
+  5. Geen BSN in de verwerking. Laat de werkgever het BSN zelf invullen in het
+     PvA; laat het niet door de AI extraheren.
+  6. EER-hosting + geen training: verwerk binnen de EER en leg vast dat Anthropic
+     niet op de data traint. Dit is precies het punt waar ADO Pro vaag blijft en
+     jij kunt excelleren.
+
+
+3.1 KAN IK MEZELF — NET ALS ADO PRO — ALS VERWERKER NEERZETTEN?
+--------------------------------------------------------------------------------
+Ja, en dat is juist de juiste rol voor jou. Of je verwerker of
+verwerkingsverantwoordelijke bent, hangt NIET af van of je gebruiker een
+professional of een werkgever is, maar van WIE HET DOEL EN DE (ESSENTIELE)
+MIDDELEN VAN DE VERWERKING BEPAALT.
+
+Waarom jij verwerker kunt zijn:
+  - De werkgever bepaalt het doel: het invullen van zijn Plan van Aanpak om aan
+    zijn poortwachterverplichting te voldoen. Hij beslist welke werknemer, welke
+    terugkoppeling, en hij uploadt.
+  - Jij verwerkt in zijn opdracht en levert alleen de dienst (extractie ->
+    concept). Je biedt de "middelen" (de tool/AI) aan, maar de werkgever houdt de
+    regie over de data en het besluit.
+Dat is exact het standaard SaaS-verwerkersmodel. Het feit dat je klant een
+werkgever is in plaats van een arbeidsdeskundige verandert daar niets aan.
+
+Om ECHT verwerker te blijven, moet je je aan deze voorwaarden houden:
+  1. Geen eigen gebruik van de data. Zodra je de geuploade gegevens voor je eigen
+     doelen gebruikt (modeltraining, productverbetering met klantdata, eigen
+     analyses), word je voor dat deel zelf verantwoordelijke. Verwerk strikt
+     namens de werkgever en hergebruik niets.
+  2. Verwerkersovereenkomst (DPA) met elke werkgever + een sub-verwerkers-
+     overeenkomst met Anthropic. Jij bent dan verwerker, Anthropic je
+     subverwerker.
+  3. De werkgever informeert de werknemer (zoals ADO Pro die plicht bij de
+     arbeidsdeskundige legt). Zet dat in je voorwaarden.
+  4. Grondslag is van de werkgever, niet van jou: zijn wettelijke poortwachter-
+     verplichting. Als verwerker heb je geen eigen grondslag nodig voor de
+     kernverwerking.
+  5. Mens in de loop: de werkgever neemt het uiteindelijke besluit (jij levert een
+     concept). Dat versterkt dat jij niet "de baas over de data" bent.
+
+Nuance om scherp te houden: jouw tool bepaalt wel veel — welke velden, de
+Werkwijzer-logica, de adviezen. Dat is toegestaan als verwerker (je mag de
+technische/organisatorische middelen invullen), zolang het DOEL en de
+ZEGGENSCHAP OVER DE DATA bij de werkgever blijven. ADO Pro doet hetzelfde door te
+bepalen hoe een arbeidsdeskundig rapport eruitziet.
+
+Verschil met ADO Pro qua grondslag: ADO Pro noemt in zijn eigen verklaring
+"gerechtvaardigd belang" — wat rommelig is voor een verwerker (de grondslag hoort
+bij de verantwoordelijke). Doe jij dat schoner: jij = verwerker, de grondslag
+ligt bij de werkgever (wettelijke verplichting).
+
+Tot slot: de verwerker-rol staat LOS van het medisch filter. Dat de werkgever
+(jouw klant) geen art. 9-gegevens mag verwerken, blijft gelden — dus jouw filter
+blijft juridisch de kern.
+
+
+4. STAPPENPLAN: ZO WORD JE AVG-PROOF
+--------------------------------------------------------------------------------
+
+FASE A — FUNDAMENT (voor een echte casus)
+  1. Bepaal de rollen schriftelijk: werkgever = verwerkingsverantwoordelijke,
+     jij = verwerker, Anthropic = subverwerker. Leg dit vast in je documentatie.
+  2. Sluit een verwerkersovereenkomst (DPA) met Anthropic en bevestig:
+     EER-verwerking, geen modeltraining op klantdata, beveiliging,
+     subverwerkerslijst.
+  3. Stel een modelverwerkersovereenkomst op voor je klanten (werkgevers),
+     inclusief subverwerkerslijst, beveiligingsbijlage en meldplicht datalekken.
+  4. Voer een DPIA uit (verplicht: bijzondere context, kwetsbare betrokkenen,
+     AI). Neem mee: doel, grondslag, dataminimalisatie, het medisch filter,
+     risico's, maatregelen.
+  5. Zet hosting binnen de EER en haal de API-sleutel volledig uit frontend/repo
+     (alleen server-side). Zet de repo op PRIVE zodra je met echte data werkt.
+
+FASE B — INRICHTING VAN DE VERWERKING (DATAMINIMALISATIE)
+  6. Borg het medisch filter technisch en aantoonbaar: AI-instructie + harde
+     server-side nabewerking die diagnose/aard/oorzaak/BSN verwijdert.
+     Documenteer dat dit getest is (je hebt al een filtertest-casus).
+  7. Minimaliseer wat je opslaat: verwerk bij voorkeur vluchtig (in-memory, niet
+     persistent opslaan na het genereren). Bewaar je toch iets, stel een harde
+     bewaartermijn in en automatiseer verwijdering.
+  8. Geen BSN via de AI: laat de werkgever dat veld zelf invullen in het PvA.
+  9. Korte subverwerkersketen: alleen wat echt nodig is (hosting EER +
+     Anthropic). Vermijd trackers zoals Hotjar/analytics op pagina's waar data
+     wordt verwerkt.
+
+FASE C — TRANSPARANTIE & RECHTEN
+  10. Privacyverklaring publiceren: wie, wat, waarom, grondslag, subverwerkers,
+      bewaartermijn, EER, geen training, rechten van betrokkenen, contact.
+  11. AI-transparantie (AI Act): vermeld duidelijk dat AI wordt ingezet, dat
+      output een CONCEPT is en dat menselijke controle verplicht is.
+  12. Informatieplicht doorgeven: instrueer de werkgever dat hij de werknemer
+      informeert over de verwerking.
+  13. Faciliteer betrokkenenrechten (inzage, rectificatie, wissing): contactpunt
+      + procedure.
+
+FASE D — BEVEILIGING & BEHEER
+  14. Technische maatregelen: TLS, secrets in een kluis, toegangsbeheer/MFA,
+      logging zonder persoonsgegevens, datalek-procedure.
+  15. Periodieke toetsing: (laat) een pentest doen en plan jaarlijkse review —
+      precies wat ADO Pro doet.
+  16. Verwerkingsregister bijhouden (AVG art. 30).
+  17. Overweeg ISO 27001 / NEN 7510 als je opschaalt; het is een sterk keurmerk
+      in deze markt (ADO Pro gebruikt ISO 27001 nadrukkelijk als
+      vertrouwenssignaal).
+
+FASE E — VOOR LIVEGANG MET ECHTE DATA (HARDE CHECKLIST)
+  [ ] DPA met Anthropic getekend, EER + geen training bevestigd
+  [ ] DPIA afgerond en maatregelen geimplementeerd
+  [ ] Modelverwerkersovereenkomst voor werkgevers klaar
+  [ ] Repo prive, API-sleutel uitsluitend server-side
+  [ ] Medisch filter + BSN-filter getest en gedocumenteerd
+  [ ] Bewaartermijn/vluchtige verwerking ingericht
+  [ ] Privacyverklaring + AI-transparantie online
+  [ ] Pentest uitgevoerd, datalek-procedure gereed
+
+
+BRONNEN
+--------------------------------------------------------------------------------
+  - ADO Pro — Privacyverklaring (10-02-2026):
+    https://adopro.nl/wp-content/uploads/2026/02/Privacyverklaring-ADO-Pro-_-10022026.pdf
+  - ADO Pro — website: https://adopro.nl
+  - Autoriteit Persoonsgegevens — "Mijn zieke werknemer":
+    https://autoriteitpersoonsgegevens.nl/nl/onderwerpen/werk-en-uitkering/mijn-zieke-werknemer
+  - ArboNed — "Wat mag u wel en niet vastleggen over ziekteverzuim":
+    https://www.arboned.nl/nieuws/wat-mag-u-wel-en-niet-vastleggen-over-het-ziekteverzuim-van-uw-werknemer
+  - KNMG-richtlijn "Omgaan met medische gegevens" (2024):
+    https://www.knmg.nl/download/knmg-richtlijn-omgaan-met-medische-gegevens-2
+================================================================================
