@@ -5,8 +5,12 @@
    deterministisch uit de teruggegeven uitgangspunten (hybride aanpak). */
 
 import Anthropic from "@anthropic-ai/sdk";
+import { reconcile } from "./reconcile.js";
 
 const MODEL = process.env.PVA_MODEL || "claude-opus-4-8";
+// Self-consistency: aantal onafhankelijke extracties dat parallel draait en via
+// meerderheidsstem wordt gecombineerd. 1 = uit. Hoger = stabieler, maar duurder.
+const SAMPLES = Math.max(1, parseInt(process.env.PVA_SAMPLES || "3", 10));
 
 const SYSTEM = `Je bent een assistent die uit de terugkoppeling van een bedrijfsarts uitsluitend de FUNCTIONELE gegevens haalt voor een Plan van Aanpak (Wet verbetering poortwachter). Je werkt zorgvuldig en neemt feiten letterlijk over.
 
@@ -136,18 +140,32 @@ export async function extractFields(sourceBlocks, functieomschrijving = "") {
   }
   content.push({ type: "text", text: INSTRUCTION });
 
-  const response = await client.messages.create({
-    model: MODEL,
-    max_tokens: 16000,
-    thinking: { type: "adaptive" },
-    system: SYSTEM,
-    output_config: { effort: "medium", format: { type: "json_schema", schema: SCHEMA } },
-    messages: [{ role: "user", content }],
-  });
+  // Eén onafhankelijke extractie (parsed JSON of een fout).
+  const oneSample = async () => {
+    const response = await client.messages.create({
+      model: MODEL,
+      max_tokens: 16000,
+      thinking: { type: "adaptive" },
+      system: SYSTEM,
+      output_config: { effort: "medium", format: { type: "json_schema", schema: SCHEMA } },
+      messages: [{ role: "user", content }],
+    });
+    const textBlock = response.content.find((b) => b.type === "text");
+    if (!textBlock) throw new Error("Geen tekstantwoord van het model");
+    return JSON.parse(textBlock.text);
+  };
 
-  const textBlock = response.content.find((b) => b.type === "text");
-  if (!textBlock) throw new Error("Geen tekstantwoord van het model");
-  const data = JSON.parse(textBlock.text);
+  // Self-consistency: draai SAMPLES extracties parallel en combineer ze via
+  // meerderheidsstem (server/reconcile.js). Mislukte runs worden genegeerd zolang
+  // er minstens één slaagt.
+  const settled = await Promise.allSettled(Array.from({ length: SAMPLES }, oneSample));
+  const oks = settled.filter((s) => s.status === "fulfilled").map((s) => s.value);
+  if (!oks.length) {
+    const reason = settled.find((s) => s.status === "rejected");
+    throw (reason && reason.reason) || new Error("Extractie mislukt");
+  }
+  const data = reconcile(oks);
+
   // Harde regel, niet afhankelijk van prompt-gehoorzaamheid: zonder meegegeven
   // functieomschrijving komt er nooit een taaksuggestie in de output.
   if (!functieomschrijving || !functieomschrijving.trim()) data.taaksuggestie = "";
