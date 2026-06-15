@@ -80,16 +80,21 @@ Dit is het model dat ook voor jou geldt (zie §3).
 
 ## 3. Wat betekent dit voor de Plan van Aanpak-invuller?
 
-**Het cruciale verschil met ADO Pro:** hun gebruiker is een arbeidsdeskundige; jóuw
-gebruiker is de **werkgever/casemanager**. En een werkgever mag — anders dan een
-bedrijfsarts — **helemaal geen gezondheidsgegevens** verwerken.
+**Niet het medisch filter is het verschil met ADO Pro, maar de rol/grondslag.** Een
+arbeidsdeskundige is **géén bedrijfsarts**: hij heeft geen medisch beroepsgeheim en mag
+dus — net als de werkgever en net als jouw tool — **geen diagnose, aard of oorzaak** van
+de ziekte verwerken. Alleen de **bedrijfsarts/arbodienst** mag de echte medische (art.
+9-)gegevens verwerken.
 
-Gevolgen:
+> Op dit punt zijn ADO Pro en jouw tool dus **gelijk**: beide verwerken bewust geen
+> gezondheidsgegevens, alleen functionele en arbeidskundige gegevens (belastbaarheid,
+> mogelijkheden en beperkingen in werktermen).
 
-1. **Jouw medisch filter is geen "nice to have" maar de juridische kern.** Omdat de
-   werkgever verwerkingsverantwoordelijke is, mag er nooit diagnose/aard/oorzaak in. Dat
-   jij dat in code afdwingt (en op de server hard leegmaakt) is precies wat het product
-   AVG-proof maakt. Dit is jouw sterkste verkoopargument.
+Het echte verschil zit in de rol en de grondslag. Gevolgen:
+
+1. **Het medisch filter is voor jullie allebei de juridische kern**, niet iets wat jou van
+   ADO Pro onderscheidt. Dat jij het in code afdwingt (en op de server hard leegmaakt) is
+   precies wat het product AVG-proof maakt en blijft je sterkste argument.
 2. **Grondslag is bij jou niet "gerechtvaardigd belang" maar de wettelijke
    verplichting** van de werkgever uit de **Wet verbetering poortwachter** +
    Arbeidsomstandighedenwet (art. 6 lid 1 sub c), aangevuld met gerechtvaardigd belang
