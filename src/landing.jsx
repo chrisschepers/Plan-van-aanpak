@@ -341,12 +341,12 @@ function Footer({ onOpenPrivacy }) {
           <div>
             <h4>Contact</h4>
             <a href="mailto:contact@planvanaanpakinvuller.nl">contact@planvanaanpakinvuller.nl</a>
-            <a href="#">[INVULLEN: bedrijfsnaam]</a>
-            <a href="#">[INVULLEN: KVK-nummer]</a>
+            <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>planvanaanpakinvuller.nl</span>
+            <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>KVK-nummer volgt</span>
           </div>
         </div>
         <div className="footer-bot">
-          <span>© 2026 planvanaanpakinvuller.nl — [INVULLEN: bedrijfsnaam / KVK]</span>
+          <span>© 2026 planvanaanpakinvuller.nl · KVK-nummer volgt</span>
           <span>Verwerking binnen de EER · Geen training op klantdata</span>
         </div>
       </div>
