@@ -43,7 +43,7 @@ function extOf(name) {
 function demoCasus() {
   const schema = computeSchema(CASE);
   return {
-    mode: "demo", fields: INITIAL_FIELDS, schema, schemaZelfOpgesteld: false, reportDate: CASE.reportDate, sources: null, contractHours: CASE.contractHours,
+    mode: "demo", fields: INITIAL_FIELDS, schema, schemaZelfOpgesteld: false, opbouwReden: "", reportDate: CASE.reportDate, sources: null, contractHours: CASE.contractHours,
     functieomschrijving: "Administratief medewerker: postverwerking, gegevensinvoer, factuurcontrole, archiefbeheer en telefonische klantvragen.",
     taaksuggestie: "lichte administratieve taken zoals gegevensinvoer en het ordenen van dossiers, in blokken van beperkte duur met afwisseling tussen zitten en staan, en zonder taken met piekbelasting of strakke deadlines",
     signalen: {},
@@ -285,6 +285,7 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
   const select = (f) => setSelectedId(f.id);
   const activeSrc = selected ? selected.src : null;
   const contractHours = schema[schema.length - 1] ? schema[schema.length - 1].hours : 0;
+  const geenOpbouw = !!casus.opbouwReden || schema.length === 0;
 
   return (
     <div>
@@ -309,7 +310,12 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
           : <AiSourcePanel selected={selected} sources={sources} />}
       </div>
 
-      <SchemaTable schema={schema} contractHours={contractHours} />
+      {geenOpbouw
+        ? <div className="panel" style={{ marginTop: 22 }}>
+            <div className="panel-head"><div><h3>Opbouwschema</h3><div className="sub">Geen oplopend schema in deze situatie</div></div></div>
+            <p style={{ padding: "4px 2px", color: "var(--ink-soft)" }}>{casus.opbouwReden || "Een opbouwschema is op dit moment niet aan de orde."}</p>
+          </div>
+        : <SchemaTable schema={schema} contractHours={contractHours} />}
 
       <TermijnenTabel fields={fields} />
 
@@ -336,14 +342,14 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
 
 /* ---------- Stap 3: Preview ---------- */
 function PreviewStep({ onBack, controleOk, casus }) {
-  const { fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld } = casus;
+  const { fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld, opbouwReden } = casus;
   const [tab, setTab] = React.useState(0);
   const [downloaded, setDownloaded] = React.useState(null);
   const [busyKey, setBusyKey] = React.useState(null);
   const tabs = [
-    { t: "Opbouwadvies", el: <AdviesPreview fields={fields} schema={schema} reportDate={reportDate} schemaZelfOpgesteld={schemaZelfOpgesteld} /> },
-    { t: "Plan van Aanpak", el: <PvaPreview fields={fields} schema={schema} functieomschrijving={functieomschrijving} /> },
-    { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} reportDate={reportDate} taaksuggestie={taaksuggestie} signalen={signalen} schemaZelfOpgesteld={schemaZelfOpgesteld} /> },
+    { t: "Opbouwadvies", el: <AdviesPreview fields={fields} schema={schema} reportDate={reportDate} schemaZelfOpgesteld={schemaZelfOpgesteld} opbouwReden={opbouwReden} /> },
+    { t: "Plan van Aanpak", el: <PvaPreview fields={fields} schema={schema} functieomschrijving={functieomschrijving} opbouwReden={opbouwReden} /> },
+    { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} reportDate={reportDate} taaksuggestie={taaksuggestie} signalen={signalen} schemaZelfOpgesteld={schemaZelfOpgesteld} opbouwReden={opbouwReden} /> },
   ];
 
   async function run(key, fn) {
@@ -384,7 +390,7 @@ function PreviewStep({ onBack, controleOk, casus }) {
           </div>
         </div>
         <div className="dl-buttons">
-          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("doc", () => downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld))}>
+          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("doc", () => downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld, opbouwReden))}>
             {I.download} {busyKey === "doc" ? "Bezig…" : "Download als Word (.docx)"}
           </button>
         </div>

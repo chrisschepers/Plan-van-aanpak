@@ -63,15 +63,18 @@ export function fillDocumentXml(xml, values) {
  *  7A Arbeidsinhoud 11–22 · 7B 23–34 · 7C 35–46 · 7D 47–58 · 7E 59–70 · 7F 71–82
  * BSN (veld 2) blijft altijd leeg.
  */
-export function buildUwvValues(fields, schema, functieomschrijving) {
+export function buildUwvValues(fields, schema, functieomschrijving, opbouwReden = "") {
   const v = (id) => { const x = getVal(fields, id); return isMissing(x) ? "" : x; };
+  const geenOpbouw = !!opbouwReden || schema.length === 0;
   const startRaw = getVal(fields, "start");
   const start = isMissing(startRaw) ? (schema[0] ? schema[0].date : "") : startRaw;
   const fromH = schema[0] ? schema[0].hours : 0;
   const lastH = schema[schema.length - 1] ? schema[schema.length - 1].hours : 0;
   const opbouwVal = getVal(fields, "opbouw");
   const ritme = isMissing(opbouwVal) ? "tweewekelijks één uur per werkdag erbij" : opbouwVal.toLowerCase();
-  const opbouw = `Werknemer bouwt op van ${fromH} naar ${lastH} uur volgens het opbouwschema (start ${start}, ${ritme}).`;
+  const opbouw = geenOpbouw
+    ? (opbouwReden || "Een opbouwschema is op dit moment niet aan de orde; de bedrijfsarts beoordeelt dit op het vervolgconsult.")
+    : `Werknemer bouwt op van ${fromH} naar ${lastH} uur volgens het opbouwschema (start ${start}, ${ritme}).`;
   const beperkingVal = getVal(fields, "beperking");
   const arbeidsinhoud = isMissing(beperkingVal)
     ? "Werkgever en werknemer stellen samen passende werkzaamheden vast binnen de aangegeven mogelijkheden."

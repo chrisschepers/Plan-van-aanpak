@@ -218,7 +218,7 @@ function ensureDot(s) { s = String(s).trim(); return s && !/[.!?]$/.test(s) ? s 
 
 /** Kernzinnen van het begeleidend bericht (belastbaarheid + opbouw + werkaanpassing).
  *  Robuust bij waarden die hele zinnen zijn; geen [INVULLEN] in de tekst. */
-export function berichtKern(fields, schema, schemaZelfOpgesteld) {
+export function berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden = "") {
   const naam = getVal(fields, "naam");
   const werknemer = isMissing(naam) ? "de werknemer" : naam;
   const belast = getVal(fields, "belast");
@@ -232,7 +232,9 @@ export function berichtKern(fields, schema, schemaZelfOpgesteld) {
 
   const zinnen = [];
   if (!isMissing(belast)) zinnen.push(ensureDot(`De bedrijfsarts beschrijft de belastbaarheid van ${werknemer} als volgt: ${belast}`));
-  if (schema.length >= 2) {
+  if (opbouwReden) {
+    zinnen.push(ensureDot(opbouwReden));
+  } else if (schema.length >= 2) {
     if (schemaZelfOpgesteld) {
       zinnen.push(`De bedrijfsarts heeft geen concreet opbouwtempo gespecificeerd. Op basis van de afgegeven mogelijkheden is een opbouwschema opgesteld dat vanaf ${startD} tweewekelijks met één uur per werkdag oploopt van ${fromH} naar ${toH} uur; volledige werkhervatting is daarmee voorzien rond ${eindD}.`);
     } else {

@@ -244,17 +244,20 @@ function metaBlock(naam) {
   });
 }
 
-export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld) {
+export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden = "") {
   const naam = getVal(fields, "naam");
-  const hersteld = fullRecoveryDate(schema);
+  const geenOpbouw = !!opbouwReden || schema.length === 0;
+  const hersteld = schema.length ? fullRecoveryDate(schema) : "";
   const alineas = adviceParagraphs(fields, reportDate, signalen);
-  const kern = berichtKern(fields, schema, schemaZelfOpgesteld);
+  const kern = berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden);
   const taak = (taaksuggestie || "").trim();
   const termijnen = poortwachterTermijnen(fields);
   const startRaw = getVal(fields, "start");
-  const startDisplay = isMissing(startRaw) ? (schema[0] ? schema[0].date : "—") : startRaw;
-  const opbouwDisplay = schemaZelfOpgesteld || isMissing(getVal(fields, "opbouw"))
-    ? "Niet door de bedrijfsarts gespecificeerd" : getVal(fields, "opbouw");
+  const startDisplay = geenOpbouw ? "—" : (isMissing(startRaw) ? (schema[0] ? schema[0].date : "—") : startRaw);
+  const opbouwDisplay = geenOpbouw
+    ? "Niet van toepassing"
+    : (schemaZelfOpgesteld || isMissing(getVal(fields, "opbouw"))
+      ? "Niet door de bedrijfsarts gespecificeerd" : getVal(fields, "opbouw"));
 
   const doc = new Document({
     creator: "planvanaanpakinvuller.nl",
@@ -298,10 +301,14 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
         kv("Belastbaarheid", txt(fields, "belast")),
         kv("Opbouwtempo", opbouwDisplay),
         kv("Startdatum opbouw", startDisplay),
-        ...(schemaZelfOpgesteld ? [p("De bedrijfsarts heeft geen concreet opbouwtempo gespecificeerd. Daarom is hieronder zelf een opbouwschema opgesteld: tweewekelijks één uur per werkdag erbij, oplopend naar de contracturen. Stem dit af met de werknemer en bedrijfsarts.", { color: GREY })] : []),
-        h2("Opbouwschema"),
-        schemaTable(schema),
-        p(`Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.`, { color: GREY }),
+        ...(geenOpbouw
+          ? [p(opbouwReden || "Een opbouwschema is op dit moment niet aan de orde.", { color: GREY })]
+          : [
+              ...(schemaZelfOpgesteld ? [p("De bedrijfsarts heeft geen concreet opbouwtempo gespecificeerd. Daarom is hieronder zelf een opbouwschema opgesteld: tweewekelijks één uur per werkdag erbij, oplopend naar de contracturen. Stem dit af met de werknemer en bedrijfsarts.", { color: GREY })] : []),
+              h2("Opbouwschema"),
+              schemaTable(schema),
+              p(`Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.`, { color: GREY }),
+            ]),
 
         // ---- BIJLAGE 2 — Poortwachter-termijnen: afsluitend overzicht,
         // direct vóór het Plan van aanpak (het UWV-formulier volgt als sectie 2). ----
@@ -352,11 +359,11 @@ export async function downloadUwvPva(fields, schema) {
 
 // Eén document: begeleidend bericht (briefpapier) + ingevuld UWV-PvA erachter.
 // Het UWV-formulier blijft ongewijzigd.
-export async function downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld) {
-  const letter = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld));
+export async function downloadCombined(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld, opbouwReden) {
+  const letter = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden));
   const resp = await fetch(new URL("uwv-template.docx", document.baseURI));
   if (!resp.ok) throw new Error("UWV-sjabloon niet gevonden");
-  const filled = await fillTemplate(await resp.arrayBuffer(), buildUwvValues(fields, schema, functieomschrijving));
+  const filled = await fillTemplate(await resp.arrayBuffer(), buildUwvValues(fields, schema, functieomschrijving, opbouwReden));
   const merged = await mergeLetterAndForm(letter, filled);
   return triggerDownload(merged, `Plan-van-Aanpak-${safeName(fields)}.docx`);
 }

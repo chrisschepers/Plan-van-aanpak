@@ -24,10 +24,14 @@ function Val({ fields, id }) {
 }
 
 // 1 — Loonwaarde-/opbouwadvies
-export function AdviesPreview({ fields, schema, reportDate, schemaZelfOpgesteld }) {
+export function AdviesPreview({ fields, schema, reportDate, schemaZelfOpgesteld, opbouwReden }) {
+  const geenOpbouw = !!opbouwReden || schema.length === 0;
   const start = getVal(fields, "start");
-  const startDisplay = isMissing(start) ? (schema[0] ? schema[0].date : "—") : start;
+  const startDisplay = geenOpbouw ? "—" : (isMissing(start) ? (schema[0] ? schema[0].date : "—") : start);
   const opbouwVal = getVal(fields, "opbouw");
+  const opbouwtempoDisplay = geenOpbouw
+    ? "Niet van toepassing"
+    : (schemaZelfOpgesteld || isMissing(opbouwVal) ? "Niet door de bedrijfsarts gespecificeerd" : opbouwVal);
   return (
     <div className="doc-preview">
       <DocPreviewHead title="Opbouw- en re-integratieadvies" icon={I.scale} />
@@ -39,29 +43,37 @@ export function AdviesPreview({ fields, schema, reportDate, schemaZelfOpgesteld 
         <dl className="kv">
           <dt>Contracturen</dt><Val fields={fields} id="uren" />
           <dt>Belastbaarheid</dt><Val fields={fields} id="belast" />
-          <dt>Opbouwtempo</dt><dd>{schemaZelfOpgesteld ? "Niet door de bedrijfsarts gespecificeerd" : (isMissing(opbouwVal) ? "Niet door de bedrijfsarts gespecificeerd" : opbouwVal)}</dd>
+          <dt>Opbouwtempo</dt><dd>{opbouwtempoDisplay}</dd>
           <dt>Startdatum opbouw</dt><dd>{startDisplay}</dd>
         </dl>
 
-        {schemaZelfOpgesteld && (
+        {geenOpbouw ? (
           <p style={{ fontSize: 13.5, color: "var(--ink-soft)", background: "var(--navy-50)", border: "1px solid var(--navy-100)", borderRadius: 8, padding: "10px 12px" }}>
-            De bedrijfsarts heeft geen concreet opbouwtempo gespecificeerd. Daarom is hieronder zelf een
-            opbouwschema opgesteld: tweewekelijks één uur per werkdag erbij, oplopend naar de contracturen.
-            Stem dit schema af met de werknemer en bedrijfsarts.
+            {opbouwReden || "Een opbouwschema is op dit moment niet aan de orde."}
           </p>
-        )}
+        ) : (
+          <>
+            {schemaZelfOpgesteld && (
+              <p style={{ fontSize: 13.5, color: "var(--ink-soft)", background: "var(--navy-50)", border: "1px solid var(--navy-100)", borderRadius: 8, padding: "10px 12px" }}>
+                De bedrijfsarts heeft geen concreet opbouwtempo gespecificeerd. Daarom is hieronder zelf een
+                opbouwschema opgesteld: tweewekelijks één uur per werkdag erbij, oplopend naar de contracturen.
+                Stem dit schema af met de werknemer en bedrijfsarts.
+              </p>
+            )}
 
-        <h3>Opbouwschema</h3>
-        <table className="schema-table" style={{ marginTop: 4 }}>
-          <thead>
-            <tr><th>Per datum</th><th>Uren per week</th><th>Hersteld</th></tr>
-          </thead>
-          <SchemaRows schema={schema} />
-        </table>
-        <p style={{ marginTop: 16, fontSize: 13.5, color: "var(--muted)" }}>
-          Volledige werkhervatting voorzien per {fullRecoveryDate(schema)}. Tussentijdse evaluatie aanbevolen;
-          bij terugval wordt het schema in overleg bijgesteld.
-        </p>
+            <h3>Opbouwschema</h3>
+            <table className="schema-table" style={{ marginTop: 4 }}>
+              <thead>
+                <tr><th>Per datum</th><th>Uren per week</th><th>Hersteld</th></tr>
+              </thead>
+              <SchemaRows schema={schema} />
+            </table>
+            <p style={{ marginTop: 16, fontSize: 13.5, color: "var(--muted)" }}>
+              Volledige werkhervatting voorzien per {fullRecoveryDate(schema)}. Tussentijdse evaluatie aanbevolen;
+              bij terugval wordt het schema in overleg bijgesteld.
+            </p>
+          </>
+        )}
 
         <h3>Poortwachter-termijnen</h3>
         <TermijnenTabel fields={fields} compact />
@@ -100,14 +112,18 @@ function ActTable({ rows }) {
   );
 }
 
-export function PvaPreview({ fields, schema, functieomschrijving }) {
+export function PvaPreview({ fields, schema, functieomschrijving, opbouwReden }) {
+  const geenOpbouw = !!opbouwReden || schema.length === 0;
   const startRaw = getVal(fields, "start");
   const start = isMissing(startRaw) ? (schema[0] ? schema[0].date : "—") : startRaw;
+  const planning = geenOpbouw ? "In overleg" : `Per ${start}`;
   const opbouwVal = getVal(fields, "opbouw");
   const ritme = isMissing(opbouwVal) ? "tweewekelijks één uur per werkdag erbij" : opbouwVal.toLowerCase();
   const fromH = schema[0] ? schema[0].hours : 0;
   const lastH = schema[schema.length - 1] ? schema[schema.length - 1].hours : 0;
-  const opbouw = `Werknemer bouwt op van ${fromH} naar ${lastH} uur volgens het opbouwschema (start ${start}, ${ritme}).`;
+  const opbouw = geenOpbouw
+    ? (opbouwReden || "Een opbouwschema is op dit moment niet aan de orde; de bedrijfsarts beoordeelt dit op het vervolgconsult.")
+    : `Werknemer bouwt op van ${fromH} naar ${lastH} uur volgens het opbouwschema (start ${start}, ${ritme}).`;
   const beperkingVal = getVal(fields, "beperking");
   const taak = isMissing(beperkingVal)
     ? "Werkgever en werknemer stellen samen passende werkzaamheden vast binnen de aangegeven mogelijkheden."
@@ -154,10 +170,10 @@ export function PvaPreview({ fields, schema, functieomschrijving }) {
         <UwvBar nr="7">Afspraken</UwvBar>
         <UwvHelp>Welke afspraken heeft u met uw werknemer gemaakt over zijn re-integratie?</UwvHelp>
         <div className="uwv-cat">7A  Arbeidsinhoud</div>
-        <ActTable rows={[[taak, "Werkgever en werknemer", `Per ${start}`]]} />
+        <ActTable rows={[[taak, "Werkgever en werknemer", planning]]} />
         <div className="uwv-cat">7E  Sociaal-medische zaken</div>
         <ActTable rows={[
-          [opbouw, "Werknemer en werkgever", `Per ${start}`],
+          [opbouw, "Werknemer en werkgever", planning],
           ["Werknemer verschijnt op het vervolgconsult bij de bedrijfsarts.", "Werknemer", "Conform oproep arbodienst"],
         ]} />
         <div className="uwv-cat">7F  Overige activiteiten</div>
@@ -181,10 +197,10 @@ export function PvaPreview({ fields, schema, functieomschrijving }) {
 }
 
 // 3 — Begeleidend bericht aan werkgever (met de adviezen verweven)
-export function BerichtPreview({ fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld }) {
+export function BerichtPreview({ fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden }) {
   const naam = getVal(fields, "naam");
   const werknemer = isMissing(naam) ? "je werknemer" : naam;
-  const kern = berichtKern(fields, schema, schemaZelfOpgesteld);
+  const kern = berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden);
   const alineas = adviceParagraphs(fields, reportDate, signalen);
   const taak = (taaksuggestie || "").trim();
   return (

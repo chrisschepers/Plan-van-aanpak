@@ -36,7 +36,8 @@ TAAKSUGGESTIE: is er een functieomschrijving meegegeven, stel dan in 'taaksugges
 SIGNALEN: zet elk signaal op true ALLEEN als de terugkoppeling dit duidelijk aangeeft, anders false (de applicatie koppelt hieraan de juiste Werkwijzer-adviezen):
 - geenBenutbareMogelijkheden: de bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn.
 - duurzaamGeenMogelijkheden: duurzaam geen mogelijkheden én geen herstelverwachting.
-- marginaleMogelijkheden: de belastbaarheid is marginaal: maximaal circa 2 uur per dag inzetbaar én zonder uitzicht op opbouw. Noemt de bedrijfsarts wél een opbouwperspectief (bv. een tempo, of dat het tempo op een vervolgconsult wordt bepaald), dan is dit signaal false.
+- marginaleMogelijkheden: de belastbaarheid is marginaal: maximaal circa 2 uur per dag (of slechts enkele uren per week, bv. 2×2 uur) inzetbaar én zonder uitzicht op opbouw op korte termijn. Noemt de bedrijfsarts wél een opbouwperspectief (bv. een tempo, of dat het tempo op een vervolgconsult wordt bepaald), dan is dit signaal false.
+- volledigInzetbaar: de werknemer is (weer) volledig inzetbaar voor het eigen werk in de eigen uren / heeft geen functionele beperkingen door ziekte. Dit speelt bv. bij een arbeidsconflict zonder ziekte. Bij een (gedeeltelijke) opbouw of resterende beperkingen is dit signaal false.
 - arbeidstherapeutisch: werken op arbeidstherapeutische basis (zonder loonwaarde) wordt genoemd.
 - stagnatie: de opbouw loopt achter op schema, de hervatting is instabiel, of er is uitval/terugval.
 - arbeidsconflict: er is sprake van een arbeidsconflict of verstoorde arbeidsverhouding.
@@ -99,8 +100,9 @@ const SCHEMA = {
         belastbaarheidNaEerstejaars: { type: "boolean" },
         gewijzigdeBelastbaarheidSpoor2: { type: "boolean" },
         herstelVerwachtBinnen3Maanden: { type: "boolean" },
+        volledigInzetbaar: { type: "boolean" },
       },
-      required: ["geenBenutbareMogelijkheden", "duurzaamGeenMogelijkheden", "marginaleMogelijkheden", "arbeidstherapeutisch", "stagnatie", "arbeidsconflict", "belastbaarheidNaEerstejaars", "gewijzigdeBelastbaarheidSpoor2", "herstelVerwachtBinnen3Maanden"],
+      required: ["geenBenutbareMogelijkheden", "duurzaamGeenMogelijkheden", "marginaleMogelijkheden", "arbeidstherapeutisch", "stagnatie", "arbeidsconflict", "belastbaarheidNaEerstejaars", "gewijzigdeBelastbaarheidSpoor2", "herstelVerwachtBinnen3Maanden", "volledigInzetbaar"],
     },
   },
   required: [
