@@ -198,16 +198,13 @@ L.push(
 );
 
 // 9. Open punten voor de domeinexpert ----------------------------------------
-H("9. OPEN PUNTEN — GRAAG JOUW OORDEEL (domein, geen techniek)");
+H("9. RECENTE DOMEINBESLUITEN (19-06)");
 L.push(
-  " Beslist 19-06:",
   " - Ziek-uit-dienst bij precies 10 weken ziek -> VOLLEDIG re-integratieverslag.",
   " - AOW-leeftijd indicatief op 67 jaar en 3 maanden (met SVB-disclaimer).",
   " - Vervroegde-IVA-advies bewust verwijderd (ethisch oordeel hoort bij mens/arts).",
-  "",
-  " Eerstvolgende bouwstap:",
-  " - UWV-formulier sectie 7B/7C/7D (werkplek, werktijden, verhoudingen) automatisch",
-  "   vullen bij triggers in de terugkoppeling (blijft nu nog [INVULLEN]).",
+  " - UWV-formulier sectie 7B/7C/7D wordt nu automatisch gevuld bij triggers",
+  "   (werkplek-/werktijden-aanpassing of het arbeidsconflict-signaal).",
   "",
 );
 
