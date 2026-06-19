@@ -3,6 +3,8 @@
 import { Landing } from "./landing.jsx";
 import { Tool } from "./tool.jsx";
 import { PrivacyVerklaring } from "./privacy.jsx";
+import { Login } from "./login.jsx";
+import { currentSession, onAuthChange, signOut } from "./supa.js";
 
 const { useState, useEffect } = React;
 
@@ -28,18 +30,33 @@ function useReveal() {
 }
 
 function App() {
-  const [view, setView] = useState("landing"); // landing | tool | privacy
+  const [view, setView] = useState("landing"); // landing | tool | privacy | login
+  const [session, setSession] = useState(null);
   useReveal();
+
+  useEffect(() => {
+    currentSession().then(setSession);
+    return onAuthChange(setSession);
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = view === "landing" ? "" : "hidden";
   }, [view]);
 
+  const logout = async () => { await signOut(); setSession(null); setView("landing"); };
+
   return (
     <React.Fragment>
-      <Landing onOpenTool={() => setView("tool")} onOpenPrivacy={() => setView("privacy")} />
-      {view === "tool" && <Tool onClose={() => setView("landing")} />}
+      <Landing
+        onOpenTool={() => setView("tool")}
+        onOpenPrivacy={() => setView("privacy")}
+        session={session}
+        onOpenLogin={() => setView("login")}
+        onLogout={logout}
+      />
+      {view === "tool" && <Tool onClose={() => setView("landing")} session={session} onNeedLogin={() => setView("login")} />}
       {view === "privacy" && <PrivacyVerklaring onClose={() => setView("landing")} />}
+      {view === "login" && <Login onClose={() => setView("landing")} onOpenPrivacy={() => setView("privacy")} session={session} />}
     </React.Fragment>
   );
 }

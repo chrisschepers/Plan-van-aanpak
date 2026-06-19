@@ -13,6 +13,7 @@ import multer from "multer";
 import mammoth from "mammoth";
 import { extractFields } from "./extract.js";
 import { redactBSN } from "./redact.js";
+import { requireAuth, authConfigured } from "./auth.js";
 
 const app = express();
 app.set("trust proxy", 1); // achter de Railway-proxy: gebruik X-Forwarded-For voor req.ip
@@ -46,10 +47,10 @@ function rateLimit(req, res, next) {
 const upload = multer({ limits: { fileSize: 20 * 1024 * 1024 } }); // 20 MB
 
 app.get("/health", (_req, res) => {
-  res.json({ ok: true, model: process.env.PVA_MODEL || "claude-opus-4-8", keyConfigured: !!process.env.ANTHROPIC_API_KEY });
+  res.json({ ok: true, model: process.env.PVA_MODEL || "claude-opus-4-8", keyConfigured: !!process.env.ANTHROPIC_API_KEY, authRequired: authConfigured() });
 });
 
-app.post("/api/extract", rateLimit, upload.single("document"), async (req, res) => {
+app.post("/api/extract", rateLimit, requireAuth, upload.single("document"), async (req, res) => {
   try {
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({ error: "Server niet geconfigureerd: ANTHROPIC_API_KEY ontbreekt." });

@@ -26,14 +26,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
 <link rel="stylesheet" href="tool.css" />
+<link rel="stylesheet" href="auth.css" />
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
 <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div id="root"></div>
 <!-- AI-backend (Railway). Leeg = alleen demo. Vul je eigen URL in: -->
 <script>window.__PVA_BACKEND__ = "https://plan-van-aanpak-production.up.railway.app";</script>
+<!-- Supabase-login. Leeg = geen login (demo blijft werken). Vul Project URL + anon key in: -->
+<script>
+  window.__SUPABASE_URL__ = "";
+  window.__SUPABASE_ANON_KEY__ = "";
+</script>
 <script src="app.js"></script>
 </body>
 </html>

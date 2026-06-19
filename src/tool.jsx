@@ -11,6 +11,7 @@ import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
 import { downloadBericht, downloadUwvPva } from "./download.js";
 import { hasBackend } from "./config.js";
 import { extractCasus } from "./extract.js";
+import { authConfigured } from "./supa.js";
 
 const TOOL_STEPS = ["Upload", "Controleren", "Downloaden"];
 
@@ -51,7 +52,7 @@ function demoCasus() {
 }
 
 /* ---------- Stap 1: Upload ---------- */
-function UploadStep({ onResult }) {
+function UploadStep({ onResult, session, onNeedLogin }) {
   const [file, setFile] = React.useState(null);   // { name,size,type,real,file? }
   const [paste, setPaste] = React.useState(false);
   const [text, setText] = React.useState("");
@@ -86,10 +87,16 @@ function UploadStep({ onResult }) {
       setError("Er is nog geen AI-backend gekoppeld. Gebruik voorlopig de voorbeeldcasus, of stel de backend-URL in (window.__PVA_BACKEND__).");
       return;
     }
+    if (authConfigured() && !session) {
+      if (onNeedLogin) onNeedLogin();
+      else setError("Log in om echte documenten te verwerken.");
+      return;
+    }
     setBusy(true);
     try {
       const fo = functie.trim();
-      const casus = await extractCasus(file ? { file: file.file, functieomschrijving: fo } : { text, functieomschrijving: fo });
+      const token = session && session.access_token;
+      const casus = await extractCasus(file ? { file: file.file, functieomschrijving: fo, accessToken: token } : { text, functieomschrijving: fo, accessToken: token });
       const iv = casus.inputvalidatie;
       if (iv && iv.geschikt === false) {
         // Stap 0: geen geschikt documenttype → geen PvA genereren, blijf op stap 1.
@@ -174,6 +181,13 @@ function UploadStep({ onResult }) {
         <div className="demo-note">
           {I.info}
           <p><strong>AI nog niet gekoppeld.</strong> Zonder backend werkt alleen de voorbeeldcasus. Zet je Railway-URL in <code>window.__PVA_BACKEND__</code> om echte documenten te laten uitlezen. Gebruik uitsluitend fictieve terugkoppelingen.</p>
+        </div>
+      )}
+
+      {hasBackend() && authConfigured() && !session && (
+        <div className="demo-note">
+          {I.info}
+          <p><strong>Inloggen vereist voor echte documenten.</strong> De voorbeeldcasus werkt zonder account. <button type="button" onClick={onNeedLogin}>Log in</button> om je eigen terugkoppeling te verwerken.</p>
         </div>
       )}
 
@@ -448,7 +462,7 @@ function PreviewStep({ onBack, controleOk, casus }) {
 }
 
 /* ---------- Tool-shell ---------- */
-export function Tool({ onClose }) {
+export function Tool({ onClose, session, onNeedLogin }) {
   const [step, setStep] = React.useState(0);
   const [checked, setChecked] = React.useState(false);
   const [casus, setCasus] = React.useState(null);
@@ -485,7 +499,7 @@ export function Tool({ onClose }) {
         </div>
       </div>
       <div className="tool-body">
-        {step === 0 && <UploadStep onResult={handleResult} />}
+        {step === 0 && <UploadStep onResult={handleResult} session={session} onNeedLogin={onNeedLogin} />}
         {step === 1 && casus && <VerifyStep onBack={() => setStep(0)} onNext={() => setStep(2)} checked={checked} setChecked={setChecked} casus={casus} onEdit={handleEdit} />}
         {step === 2 && casus && <PreviewStep onBack={() => setStep(1)} controleOk={checked} casus={casus} />}
       </div>

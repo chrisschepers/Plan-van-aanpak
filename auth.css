@@ -1,0 +1,63 @@
+/* Inlogpagina + account-knop in de nav. Huisstijl (navy/groen) met var-fallbacks
+   zodat het ook werkt als de exacte CSS-variabelen anders heten. */
+
+.auth {
+  position: fixed; inset: 0; z-index: 120;
+  background: var(--bg, #fff);
+  display: flex; flex-direction: column;
+}
+.auth-bar { padding: 14px 20px; }
+.auth-body { flex: 1; display: grid; place-items: center; padding: 24px; }
+.auth-card {
+  width: 100%; max-width: 420px; text-align: center;
+  background: #fff;
+  border: 1px solid var(--line, #e3e7ee);
+  border-radius: 18px;
+  padding: 38px 32px;
+  box-shadow: 0 18px 50px rgba(31, 56, 100, .10);
+}
+.auth-mark {
+  display: inline-grid; place-items: center;
+  width: 54px; height: 54px; border-radius: 14px;
+  background: var(--navy-50, #f2f5fa); color: var(--navy, #1f3864);
+  margin-bottom: 16px;
+}
+.auth-mark svg { width: 26px; height: 26px; }
+.auth-card h1 { font-size: 26px; margin: 0 0 8px; color: var(--navy-900, #14264a); }
+.auth-sub { color: var(--muted, #69748b); font-size: 14.5px; line-height: 1.5; margin: 0 0 22px; }
+
+.auth-social {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 12px 16px; margin-top: 10px;
+  border: 1px solid var(--line, #e3e7ee); border-radius: 12px;
+  background: #fff; font-size: 15px; font-weight: 600; color: #18202f;
+  cursor: pointer; transition: background .15s, border-color .15s, box-shadow .15s;
+}
+.auth-social:hover:not(:disabled) { background: #f7f9fc; border-color: #cbd3e0; box-shadow: 0 2px 8px rgba(31,56,100,.06); }
+.auth-social:disabled { opacity: .5; cursor: not-allowed; }
+.auth-social svg { flex: none; }
+.auth-signout { margin-top: 16px; color: var(--muted, #69748b); }
+.auth-cta { width: 100%; justify-content: center; }
+
+.auth-fine { font-size: 12px; color: var(--muted, #69748b); margin: 22px 0 0; line-height: 1.5; }
+.auth-fine a { color: var(--navy, #1f3864); text-decoration: underline; }
+
+.auth-note {
+  display: flex; gap: 10px; text-align: left;
+  background: var(--navy-50, #f2f5fa);
+  border: 1px solid var(--navy-100, #dce3ef);
+  border-radius: 12px; padding: 12px 14px;
+  font-size: 13px; line-height: 1.5; color: var(--ink-soft, #3c465a);
+  margin-bottom: 18px;
+}
+.auth-note svg { flex: none; width: 18px; height: 18px; color: var(--navy, #1f3864); margin-top: 1px; }
+.auth-note code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+.auth-loggedin { font-size: 15px; margin: 0 0 16px; color: var(--ink, #18202f); }
+
+/* Account-indicator in de nav */
+.nav-account { display: inline-flex; align-items: center; gap: 10px; }
+.nav-account .who {
+  font-size: 13px; color: var(--muted, #69748b);
+  max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+@media (max-width: 720px) { .nav-account .who { display: none; } }

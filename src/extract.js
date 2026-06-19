@@ -11,19 +11,20 @@ function api(path) {
   return BACKEND_URL.replace(/\/$/, "") + path;
 }
 
-export async function extractCasus({ file, text, functieomschrijving }) {
+export async function extractCasus({ file, text, functieomschrijving, accessToken }) {
   if (!BACKEND_URL) throw new Error("Geen backend ingesteld.");
   const fo = (functieomschrijving || "").trim();
+  const authHeaders = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
   let resp;
   if (file) {
     const fd = new FormData();
     fd.append("document", file);
     if (fo) fd.append("functieomschrijving", fo);
-    resp = await fetch(api("/api/extract"), { method: "POST", body: fd });
+    resp = await fetch(api("/api/extract"), { method: "POST", body: fd, headers: authHeaders });
   } else {
     resp = await fetch(api("/api/extract"), {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", ...authHeaders },
       body: JSON.stringify({ text, functieomschrijving: fo }),
     });
   }

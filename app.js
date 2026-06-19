@@ -2466,8 +2466,9 @@
   };
 
   // src/landing.jsx
-  function Nav({ onOpenTool }) {
-    return /* @__PURE__ */ React.createElement("header", { className: "nav" }, /* @__PURE__ */ React.createElement("div", { className: "wrap nav-inner" }, /* @__PURE__ */ React.createElement("a", { className: "brand", href: "#top" }, /* @__PURE__ */ React.createElement("span", { className: "mark" }, I.doc), /* @__PURE__ */ React.createElement("span", null, "planvanaanpak", /* @__PURE__ */ React.createElement("span", { className: "tld" }, "invuller.nl"))), /* @__PURE__ */ React.createElement("nav", { className: "nav-links" }, /* @__PURE__ */ React.createElement("a", { href: "#hoe" }, "Hoe het werkt"), /* @__PURE__ */ React.createElement("a", { href: "#aanpak" }, "Aanpak"), /* @__PURE__ */ React.createElement("a", { href: "#privacy" }, "Privacy"), /* @__PURE__ */ React.createElement("a", { href: "#faq" }, "Veelgestelde vragen")), /* @__PURE__ */ React.createElement("div", { className: "nav-cta" }, /* @__PURE__ */ React.createElement("a", { className: "btn btn-quiet", href: "#demo" }, "Demo aanvragen"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", onClick: onOpenTool }, "Probeer de invuller"))));
+  function Nav({ onOpenTool, session, onOpenLogin, onLogout }) {
+    const email = session && session.user ? session.user.email : "";
+    return /* @__PURE__ */ React.createElement("header", { className: "nav" }, /* @__PURE__ */ React.createElement("div", { className: "wrap nav-inner" }, /* @__PURE__ */ React.createElement("a", { className: "brand", href: "#top" }, /* @__PURE__ */ React.createElement("span", { className: "mark" }, I.doc), /* @__PURE__ */ React.createElement("span", null, "planvanaanpak", /* @__PURE__ */ React.createElement("span", { className: "tld" }, "invuller.nl"))), /* @__PURE__ */ React.createElement("nav", { className: "nav-links" }, /* @__PURE__ */ React.createElement("a", { href: "#hoe" }, "Hoe het werkt"), /* @__PURE__ */ React.createElement("a", { href: "#aanpak" }, "Aanpak"), /* @__PURE__ */ React.createElement("a", { href: "#privacy" }, "Privacy"), /* @__PURE__ */ React.createElement("a", { href: "#faq" }, "Veelgestelde vragen")), /* @__PURE__ */ React.createElement("div", { className: "nav-cta" }, session ? /* @__PURE__ */ React.createElement("span", { className: "nav-account" }, /* @__PURE__ */ React.createElement("span", { className: "who", title: email }, email || "Ingelogd"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet", onClick: onLogout }, "Uitloggen")) : /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet", onClick: onOpenLogin }, "Inloggen"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", onClick: onOpenTool }, "Probeer de invuller"))));
   }
   function Hero({ onOpenTool }) {
     return /* @__PURE__ */ React.createElement("section", { className: "hero", id: "top" }, /* @__PURE__ */ React.createElement("div", { className: "wrap hero-grid" }, /* @__PURE__ */ React.createElement("div", { className: "reveal" }, /* @__PURE__ */ React.createElement("span", { className: "eyebrow" }, /* @__PURE__ */ React.createElement("span", { className: "dot" }), "Wet verbetering poortwachter"), /* @__PURE__ */ React.createElement("h1", null, "Het concept Plan van Aanpak, automatisch ingevuld."), /* @__PURE__ */ React.createElement("p", { className: "lead" }, "Upload de terugkoppeling van de bedrijfsarts. Je krijgt een ingevuld concept-PvA, een opbouwadvies en een begeleidend bericht terug \u2014 jij controleert en stelt vast. Geen overtypen meer."), /* @__PURE__ */ React.createElement("div", { className: "hero-cta" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", onClick: onOpenTool }, "Probeer de PvA-invuller ", I.arrowRight), /* @__PURE__ */ React.createElement("a", { className: "btn btn-ghost btn-lg", href: "#demo" }, "Demo aanvragen")), /* @__PURE__ */ React.createElement("div", { className: "hero-trust" }, /* @__PURE__ */ React.createElement("span", null, I.shield, " AVG / DPIA-proof"), /* @__PURE__ */ React.createElement("span", null, I.server, " EER-hosting"), /* @__PURE__ */ React.createElement("span", null, I.lock, " Geen training op klantdata"))), /* @__PURE__ */ React.createElement("div", { className: "hero-visual reveal" }, /* @__PURE__ */ React.createElement(HeroDiagram, null))));
@@ -2539,8 +2540,8 @@
     };
     return /* @__PURE__ */ React.createElement("footer", { className: "footer" }, /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "footer-grid" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("a", { className: "brand", href: "#top", style: { marginBottom: 14 } }, /* @__PURE__ */ React.createElement("span", { className: "mark" }, I.doc), /* @__PURE__ */ React.createElement("span", null, "planvanaanpak", /* @__PURE__ */ React.createElement("span", { className: "tld" }, "invuller.nl"))), /* @__PURE__ */ React.createElement("p", { style: { fontSize: 14.5, maxWidth: "34ch", color: "rgba(255,255,255,.6)" } }, "Concept Plannen van Aanpak invullen volgens de Wet verbetering poortwachter \u2014 privacy by design, mens in de loop.")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Product"), /* @__PURE__ */ React.createElement("a", { href: "#hoe" }, "Hoe het werkt"), /* @__PURE__ */ React.createElement("a", { href: "#aanpak" }, "Hybride aanpak"), /* @__PURE__ */ React.createElement("a", { href: "#demo" }, "Demo aanvragen")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Vertrouwen"), /* @__PURE__ */ React.createElement("a", { href: "#privacy" }, "Privacy & AVG"), /* @__PURE__ */ React.createElement("a", { href: "#privacyverklaring", onClick: openPrivacy }, "Privacyverklaring & AI"), /* @__PURE__ */ React.createElement("a", { href: "mailto:contact@planvanaanpakinvuller.nl?subject=Verwerkersovereenkomst" }, "Verwerkersovereenkomst"), /* @__PURE__ */ React.createElement("a", { href: "mailto:contact@planvanaanpakinvuller.nl?subject=DPIA%20opvragen" }, "DPIA opvragen")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Contact"), /* @__PURE__ */ React.createElement("a", { href: "mailto:contact@planvanaanpakinvuller.nl" }, "contact@planvanaanpakinvuller.nl"), /* @__PURE__ */ React.createElement("span", { style: { display: "block", padding: "5px 0", fontSize: 15 } }, "planvanaanpakinvuller.nl"), /* @__PURE__ */ React.createElement("span", { style: { display: "block", padding: "5px 0", fontSize: 15 } }, "KVK-nummer volgt"))), /* @__PURE__ */ React.createElement("div", { className: "footer-bot" }, /* @__PURE__ */ React.createElement("span", null, "\xA9 2026 planvanaanpakinvuller.nl \xB7 KVK-nummer volgt"), /* @__PURE__ */ React.createElement("span", null, "Verwerking binnen de EER \xB7 Geen training op klantdata"))));
   }
-  function Landing({ onOpenTool, onOpenPrivacy }) {
-    return /* @__PURE__ */ React.createElement("div", { className: "site" }, /* @__PURE__ */ React.createElement(Nav, { onOpenTool }), /* @__PURE__ */ React.createElement(Hero, { onOpenTool }), /* @__PURE__ */ React.createElement(HowItWorks, null), /* @__PURE__ */ React.createElement(USP, null), /* @__PURE__ */ React.createElement(Hybrid, null), /* @__PURE__ */ React.createElement(Compliance, { onOpenPrivacy }), /* @__PURE__ */ React.createElement(Faq, null), /* @__PURE__ */ React.createElement(CtaBand, { onOpenTool }), /* @__PURE__ */ React.createElement(Footer, { onOpenPrivacy }));
+  function Landing({ onOpenTool, onOpenPrivacy, session, onOpenLogin, onLogout }) {
+    return /* @__PURE__ */ React.createElement("div", { className: "site" }, /* @__PURE__ */ React.createElement(Nav, { onOpenTool, session, onOpenLogin, onLogout }), /* @__PURE__ */ React.createElement(Hero, { onOpenTool }), /* @__PURE__ */ React.createElement(HowItWorks, null), /* @__PURE__ */ React.createElement(USP, null), /* @__PURE__ */ React.createElement(Hybrid, null), /* @__PURE__ */ React.createElement(Compliance, { onOpenPrivacy }), /* @__PURE__ */ React.createElement(Faq, null), /* @__PURE__ */ React.createElement(CtaBand, { onOpenTool }), /* @__PURE__ */ React.createElement(Footer, { onOpenPrivacy }));
   }
 
   // src/engine.js
@@ -22564,19 +22565,20 @@
   function api(path) {
     return BACKEND_URL.replace(/\/$/, "") + path;
   }
-  async function extractCasus({ file, text, functieomschrijving }) {
+  async function extractCasus({ file, text, functieomschrijving, accessToken }) {
     if (!BACKEND_URL) throw new Error("Geen backend ingesteld.");
     const fo = (functieomschrijving || "").trim();
+    const authHeaders = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
     let resp;
     if (file) {
       const fd = new FormData();
       fd.append("document", file);
       if (fo) fd.append("functieomschrijving", fo);
-      resp = await fetch(api("/api/extract"), { method: "POST", body: fd });
+      resp = await fetch(api("/api/extract"), { method: "POST", body: fd, headers: authHeaders });
     } else {
       resp = await fetch(api("/api/extract"), {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", ...authHeaders },
         body: JSON.stringify({ text, functieomschrijving: fo })
       });
     }
@@ -22732,6 +22734,36 @@
     };
   }
 
+  // src/supa.js
+  var URL_ = typeof window !== "undefined" && window.__SUPABASE_URL__ || "";
+  var KEY_ = typeof window !== "undefined" && window.__SUPABASE_ANON_KEY__ || "";
+  var lib = typeof window !== "undefined" && window.supabase || null;
+  var supa = URL_ && KEY_ && lib ? lib.createClient(URL_, KEY_, {
+    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  }) : null;
+  function authConfigured() {
+    return !!supa;
+  }
+  async function currentSession() {
+    if (!supa) return null;
+    const { data } = await supa.auth.getSession();
+    return data.session || null;
+  }
+  function onAuthChange(cb) {
+    if (!supa) return () => {
+    };
+    const { data } = supa.auth.onAuthStateChange((_event, session) => cb(session || null));
+    return () => data.subscription.unsubscribe();
+  }
+  var REDIRECT = typeof window !== "undefined" ? window.location.origin + window.location.pathname : void 0;
+  function signIn(provider) {
+    if (!supa) return Promise.resolve();
+    return supa.auth.signInWithOAuth({ provider, options: { redirectTo: REDIRECT } });
+  }
+  async function signOut() {
+    if (supa) await supa.auth.signOut();
+  }
+
   // src/tool.jsx
   var TOOL_STEPS = ["Upload", "Controleren", "Downloaden"];
   function Stepper({ step }) {
@@ -22762,7 +22794,7 @@
       signalen: {}
     };
   }
-  function UploadStep({ onResult }) {
+  function UploadStep({ onResult, session, onNeedLogin }) {
     const [file, setFile] = React.useState(null);
     const [paste, setPaste] = React.useState(false);
     const [text, setText] = React.useState("");
@@ -22803,10 +22835,16 @@
         setError("Er is nog geen AI-backend gekoppeld. Gebruik voorlopig de voorbeeldcasus, of stel de backend-URL in (window.__PVA_BACKEND__).");
         return;
       }
+      if (authConfigured() && !session) {
+        if (onNeedLogin) onNeedLogin();
+        else setError("Log in om echte documenten te verwerken.");
+        return;
+      }
       setBusy(true);
       try {
         const fo = functie.trim();
-        const casus = await extractCasus(file ? { file: file.file, functieomschrijving: fo } : { text, functieomschrijving: fo });
+        const token = session && session.access_token;
+        const casus = await extractCasus(file ? { file: file.file, functieomschrijving: fo, accessToken: token } : { text, functieomschrijving: fo, accessToken: token });
         const iv = casus.inputvalidatie;
         if (iv && iv.geschikt === false) {
           setError(
@@ -22870,7 +22908,7 @@
     } }, "Plak de tekst"), " \xB7 ") : /* @__PURE__ */ React.createElement(React.Fragment, null, "Toch een bestand? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => {
       setPaste(false);
       setText("");
-    } }, "Kies een bestand"), " \xB7 "), "Geen casus bij de hand? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: pickExample }, "Gebruik de voorbeeldcasus (J. de Vries)")), !hasBackend() && /* @__PURE__ */ React.createElement("div", { className: "demo-note" }, I.info, /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "AI nog niet gekoppeld."), " Zonder backend werkt alleen de voorbeeldcasus. Zet je Railway-URL in ", /* @__PURE__ */ React.createElement("code", null, "window.__PVA_BACKEND__"), " om echte documenten te laten uitlezen. Gebruik uitsluitend fictieve terugkoppelingen.")), /* @__PURE__ */ React.createElement("div", { className: "func-omschrijving" }, /* @__PURE__ */ React.createElement("label", { htmlFor: "func-omschr" }, /* @__PURE__ */ React.createElement("strong", null, "Functieomschrijving van de werknemer"), " ", /* @__PURE__ */ React.createElement("span", { className: "optioneel" }, "(optioneel)")), /* @__PURE__ */ React.createElement("p", { className: "func-hint" }, "Plak de kerntaken. Dan stelt de tool in het begeleidend bericht passende aangepaste taken voor, binnen de afgegeven mogelijkheden \u2014 als gespreksopening met de werknemer."), /* @__PURE__ */ React.createElement(
+    } }, "Kies een bestand"), " \xB7 "), "Geen casus bij de hand? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: pickExample }, "Gebruik de voorbeeldcasus (J. de Vries)")), !hasBackend() && /* @__PURE__ */ React.createElement("div", { className: "demo-note" }, I.info, /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "AI nog niet gekoppeld."), " Zonder backend werkt alleen de voorbeeldcasus. Zet je Railway-URL in ", /* @__PURE__ */ React.createElement("code", null, "window.__PVA_BACKEND__"), " om echte documenten te laten uitlezen. Gebruik uitsluitend fictieve terugkoppelingen.")), hasBackend() && authConfigured() && !session && /* @__PURE__ */ React.createElement("div", { className: "demo-note" }, I.info, /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Inloggen vereist voor echte documenten."), " De voorbeeldcasus werkt zonder account. ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: onNeedLogin }, "Log in"), " om je eigen terugkoppeling te verwerken.")), /* @__PURE__ */ React.createElement("div", { className: "func-omschrijving" }, /* @__PURE__ */ React.createElement("label", { htmlFor: "func-omschr" }, /* @__PURE__ */ React.createElement("strong", null, "Functieomschrijving van de werknemer"), " ", /* @__PURE__ */ React.createElement("span", { className: "optioneel" }, "(optioneel)")), /* @__PURE__ */ React.createElement("p", { className: "func-hint" }, "Plak de kerntaken. Dan stelt de tool in het begeleidend bericht passende aangepaste taken voor, binnen de afgegeven mogelijkheden \u2014 als gespreksopening met de werknemer."), /* @__PURE__ */ React.createElement(
       "textarea",
       {
         id: "func-omschr",
@@ -22949,7 +22987,7 @@
     }
     return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 3 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Preview en download"), /* @__PURE__ */ React.createElement("p", null, "Bekijk de drie onderdelen. Stel het concept samen met de werknemer vast en download het als Word-document.")), /* @__PURE__ */ React.createElement("div", { className: "preview-tabs" }, tabs.map((tb, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: tab === i ? "active" : "", onClick: () => setTab(i) }, /* @__PURE__ */ React.createElement("span", { className: "tnum" }, i + 1), /* @__PURE__ */ React.createElement("span", { className: "txt" }, tb.t)))), tabs[tab].el, /* @__PURE__ */ React.createElement("div", { className: "download-bar" }, /* @__PURE__ */ React.createElement("div", { className: "dl-info" }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.download), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Twee aparte documenten"), /* @__PURE__ */ React.createElement("p", null, controleOk ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("span", { className: "review-confirm" }, I.checkSm, " Menselijke controle bevestigd in stap 2."), " Het Plan van aanpak hoort in het personeelsdossier; de adviezen niet \u2014 daarom apart.") : "Controle in stap 2 is vereist v\xF3\xF3r downloaden"))), /* @__PURE__ */ React.createElement("div", { className: "dl-buttons" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-accent btn-lg", disabled: !controleOk || busyKey, onClick: () => run("pva", () => downloadUwvPva(fields, schema, functieomschrijving, opbouwReden, signalen)) }, I.download, " ", busyKey === "pva" ? "Bezig\u2026" : "Plan van aanpak (UWV) \u2014 voor dossier"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !controleOk || busyKey, onClick: () => run("bericht", () => downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden)) }, I.download, " ", busyKey === "bericht" ? "Bezig\u2026" : "Begeleidend bericht & adviezen"))), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar controle"), /* @__PURE__ */ React.createElement("span", null)), downloaded && /* @__PURE__ */ React.createElement("div", { className: "toast", onClick: () => setDownloaded(null) }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.checkSm), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tt" }, downloaded, " gedownload"), /* @__PURE__ */ React.createElement("div", { className: "ts" }, "Concept \xB7 controleer en stel vast met de werknemer"))));
   }
-  function Tool({ onClose }) {
+  function Tool({ onClose, session, onNeedLogin }) {
     const [step, setStep] = React.useState(0);
     const [checked, setChecked] = React.useState(false);
     const [casus, setCasus] = React.useState(null);
@@ -22975,7 +23013,7 @@
     return /* @__PURE__ */ React.createElement("div", { className: "tool" }, /* @__PURE__ */ React.createElement("div", { className: "tool-bar" }, /* @__PURE__ */ React.createElement("div", { className: "tool-bar-inner" }, /* @__PURE__ */ React.createElement("button", { className: "tool-back", onClick: onClose }, I.arrowLeft, " Terug naar site"), /* @__PURE__ */ React.createElement(Stepper, { step }), /* @__PURE__ */ React.createElement("a", { className: "brand", href: "#", onClick: (e) => {
       e.preventDefault();
       onClose();
-    }, style: { fontSize: 15 } }, /* @__PURE__ */ React.createElement("span", { className: "mark", style: { width: 28, height: 28 } }, I.doc)))), /* @__PURE__ */ React.createElement("div", { className: "tool-body" }, step === 0 && /* @__PURE__ */ React.createElement(UploadStep, { onResult: handleResult }), step === 1 && casus && /* @__PURE__ */ React.createElement(VerifyStep, { onBack: () => setStep(0), onNext: () => setStep(2), checked, setChecked, casus, onEdit: handleEdit }), step === 2 && casus && /* @__PURE__ */ React.createElement(PreviewStep, { onBack: () => setStep(1), controleOk: checked, casus })));
+    }, style: { fontSize: 15 } }, /* @__PURE__ */ React.createElement("span", { className: "mark", style: { width: 28, height: 28 } }, I.doc)))), /* @__PURE__ */ React.createElement("div", { className: "tool-body" }, step === 0 && /* @__PURE__ */ React.createElement(UploadStep, { onResult: handleResult, session, onNeedLogin }), step === 1 && casus && /* @__PURE__ */ React.createElement(VerifyStep, { onBack: () => setStep(0), onNext: () => setStep(2), checked, setChecked, casus, onEdit: handleEdit }), step === 2 && casus && /* @__PURE__ */ React.createElement(PreviewStep, { onBack: () => setStep(1), controleOk: checked, casus })));
   }
 
   // src/privacy.jsx
@@ -23024,6 +23062,18 @@
     } }, /* @__PURE__ */ React.createElement("strong", null, "Let op \u2014 concept."), " Deze verklaring is een opzet voor de demo met fictieve gegevens. V\xF3\xF3r het verwerken van \xE9chte (persoons)gegevens horen een DPIA, getekende verwerkersovereenkomsten en een juridische toetsing plaats te vinden. Gebruik de tool tot die tijd uitsluitend met fictieve terugkoppelingen."))));
   }
 
+  // src/login.jsx
+  var GoogleIcon = /* @__PURE__ */ React.createElement("svg", { width: "18", height: "18", viewBox: "0 0 18 18", "aria-hidden": "true" }, /* @__PURE__ */ React.createElement("path", { fill: "#4285F4", d: "M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.88 2.68-6.62z" }), /* @__PURE__ */ React.createElement("path", { fill: "#34A853", d: "M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.81.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z" }), /* @__PURE__ */ React.createElement("path", { fill: "#FBBC05", d: "M3.97 10.72A5.41 5.41 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.05l3.01-2.33z" }), /* @__PURE__ */ React.createElement("path", { fill: "#EA4335", d: "M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z" }));
+  var AppleIcon = /* @__PURE__ */ React.createElement("svg", { width: "18", height: "18", viewBox: "0 0 24 24", "aria-hidden": "true", fill: "currentColor" }, /* @__PURE__ */ React.createElement("path", { d: "M16.37 12.78c.02 2.2 1.93 2.93 1.95 2.94-.02.05-.31 1.06-1.02 2.1-.61.9-1.25 1.79-2.26 1.81-.99.02-1.31-.59-2.44-.59-1.13 0-1.49.57-2.42.6-.97.04-1.71-.97-2.33-1.87-1.27-1.84-2.24-5.2-.94-7.47.65-1.13 1.8-1.84 3.06-1.86.96-.02 1.86.64 2.44.64.58 0 1.68-.79 2.83-.68.48.02 1.83.19 2.7 1.46-.07.04-1.61.94-1.6 2.81M14.6 5.1c.51-.62.86-1.49.77-2.35-.74.03-1.63.49-2.16 1.11-.47.55-.89 1.43-.78 2.27.82.07 1.66-.42 2.17-1.03" }));
+  function Login({ onClose, onOpenPrivacy, session }) {
+    const configured = authConfigured();
+    const email = session && session.user ? session.user.email : "";
+    return /* @__PURE__ */ React.createElement("div", { className: "auth" }, /* @__PURE__ */ React.createElement("div", { className: "auth-bar" }, /* @__PURE__ */ React.createElement("button", { className: "tool-back", onClick: onClose }, I.arrowLeft, " Terug naar site")), /* @__PURE__ */ React.createElement("div", { className: "auth-body" }, /* @__PURE__ */ React.createElement("div", { className: "auth-card" }, /* @__PURE__ */ React.createElement("span", { className: "auth-mark" }, I.doc), /* @__PURE__ */ React.createElement("h1", null, "Inloggen"), /* @__PURE__ */ React.createElement("p", { className: "auth-sub" }, "Log in bij planvanaanpakinvuller.nl om echte terugkoppelingen te verwerken. Je accountgegevens blijven binnen de EER."), !configured && /* @__PURE__ */ React.createElement("div", { className: "auth-note" }, I.info, /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("strong", null, "Inloggen is nog niet gekoppeld."), " Vul je Supabase Project URL en anon key in ", /* @__PURE__ */ React.createElement("code", null, "index.html"), " in (", /* @__PURE__ */ React.createElement("code", null, "window.__SUPABASE_URL__"), " / ", /* @__PURE__ */ React.createElement("code", null, "window.__SUPABASE_ANON_KEY__"), ").")), session ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("p", { className: "auth-loggedin" }, "Je bent ingelogd als ", /* @__PURE__ */ React.createElement("strong", null, email || "gebruiker"), "."), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg auth-cta", onClick: onClose }, "Naar de site ", I.arrowRight), /* @__PURE__ */ React.createElement("button", { className: "auth-social auth-signout", onClick: () => signOut() }, "Uitloggen")) : /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("button", { className: "auth-social", disabled: !configured, onClick: () => signIn("google") }, GoogleIcon, /* @__PURE__ */ React.createElement("span", null, "Inloggen met Google")), /* @__PURE__ */ React.createElement("button", { className: "auth-social", disabled: !configured, onClick: () => signIn("apple") }, AppleIcon, /* @__PURE__ */ React.createElement("span", null, "Inloggen met Apple"))), /* @__PURE__ */ React.createElement("p", { className: "auth-fine" }, "Door in te loggen ga je akkoord met de verwerking van je accountgegevens (e-mail, naam) zoals beschreven in de", " ", /* @__PURE__ */ React.createElement("a", { href: "#", onClick: (e) => {
+      e.preventDefault();
+      if (onOpenPrivacy) onOpenPrivacy();
+    } }, "privacyverklaring"), "."))));
+  }
+
   // src/app.jsx
   var { useState, useEffect } = React;
   function useReveal() {
@@ -23047,11 +23097,30 @@
   }
   function App() {
     const [view, setView] = useState("landing");
+    const [session, setSession] = useState(null);
     useReveal();
+    useEffect(() => {
+      currentSession().then(setSession);
+      return onAuthChange(setSession);
+    }, []);
     useEffect(() => {
       document.body.style.overflow = view === "landing" ? "" : "hidden";
     }, [view]);
-    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(Landing, { onOpenTool: () => setView("tool"), onOpenPrivacy: () => setView("privacy") }), view === "tool" && /* @__PURE__ */ React.createElement(Tool, { onClose: () => setView("landing") }), view === "privacy" && /* @__PURE__ */ React.createElement(PrivacyVerklaring, { onClose: () => setView("landing") }));
+    const logout = async () => {
+      await signOut();
+      setSession(null);
+      setView("landing");
+    };
+    return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(
+      Landing,
+      {
+        onOpenTool: () => setView("tool"),
+        onOpenPrivacy: () => setView("privacy"),
+        session,
+        onOpenLogin: () => setView("login"),
+        onLogout: logout
+      }
+    ), view === "tool" && /* @__PURE__ */ React.createElement(Tool, { onClose: () => setView("landing"), session, onNeedLogin: () => setView("login") }), view === "privacy" && /* @__PURE__ */ React.createElement(PrivacyVerklaring, { onClose: () => setView("landing") }), view === "login" && /* @__PURE__ */ React.createElement(Login, { onClose: () => setView("landing"), onOpenPrivacy: () => setView("privacy"), session }));
   }
   ReactDOM.createRoot(document.getElementById("root")).render(/* @__PURE__ */ React.createElement(App, null));
 })();
