@@ -198,6 +198,18 @@ function mapExtraction(d, functieomschrijving) {
     opbouwReden = "De uitgangspunten voor een opbouwschema (zoals de contracturen) ontbreken nog. Vul deze aan, dan berekent de tool het schema.";
   }
 
+  // Stap 0 — inputvalidatie. Ontbreekt het blok (oudere backend) → behandel als geschikt.
+  const iv = d.inputvalidatie || {};
+  const inputvalidatie = {
+    documenttype: (iv.documenttype || "").trim(),
+    geschikt: iv.geschikt !== false,
+    toelichting: (iv.toelichting || "").trim(),
+    meestRecenteSpreekuur: (iv.meestRecenteSpreekuur || "").trim(),
+    tegenstrijdigheden: Array.isArray(iv.tegenstrijdigheden)
+      ? iv.tegenstrijdigheden.filter((t) => t && String(t).trim())
+      : [],
+  };
+
   return {
     mode: "ai",
     fields,
@@ -209,5 +221,6 @@ function mapExtraction(d, functieomschrijving) {
     functieomschrijving: functieomschrijving || "",
     taaksuggestie: (d.taaksuggestie || "").trim(),
     signalen: d.signalen || {},
+    inputvalidatie,
   };
 }

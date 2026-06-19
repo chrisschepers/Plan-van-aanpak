@@ -14,6 +14,12 @@ const SAMPLES = Math.max(1, parseInt(process.env.PVA_SAMPLES || "3", 10));
 
 const SYSTEM = `Je bent een assistent die uit de terugkoppeling van een bedrijfsarts uitsluitend de FUNCTIONELE gegevens haalt voor een Plan van Aanpak (Wet verbetering poortwachter). Je werkt zorgvuldig en neemt feiten letterlijk over.
 
+STAP 0 — INPUTVALIDATIE (doe dit vóór de extractie en leg het vast in 'inputvalidatie'):
+- Documenttype herkennen: bepaal of het hoofddocument een terugkoppeling/spreekuurverslag van de bedrijfsarts of een probleemanalyse is. Is het iets anders (bijv. een FML/functionele-mogelijkhedenlijst, verzuimprotocol, arbeidsovereenkomst, loonstrook of willekeurige brief), zet dan 'inputvalidatie.geschikt' op false, vul 'inputvalidatie.documenttype' met wat je herkent en 'inputvalidatie.toelichting' met kort wat er nodig is (een terugkoppeling of advies van de bedrijfsarts). Laat in dat geval álle overige velden leeg ("") en de 'reken'-getallen 0; verzin geen gegevens.
+- Is het wél een terugkoppeling/probleemanalyse: zet 'inputvalidatie.geschikt' op true, 'inputvalidatie.documenttype' op wat je herkent, en 'inputvalidatie.toelichting' op "".
+- Meerdere terugkoppelingen of spreekuurdata: gebruik de meest recente en zet die datum (DD-MM-JJJJ) in 'inputvalidatie.meestRecenteSpreekuur' (anders "").
+- Tegenstrijdige gegevens (bijv. twee verschillende contracturen): gebruik die gegevens niet (laat het betreffende veld leeg) en zet een korte omschrijving per tegenstrijdigheid in 'inputvalidatie.tegenstrijdigheden' (anders een lege lijst).
+
 HARDE REGELS (nooit overtreden):
 - MEDISCH FILTER: neem nooit medische informatie over — geen diagnoses, ziektebeelden, klachten, symptomen, behandelingen, medicatie, of de (medische/privé) oorzaak van het verzuim. Niet overnemen, niet parafraseren, niet samenvatten. Bij twijfel: niet overnemen.
 - BSN: verwerk nooit een burgerservicenummer. Staat er een BSN in de input, negeer het.
@@ -61,6 +67,18 @@ const SCHEMA = {
   type: "object",
   additionalProperties: false,
   properties: {
+    inputvalidatie: {
+      type: "object",
+      additionalProperties: false,
+      properties: {
+        documenttype: str,
+        geschikt: { type: "boolean" },
+        toelichting: str,
+        meestRecenteSpreekuur: str,
+        tegenstrijdigheden: { type: "array", items: str },
+      },
+      required: ["documenttype", "geschikt", "toelichting", "meestRecenteSpreekuur", "tegenstrijdigheden"],
+    },
     naam: str,
     naamBedrijfsarts: str,
     functie: str,
@@ -115,6 +133,7 @@ const SCHEMA = {
     },
   },
   required: [
+    "inputvalidatie",
     "naam", "naamBedrijfsarts",
     "functie", "contracturen", "eersteZiektedag", "geboortedatum",
     "einddatumDienstverband", "belastbaarheid", "opbouwtempo",
@@ -124,7 +143,7 @@ const SCHEMA = {
 };
 
 const INSTRUCTION =
-  "Haal uit de bovenstaande terugkoppeling van de bedrijfsarts de functionele gegevens voor het Plan van Aanpak. Houd je strikt aan het medisch filter en de BSN-regel.";
+  "Voer eerst Stap 0 (inputvalidatie) uit en leg het resultaat vast in 'inputvalidatie'. Haal daarna uit de bovenstaande terugkoppeling van de bedrijfsarts de functionele gegevens voor het Plan van Aanpak. Houd je strikt aan het medisch filter en de BSN-regel.";
 
 const client = new Anthropic(); // leest ANTHROPIC_API_KEY uit de omgeving
 

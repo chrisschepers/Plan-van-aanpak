@@ -71,5 +71,23 @@ export function reconcile(samples) {
   reken.startDateISO = dates.length ? mode(dates) : "";
   base.reken = reken;
 
+  // Inputvalidatie (Stap 0): geschikt via meerderheidsstem (flip-gevoelige boolean);
+  // documenttype/toelichting via modus; meest recente spreekuur via modus van niet-lege;
+  // tegenstrijdigheden als unie over alle samples.
+  const ivs = ok.map((s) => s.inputvalidatie).filter(Boolean);
+  if (ivs.length) {
+    const geschiktTrue = ivs.filter((iv) => iv.geschikt !== false).length;
+    const tegen = [];
+    for (const iv of ivs) for (const t of (iv.tegenstrijdigheden || [])) if (t && !tegen.includes(t)) tegen.push(t);
+    const sprek = ivs.map((iv) => iv.meestRecenteSpreekuur || "").filter(Boolean);
+    base.inputvalidatie = {
+      documenttype: mode(ivs.map((iv) => iv.documenttype || "")),
+      geschikt: geschiktTrue > N / 2,
+      toelichting: mode(ivs.map((iv) => iv.toelichting || "")),
+      meestRecenteSpreekuur: sprek.length ? mode(sprek) : "",
+      tegenstrijdigheden: tegen,
+    };
+  }
+
   return base;
 }

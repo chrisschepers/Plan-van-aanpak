@@ -17,7 +17,7 @@ export function computeSchema({ contractHours, startHours, weeklyIncrease, start
   const d = new Date(startDate + "T00:00:00");
   for (let h = startHours; ; h += weeklyIncrease) {
     const hours = Math.min(h, contractHours);
-    rows.push({ date: fmtDate(d), hours, pct: Math.round((hours / contractHours) * 100) });
+    rows.push({ date: fmtDate(d), hours, pct: Math.ceil((hours / contractHours) * 100) }); // % afronden naar boven (v2 Stap 2 regel 4)
     if (hours >= contractHours) break;
     d.setDate(d.getDate() + 7);
   }
@@ -50,7 +50,7 @@ export function computeDefaultSchema({ contractHours, startDate }) {
   const d = new Date(startDate + "T00:00:00");
   for (let h = dagen; ; h += dagen) {
     const hours = Math.min(h, contractHours);
-    rows.push({ date: fmtDate(d), hours, pct: Math.round((hours / contractHours) * 100) });
+    rows.push({ date: fmtDate(d), hours, pct: Math.ceil((hours / contractHours) * 100) }); // % afronden naar boven (v2 Stap 2 regel 4)
     if (hours >= contractHours) break;
     d.setDate(d.getDate() + 14); // tweewekelijks
   }

@@ -90,6 +90,16 @@ function UploadStep({ onResult }) {
     try {
       const fo = functie.trim();
       const casus = await extractCasus(file ? { file: file.file, functieomschrijving: fo } : { text, functieomschrijving: fo });
+      const iv = casus.inputvalidatie;
+      if (iv && iv.geschikt === false) {
+        // Stap 0: geen geschikt documenttype → geen PvA genereren, blijf op stap 1.
+        setError(
+          "Dit lijkt geen terugkoppeling van de bedrijfsarts" +
+          (iv.documenttype ? ` (herkend als: ${iv.documenttype})` : "") +
+          ". " + (iv.toelichting || "Lever de terugkoppeling of het advies van de bedrijfsarts aan.")
+        );
+        return;
+      }
       onResult(casus);
     } catch (e) {
       setError("Verwerking mislukt: " + (e && e.message ? e.message : "onbekende fout"));
@@ -287,6 +297,14 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
   const contractHours = schema[schema.length - 1] ? schema[schema.length - 1].hours : 0;
   const geenOpbouw = !!casus.opbouwReden || schema.length === 0;
 
+  // Stap 0-signalen voor de controleur: meest recente terugkoppeling + tegenstrijdigheden.
+  const iv = casus.inputvalidatie;
+  const waarschuwingen = [];
+  if (iv) {
+    if (iv.meestRecenteSpreekuur) waarschuwingen.push(`Er zijn meerdere spreekuurdata aangetroffen; de tool gebruikt de meest recente (${iv.meestRecenteSpreekuur}). Vermeld dit in het begeleidend bericht.`);
+    (iv.tegenstrijdigheden || []).forEach((t) => waarschuwingen.push(`Tegenstrijdig gegeven — niet automatisch overgenomen, vul handmatig aan: ${t}`));
+  }
+
   return (
     <div>
       <div className="step-kicker">Stap 2 van 3</div>
@@ -299,6 +317,18 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
         {I.hand}
         <span><strong>Menselijke controle is verplicht.</strong> Niets wordt vastgesteld of gedownload zonder dat jij het hebt nagelopen en bevestigd.</span>
       </div>
+
+      {waarschuwingen.length > 0 && (
+        <div className="demo-note" style={{ marginBottom: 16 }}>
+          {I.info}
+          <div>
+            <strong>Let op bij de controle</strong>
+            <ul style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+              {waarschuwingen.map((w, i) => <li key={i}>{w}</li>)}
+            </ul>
+          </div>
+        </div>
+      )}
 
       <div className="verify-grid">
         <FieldsPanel fields={fields} selected={selected} onSelect={select} onEdit={onEdit} />

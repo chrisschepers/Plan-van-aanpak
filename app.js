@@ -2554,7 +2554,7 @@
     const d = /* @__PURE__ */ new Date(startDate + "T00:00:00");
     for (let h = startHours; ; h += weeklyIncrease) {
       const hours = Math.min(h, contractHours);
-      rows.push({ date: fmtDate(d), hours, pct: Math.round(hours / contractHours * 100) });
+      rows.push({ date: fmtDate(d), hours, pct: Math.ceil(hours / contractHours * 100) });
       if (hours >= contractHours) break;
       d.setDate(d.getDate() + 7);
     }
@@ -2576,7 +2576,7 @@
     const d = /* @__PURE__ */ new Date(startDate + "T00:00:00");
     for (let h = dagen; ; h += dagen) {
       const hours = Math.min(h, contractHours);
-      rows.push({ date: fmtDate(d), hours, pct: Math.round(hours / contractHours * 100) });
+      rows.push({ date: fmtDate(d), hours, pct: Math.ceil(hours / contractHours * 100) });
       if (hours >= contractHours) break;
       d.setDate(d.getDate() + 14);
     }
@@ -22643,6 +22643,14 @@
     } else {
       opbouwReden = "De uitgangspunten voor een opbouwschema (zoals de contracturen) ontbreken nog. Vul deze aan, dan berekent de tool het schema.";
     }
+    const iv = d.inputvalidatie || {};
+    const inputvalidatie = {
+      documenttype: (iv.documenttype || "").trim(),
+      geschikt: iv.geschikt !== false,
+      toelichting: (iv.toelichting || "").trim(),
+      meestRecenteSpreekuur: (iv.meestRecenteSpreekuur || "").trim(),
+      tegenstrijdigheden: Array.isArray(iv.tegenstrijdigheden) ? iv.tegenstrijdigheden.filter((t) => t && String(t).trim()) : []
+    };
     return {
       mode: "ai",
       fields,
@@ -22653,7 +22661,8 @@
       sources,
       functieomschrijving: functieomschrijving || "",
       taaksuggestie: (d.taaksuggestie || "").trim(),
-      signalen: d.signalen || {}
+      signalen: d.signalen || {},
+      inputvalidatie
     };
   }
 
@@ -22732,6 +22741,13 @@
       try {
         const fo = functie.trim();
         const casus = await extractCasus(file ? { file: file.file, functieomschrijving: fo } : { text, functieomschrijving: fo });
+        const iv = casus.inputvalidatie;
+        if (iv && iv.geschikt === false) {
+          setError(
+            "Dit lijkt geen terugkoppeling van de bedrijfsarts" + (iv.documenttype ? ` (herkend als: ${iv.documenttype})` : "") + ". " + (iv.toelichting || "Lever de terugkoppeling of het advies van de bedrijfsarts aan.")
+          );
+          return;
+        }
         onResult(casus);
       } catch (e) {
         setError("Verwerking mislukt: " + (e && e.message ? e.message : "onbekende fout"));
@@ -22834,7 +22850,13 @@
     const activeSrc = selected ? selected.src : null;
     const contractHours = schema[schema.length - 1] ? schema[schema.length - 1].hours : 0;
     const geenOpbouw = !!casus.opbouwReden || schema.length === 0;
-    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 2 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Controleer de ge\xEBxtraheerde gegevens"), /* @__PURE__ */ React.createElement("p", null, "Links de ingevulde velden, rechts de bron. Klik een veld om de bijbehorende passage te zien. Corrigeer waar nodig en vul ontbrekende velden aan.")), /* @__PURE__ */ React.createElement("div", { className: "gate-banner" }, I.hand, /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("strong", null, "Menselijke controle is verplicht."), " Niets wordt vastgesteld of gedownload zonder dat jij het hebt nagelopen en bevestigd.")), /* @__PURE__ */ React.createElement("div", { className: "verify-grid" }, /* @__PURE__ */ React.createElement(FieldsPanel, { fields, selected, onSelect: select, onEdit }), mode === "demo" ? /* @__PURE__ */ React.createElement(SourceDoc, { active: activeSrc, onSel: (id) => {
+    const iv = casus.inputvalidatie;
+    const waarschuwingen = [];
+    if (iv) {
+      if (iv.meestRecenteSpreekuur) waarschuwingen.push(`Er zijn meerdere spreekuurdata aangetroffen; de tool gebruikt de meest recente (${iv.meestRecenteSpreekuur}). Vermeld dit in het begeleidend bericht.`);
+      (iv.tegenstrijdigheden || []).forEach((t) => waarschuwingen.push(`Tegenstrijdig gegeven \u2014 niet automatisch overgenomen, vul handmatig aan: ${t}`));
+    }
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 2 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Controleer de ge\xEBxtraheerde gegevens"), /* @__PURE__ */ React.createElement("p", null, "Links de ingevulde velden, rechts de bron. Klik een veld om de bijbehorende passage te zien. Corrigeer waar nodig en vul ontbrekende velden aan.")), /* @__PURE__ */ React.createElement("div", { className: "gate-banner" }, I.hand, /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("strong", null, "Menselijke controle is verplicht."), " Niets wordt vastgesteld of gedownload zonder dat jij het hebt nagelopen en bevestigd.")), waarschuwingen.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "demo-note", style: { marginBottom: 16 } }, I.info, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, "Let op bij de controle"), /* @__PURE__ */ React.createElement("ul", { style: { margin: "6px 0 0", paddingLeft: 18 } }, waarschuwingen.map((w, i) => /* @__PURE__ */ React.createElement("li", { key: i }, w))))), /* @__PURE__ */ React.createElement("div", { className: "verify-grid" }, /* @__PURE__ */ React.createElement(FieldsPanel, { fields, selected, onSelect: select, onEdit }), mode === "demo" ? /* @__PURE__ */ React.createElement(SourceDoc, { active: activeSrc, onSel: (id) => {
       const f = allItems.find((it) => it.src === id);
       if (f) setSelectedId(f.id);
     } }) : /* @__PURE__ */ React.createElement(AiSourcePanel, { selected, sources })), geenOpbouw ? /* @__PURE__ */ React.createElement("div", { className: "panel", style: { marginTop: 22 } }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Opbouwschema"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Geen oplopend schema in deze situatie"))), /* @__PURE__ */ React.createElement("p", { style: { padding: "4px 2px", color: "var(--ink-soft)" } }, casus.opbouwReden || "Een opbouwschema is op dit moment niet aan de orde.")) : /* @__PURE__ */ React.createElement(SchemaTable, { schema, contractHours }), /* @__PURE__ */ React.createElement(TermijnenTabel, { fields }), /* @__PURE__ */ React.createElement("div", { className: "verify-foot" }, /* @__PURE__ */ React.createElement("label", { className: "control-check" + (checked ? " on" : ""), onClick: () => setChecked(!checked) }, /* @__PURE__ */ React.createElement("span", { className: "box" }, I.checkSm), /* @__PURE__ */ React.createElement("span", { className: "ct" }, /* @__PURE__ */ React.createElement("strong", null, "Ik heb de gegevens gecontroleerd"), "Ik bevestig dat ik de ge\xEBxtraheerde gegevens heb nagelopen en corrigeer ontbrekende velden v\xF3\xF3r vaststelling.")), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !checked, onClick: onNext }, "Naar preview ", I.arrowRight)), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar upload"), /* @__PURE__ */ React.createElement("span", null)));
