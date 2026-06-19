@@ -298,6 +298,9 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
           new TextRun({ text: "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.", italics: true, size: 22, font: FONT }),
         ] })] : []),
         p("Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."),
+        new Paragraph({ spacing: { after: 120 }, children: [new TextRun({
+          text: "Dit document is een concept, opgesteld op basis van de terugkoppeling van de bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je werknemer vast — het is een document van jullie beiden.",
+          italics: true, color: GREY, size: 22, font: FONT })] }),
         new Paragraph({ spacing: { before: 200, after: 700 },
           children: [new TextRun({ text: "Met vriendelijke groet,", color: "3C465A", size: 22, font: FONT })] }),
         new Paragraph({ spacing: { after: 20 }, children: [invullen("[INVULLEN: naam afzender]", { size: 22 })] }),

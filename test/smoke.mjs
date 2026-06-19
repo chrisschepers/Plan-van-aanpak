@@ -125,6 +125,7 @@ check("geen einddatum-ontbreekt-advies (vast contract aangenomen)", !byText(".do
 check("geen letterlijke [INVULLEN] in bericht", !byText(".doc-sheet", "[INVULLEN]"));
 check("bericht bevat taaksuggestie (aangepaste taken)", !!byText(".doc-sheet", "aangepaste taken"));
 check("bericht bevat disclaimer (niet eenzijdig in dossier)", !!byText(".doc-sheet", "niet eenzijdig in het dossier"));
+check("bericht bevat vaste slotzin (document van jullie beiden)", !!byText(".doc-sheet", "document van jullie beiden"));
 // Eén gecombineerde downloadknop, actief na controle (download zelf: zie merge.mjs)
 const dlPva = byText(".dl-buttons button", "Plan van aanpak");
 const dlBericht = byText(".dl-buttons button", "Begeleidend bericht");

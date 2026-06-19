@@ -2612,12 +2612,18 @@
     if (m < 0 || m === 0 && to.getDate() < from.getDate()) y--;
     return y;
   }
-  var AOW_LEEFTIJD = 67;
+  var AOW_JAREN = 67;
+  var AOW_MAANDEN = 3;
+  function aowDatum(gebd) {
+    const d = addYears(gebd, AOW_JAREN);
+    d.setMonth(d.getMonth() + AOW_MAANDEN);
+    return d;
+  }
   function computeDerived(fields) {
     const eersteZ = parseNL(getVal(fields, "eersteZ"));
     const gebd = parseNL(getVal(fields, "geboortedatum"));
     return {
-      aow: gebd ? fmtNL(addYears(gebd, AOW_LEEFTIJD)) : "",
+      aow: gebd ? fmtNL(aowDatum(gebd)) : "",
       eindeWacht: eersteZ ? fmtNL(addWeeks(eersteZ, 104)) : ""
     };
   }
@@ -2654,11 +2660,9 @@
       title: "Geen benutbare mogelijkheden (GBM)",
       body: "De bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn. Forceer dan geen re-integratieactiviteiten: de bedrijfsarts houdt de vinger aan de pols \u2014 plan vervolgconsulten en leg elke terugkoppeling vast in het verzuimdossier. Duurt deze situatie de volle twee jaar, dan volstaat een beperkt re-integratieverslag (Werkwijzer 5.9, 3.1)."
     },
-    duurzaamGeenMogelijkheden: {
-      level: "risk",
-      title: "Duurzaam geen mogelijkheden \u2014 overweeg vervroegde IVA",
-      body: "De bedrijfsarts geeft aan dat er duurzaam geen benutbare mogelijkheden zijn en er geen herstelverwachting is. Overweeg dan een vervroegde IVA-aanvraag; die kan tot week 68 van het verzuim worden ingediend."
-    },
+    // (Geen 'duurzaam geen mogelijkheden'-advies: een vervroegde IVA-aanvraag wordt
+    //  bewust NIET geautomatiseerd geadviseerd — dat ethische oordeel hoort bij mens/
+    //  bedrijfsarts. Het signaal blijft bestaan en stuurt 'geen benutbare mogelijkheden'.)
     marginaleMogelijkheden: {
       level: "attention",
       title: "Marginale mogelijkheden",
@@ -2735,7 +2739,7 @@
     }
     if (gebd && eindeWacht) {
       const leeftijdEW = yearsBetween(gebd, eindeWacht);
-      const aow = addYears(gebd, AOW_LEEFTIJD);
+      const aow = aowDatum(gebd);
       if (aow <= addYears(eindeWacht, 1)) {
         advies.push({
           level: "attention",
@@ -2765,7 +2769,7 @@
         const herstel3mnd = !!(signalen && signalen.herstelVerwachtBinnen3Maanden);
         let riv;
         if (ziekteWeken < 6) riv = "Geen re-integratieverslag nodig; doe alleen een ziek-uit-dienstmelding bij UWV, uiterlijk op de laatste werkdag.";
-        else if (ziekteWeken <= 10) riv = "Verkort re-integratieverslag, uiterlijk op de laatste dag van het dienstverband.";
+        else if (ziekteWeken < 10) riv = "Verkort re-integratieverslag, uiterlijk op de laatste dag van het dienstverband.";
         else if (herstel3mnd) riv = "Verkort re-integratieverslag volstaat (de bedrijfsarts verwacht volledig herstel binnen 3 maanden), uiterlijk op de laatste dag van het dienstverband.";
         else riv = "Volledig re-integratieverslag (probleemanalyse, PvA + bijstellingen, evaluaties, actueel oordeel), uiterlijk op de laatste dag.";
         advies.push({
@@ -3030,7 +3034,7 @@
     const kern = berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden);
     const alineas = adviceParagraphs(fields, reportDate, signalen);
     const taak = (taaksuggestie || "").trim();
-    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), kern.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: "k" + i }, t)), alineas.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: i }, linkify(t))), taak && /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Suggestie voor aangepaste taken."), " Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ", taak, ".", " ", /* @__PURE__ */ React.createElement("em", null, "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.")), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 } }, "[INVULLEN: naam afzender]"), /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontSize: 13 } }, "[INVULLEN: functie, bv. casemanager verzuim]"))));
+    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), kern.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: "k" + i }, t)), alineas.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: i }, linkify(t))), taak && /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Suggestie voor aangepaste taken."), " Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ", taak, ".", " ", /* @__PURE__ */ React.createElement("em", null, "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.")), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Dit document is een concept, opgesteld op basis van de terugkoppeling van de bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je werknemer vast \u2014 het is een document van jullie beiden."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 } }, "[INVULLEN: naam afzender]"), /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontSize: 13 } }, "[INVULLEN: functie, bv. casemanager verzuim]"))));
   }
 
   // node_modules/docx/dist/index.mjs
@@ -22468,6 +22472,13 @@
             new TextRun({ text: "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.", italics: true, size: 22, font: FONT })
           ] })] : [],
           p("Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."),
+          new Paragraph({ spacing: { after: 120 }, children: [new TextRun({
+            text: "Dit document is een concept, opgesteld op basis van de terugkoppeling van de bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je werknemer vast \u2014 het is een document van jullie beiden.",
+            italics: true,
+            color: GREY,
+            size: 22,
+            font: FONT
+          })] }),
           new Paragraph({
             spacing: { before: 200, after: 700 },
             children: [new TextRun({ text: "Met vriendelijke groet,", color: "3C465A", size: 22, font: FONT })]

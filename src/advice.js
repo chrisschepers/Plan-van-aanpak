@@ -26,14 +26,16 @@ function yearsBetween(from, to) {
   return y;
 }
 
-const AOW_LEEFTIJD = 67; // indicatief; exacte AOW-leeftijd opvragen bij SVB
+const AOW_JAREN = 67;
+const AOW_MAANDEN = 3; // indicatief (67 jaar + 3 maanden); exacte AOW-leeftijd opvragen bij SVB
+function aowDatum(gebd) { const d = addYears(gebd, AOW_JAREN); d.setMonth(d.getMonth() + AOW_MAANDEN); return d; }
 
 /** Automatisch berekende waarden uit de gegevens (alleen-lezen weergave). */
 export function computeDerived(fields) {
   const eersteZ = parseNL(getVal(fields, "eersteZ"));
   const gebd = parseNL(getVal(fields, "geboortedatum"));
   return {
-    aow: gebd ? fmtNL(addYears(gebd, AOW_LEEFTIJD)) : "",
+    aow: gebd ? fmtNL(aowDatum(gebd)) : "",
     eindeWacht: eersteZ ? fmtNL(addWeeks(eersteZ, 104)) : "",
   };
 }
@@ -77,8 +79,9 @@ export function poortwachterTermijnen(fields) {
 export const SIGNAAL_ADVIES = {
   geenBenutbareMogelijkheden: { level: "risk", title: "Geen benutbare mogelijkheden (GBM)",
     body: "De bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn. Forceer dan geen re-integratieactiviteiten: de bedrijfsarts houdt de vinger aan de pols — plan vervolgconsulten en leg elke terugkoppeling vast in het verzuimdossier. Duurt deze situatie de volle twee jaar, dan volstaat een beperkt re-integratieverslag (Werkwijzer 5.9, 3.1)." },
-  duurzaamGeenMogelijkheden: { level: "risk", title: "Duurzaam geen mogelijkheden — overweeg vervroegde IVA",
-    body: "De bedrijfsarts geeft aan dat er duurzaam geen benutbare mogelijkheden zijn en er geen herstelverwachting is. Overweeg dan een vervroegde IVA-aanvraag; die kan tot week 68 van het verzuim worden ingediend." },
+  // (Geen 'duurzaam geen mogelijkheden'-advies: een vervroegde IVA-aanvraag wordt
+  //  bewust NIET geautomatiseerd geadviseerd — dat ethische oordeel hoort bij mens/
+  //  bedrijfsarts. Het signaal blijft bestaan en stuurt 'geen benutbare mogelijkheden'.)
   marginaleMogelijkheden: { level: "attention", title: "Marginale mogelijkheden",
     body: "De belastbaarheid is op dit moment zeer beperkt (marginale mogelijkheden). Lever extra inspanning om juist die geringe mogelijkheden bij de eigen werkgever te benutten — in taken, uren en begeleiding; het tweede spoor is hier niet snel aan de orde (Werkwijzer 5.8)." },
   arbeidstherapeutisch: { level: "attention", title: "Arbeidstherapeutisch werken — begrenzen",
@@ -150,7 +153,7 @@ export function computeAdvice(fields, reportDate, signalen = {}) {
   // ---- Leeftijdsregels (geboortedatum) ----
   if (gebd && eindeWacht) {
     const leeftijdEW = yearsBetween(gebd, eindeWacht);
-    const aow = addYears(gebd, AOW_LEEFTIJD);
+    const aow = aowDatum(gebd);
     if (aow <= addYears(eindeWacht, 1)) {
       advies.push({
         level: "attention",
@@ -182,7 +185,7 @@ export function computeAdvice(fields, reportDate, signalen = {}) {
       const herstel3mnd = !!(signalen && signalen.herstelVerwachtBinnen3Maanden);
       let riv;
       if (ziekteWeken < 6) riv = "Geen re-integratieverslag nodig; doe alleen een ziek-uit-dienstmelding bij UWV, uiterlijk op de laatste werkdag.";
-      else if (ziekteWeken <= 10) riv = "Verkort re-integratieverslag, uiterlijk op de laatste dag van het dienstverband.";
+      else if (ziekteWeken < 10) riv = "Verkort re-integratieverslag, uiterlijk op de laatste dag van het dienstverband.";
       else if (herstel3mnd) riv = "Verkort re-integratieverslag volstaat (de bedrijfsarts verwacht volledig herstel binnen 3 maanden), uiterlijk op de laatste dag van het dienstverband.";
       else riv = "Volledig re-integratieverslag (probleemanalyse, PvA + bijstellingen, evaluaties, actueel oordeel), uiterlijk op de laatste dag.";
       advies.push({

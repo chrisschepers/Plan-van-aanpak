@@ -239,6 +239,11 @@ export function BerichtPreview({ fields, schema, reportDate, taaksuggestie, sign
           onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van
           de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen.
         </p>
+        <p style={{ fontStyle: "italic", color: "var(--muted)" }}>
+          Dit document is een concept, opgesteld op basis van de terugkoppeling van de
+          bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je
+          werknemer vast — het is een document van jullie beiden.
+        </p>
         <p className="sign">
           Met vriendelijke groet,<br/>
           <span style={{ color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 }}>[INVULLEN: naam afzender]</span><br/>

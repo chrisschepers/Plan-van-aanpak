@@ -114,7 +114,7 @@ H("4. LEEFTIJDSREGELS (op basis van geboortedatum — automatisch)");
 const leeftijdCase = setField(BASE, "geboortedatum", "01-01-1961");
 for (const a of extra(leeftijdCase, BASE, REPORT)) L.push(adviesBlok(a), "");
 L.push(
-  " NB: de AOW-datum wordt indicatief berekend als geboortedatum + 67 jaar en is",
+  " NB: de AOW-datum wordt indicatief berekend als geboortedatum + 67 jaar en 3 maanden en is",
   " ook zichtbaar onder 'Berekend (automatisch)' op het controlescherm.",
 );
 
@@ -123,8 +123,8 @@ H("5. ZIEK UIT DIENST (tijdelijk contract eindigt tijdens ziekte)");
 L.push(" De variant hangt af van de ziekteduur op de einddatum van het dienstverband:", "");
 const zudScenarios = [
   { kop: "5a. Korter dan 6 weken ziek op de einddatum", eind: "10-03-2025", sig: {} },
-  { kop: "5b. 6 t/m 10 weken ziek op de einddatum", eind: "14-04-2025", sig: {} },
-  { kop: "5c. Langer dan 10 weken ziek op de einddatum", eind: "30-06-2025", sig: {} },
+  { kop: "5b. 6 t/m 9 weken ziek op de einddatum", eind: "31-03-2025", sig: {} },
+  { kop: "5c. 10 weken of langer ziek op de einddatum", eind: "30-06-2025", sig: {} },
   { kop: "5d. Langer dan 10 weken, maar volledig herstel binnen 3 maanden verwacht (signaal)", eind: "30-06-2025", sig: { herstelVerwachtBinnen3Maanden: true } },
 ];
 for (const sc of zudScenarios) {
@@ -149,7 +149,6 @@ L.push(
 );
 const TRIGGERS = {
   geenBenutbareMogelijkheden: "De bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn.",
-  duurzaamGeenMogelijkheden: "Duurzaam geen mogelijkheden én geen herstelverwachting.",
   marginaleMogelijkheden: "Marginale belastbaarheid: maximaal circa 2 uur per dag inzetbaar én zonder uitzicht op opbouw. Bij een opbouwperspectief (tempo genoemd of volgt op het vervolgconsult) gaat dit signaal niet aan.",
   arbeidstherapeutisch: "Werken op arbeidstherapeutische basis (zonder loonwaarde) wordt genoemd.",
   stagnatie: "De opbouw loopt achter op schema, de hervatting is instabiel, of er is uitval/terugval.",
@@ -201,19 +200,14 @@ L.push(
 // 9. Open punten voor de domeinexpert ----------------------------------------
 H("9. OPEN PUNTEN — GRAAG JOUW OORDEEL (domein, geen techniek)");
 L.push(
-  " a) Grens 'precies 10 weken' bij ziek-uit-dienst: het kennisdocument zegt",
-  "    zowel '6 t/m 10 weken → verkort' als '≥ 10 weken → volledig'. De tool",
-  "    kiest nu bij precies 10 weken: VERKORT. Akkoord, of moet dit volledig zijn?",
+  " Beslist 19-06:",
+  " - Ziek-uit-dienst bij precies 10 weken ziek -> VOLLEDIG re-integratieverslag.",
+  " - AOW-leeftijd indicatief op 67 jaar en 3 maanden (met SVB-disclaimer).",
+  " - Vervroegde-IVA-advies bewust verwijderd (ethisch oordeel hoort bij mens/arts).",
   "",
-  " b) AOW-leeftijd staat vast op 67 jaar (indicatief, met SVB-disclaimer in de",
-  "    tekst). Goed genoeg, of wil je de exacte AOW-staffel per geboortejaar?",
-  "",
-  " c) Het IVA-advies (6.2) noemt 'kan tot week 68'. Moet de tool dit advies",
-  "    verbergen als de casus al voorbij week 68 is, of altijd tonen?",
-  "",
-  " d) UWV-formulier sectie 7B/7C/7D (werkplek, werktijden, verhoudingen) wordt",
-  "    nog niet automatisch gevuld bij triggers in de terugkoppeling; die",
-  "    categorieën blijven [INVULLEN]. Wil je dat ik dit als volgende stap bouw?",
+  " Eerstvolgende bouwstap:",
+  " - UWV-formulier sectie 7B/7C/7D (werkplek, werktijden, verhoudingen) automatisch",
+  "   vullen bij triggers in de terugkoppeling (blijft nu nog [INVULLEN]).",
   "",
 );
 
