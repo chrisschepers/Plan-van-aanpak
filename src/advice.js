@@ -151,7 +151,11 @@ export function computeAdvice(fields, reportDate, signalen = {}) {
   }
 
   // ---- Leeftijdsregels (geboortedatum) ----
-  if (gebd && eindeWacht) {
+  // Eindigt een tijdelijk contract vóór de WIA-poort (ziek uit dienst), dan is de
+  // werknemer geen 2 jaar ziek bij deze werkgever en zijn de WIA-poort-/spoor 2-
+  // leeftijdsregels niet aan de orde — die slaan we dan over.
+  const zudActief = !!(einddienst && eindeWacht && einddienst < eindeWacht);
+  if (gebd && eindeWacht && !zudActief) {
     const leeftijdEW = yearsBetween(gebd, eindeWacht);
     const aow = aowDatum(gebd);
     if (aow <= addYears(eindeWacht, 1)) {
@@ -170,7 +174,7 @@ export function computeAdvice(fields, reportDate, signalen = {}) {
         body: `De werknemer is bij het einde van de wachttijd (${fmtNL(eindeWacht)}) ${leeftijdEW} jaar. Meld bij het WIA-venster (week 87–93): er bestaat een vereenvoudigde WIA-beoordeling voor 60-plussers, zonder verzekeringsarts; beide partijen moeten ermee instemmen. (Geldig voor einde wachttijd t/m 01-09-2027.)`,
       });
     }
-  } else if (!gebd) {
+  } else if (!gebd && !zudActief) {
     advies.push({
       level: "flag",
       title: "Geboortedatum ontbreekt",
@@ -190,8 +194,8 @@ export function computeAdvice(fields, reportDate, signalen = {}) {
       else riv = "Volledig re-integratieverslag (probleemanalyse, PvA + bijstellingen, evaluaties, actueel oordeel), uiterlijk op de laatste dag.";
       advies.push({
         level: "risk",
-        title: "Ziek uit dienst — tijdelijk contract eindigt tijdens ziekte (Werkwijzer 5.5–5.7)",
-        body: `Het dienstverband eindigt op ${fmtNL(einddienst)}; ziekteduur op die datum is ± ${ziekteWeken} weken. ${riv} Geef het ziek-uit-dienstgaan door aan UWV (Ziektewet) en geef de werknemer een kopie van het verslag. Lever dezelfde re-integratie-inspanningen tot de laatste dag; wordt herstel vóór de einddatum niet verwacht, richt je dan vooral op spoor 2 en overweeg een participatieverzoek bij UWV. (Uitzondering: eigenrisicodrager Ziektewet — afwijkende afspraken.)`,
+        title: "Ziek uit dienst — tijdelijk contract dat tijdens ziekte afloopt (Werkwijzer 5.5–5.7)",
+        body: `Het tijdelijke contract eindigt op ${fmtNL(einddienst)} (ziekteduur op die datum ± ${ziekteWeken} weken). Ga er niet automatisch van uit dat het contract niet wordt verlengd. Laat je het tijdelijke contract van rechtswege aflopen (dus niet verlengen), dan geldt het volgende: ${riv} Ben je voornemens niet te verlengen, meld de werknemer dan uiterlijk op de laatste dag van het dienstverband ziek uit dienst bij UWV (Ziektewet) en geef hem een kopie van het verslag. Lever tot de laatste dag dezelfde re-integratie-inspanningen; wordt herstel vóór de einddatum niet verwacht, richt je dan vooral op spoor 2 en overweeg een participatieverzoek bij UWV.`,
       });
     } else {
       advies.push({

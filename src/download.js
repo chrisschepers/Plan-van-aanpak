@@ -301,6 +301,9 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
         new Paragraph({ spacing: { after: 120 }, children: [new TextRun({
           text: "Dit document is een concept, opgesteld op basis van de terugkoppeling van de bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je werknemer vast — het is een document van jullie beiden.",
           italics: true, color: GREY, size: 22, font: FONT })] }),
+        new Paragraph({ spacing: { after: 120 }, children: [new TextRun({
+          text: "Ben je eigenrisicodrager voor de Ziektewet of de WGA? Dan gelden aanvullende of afwijkende regels en kun je niet afgaan op dit automatisch gegenereerde advies — raadpleeg dan je eigen verzuim- of arbospecialist.",
+          italics: true, color: GREY, size: 22, font: FONT })] }),
         new Paragraph({ spacing: { before: 200, after: 700 },
           children: [new TextRun({ text: "Met vriendelijke groet,", color: "3C465A", size: 22, font: FONT })] }),
         new Paragraph({ spacing: { after: 20 }, children: [invullen("[INVULLEN: naam afzender]", { size: 22 })] }),

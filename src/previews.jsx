@@ -261,6 +261,11 @@ export function BerichtPreview({ fields, schema, reportDate, taaksuggestie, sign
           bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je
           werknemer vast — het is een document van jullie beiden.
         </p>
+        <p style={{ fontStyle: "italic", color: "var(--muted)" }}>
+          Ben je eigenrisicodrager voor de Ziektewet of de WGA? Dan gelden aanvullende of
+          afwijkende regels en kun je niet afgaan op dit automatisch gegenereerde advies —
+          raadpleeg dan je eigen verzuim- of arbospecialist.
+        </p>
         <p className="sign">
           Met vriendelijke groet,<br/>
           <span style={{ color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 }}>[INVULLEN: naam afzender]</span><br/>

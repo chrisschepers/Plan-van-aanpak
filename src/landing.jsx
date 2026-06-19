@@ -260,6 +260,12 @@ function Compliance({ onOpenPrivacy }) {
             onClick={(e) => { e.preventDefault(); onOpenPrivacy && onOpenPrivacy(); }}>
             Lees de privacyverklaring & AI-transparantie {I.arrowRight}
           </button>
+          <p className="comp-disclaimer">
+            De tool levert een <strong>concept</strong>; jij stelt het samen met je werknemer vast.
+            Ben je <strong>eigenrisicodrager</strong> voor de Ziektewet of de WGA, dan gelden
+            aanvullende of afwijkende regels — ga in dat geval niet af op de gegenereerde adviezen
+            en raadpleeg je eigen verzuim- of arbospecialist.
+          </p>
         </div>
         <div className="badge-stack reveal">
           <div className="badge">
