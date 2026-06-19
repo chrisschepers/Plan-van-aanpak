@@ -61,9 +61,11 @@ export function fillDocumentXml(xml, values) {
  *  1=1.1 naam · 3=2.1 bedrijfsnaam · 6=4.1 functie
  *  sectie 7 (Activiteit/Wie/Planning, 3 velden per rij, 4 rijen per categorie):
  *  7A Arbeidsinhoud 11–22 · 7B 23–34 · 7C 35–46 · 7D 47–58 · 7E 59–70 · 7F 71–82
+ * 7B/7C/7D worden alleen (rij 1) gevuld bij een trigger: een werkplek- resp.
+ * werktijden-aanpassing in de terugkoppeling, of het arbeidsconflict-signaal.
  * BSN (veld 2) blijft altijd leeg.
  */
-export function buildUwvValues(fields, schema, functieomschrijving, opbouwReden = "") {
+export function buildUwvValues(fields, schema, functieomschrijving, opbouwReden = "", signalen = {}) {
   const v = (id) => { const x = getVal(fields, id); return isMissing(x) ? "" : x; };
   const geenOpbouw = !!opbouwReden || schema.length === 0;
   const startRaw = getVal(fields, "start");
@@ -80,6 +82,9 @@ export function buildUwvValues(fields, schema, functieomschrijving, opbouwReden 
     ? "Werkgever en werknemer stellen samen passende werkzaamheden vast binnen de aangegeven mogelijkheden."
     : `Werkgever en werknemer stellen samen passende werkzaamheden vast binnen de aangegeven mogelijkheden (${beperkingVal.toLowerCase()}).`;
   const fo = (functieomschrijving || "").trim();
+  const werkplek = v("werkplek");
+  const werktijden = v("werktijden");
+  const arbeidsconflict = !!(signalen && signalen.arbeidsconflict);
 
   return {
     1: v("naam"),               // 1.1 Voorletters en achternaam
@@ -92,6 +97,12 @@ export function buildUwvValues(fields, schema, functieomschrijving, opbouwReden 
     11: arbeidsinhoud,
     12: "Werkgever en werknemer",
     13: start ? `Per ${start}` : "In overleg",
+    // 7B Arbeidsomstandigheden — alleen bij een genoemde werkplekaanpassing
+    ...(werkplek ? { 23: `Aanpassing werkplek/omstandigheden: ${werkplek}`, 24: "Werkgever", 25: "In overleg" } : {}),
+    // 7C Arbeidsvoorwaarden — alleen bij een genoemde aanpassing van werktijden/rooster
+    ...(werktijden ? { 35: `Aanpassing werktijden/rooster: ${werktijden}`, 36: "Werkgever en werknemer", 37: "In overleg" } : {}),
+    // 7D Arbeidsverhoudingen — alleen bij een arbeidsconflict-signaal
+    ...(arbeidsconflict ? { 47: "Werkgever en werknemer gaan met elkaar in gesprek, zo nodig onder begeleiding (mediation), om de arbeidsverhouding te herstellen.", 48: "Werkgever en werknemer", 49: "Op korte termijn" } : {}),
     // 7E Sociaal-medische zaken — rij 1 (opbouw) en rij 2 (vervolgconsult)
     59: opbouw,
     60: "Werknemer en werkgever",

@@ -30,7 +30,8 @@ function median(nums) {
 const TEXT_KEYS = [
   "naam", "naamBedrijfsarts", "functie", "contracturen", "eersteZiektedag",
   "geboortedatum", "einddatumDienstverband", "belastbaarheid", "opbouwtempo",
-  "startdatumOpbouw", "werkaanpassing", "prognose", "spreekuurdatum", "taaksuggestie",
+  "startdatumOpbouw", "werkaanpassing", "aanpassingWerkplek", "aanpassingWerktijden",
+  "prognose", "spreekuurdatum", "taaksuggestie",
 ];
 
 export function reconcile(samples) {

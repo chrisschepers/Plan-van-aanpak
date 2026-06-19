@@ -63,6 +63,20 @@ check("7F evaluatie (71)", res[71].includes("evalueren de voortgang"));
 const res2 = readResults(fillDocumentXml(xml, buildUwvValues(fields, schema, "Postverwerking, gegevensinvoer en archiefbeheer")));
 check("4.2 werkzaamheden (7) gevuld uit functieomschrijving", res2[7].startsWith("Postverwerking"));
 
+// 7B/7C/7D — voorwaardelijk gevuld bij triggers (werkplek/werktijden + arbeidsconflict-signaal)
+const fields7 = fields.map((g, i) => i === 0
+  ? { ...g, items: [...g.items,
+      { id: "werkplek", label: "Aanpassing werkplek", value: "prikkelarme werkplek, deels thuiswerken", status: "ok", src: null },
+      { id: "werktijden", label: "Aanpassing werktijden", value: "geen nachtdiensten, opbouw in de ochtend", status: "ok", src: null },
+    ] }
+  : g);
+const res7 = readResults(fillDocumentXml(xml, buildUwvValues(fields7, schema, "", "", { arbeidsconflict: true })));
+check("7B arbeidsomstandigheden (23) gevuld bij werkplek-trigger", res7[23].includes("prikkelarme werkplek"));
+check("7B wie (24)", res7[24] === "Werkgever");
+check("7C arbeidsvoorwaarden (35) gevuld bij werktijden-trigger", res7[35].includes("geen nachtdiensten"));
+check("7D arbeidsverhoudingen (47) gevuld bij arbeidsconflict", res7[47].includes("mediation"));
+check("7B/7C/7D leeg zonder trigger", (res[23] || "").trim() === "" && (res[35] || "").trim() === "" && (res[47] || "").trim() === "");
+
 // docx blijft geldig: terugzetten en opnieuw inladen
 zip.file("word/document.xml", filled);
 const out = await zip.generateAsync({ type: "nodebuffer" });

@@ -366,10 +366,10 @@ export async function downloadBericht(fields, schema, reportDate, taaksuggestie,
 
 // Het ingevulde Plan van aanpak in het échte UWV-formulier (AG140) — apart
 // document dat in het personeelsdossier hoort.
-export async function downloadUwvPva(fields, schema, functieomschrijving, opbouwReden) {
+export async function downloadUwvPva(fields, schema, functieomschrijving, opbouwReden, signalen) {
   const resp = await fetch(new URL("uwv-template.docx", document.baseURI));
   if (!resp.ok) throw new Error("UWV-sjabloon niet gevonden");
   const buf = await resp.arrayBuffer();
-  const blob = await fillTemplate(buf, buildUwvValues(fields, schema, functieomschrijving, opbouwReden));
+  const blob = await fillTemplate(buf, buildUwvValues(fields, schema, functieomschrijving, opbouwReden, signalen));
   return triggerDownload(blob, `Plan-van-Aanpak-${safeName(fields)}.docx`);
 }

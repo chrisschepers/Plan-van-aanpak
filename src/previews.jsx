@@ -112,7 +112,7 @@ function ActTable({ rows }) {
   );
 }
 
-export function PvaPreview({ fields, schema, functieomschrijving, opbouwReden }) {
+export function PvaPreview({ fields, schema, functieomschrijving, opbouwReden, signalen }) {
   const geenOpbouw = !!opbouwReden || schema.length === 0;
   const startRaw = getVal(fields, "start");
   const start = isMissing(startRaw) ? (schema[0] ? schema[0].date : "—") : startRaw;
@@ -128,6 +128,11 @@ export function PvaPreview({ fields, schema, functieomschrijving, opbouwReden })
   const taak = isMissing(beperkingVal)
     ? "Werkgever en werknemer stellen samen passende werkzaamheden vast binnen de aangegeven mogelijkheden."
     : `Werkgever en werknemer stellen samen passende werkzaamheden vast binnen de aangegeven mogelijkheden (${beperkingVal.toLowerCase()}).`;
+  const werkplekRaw = getVal(fields, "werkplek");
+  const werkplek = isMissing(werkplekRaw) ? "" : werkplekRaw;
+  const werktijdenRaw = getVal(fields, "werktijden");
+  const werktijden = isMissing(werktijdenRaw) ? "" : werktijdenRaw;
+  const arbeidsconflict = !!(signalen && signalen.arbeidsconflict);
   return (
     <div className="doc-preview">
       <DocPreviewHead title="Plan van Aanpak (UWV — formulier AG140)" icon={I.doc} />
@@ -171,6 +176,18 @@ export function PvaPreview({ fields, schema, functieomschrijving, opbouwReden })
         <UwvHelp>Welke afspraken heeft u met uw werknemer gemaakt over zijn re-integratie?</UwvHelp>
         <div className="uwv-cat">7A  Arbeidsinhoud</div>
         <ActTable rows={[[taak, "Werkgever en werknemer", planning]]} />
+        {werkplek && <>
+          <div className="uwv-cat">7B  Arbeidsomstandigheden</div>
+          <ActTable rows={[[`Aanpassing werkplek/omstandigheden: ${werkplek}`, "Werkgever", "In overleg"]]} />
+        </>}
+        {werktijden && <>
+          <div className="uwv-cat">7C  Arbeidsvoorwaarden</div>
+          <ActTable rows={[[`Aanpassing werktijden/rooster: ${werktijden}`, "Werkgever en werknemer", "In overleg"]]} />
+        </>}
+        {arbeidsconflict && <>
+          <div className="uwv-cat">7D  Arbeidsverhoudingen</div>
+          <ActTable rows={[["Werkgever en werknemer gaan met elkaar in gesprek, zo nodig onder begeleiding (mediation), om de arbeidsverhouding te herstellen.", "Werkgever en werknemer", "Op korte termijn"]]} />
+        </>}
         <div className="uwv-cat">7E  Sociaal-medische zaken</div>
         <ActTable rows={[
           [opbouw, "Werknemer en werkgever", planning],

@@ -31,6 +31,8 @@ VELDREGELS:
 - Neem namen, datums en uren letterlijk over zoals ze in de input staan.
 - naam: de naam van de werknemer (voorletters en achternaam) zoals die in de terugkoppeling staat. Een naam is geen medisch gegeven en mag wél worden overgenomen. Geen BSN. Leeg laten ("") als de naam ontbreekt.
 - naamBedrijfsarts: de naam van de bedrijfsarts/arbo-arts die de terugkoppeling heeft opgesteld (bv. "drs. A. Heijmans"). Leeg laten ("") als die ontbreekt.
+- aanpassingWerkplek: een concreet genoemde aanpassing van de werkplek of werkomstandigheden (bv. ergonomische/aangepaste werkplek, thuiswerken, prikkelarme ruimte). Alleen overnemen als de terugkoppeling dit letterlijk noemt; anders "".
+- aanpassingWerktijden: een concreet genoemde aanpassing van werktijden of rooster (bv. flexibele begintijd, geen nachtdiensten, opbouw in de ochtend). Alleen overnemen als dit letterlijk wordt genoemd; anders "".
 
 OPBOUW (reken): leid de uitgangspunten voor het opbouwschema af:
 - contractHours: contracturen per week (geheel getal).
@@ -90,6 +92,8 @@ const SCHEMA = {
     opbouwtempo: str,
     startdatumOpbouw: str,
     werkaanpassing: str,
+    aanpassingWerkplek: str,
+    aanpassingWerktijden: str,
     prognose: str,
     spreekuurdatum: str,
     taaksuggestie: str,
@@ -137,7 +141,7 @@ const SCHEMA = {
     "naam", "naamBedrijfsarts",
     "functie", "contracturen", "eersteZiektedag", "geboortedatum",
     "einddatumDienstverband", "belastbaarheid", "opbouwtempo",
-    "startdatumOpbouw", "werkaanpassing", "prognose",
+    "startdatumOpbouw", "werkaanpassing", "aanpassingWerkplek", "aanpassingWerktijden", "prognose",
     "spreekuurdatum", "taaksuggestie", "reken", "bronnen", "signalen",
   ],
 };

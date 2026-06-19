@@ -154,6 +154,8 @@ function mapExtraction(d, functieomschrijving) {
       mk("opbouw", "Opbouwtempo", d.opbouwtempo, b.opbouwtempo),
       mk("start", "Startdatum opbouw", d.startdatumOpbouw, b.startdatumOpbouw),
       mk("beperking", "Werkaanpassing", d.werkaanpassing, b.werkaanpassing),
+      mk("werkplek", "Aanpassing werkplek (7B)", d.aanpassingWerkplek, null),
+      mk("werktijden", "Aanpassing werktijden (7C)", d.aanpassingWerktijden, null),
     ]},
     { group: "Prognose", items: [
       mk("prognose", "Prognose herstel", d.prognose, b.prognose),

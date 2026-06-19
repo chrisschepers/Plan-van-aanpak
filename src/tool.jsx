@@ -378,7 +378,7 @@ function PreviewStep({ onBack, controleOk, casus }) {
   const [busyKey, setBusyKey] = React.useState(null);
   const tabs = [
     { t: "Opbouwadvies", el: <AdviesPreview fields={fields} schema={schema} reportDate={reportDate} schemaZelfOpgesteld={schemaZelfOpgesteld} opbouwReden={opbouwReden} /> },
-    { t: "Plan van Aanpak", el: <PvaPreview fields={fields} schema={schema} functieomschrijving={functieomschrijving} opbouwReden={opbouwReden} /> },
+    { t: "Plan van Aanpak", el: <PvaPreview fields={fields} schema={schema} functieomschrijving={functieomschrijving} opbouwReden={opbouwReden} signalen={signalen} /> },
     { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} reportDate={reportDate} taaksuggestie={taaksuggestie} signalen={signalen} schemaZelfOpgesteld={schemaZelfOpgesteld} opbouwReden={opbouwReden} /> },
   ];
 
@@ -420,7 +420,7 @@ function PreviewStep({ onBack, controleOk, casus }) {
           </div>
         </div>
         <div className="dl-buttons">
-          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("pva", () => downloadUwvPva(fields, schema, functieomschrijving, opbouwReden))}>
+          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("pva", () => downloadUwvPva(fields, schema, functieomschrijving, opbouwReden, signalen))}>
             {I.download} {busyKey === "pva" ? "Bezig…" : "Plan van aanpak (UWV) — voor dossier"}
           </button>
           <button className="btn btn-primary btn-lg" disabled={!controleOk || busyKey} onClick={() => run("bericht", () => downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden))}>
