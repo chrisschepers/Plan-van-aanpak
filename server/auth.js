@@ -3,8 +3,8 @@
    Zolang SUPABASE_URL/ANON_KEY niet gezet zijn is auth UIT (transitie): dan blijft
    het endpoint werken zoals voorheen, beschermd door rate-limiting. */
 
-const SUPA_URL = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
-const SUPA_ANON = process.env.SUPABASE_ANON_KEY || "";
+const SUPA_URL = (process.env.SUPABASE_URL || "").trim().replace(/\/$/, "");
+const SUPA_ANON = (process.env.SUPABASE_ANON_KEY || "").trim();
 
 export function authConfigured() { return !!(SUPA_URL && SUPA_ANON); }
 
@@ -22,6 +22,6 @@ export async function requireAuth(req, res, next) {
     next();
   } catch (err) {
     console.error("auth-verificatie-fout:", err && err.message ? err.message : err);
-    return res.status(502).json({ error: "Kon de sessie niet verifiëren. Probeer het later opnieuw." });
+    return res.status(502).json({ error: "Kon de sessie niet verifiëren. Probeer het later opnieuw.", detail: err && err.message ? err.message : String(err) });
   }
 }

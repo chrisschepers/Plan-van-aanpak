@@ -124,7 +124,7 @@ app.post("/api/extract", rateLimit, requireAuth, upload.single("document"), asyn
 app.get("/api/credits", requireAuth, async (req, res) => {
   if (!creditsConfigured() || !req.user || !req.user.id) return res.json({ balance: null });
   try { res.json({ balance: await getBalance(req.user.id) }); }
-  catch { res.status(502).json({ error: "Saldo niet op te halen." }); }
+  catch (e) { console.error("credits-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Saldo niet op te halen.", detail: e && e.message ? e.message : String(e) }); }
 });
 
 // ---- Credits: Mollie-checkout starten ----
