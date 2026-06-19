@@ -3,8 +3,10 @@
    Zolang SUPABASE_URL/ANON_KEY niet gezet zijn is auth UIT (transitie): dan blijft
    het endpoint werken zoals voorheen, beschermd door rate-limiting. */
 
-const SUPA_URL = (process.env.SUPABASE_URL || "").trim().replace(/\/$/, "");
-const SUPA_ANON = (process.env.SUPABASE_ANON_KEY || "").trim();
+// Strip ÁLLE witruimte (ook newlines middenin) — sleutels/URL bevatten nooit
+// witruimte, en een geplakte newline maakt anders de fetch-header ongeldig.
+const SUPA_URL = (process.env.SUPABASE_URL || "").replace(/\s+/g, "").replace(/\/$/, "");
+const SUPA_ANON = (process.env.SUPABASE_ANON_KEY || "").replace(/\s+/g, "");
 
 export function authConfigured() { return !!(SUPA_URL && SUPA_ANON); }
 

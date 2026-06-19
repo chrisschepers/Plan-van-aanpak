@@ -3,8 +3,9 @@
    in de Railway-env, nooit in de frontend/git. Niet geconfigureerd →
    creditsConfigured() = false en de feature valt terug op gratis gebruik. */
 
-const SUPA_URL = (process.env.SUPABASE_URL || "").trim().replace(/\/$/, "");
-const SERVICE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();
+// Strip álle witruimte (ook newlines middenin) — robuust tegen geplakte sleutels.
+const SUPA_URL = (process.env.SUPABASE_URL || "").replace(/\s+/g, "").replace(/\/$/, "");
+const SERVICE_KEY = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").replace(/\s+/g, "");
 
 export function creditsConfigured() { return !!(SUPA_URL && SERVICE_KEY); }
 
