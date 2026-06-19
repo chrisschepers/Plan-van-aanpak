@@ -4,7 +4,9 @@ import { Landing } from "./landing.jsx";
 import { Tool } from "./tool.jsx";
 import { PrivacyVerklaring } from "./privacy.jsx";
 import { Login } from "./login.jsx";
+import { Account } from "./account.jsx";
 import { currentSession, onAuthChange, signOut } from "./supa.js";
+import { fetchBalance } from "./credits.js";
 
 const { useState, useEffect } = React;
 
@@ -30,8 +32,9 @@ function useReveal() {
 }
 
 function App() {
-  const [view, setView] = useState("landing"); // landing | tool | privacy | login
+  const [view, setView] = useState("landing"); // landing | tool | privacy | login | account
   const [session, setSession] = useState(null);
+  const [credits, setCredits] = useState(null); // null = onbekend/niet-actief
   useReveal();
 
   useEffect(() => {
@@ -40,8 +43,20 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (!session) { setCredits(null); return; }
+    fetchBalance(session.access_token).then(setCredits);
+  }, [session]);
+
+  const refreshCredits = () => { if (session) fetchBalance(session.access_token).then(setCredits); };
+
+  useEffect(() => {
     document.body.style.overflow = view === "landing" ? "" : "hidden";
   }, [view]);
+
+  // Terug van Mollie → direct naar de account-pagina.
+  useEffect(() => {
+    if (typeof window !== "undefined" && /[?&]betaling=terug/.test(window.location.search)) setView("account");
+  }, []);
 
   const logout = async () => { await signOut(); setSession(null); setView("landing"); };
 
@@ -53,10 +68,12 @@ function App() {
         session={session}
         onOpenLogin={() => setView("login")}
         onLogout={logout}
+        onOpenAccount={() => setView("account")}
       />
-      {view === "tool" && <Tool onClose={() => setView("landing")} session={session} onNeedLogin={() => setView("login")} />}
+      {view === "tool" && <Tool onClose={() => setView("landing")} session={session} onNeedLogin={() => setView("login")} credits={credits} onNeedCredits={() => setView("account")} onCreditsChange={setCredits} />}
       {view === "privacy" && <PrivacyVerklaring onClose={() => setView("landing")} />}
       {view === "login" && <Login onClose={() => setView("landing")} onOpenPrivacy={() => setView("privacy")} session={session} />}
+      {view === "account" && <Account onClose={() => setView("landing")} session={session} onLogout={logout} credits={credits} refreshCredits={refreshCredits} />}
     </React.Fragment>
   );
 }

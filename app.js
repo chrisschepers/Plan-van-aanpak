@@ -2466,9 +2466,9 @@
   };
 
   // src/landing.jsx
-  function Nav({ onOpenTool, session, onOpenLogin, onLogout }) {
+  function Nav({ onOpenTool, session, onOpenLogin, onLogout, onOpenAccount }) {
     const email = session && session.user ? session.user.email : "";
-    return /* @__PURE__ */ React.createElement("header", { className: "nav" }, /* @__PURE__ */ React.createElement("div", { className: "wrap nav-inner" }, /* @__PURE__ */ React.createElement("a", { className: "brand", href: "#top" }, /* @__PURE__ */ React.createElement("span", { className: "mark" }, I.doc), /* @__PURE__ */ React.createElement("span", null, "planvanaanpak", /* @__PURE__ */ React.createElement("span", { className: "tld" }, "invuller.nl"))), /* @__PURE__ */ React.createElement("nav", { className: "nav-links" }, /* @__PURE__ */ React.createElement("a", { href: "#hoe" }, "Hoe het werkt"), /* @__PURE__ */ React.createElement("a", { href: "#aanpak" }, "Aanpak"), /* @__PURE__ */ React.createElement("a", { href: "#privacy" }, "Privacy"), /* @__PURE__ */ React.createElement("a", { href: "#faq" }, "Veelgestelde vragen")), /* @__PURE__ */ React.createElement("div", { className: "nav-cta" }, session ? /* @__PURE__ */ React.createElement("span", { className: "nav-account" }, /* @__PURE__ */ React.createElement("span", { className: "who", title: email }, email || "Ingelogd"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet", onClick: onLogout }, "Uitloggen")) : /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet", onClick: onOpenLogin }, "Inloggen"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", onClick: onOpenTool }, "Probeer de invuller"))));
+    return /* @__PURE__ */ React.createElement("header", { className: "nav" }, /* @__PURE__ */ React.createElement("div", { className: "wrap nav-inner" }, /* @__PURE__ */ React.createElement("a", { className: "brand", href: "#top" }, /* @__PURE__ */ React.createElement("span", { className: "mark" }, I.doc), /* @__PURE__ */ React.createElement("span", null, "planvanaanpak", /* @__PURE__ */ React.createElement("span", { className: "tld" }, "invuller.nl"))), /* @__PURE__ */ React.createElement("nav", { className: "nav-links" }, /* @__PURE__ */ React.createElement("a", { href: "#hoe" }, "Hoe het werkt"), /* @__PURE__ */ React.createElement("a", { href: "#aanpak" }, "Aanpak"), /* @__PURE__ */ React.createElement("a", { href: "#privacy" }, "Privacy"), /* @__PURE__ */ React.createElement("a", { href: "#faq" }, "Veelgestelde vragen")), /* @__PURE__ */ React.createElement("div", { className: "nav-cta" }, session ? /* @__PURE__ */ React.createElement("span", { className: "nav-account" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet", onClick: onOpenAccount, title: email }, "Mijn account"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet", onClick: onLogout }, "Uitloggen")) : /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet", onClick: onOpenLogin }, "Inloggen"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", onClick: onOpenTool }, "Probeer de invuller"))));
   }
   function Hero({ onOpenTool }) {
     return /* @__PURE__ */ React.createElement("section", { className: "hero", id: "top" }, /* @__PURE__ */ React.createElement("div", { className: "wrap hero-grid" }, /* @__PURE__ */ React.createElement("div", { className: "reveal" }, /* @__PURE__ */ React.createElement("span", { className: "eyebrow" }, /* @__PURE__ */ React.createElement("span", { className: "dot" }), "Wet verbetering poortwachter"), /* @__PURE__ */ React.createElement("h1", null, "Het concept Plan van Aanpak, automatisch ingevuld."), /* @__PURE__ */ React.createElement("p", { className: "lead" }, "Upload de terugkoppeling van de bedrijfsarts. Je krijgt een ingevuld concept-PvA, een opbouwadvies en een begeleidend bericht terug \u2014 jij controleert en stelt vast. Geen overtypen meer."), /* @__PURE__ */ React.createElement("div", { className: "hero-cta" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", onClick: onOpenTool }, "Probeer de PvA-invuller ", I.arrowRight), /* @__PURE__ */ React.createElement("a", { className: "btn btn-ghost btn-lg", href: "#demo" }, "Demo aanvragen")), /* @__PURE__ */ React.createElement("div", { className: "hero-trust" }, /* @__PURE__ */ React.createElement("span", null, I.shield, " AVG / DPIA-proof"), /* @__PURE__ */ React.createElement("span", null, I.server, " EER-hosting"), /* @__PURE__ */ React.createElement("span", null, I.lock, " Geen training op klantdata"))), /* @__PURE__ */ React.createElement("div", { className: "hero-visual reveal" }, /* @__PURE__ */ React.createElement(HeroDiagram, null))));
@@ -2540,8 +2540,8 @@
     };
     return /* @__PURE__ */ React.createElement("footer", { className: "footer" }, /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "footer-grid" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("a", { className: "brand", href: "#top", style: { marginBottom: 14 } }, /* @__PURE__ */ React.createElement("span", { className: "mark" }, I.doc), /* @__PURE__ */ React.createElement("span", null, "planvanaanpak", /* @__PURE__ */ React.createElement("span", { className: "tld" }, "invuller.nl"))), /* @__PURE__ */ React.createElement("p", { style: { fontSize: 14.5, maxWidth: "34ch", color: "rgba(255,255,255,.6)" } }, "Concept Plannen van Aanpak invullen volgens de Wet verbetering poortwachter \u2014 privacy by design, mens in de loop.")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Product"), /* @__PURE__ */ React.createElement("a", { href: "#hoe" }, "Hoe het werkt"), /* @__PURE__ */ React.createElement("a", { href: "#aanpak" }, "Hybride aanpak"), /* @__PURE__ */ React.createElement("a", { href: "#demo" }, "Demo aanvragen")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Vertrouwen"), /* @__PURE__ */ React.createElement("a", { href: "#privacy" }, "Privacy & AVG"), /* @__PURE__ */ React.createElement("a", { href: "#privacyverklaring", onClick: openPrivacy }, "Privacyverklaring & AI"), /* @__PURE__ */ React.createElement("a", { href: "mailto:contact@planvanaanpakinvuller.nl?subject=Verwerkersovereenkomst" }, "Verwerkersovereenkomst"), /* @__PURE__ */ React.createElement("a", { href: "mailto:contact@planvanaanpakinvuller.nl?subject=DPIA%20opvragen" }, "DPIA opvragen")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Contact"), /* @__PURE__ */ React.createElement("a", { href: "mailto:contact@planvanaanpakinvuller.nl" }, "contact@planvanaanpakinvuller.nl"), /* @__PURE__ */ React.createElement("span", { style: { display: "block", padding: "5px 0", fontSize: 15 } }, "planvanaanpakinvuller.nl"), /* @__PURE__ */ React.createElement("span", { style: { display: "block", padding: "5px 0", fontSize: 15 } }, "KVK-nummer volgt"))), /* @__PURE__ */ React.createElement("div", { className: "footer-bot" }, /* @__PURE__ */ React.createElement("span", null, "\xA9 2026 planvanaanpakinvuller.nl \xB7 KVK-nummer volgt"), /* @__PURE__ */ React.createElement("span", null, "Verwerking binnen de EER \xB7 Geen training op klantdata"))));
   }
-  function Landing({ onOpenTool, onOpenPrivacy, session, onOpenLogin, onLogout }) {
-    return /* @__PURE__ */ React.createElement("div", { className: "site" }, /* @__PURE__ */ React.createElement(Nav, { onOpenTool, session, onOpenLogin, onLogout }), /* @__PURE__ */ React.createElement(Hero, { onOpenTool }), /* @__PURE__ */ React.createElement(HowItWorks, null), /* @__PURE__ */ React.createElement(USP, null), /* @__PURE__ */ React.createElement(Hybrid, null), /* @__PURE__ */ React.createElement(Compliance, { onOpenPrivacy }), /* @__PURE__ */ React.createElement(Faq, null), /* @__PURE__ */ React.createElement(CtaBand, { onOpenTool }), /* @__PURE__ */ React.createElement(Footer, { onOpenPrivacy }));
+  function Landing({ onOpenTool, onOpenPrivacy, session, onOpenLogin, onLogout, onOpenAccount }) {
+    return /* @__PURE__ */ React.createElement("div", { className: "site" }, /* @__PURE__ */ React.createElement(Nav, { onOpenTool, session, onOpenLogin, onLogout, onOpenAccount }), /* @__PURE__ */ React.createElement(Hero, { onOpenTool }), /* @__PURE__ */ React.createElement(HowItWorks, null), /* @__PURE__ */ React.createElement(USP, null), /* @__PURE__ */ React.createElement(Hybrid, null), /* @__PURE__ */ React.createElement(Compliance, { onOpenPrivacy }), /* @__PURE__ */ React.createElement(Faq, null), /* @__PURE__ */ React.createElement(CtaBand, { onOpenTool }), /* @__PURE__ */ React.createElement(Footer, { onOpenPrivacy }));
   }
 
   // src/engine.js
@@ -22584,10 +22584,12 @@
     }
     if (!resp.ok) {
       const e = await resp.json().catch(() => ({}));
-      throw new Error(e.error || `Serverfout (${resp.status})`);
+      const err = new Error(e.error || `Serverfout (${resp.status})`);
+      err.code = e.code || (resp.status === 402 ? "no_credits" : void 0);
+      throw err;
     }
-    const { data } = await resp.json();
-    return mapExtraction(data, fo);
+    const { data, balance } = await resp.json();
+    return { ...mapExtraction(data, fo), balance };
   }
   function nlToISO(nl) {
     return /^\d{2}-\d{2}-\d{4}$/.test(nl || "") ? nl.split("-").reverse().join("-") : "";
@@ -22794,7 +22796,7 @@
       signalen: {}
     };
   }
-  function UploadStep({ onResult, session, onNeedLogin }) {
+  function UploadStep({ onResult, session, onNeedLogin, credits, onNeedCredits }) {
     const [file, setFile] = React.useState(null);
     const [paste, setPaste] = React.useState(false);
     const [text, setText] = React.useState("");
@@ -22840,6 +22842,11 @@
         else setError("Log in om echte documenten te verwerken.");
         return;
       }
+      if (typeof credits === "number" && credits <= 0) {
+        if (onNeedCredits) onNeedCredits();
+        else setError("Je hebt geen credits meer. Koop credits om door te gaan.");
+        return;
+      }
       setBusy(true);
       try {
         const fo = functie.trim();
@@ -22854,7 +22861,12 @@
         }
         onResult(casus);
       } catch (e) {
-        setError("Verwerking mislukt: " + (e && e.message ? e.message : "onbekende fout"));
+        if (e && e.code === "no_credits") {
+          if (onNeedCredits) onNeedCredits();
+          else setError("Je hebt geen credits meer. Koop credits om door te gaan.");
+        } else {
+          setError("Verwerking mislukt: " + (e && e.message ? e.message : "onbekende fout"));
+        }
       } finally {
         setBusy(false);
       }
@@ -22908,7 +22920,7 @@
     } }, "Plak de tekst"), " \xB7 ") : /* @__PURE__ */ React.createElement(React.Fragment, null, "Toch een bestand? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => {
       setPaste(false);
       setText("");
-    } }, "Kies een bestand"), " \xB7 "), "Geen casus bij de hand? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: pickExample }, "Gebruik de voorbeeldcasus (J. de Vries)")), !hasBackend() && /* @__PURE__ */ React.createElement("div", { className: "demo-note" }, I.info, /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "AI nog niet gekoppeld."), " Zonder backend werkt alleen de voorbeeldcasus. Zet je Railway-URL in ", /* @__PURE__ */ React.createElement("code", null, "window.__PVA_BACKEND__"), " om echte documenten te laten uitlezen. Gebruik uitsluitend fictieve terugkoppelingen.")), hasBackend() && authConfigured() && !session && /* @__PURE__ */ React.createElement("div", { className: "demo-note" }, I.info, /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Inloggen vereist voor echte documenten."), " De voorbeeldcasus werkt zonder account. ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: onNeedLogin }, "Log in"), " om je eigen terugkoppeling te verwerken.")), /* @__PURE__ */ React.createElement("div", { className: "func-omschrijving" }, /* @__PURE__ */ React.createElement("label", { htmlFor: "func-omschr" }, /* @__PURE__ */ React.createElement("strong", null, "Functieomschrijving van de werknemer"), " ", /* @__PURE__ */ React.createElement("span", { className: "optioneel" }, "(optioneel)")), /* @__PURE__ */ React.createElement("p", { className: "func-hint" }, "Plak de kerntaken. Dan stelt de tool in het begeleidend bericht passende aangepaste taken voor, binnen de afgegeven mogelijkheden \u2014 als gespreksopening met de werknemer."), /* @__PURE__ */ React.createElement(
+    } }, "Kies een bestand"), " \xB7 "), "Geen casus bij de hand? ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: pickExample }, "Gebruik de voorbeeldcasus (J. de Vries)")), !hasBackend() && /* @__PURE__ */ React.createElement("div", { className: "demo-note" }, I.info, /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "AI nog niet gekoppeld."), " Zonder backend werkt alleen de voorbeeldcasus. Zet je Railway-URL in ", /* @__PURE__ */ React.createElement("code", null, "window.__PVA_BACKEND__"), " om echte documenten te laten uitlezen. Gebruik uitsluitend fictieve terugkoppelingen.")), hasBackend() && authConfigured() && !session && /* @__PURE__ */ React.createElement("div", { className: "demo-note" }, I.info, /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Inloggen vereist voor echte documenten."), " De voorbeeldcasus werkt zonder account. ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: onNeedLogin }, "Log in"), " om je eigen terugkoppeling te verwerken.")), hasBackend() && session && typeof credits === "number" && /* @__PURE__ */ React.createElement("div", { className: "demo-note" }, I.info, /* @__PURE__ */ React.createElement("p", null, "Een verwerking kost ", /* @__PURE__ */ React.createElement("strong", null, "1 credit"), ". Je hebt nog ", /* @__PURE__ */ React.createElement("strong", null, credits), " credit", credits === 1 ? "" : "s", ".", credits <= 0 && /* @__PURE__ */ React.createElement(React.Fragment, null, " ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: onNeedCredits }, "Koop credits")))), /* @__PURE__ */ React.createElement("div", { className: "func-omschrijving" }, /* @__PURE__ */ React.createElement("label", { htmlFor: "func-omschr" }, /* @__PURE__ */ React.createElement("strong", null, "Functieomschrijving van de werknemer"), " ", /* @__PURE__ */ React.createElement("span", { className: "optioneel" }, "(optioneel)")), /* @__PURE__ */ React.createElement("p", { className: "func-hint" }, "Plak de kerntaken. Dan stelt de tool in het begeleidend bericht passende aangepaste taken voor, binnen de afgegeven mogelijkheden \u2014 als gespreksopening met de werknemer."), /* @__PURE__ */ React.createElement(
       "textarea",
       {
         id: "func-omschr",
@@ -22987,11 +22999,12 @@
     }
     return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 3 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Preview en download"), /* @__PURE__ */ React.createElement("p", null, "Bekijk de drie onderdelen. Stel het concept samen met de werknemer vast en download het als Word-document.")), /* @__PURE__ */ React.createElement("div", { className: "preview-tabs" }, tabs.map((tb, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: tab === i ? "active" : "", onClick: () => setTab(i) }, /* @__PURE__ */ React.createElement("span", { className: "tnum" }, i + 1), /* @__PURE__ */ React.createElement("span", { className: "txt" }, tb.t)))), tabs[tab].el, /* @__PURE__ */ React.createElement("div", { className: "download-bar" }, /* @__PURE__ */ React.createElement("div", { className: "dl-info" }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.download), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Twee aparte documenten"), /* @__PURE__ */ React.createElement("p", null, controleOk ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("span", { className: "review-confirm" }, I.checkSm, " Menselijke controle bevestigd in stap 2."), " Het Plan van aanpak hoort in het personeelsdossier; de adviezen niet \u2014 daarom apart.") : "Controle in stap 2 is vereist v\xF3\xF3r downloaden"))), /* @__PURE__ */ React.createElement("div", { className: "dl-buttons" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-accent btn-lg", disabled: !controleOk || busyKey, onClick: () => run("pva", () => downloadUwvPva(fields, schema, functieomschrijving, opbouwReden, signalen)) }, I.download, " ", busyKey === "pva" ? "Bezig\u2026" : "Plan van aanpak (UWV) \u2014 voor dossier"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !controleOk || busyKey, onClick: () => run("bericht", () => downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden)) }, I.download, " ", busyKey === "bericht" ? "Bezig\u2026" : "Begeleidend bericht & adviezen"))), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar controle"), /* @__PURE__ */ React.createElement("span", null)), downloaded && /* @__PURE__ */ React.createElement("div", { className: "toast", onClick: () => setDownloaded(null) }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.checkSm), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tt" }, downloaded, " gedownload"), /* @__PURE__ */ React.createElement("div", { className: "ts" }, "Concept \xB7 controleer en stel vast met de werknemer"))));
   }
-  function Tool({ onClose, session, onNeedLogin }) {
+  function Tool({ onClose, session, onNeedLogin, credits, onNeedCredits, onCreditsChange }) {
     const [step, setStep] = React.useState(0);
     const [checked, setChecked] = React.useState(false);
     const [casus, setCasus] = React.useState(null);
     function handleResult(c) {
+      if (c && typeof c.balance === "number" && onCreditsChange) onCreditsChange(c.balance);
       setCasus(c);
       setChecked(false);
       setStep(1);
@@ -23013,7 +23026,7 @@
     return /* @__PURE__ */ React.createElement("div", { className: "tool" }, /* @__PURE__ */ React.createElement("div", { className: "tool-bar" }, /* @__PURE__ */ React.createElement("div", { className: "tool-bar-inner" }, /* @__PURE__ */ React.createElement("button", { className: "tool-back", onClick: onClose }, I.arrowLeft, " Terug naar site"), /* @__PURE__ */ React.createElement(Stepper, { step }), /* @__PURE__ */ React.createElement("a", { className: "brand", href: "#", onClick: (e) => {
       e.preventDefault();
       onClose();
-    }, style: { fontSize: 15 } }, /* @__PURE__ */ React.createElement("span", { className: "mark", style: { width: 28, height: 28 } }, I.doc)))), /* @__PURE__ */ React.createElement("div", { className: "tool-body" }, step === 0 && /* @__PURE__ */ React.createElement(UploadStep, { onResult: handleResult, session, onNeedLogin }), step === 1 && casus && /* @__PURE__ */ React.createElement(VerifyStep, { onBack: () => setStep(0), onNext: () => setStep(2), checked, setChecked, casus, onEdit: handleEdit }), step === 2 && casus && /* @__PURE__ */ React.createElement(PreviewStep, { onBack: () => setStep(1), controleOk: checked, casus })));
+    }, style: { fontSize: 15 } }, /* @__PURE__ */ React.createElement("span", { className: "mark", style: { width: 28, height: 28 } }, I.doc)))), /* @__PURE__ */ React.createElement("div", { className: "tool-body" }, step === 0 && /* @__PURE__ */ React.createElement(UploadStep, { onResult: handleResult, session, onNeedLogin, credits, onNeedCredits }), step === 1 && casus && /* @__PURE__ */ React.createElement(VerifyStep, { onBack: () => setStep(0), onNext: () => setStep(2), checked, setChecked, casus, onEdit: handleEdit }), step === 2 && casus && /* @__PURE__ */ React.createElement(PreviewStep, { onBack: () => setStep(1), controleOk: checked, casus })));
   }
 
   // src/privacy.jsx
@@ -23074,10 +23087,84 @@
     } }, "privacyverklaring"), "."))));
   }
 
-  // src/app.jsx
+  // src/credits.js
+  function api2(path) {
+    return BACKEND_URL.replace(/\/$/, "") + path;
+  }
+  async function fetchBalance(accessToken) {
+    if (!BACKEND_URL || !accessToken) return null;
+    try {
+      const r = await fetch(api2("/api/credits"), { headers: { Authorization: `Bearer ${accessToken}` } });
+      if (!r.ok) return null;
+      const { balance } = await r.json();
+      return typeof balance === "number" ? balance : null;
+    } catch {
+      return null;
+    }
+  }
+  async function startCheckout(accessToken, bundle) {
+    if (!BACKEND_URL || !accessToken) throw new Error("Niet ingelogd.");
+    const r = await fetch(api2("/api/checkout"), {
+      method: "POST",
+      headers: { "content-type": "application/json", Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify({ bundle })
+    });
+    if (!r.ok) {
+      const e = await r.json().catch(() => ({}));
+      throw new Error(e.error || `Serverfout (${r.status})`);
+    }
+    const { checkoutUrl } = await r.json();
+    return checkoutUrl;
+  }
+  var BUNDLES = [
+    { key: "single", credits: 1, price: "\u20AC3,99" },
+    { key: "bundle5", credits: 5, price: "\u20AC18,00", note: "\u20AC3,60 p.st." },
+    { key: "bundle10", credits: 10, price: "\u20AC34,00", note: "\u20AC3,40 p.st." }
+  ];
+
+  // src/account.jsx
   var { useState, useEffect } = React;
-  function useReveal() {
+  function Account({ onClose, session, onLogout, credits, refreshCredits }) {
+    const email = session && session.user ? session.user.email : "\u2014";
+    const [busy, setBusy] = useState(null);
+    const [error, setError] = useState(null);
+    const [justPaid, setJustPaid] = useState(false);
+    const creditsActive = typeof credits === "number";
     useEffect(() => {
+      const body = document.querySelector(".tool-body");
+      if (body) body.scrollTo({ top: 0 });
+      window.scrollTo({ top: 0 });
+      if (typeof window !== "undefined" && /[?&]betaling=terug/.test(window.location.search)) {
+        setJustPaid(true);
+        let n = 0;
+        const tick = () => {
+          if (refreshCredits) refreshCredits();
+          if (++n < 3) setTimeout(tick, 1500);
+        };
+        tick();
+      }
+    }, []);
+    async function buy(key) {
+      setError(null);
+      setBusy(key);
+      try {
+        const url = await startCheckout(session && session.access_token, key);
+        window.location.href = url;
+      } catch (e) {
+        setError("Kon de betaling niet starten: " + (e && e.message ? e.message : "onbekende fout"));
+        setBusy(null);
+      }
+    }
+    return /* @__PURE__ */ React.createElement("div", { className: "tool" }, /* @__PURE__ */ React.createElement("div", { className: "tool-bar" }, /* @__PURE__ */ React.createElement("div", { className: "tool-bar-inner" }, /* @__PURE__ */ React.createElement("button", { className: "tool-back", onClick: onClose }, I.arrowLeft, " Terug naar site"), /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 700, color: "var(--navy-900)" } }, "Mijn account"), /* @__PURE__ */ React.createElement("a", { className: "brand", href: "#", onClick: (e) => {
+      e.preventDefault();
+      onClose();
+    }, style: { fontSize: 15 } }, /* @__PURE__ */ React.createElement("span", { className: "mark", style: { width: 28, height: 28 } }, I.doc)))), /* @__PURE__ */ React.createElement("div", { className: "tool-body" }, /* @__PURE__ */ React.createElement("div", { className: "account-wrap" }, /* @__PURE__ */ React.createElement("div", { className: "account-card account-profile" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", null, "Profiel"), /* @__PURE__ */ React.createElement("p", { className: "acc-email" }, email)), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onLogout }, "Uitloggen")), justPaid && /* @__PURE__ */ React.createElement("div", { className: "demo-note", style: { marginBottom: 16 } }, I.info, /* @__PURE__ */ React.createElement("p", null, "Betaling verwerkt \u2014 je saldo wordt zo bijgewerkt. Ververst het niet? Open deze pagina zo dadelijk opnieuw.")), /* @__PURE__ */ React.createElement("div", { className: "account-card" }, /* @__PURE__ */ React.createElement("h2", null, "Credits"), creditsActive ? /* @__PURE__ */ React.createElement("p", { className: "acc-balance" }, /* @__PURE__ */ React.createElement("strong", null, credits), " credit", credits === 1 ? "" : "s") : /* @__PURE__ */ React.createElement("p", { className: "acc-balance acc-muted" }, "Credits zijn nog niet geactiveerd."), /* @__PURE__ */ React.createElement("p", { className: "acc-sub" }, "E\xE9n verwerking van een terugkoppeling van de bedrijfsarts kost 1 credit. De demo (voorbeeldcasus) blijft gratis."), /* @__PURE__ */ React.createElement("div", { className: "bundle-grid" }, BUNDLES.map((b) => /* @__PURE__ */ React.createElement("div", { className: "bundle", key: b.key }, /* @__PURE__ */ React.createElement("div", { className: "bundle-credits" }, b.credits, " credit", b.credits === 1 ? "" : "s"), /* @__PURE__ */ React.createElement("div", { className: "bundle-price" }, b.price), /* @__PURE__ */ React.createElement("div", { className: "bundle-note" }, b.note || "\xA0"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", disabled: !creditsActive || !!busy, onClick: () => buy(b.key) }, busy === b.key ? "Bezig\u2026" : "Kopen")))), /* @__PURE__ */ React.createElement("p", { className: "acc-fine" }, "Prijzen incl. btw. Betaling via Mollie (iDEAL/creditcard)."), !creditsActive && /* @__PURE__ */ React.createElement("p", { className: "acc-fine" }, "Betalen wordt geactiveerd zodra het creditsysteem live staat."), error && /* @__PURE__ */ React.createElement("div", { className: "upload-error", style: { marginTop: 12 } }, error)))));
+  }
+
+  // src/app.jsx
+  var { useState: useState2, useEffect: useEffect2 } = React;
+  function useReveal() {
+    useEffect2(() => {
       document.documentElement.classList.add("js-reveal");
       const reveal = () => {
         document.querySelectorAll(".reveal:not(.in)").forEach((el) => {
@@ -23096,16 +23183,30 @@
     });
   }
   function App() {
-    const [view, setView] = useState("landing");
-    const [session, setSession] = useState(null);
+    const [view, setView] = useState2("landing");
+    const [session, setSession] = useState2(null);
+    const [credits, setCredits] = useState2(null);
     useReveal();
-    useEffect(() => {
+    useEffect2(() => {
       currentSession().then(setSession);
       return onAuthChange(setSession);
     }, []);
-    useEffect(() => {
+    useEffect2(() => {
+      if (!session) {
+        setCredits(null);
+        return;
+      }
+      fetchBalance(session.access_token).then(setCredits);
+    }, [session]);
+    const refreshCredits = () => {
+      if (session) fetchBalance(session.access_token).then(setCredits);
+    };
+    useEffect2(() => {
       document.body.style.overflow = view === "landing" ? "" : "hidden";
     }, [view]);
+    useEffect2(() => {
+      if (typeof window !== "undefined" && /[?&]betaling=terug/.test(window.location.search)) setView("account");
+    }, []);
     const logout = async () => {
       await signOut();
       setSession(null);
@@ -23118,9 +23219,10 @@
         onOpenPrivacy: () => setView("privacy"),
         session,
         onOpenLogin: () => setView("login"),
-        onLogout: logout
+        onLogout: logout,
+        onOpenAccount: () => setView("account")
       }
-    ), view === "tool" && /* @__PURE__ */ React.createElement(Tool, { onClose: () => setView("landing"), session, onNeedLogin: () => setView("login") }), view === "privacy" && /* @__PURE__ */ React.createElement(PrivacyVerklaring, { onClose: () => setView("landing") }), view === "login" && /* @__PURE__ */ React.createElement(Login, { onClose: () => setView("landing"), onOpenPrivacy: () => setView("privacy"), session }));
+    ), view === "tool" && /* @__PURE__ */ React.createElement(Tool, { onClose: () => setView("landing"), session, onNeedLogin: () => setView("login"), credits, onNeedCredits: () => setView("account"), onCreditsChange: setCredits }), view === "privacy" && /* @__PURE__ */ React.createElement(PrivacyVerklaring, { onClose: () => setView("landing") }), view === "login" && /* @__PURE__ */ React.createElement(Login, { onClose: () => setView("landing"), onOpenPrivacy: () => setView("privacy"), session }), view === "account" && /* @__PURE__ */ React.createElement(Account, { onClose: () => setView("landing"), session, onLogout: logout, credits, refreshCredits }));
   }
   ReactDOM.createRoot(document.getElementById("root")).render(/* @__PURE__ */ React.createElement(App, null));
 })();

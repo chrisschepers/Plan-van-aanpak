@@ -30,10 +30,12 @@ export async function extractCasus({ file, text, functieomschrijving, accessToke
   }
   if (!resp.ok) {
     const e = await resp.json().catch(() => ({}));
-    throw new Error(e.error || `Serverfout (${resp.status})`);
+    const err = new Error(e.error || `Serverfout (${resp.status})`);
+    err.code = e.code || (resp.status === 402 ? "no_credits" : undefined);
+    throw err;
   }
-  const { data } = await resp.json();
-  return mapExtraction(data, fo);
+  const { data, balance } = await resp.json();
+  return { ...mapExtraction(data, fo), balance };
 }
 
 function isoToNL(iso) {

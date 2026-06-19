@@ -2,7 +2,7 @@
 
 import { I } from "./data.jsx";
 
-function Nav({ onOpenTool, session, onOpenLogin, onLogout }) {
+function Nav({ onOpenTool, session, onOpenLogin, onLogout, onOpenAccount }) {
   const email = session && session.user ? session.user.email : "";
   return (
     <header className="nav">
@@ -19,7 +19,7 @@ function Nav({ onOpenTool, session, onOpenLogin, onLogout }) {
         </nav>
         <div className="nav-cta">
           {session
-            ? <span className="nav-account"><span className="who" title={email}>{email || "Ingelogd"}</span><button className="btn btn-quiet" onClick={onLogout}>Uitloggen</button></span>
+            ? <span className="nav-account"><button className="btn btn-quiet" onClick={onOpenAccount} title={email}>Mijn account</button><button className="btn btn-quiet" onClick={onLogout}>Uitloggen</button></span>
             : <button className="btn btn-quiet" onClick={onOpenLogin}>Inloggen</button>}
           <button className="btn btn-primary" onClick={onOpenTool}>Probeer de invuller</button>
         </div>
@@ -357,10 +357,10 @@ function Footer({ onOpenPrivacy }) {
   );
 }
 
-export function Landing({ onOpenTool, onOpenPrivacy, session, onOpenLogin, onLogout }) {
+export function Landing({ onOpenTool, onOpenPrivacy, session, onOpenLogin, onLogout, onOpenAccount }) {
   return (
     <div className="site">
-      <Nav onOpenTool={onOpenTool} session={session} onOpenLogin={onOpenLogin} onLogout={onLogout} />
+      <Nav onOpenTool={onOpenTool} session={session} onOpenLogin={onOpenLogin} onLogout={onLogout} onOpenAccount={onOpenAccount} />
       <Hero onOpenTool={onOpenTool} />
       <HowItWorks />
       <USP />

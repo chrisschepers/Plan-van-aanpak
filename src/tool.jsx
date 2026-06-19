@@ -52,7 +52,7 @@ function demoCasus() {
 }
 
 /* ---------- Stap 1: Upload ---------- */
-function UploadStep({ onResult, session, onNeedLogin }) {
+function UploadStep({ onResult, session, onNeedLogin, credits, onNeedCredits }) {
   const [file, setFile] = React.useState(null);   // { name,size,type,real,file? }
   const [paste, setPaste] = React.useState(false);
   const [text, setText] = React.useState("");
@@ -92,6 +92,11 @@ function UploadStep({ onResult, session, onNeedLogin }) {
       else setError("Log in om echte documenten te verwerken.");
       return;
     }
+    if (typeof credits === "number" && credits <= 0) {
+      if (onNeedCredits) onNeedCredits();
+      else setError("Je hebt geen credits meer. Koop credits om door te gaan.");
+      return;
+    }
     setBusy(true);
     try {
       const fo = functie.trim();
@@ -109,7 +114,12 @@ function UploadStep({ onResult, session, onNeedLogin }) {
       }
       onResult(casus);
     } catch (e) {
-      setError("Verwerking mislukt: " + (e && e.message ? e.message : "onbekende fout"));
+      if (e && e.code === "no_credits") {
+        if (onNeedCredits) onNeedCredits();
+        else setError("Je hebt geen credits meer. Koop credits om door te gaan.");
+      } else {
+        setError("Verwerking mislukt: " + (e && e.message ? e.message : "onbekende fout"));
+      }
     } finally {
       setBusy(false);
     }
@@ -188,6 +198,13 @@ function UploadStep({ onResult, session, onNeedLogin }) {
         <div className="demo-note">
           {I.info}
           <p><strong>Inloggen vereist voor echte documenten.</strong> De voorbeeldcasus werkt zonder account. <button type="button" onClick={onNeedLogin}>Log in</button> om je eigen terugkoppeling te verwerken.</p>
+        </div>
+      )}
+
+      {hasBackend() && session && typeof credits === "number" && (
+        <div className="demo-note">
+          {I.info}
+          <p>Een verwerking kost <strong>1 credit</strong>. Je hebt nog <strong>{credits}</strong> credit{credits === 1 ? "" : "s"}.{credits <= 0 && <> <button type="button" onClick={onNeedCredits}>Koop credits</button></>}</p>
         </div>
       )}
 
@@ -462,12 +479,15 @@ function PreviewStep({ onBack, controleOk, casus }) {
 }
 
 /* ---------- Tool-shell ---------- */
-export function Tool({ onClose, session, onNeedLogin }) {
+export function Tool({ onClose, session, onNeedLogin, credits, onNeedCredits, onCreditsChange }) {
   const [step, setStep] = React.useState(0);
   const [checked, setChecked] = React.useState(false);
   const [casus, setCasus] = React.useState(null);
 
-  function handleResult(c) { setCasus(c); setChecked(false); setStep(1); }
+  function handleResult(c) {
+    if (c && typeof c.balance === "number" && onCreditsChange) onCreditsChange(c.balance);
+    setCasus(c); setChecked(false); setStep(1);
+  }
 
   function handleEdit(id, value) {
     setCasus(prev => !prev ? prev : {
@@ -499,7 +519,7 @@ export function Tool({ onClose, session, onNeedLogin }) {
         </div>
       </div>
       <div className="tool-body">
-        {step === 0 && <UploadStep onResult={handleResult} session={session} onNeedLogin={onNeedLogin} />}
+        {step === 0 && <UploadStep onResult={handleResult} session={session} onNeedLogin={onNeedLogin} credits={credits} onNeedCredits={onNeedCredits} />}
         {step === 1 && casus && <VerifyStep onBack={() => setStep(0)} onNext={() => setStep(2)} checked={checked} setChecked={setChecked} casus={casus} onEdit={handleEdit} />}
         {step === 2 && casus && <PreviewStep onBack={() => setStep(1)} controleOk={checked} casus={casus} />}
       </div>

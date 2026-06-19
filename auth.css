@@ -61,3 +61,28 @@
   max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 @media (max-width: 720px) { .nav-account .who { display: none; } }
+
+/* Account-pagina */
+.account-wrap { max-width: 760px; margin: 0 auto; padding: 8px 4px 60px; }
+.account-card {
+  background: #fff; border: 1px solid var(--line, #e3e7ee); border-radius: 16px;
+  padding: 22px 24px; margin-bottom: 18px;
+}
+.account-card h2 { font-size: 18px; margin: 0 0 10px; color: var(--navy-900, #14264a); }
+.account-profile { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.acc-email { margin: 0; color: var(--ink, #18202f); font-weight: 600; }
+.acc-balance { font-size: 22px; margin: 0 0 4px; color: var(--navy-900, #14264a); }
+.acc-balance strong { font-size: 28px; }
+.acc-muted { color: var(--muted, #69748b); font-size: 16px; }
+.acc-sub { color: var(--muted, #69748b); font-size: 14px; margin: 0 0 18px; }
+.acc-fine { color: var(--muted, #69748b); font-size: 12.5px; margin: 12px 0 0; }
+.bundle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 560px) { .bundle-grid { grid-template-columns: 1fr; } }
+.bundle {
+  border: 1px solid var(--line, #e3e7ee); border-radius: 12px; padding: 16px;
+  text-align: center; display: flex; flex-direction: column; gap: 6px;
+}
+.bundle-credits { font-weight: 700; color: var(--navy-900, #14264a); }
+.bundle-price { font-size: 20px; font-weight: 800; color: var(--navy, #1f3864); }
+.bundle-note { font-size: 12px; color: var(--muted, #69748b); min-height: 16px; }
+.bundle .btn { margin-top: 6px; }

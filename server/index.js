@@ -14,6 +14,7 @@ import mammoth from "mammoth";
 import { extractFields } from "./extract.js";
 import { redactBSN } from "./redact.js";
 import { requireAuth, authConfigured } from "./auth.js";
+import { creditsConfigured, consumeCredit, refundCredit, addCredits, getBalance, BUNDLES } from "./credits.js";
 
 const app = express();
 app.set("trust proxy", 1); // achter de Railway-proxy: gebruik X-Forwarded-For voor req.ip
@@ -47,7 +48,7 @@ function rateLimit(req, res, next) {
 const upload = multer({ limits: { fileSize: 20 * 1024 * 1024 } }); // 20 MB
 
 app.get("/health", (_req, res) => {
-  res.json({ ok: true, model: process.env.PVA_MODEL || "claude-opus-4-8", keyConfigured: !!process.env.ANTHROPIC_API_KEY, authRequired: authConfigured() });
+  res.json({ ok: true, model: process.env.PVA_MODEL || "claude-opus-4-8", keyConfigured: !!process.env.ANTHROPIC_API_KEY, authRequired: authConfigured(), credits: creditsConfigured() });
 });
 
 app.post("/api/extract", rateLimit, requireAuth, upload.single("document"), async (req, res) => {
@@ -87,12 +88,96 @@ app.post("/api/extract", rateLimit, requireAuth, upload.single("document"), asyn
     }
 
     const functieomschrijving = redactBSN((req.body && req.body.functieomschrijving ? String(req.body.functieomschrijving) : "").trim());
-    const data = await extractFields(blocks, functieomschrijving);
-    res.json({ ok: true, data });
+
+    // Credit reserveren vóór de (betaalde) AI-call. Bij fout of Stap 0-weigering
+    // boeken we terug → netto kost alleen een geslaagde verwerking 1 credit, en
+    // de atomaire consume voorkomt double-spend op de laatste credit.
+    let reserved = false, balance = null;
+    if (creditsConfigured() && req.user && req.user.id) {
+      balance = await consumeCredit(req.user.id);
+      if (balance === null) {
+        return res.status(402).json({ error: "Je hebt geen credits meer. Koop credits om door te gaan.", code: "no_credits" });
+      }
+      reserved = true;
+    }
+
+    try {
+      const data = await extractFields(blocks, functieomschrijving);
+      // Stap 0-weigering = geen bruikbaar PvA → credit terugboeken (kost niets).
+      if (reserved && data && data.inputvalidatie && data.inputvalidatie.geschikt === false) {
+        try { balance = await refundCredit(req.user.id); } catch {}
+        reserved = false;
+      }
+      res.json({ ok: true, data, balance });
+    } catch (aiErr) {
+      if (reserved) { try { await refundCredit(req.user.id); } catch {} reserved = false; }
+      throw aiErr;
+    }
   } catch (err) {
     const status = err && err.status ? err.status : 500;
     console.error("extract-fout:", err && err.message ? err.message : err);
     res.status(status).json({ error: "Extractie mislukt", detail: err && err.message ? err.message : String(err) });
+  }
+});
+
+// ---- Credits: saldo opvragen ----
+app.get("/api/credits", requireAuth, async (req, res) => {
+  if (!creditsConfigured() || !req.user || !req.user.id) return res.json({ balance: null });
+  try { res.json({ balance: await getBalance(req.user.id) }); }
+  catch { res.status(502).json({ error: "Saldo niet op te halen." }); }
+});
+
+// ---- Credits: Mollie-checkout starten ----
+app.post("/api/checkout", requireAuth, async (req, res) => {
+  if (!creditsConfigured() || !process.env.MOLLIE_API_KEY) {
+    return res.status(503).json({ error: "Betalen is nog niet beschikbaar." });
+  }
+  const bundle = BUNDLES[req.body && req.body.bundle];
+  if (!bundle) return res.status(400).json({ error: "Onbekende bundel." });
+  const siteUrl = process.env.PVA_SITE_URL || "https://chrisschepers.github.io/Plan-van-aanpak/";
+  const backend = (process.env.PVA_PUBLIC_BACKEND || "").replace(/\/$/, "");
+  try {
+    const r = await fetch("https://api.mollie.com/v2/payments", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${process.env.MOLLIE_API_KEY}`, "content-type": "application/json" },
+      body: JSON.stringify({
+        amount: { currency: "EUR", value: (bundle.cents / 100).toFixed(2) },
+        description: `planvanaanpakinvuller.nl — ${bundle.label}`,
+        redirectUrl: `${siteUrl}?betaling=terug`,
+        webhookUrl: backend ? `${backend}/api/mollie-webhook` : undefined,
+        metadata: { userId: req.user.id, credits: bundle.credits, bundle: req.body.bundle, cents: bundle.cents },
+      }),
+    });
+    if (!r.ok) return res.status(502).json({ error: "Kon de betaling niet starten." });
+    const payment = await r.json();
+    res.json({ checkoutUrl: payment._links.checkout.href });
+  } catch (e) {
+    console.error("checkout-fout:", e && e.message ? e.message : e);
+    res.status(502).json({ error: "Kon de betaling niet starten." });
+  }
+});
+
+// ---- Credits: Mollie-webhook (server-naar-server; status bij Mollie verifiëren) ----
+app.post("/api/mollie-webhook", express.urlencoded({ extended: false }), async (req, res) => {
+  const id = req.body && req.body.id;
+  if (!id) return res.status(400).end();
+  if (!process.env.MOLLIE_API_KEY || !creditsConfigured()) return res.status(200).end();
+  try {
+    const r = await fetch(`https://api.mollie.com/v2/payments/${id}`, {
+      headers: { Authorization: `Bearer ${process.env.MOLLIE_API_KEY}` },
+    });
+    if (!r.ok) return res.status(200).end();
+    const p = await r.json();
+    if (p.status === "paid") {
+      const m = p.metadata || {};
+      if (m.userId && m.credits) {
+        await addCredits(m.userId, Number(m.credits), p.id, m.bundle || null, m.cents ? Number(m.cents) : null);
+      }
+    }
+    res.status(200).end();
+  } catch (e) {
+    console.error("mollie-webhook-fout:", e && e.message ? e.message : e);
+    res.status(500).end(); // Mollie retryt later
   }
 });
 
