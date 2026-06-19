@@ -23,6 +23,18 @@
    aan de afgegeven arbeidsmogelijkheden; en stel het Plan van Aanpak bij zodra
    de belastbaarheid wijzigt.
 
+ • No-riskpolis — loop het doelgroepregister na (niet missen)   [let op]
+   Het is enorm zonde als een no-riskpolis onbenut blijft: bij no-risk vergoedt
+   UWV via de Ziektewet (een deel van) je loonkosten als deze werknemer ziek is.
+   Loop daarom elke medewerker na in het doelgroepregister om te controleren of
+   er een registratie is — is die er, dan geldt no-risk. Je kunt deze uitlegvideo
+   naar je werknemer doorsturen; daarin wordt getoond hoe de werknemer zelf zo'n
+   registratie controleert: https://www.youtube.com/shorts/P7rFE1839P8. Er zijn
+   ook andere routes naar een no-riskstatus, bijvoorbeeld op basis van het
+   uitkeringsverleden. Leg in je dossier alleen vast dát no-risk van toepassing
+   is, nooit waarom (die reden is medisch of privé). Vragen over de no-riskpolis?
+   Mail gerust naar planvanaanpakinvuller@gmail.com.
+
 ================================================================================
  2. POORTWACHTER-TERMIJNEN (volledig overzicht; staat in scherm én document)
 ================================================================================
@@ -124,8 +136,8 @@
    afwijkende afspraken.)
 
  5b. 6 t/m 10 weken ziek op de einddatum
-   Het dienstverband eindigt op 14-04-2025; ziekteduur op die datum is ± 10
-   weken. Verkort re-integratieverslag, uiterlijk op de laatste dag van het
+   Het dienstverband eindigt op 14-04-2025; ziekteduur op die datum is ± 9 weken.
+   Verkort re-integratieverslag, uiterlijk op de laatste dag van het
    dienstverband. Geef het ziek-uit-dienstgaan door aan UWV (Ziektewet) en geef
    de werknemer een kopie van het verslag. Lever dezelfde
    re-integratie-inspanningen tot de laatste dag; wordt herstel vóór de einddatum
@@ -134,7 +146,7 @@
    afwijkende afspraken.)
 
  5c. Langer dan 10 weken ziek op de einddatum
-   Het dienstverband eindigt op 30-06-2025; ziekteduur op die datum is ± 21
+   Het dienstverband eindigt op 30-06-2025; ziekteduur op die datum is ± 20
    weken. Volledig re-integratieverslag (probleemanalyse, PvA + bijstellingen,
    evaluaties, actueel oordeel), uiterlijk op de laatste dag. Geef het
    ziek-uit-dienstgaan door aan UWV (Ziektewet) en geef de werknemer een kopie
@@ -144,7 +156,7 @@
    Ziektewet — afwijkende afspraken.)
 
  5d. Langer dan 10 weken, maar volledig herstel binnen 3 maanden verwacht (signaal)
-   Het dienstverband eindigt op 30-06-2025; ziekteduur op die datum is ± 21
+   Het dienstverband eindigt op 30-06-2025; ziekteduur op die datum is ± 20
    weken. Verkort re-integratieverslag volstaat (de bedrijfsarts verwacht
    volledig herstel binnen 3 maanden), uiterlijk op de laatste dag van het
    dienstverband. Geef het ziek-uit-dienstgaan door aan UWV (Ziektewet) en geef
@@ -237,7 +249,20 @@
       De belastbaarheid is gewijzigd terwijl het tweede-spoortraject loopt.
       Informeer het re-integratiebureau hier direct over (Werkwijzer 4.3.4).
 
- 6.9  Herstel verwacht binnen 3 maanden   [geen eigen alinea]
+ 6.9  Volledige werkhervatting — let op de 4-wekenregel   [aandachtspunt]
+      Gaat aan wanneer: De werknemer is (weer) volledig inzetbaar voor het
+      eigen werk in de eigen uren / heeft geen functionele beperkingen door
+      ziekte (bv. bij een herstelmelding of een arbeidsconflict zonder
+      ziekte).
+      Advies dat dan in het bericht komt:
+      De werknemer is (weer) volledig inzetbaar. Houd rekening met de
+      4-wekenregel: meldt de werknemer zich binnen vier weken na de
+      hersteldatum opnieuw ziek, dan worden de verzuimperioden als één
+      doorlopend verzuim gezien — de eerste ziektedag schuift niet op en de
+      wachttijd van 104 weken loopt door. Meld volledig herstel daarom pas als
+      de werkhervatting echt stabiel is.
+
+ 6.10  Herstel verwacht binnen 3 maanden   [geen eigen alinea]
       Gaat aan wanneer: de bedrijfsarts verwacht volledig herstel/volledige
       werkhervatting binnen circa 3 maanden.
       Effect: geen losse advies-alinea, maar bij ziek-uit-dienst volstaat dan

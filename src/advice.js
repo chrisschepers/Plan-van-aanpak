@@ -91,6 +91,8 @@ export const SIGNAAL_ADVIES = {
     body: "De belastbaarheid ontstaat pas na de eerstejaarsevaluatie. Houd dan maximaal 8 weken aan tussen het vaststellen van de belastbaarheid en de start van de activiteiten: 2 weken voor bijstelling van het Plan van Aanpak en 6 weken tot uitvoering (Werkwijzer 4.3.2)." },
   gewijzigdeBelastbaarheidSpoor2: { level: "attention", title: "Gewijzigde belastbaarheid terwijl spoor 2 loopt",
     body: "De belastbaarheid is gewijzigd terwijl het tweede-spoortraject loopt. Informeer het re-integratiebureau hier direct over (Werkwijzer 4.3.4)." },
+  volledigInzetbaar: { level: "attention", title: "Volledige werkhervatting — let op de 4-wekenregel",
+    body: "De werknemer is (weer) volledig inzetbaar. Houd rekening met de 4-wekenregel: meldt de werknemer zich binnen vier weken na de hersteldatum opnieuw ziek, dan worden de verzuimperioden als één doorlopend verzuim gezien — de eerste ziektedag schuift niet op en de wachttijd van 104 weken loopt door. Meld volledig herstel daarom pas als de werkhervatting echt stabiel is." },
 };
 
 // Dit signaal geeft geen eigen advies-alinea: het bepaalt mede welke
@@ -113,6 +115,13 @@ export function computeAdvice(fields, reportDate, signalen = {}) {
     level: "deadline",
     title: "Altijd",
     body: "Leg de terugkoppeling vast in het verzuimdossier; geef daadwerkelijk invulling aan de afgegeven arbeidsmogelijkheden; en stel het Plan van Aanpak bij zodra de belastbaarheid wijzigt.",
+  });
+
+  // ---- No-riskpolis (geldt voor elk nieuw/eerste PvA; bij een Bijstelling later te gaten) ----
+  advies.push({
+    level: "risk",
+    title: "No-riskpolis — loop het doelgroepregister na (niet missen)",
+    body: "Het is enorm zonde als een no-riskpolis onbenut blijft: bij no-risk vergoedt UWV via de Ziektewet (een deel van) je loonkosten als deze werknemer ziek is. Loop daarom elke medewerker na in het doelgroepregister om te controleren of er een registratie is — is die er, dan geldt no-risk. Je kunt deze uitlegvideo naar je werknemer doorsturen; daarin wordt getoond hoe de werknemer zelf zo'n registratie controleert: https://www.youtube.com/shorts/P7rFE1839P8. Er zijn ook andere routes naar een no-riskstatus, bijvoorbeeld op basis van het uitkeringsverleden. Leg in je dossier alleen vast dát no-risk van toepassing is, nooit waarom (die reden is medisch of privé). Vragen over de no-riskpolis? Mail gerust naar planvanaanpakinvuller@gmail.com.",
   });
 
   // ---- Tijdlijn op verzuimweek ----
