@@ -12,13 +12,36 @@ import cors from "cors";
 import multer from "multer";
 import mammoth from "mammoth";
 import { extractFields } from "./extract.js";
+import { redactBSN } from "./redact.js";
 
 const app = express();
+app.set("trust proxy", 1); // achter de Railway-proxy: gebruik X-Forwarded-For voor req.ip
 app.use(express.json({ limit: "2mb" }));
 
 // CORS: standaard alles toestaan (demo). Beperk in productie met ALLOWED_ORIGIN.
 const allowed = (process.env.ALLOWED_ORIGIN || "*").split(",").map((s) => s.trim());
 app.use(cors({ origin: allowed.includes("*") ? true : allowed }));
+if (allowed.includes("*")) console.warn("LET OP: CORS staat open voor alle origins. Zet ALLOWED_ORIGIN in productie (bv. https://chrisschepers.github.io).");
+
+// Eenvoudige in-memory rate-limiter per IP (één Railway-instance, geen externe
+// dependency): beschermt /api/extract tegen kostenmisbruik. Instelbaar via env.
+const RATE_MAX = parseInt(process.env.PVA_RATE_MAX || "20", 10);
+const RATE_WINDOW_MS = parseInt(process.env.PVA_RATE_WINDOW_MS || String(10 * 60 * 1000), 10);
+const rateHits = new Map(); // ip -> timestamps[]
+function rateLimit(req, res, next) {
+  const now = Date.now();
+  const ip = req.ip || "onbekend";
+  const recent = (rateHits.get(ip) || []).filter((t) => now - t < RATE_WINDOW_MS);
+  if (recent.length >= RATE_MAX) {
+    res.set("Retry-After", String(Math.ceil(RATE_WINDOW_MS / 1000)));
+    return res.status(429).json({ error: "Te veel verzoeken vanaf dit adres. Probeer het later opnieuw." });
+  }
+  recent.push(now);
+  rateHits.set(ip, recent);
+  // Opruimen: verwijder IP's zonder recente activiteit zodra de map groot wordt.
+  if (rateHits.size > 5000) for (const [k, v] of rateHits) if (!v.some((t) => now - t < RATE_WINDOW_MS)) rateHits.delete(k);
+  next();
+}
 
 const upload = multer({ limits: { fileSize: 20 * 1024 * 1024 } }); // 20 MB
 
@@ -26,7 +49,7 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, model: process.env.PVA_MODEL || "claude-opus-4-8", keyConfigured: !!process.env.ANTHROPIC_API_KEY });
 });
 
-app.post("/api/extract", upload.single("document"), async (req, res) => {
+app.post("/api/extract", rateLimit, upload.single("document"), async (req, res) => {
   try {
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({ error: "Server niet geconfigureerd: ANTHROPIC_API_KEY ontbreekt." });
@@ -49,20 +72,20 @@ app.post("/api/extract", upload.single("document"), async (req, res) => {
       } else if (isDocx) {
         const { value } = await mammoth.extractRawText({ buffer: file.buffer });
         if (!value || !value.trim()) return res.status(400).json({ error: "Geen tekst gevonden in het Word-bestand." });
-        blocks = [{ type: "text", text: value }];
+        blocks = [{ type: "text", text: redactBSN(value) }];
       } else {
         // probeer als platte tekst
         const text = file.buffer.toString("utf8");
         if (!text.trim()) return res.status(400).json({ error: "Niet-ondersteund bestandstype. Gebruik PDF, .docx of platte tekst." });
-        blocks = [{ type: "text", text }];
+        blocks = [{ type: "text", text: redactBSN(text) }];
       }
     } else if (pastedText) {
-      blocks = [{ type: "text", text: pastedText }];
+      blocks = [{ type: "text", text: redactBSN(pastedText) }];
     } else {
       return res.status(400).json({ error: "Lever een bestand (veld 'document') of { text } aan." });
     }
 
-    const functieomschrijving = (req.body && req.body.functieomschrijving ? String(req.body.functieomschrijving) : "").trim();
+    const functieomschrijving = redactBSN((req.body && req.body.functieomschrijving ? String(req.body.functieomschrijving) : "").trim());
     const data = await extractFields(blocks, functieomschrijving);
     res.json({ ok: true, data });
   } catch (err) {
