@@ -3,8 +3,7 @@
    - Demo: de voorbeeldcasus (J. de Vries), volledig client-side.
    - AI: een geüpload bestand of geplakte tekst → backend (Claude) → gegevens. */
 
-import { I, CASE, INITIAL_FIELDS, MISSING } from "./data.jsx";
-import { computeSchema } from "./engine.js";
+import { I, MISSING } from "./data.jsx";
 import { SchemaTable, FieldsPanel, TermijnenTabel } from "./fields.jsx";
 import { SourceDoc } from "./sourcedoc.jsx";
 import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
@@ -41,16 +40,6 @@ function extOf(name) {
   return m ? m[1].toLowerCase() : "";
 }
 
-function demoCasus() {
-  const schema = computeSchema(CASE);
-  return {
-    mode: "demo", fields: INITIAL_FIELDS, schema, schemaZelfOpgesteld: false, opbouwReden: "", reportDate: CASE.reportDate, sources: null, contractHours: CASE.contractHours,
-    functieomschrijving: "Administratief medewerker: postverwerking, gegevensinvoer, factuurcontrole, archiefbeheer en telefonische klantvragen.",
-    taaksuggestie: "lichte administratieve taken zoals gegevensinvoer en het ordenen van dossiers, in blokken van beperkte duur met afwisseling tussen zitten en staan, en zonder taken met piekbelasting of strakke deadlines",
-    signalen: {},
-  };
-}
-
 /* ---------- Stap 1: Upload ---------- */
 function UploadStep({ onResult, session, onNeedLogin, credits, onNeedCredits }) {
   const [file, setFile] = React.useState(null);   // { name,size,type,real,file? }
@@ -59,7 +48,6 @@ function UploadStep({ onResult, session, onNeedLogin, credits, onNeedCredits }) 
   const [drag, setDrag] = React.useState(false);
   const [error, setError] = React.useState(null);
   const [busy, setBusy] = React.useState(false);   // AI-aanroep loopt
-  const [demoProc, setDemoProc] = React.useState(false);
   const [noMedical, setNoMedical] = React.useState(false);
   const [functie, setFunctie] = React.useState("");   // optionele functieomschrijving
   const inputRef = React.useRef(null);
@@ -75,16 +63,10 @@ function UploadStep({ onResult, session, onNeedLogin, credits, onNeedCredits }) 
     setFile({ name: f.name, size: fmtSize(f.size), type: ext === "pdf" ? "pdf" : "doc", real: true, file: f });
   }
 
-  function pickExample() {
-    setError(null); setPaste(false);
-    setFile({ name: "terugkoppeling-bedrijfsarts.pdf", size: "248 kB", type: "pdf", real: false });
-  }
-
   async function process() {
     setError(null);
-    if (file && !file.real) { setDemoProc(true); return; }          // voorbeeldcasus
     if (!hasBackend()) {
-      setError("Er is nog geen AI-backend gekoppeld. Gebruik voorlopig de voorbeeldcasus, of stel de backend-URL in (window.__PVA_BACKEND__).");
+      setError("Er is nog geen AI-backend gekoppeld (window.__PVA_BACKEND__ ontbreekt).");
       return;
     }
     if (authConfigured() && !session) {
@@ -125,11 +107,10 @@ function UploadStep({ onResult, session, onNeedLogin, credits, onNeedCredits }) 
     }
   }
 
-  if (demoProc) return <Processing onDone={() => onResult(demoCasus())} />;
   if (busy) return <AiBusy />;
 
-  const isReal = (file && file.real) || (paste && text.trim().length > 20);
-  const canSubmit = (!!file || (paste && text.trim().length > 20)) && (!isReal || noMedical);
+  const hasInput = !!file || (paste && text.trim().length > 20);
+  const canSubmit = hasInput && noMedical;
 
   return (
     <div className="upload-wrap">
@@ -181,23 +162,22 @@ function UploadStep({ onResult, session, onNeedLogin, credits, onNeedCredits }) 
       {!file && (
         <p className="example-link">
           {!paste
-            ? <>Liever tekst plakken? <button type="button" onClick={() => { setPaste(true); setError(null); }}>Plak de tekst</button> · </>
-            : <>Toch een bestand? <button type="button" onClick={() => { setPaste(false); setText(""); }}>Kies een bestand</button> · </>}
-          Geen casus bij de hand? <button type="button" onClick={pickExample}>Gebruik de voorbeeldcasus (J. de Vries)</button>
+            ? <>Liever tekst plakken? <button type="button" onClick={() => { setPaste(true); setError(null); }}>Plak de tekst</button></>
+            : <>Toch een bestand? <button type="button" onClick={() => { setPaste(false); setText(""); }}>Kies een bestand</button></>}
         </p>
       )}
 
       {!hasBackend() && (
         <div className="demo-note">
           {I.info}
-          <p><strong>AI nog niet gekoppeld.</strong> Zonder backend werkt alleen de voorbeeldcasus. Zet je Railway-URL in <code>window.__PVA_BACKEND__</code> om echte documenten te laten uitlezen. Gebruik uitsluitend fictieve terugkoppelingen.</p>
+          <p><strong>AI nog niet gekoppeld.</strong> Zet je Railway-URL in <code>window.__PVA_BACKEND__</code> om documenten te laten uitlezen.</p>
         </div>
       )}
 
       {hasBackend() && authConfigured() && !session && (
         <div className="demo-note">
           {I.info}
-          <p><strong>Inloggen vereist voor echte documenten.</strong> De voorbeeldcasus werkt zonder account. <button type="button" onClick={onNeedLogin}>Log in</button> om je eigen terugkoppeling te verwerken.</p>
+          <p><strong>Inloggen vereist.</strong> <button type="button" onClick={onNeedLogin}>Log in</button> om je terugkoppeling te verwerken.</p>
         </div>
       )}
 
@@ -221,7 +201,7 @@ function UploadStep({ onResult, session, onNeedLogin, credits, onNeedCredits }) 
         <p><strong>Privacy by design.</strong> Bijzondere persoonsgegevens (diagnose, behandeling, klachten) en het BSN worden <strong>niet</strong> overgenomen in het concept.</p>
       </div>
 
-      {isReal && (
+      {hasInput && (
         <label className={"control-check confirm-medical" + (noMedical ? " on" : "")} onClick={() => setNoMedical(!noMedical)}>
           <span className="box">{I.checkSm}</span>
           <span className="ct">
@@ -247,37 +227,6 @@ function AiBusy() {
       <div className="proc-ring"></div>
       <h3 style={{ fontSize: 21 }}>De AI leest de terugkoppeling…</h3>
       <p style={{ color: "var(--muted)", marginTop: 8 }}>Functionele gegevens worden uitgelezen; medische informatie wordt gefilterd. Dit duurt meestal 5–20 seconden.</p>
-    </div>
-  );
-}
-
-const PROC = [
-  "Document inlezen",
-  "Medische gegevens filteren",
-  "Functionele gegevens extraheren",
-  "Opbouwschema berekenen",
-];
-
-function Processing({ onDone }) {
-  const [stage, setStage] = React.useState(0);
-  React.useEffect(() => {
-    const timers = PROC.map((_, i) => setTimeout(() => setStage(i + 1), 320 + i * 360));
-    const fin = setTimeout(onDone, 320 + PROC.length * 360 + 250);
-    return () => { timers.forEach(clearTimeout); clearTimeout(fin); };
-  }, []);
-  return (
-    <div className="processing">
-      <div className="proc-ring"></div>
-      <h3 style={{ fontSize: 21 }}>Concept wordt opgesteld…</h3>
-      <p style={{ color: "var(--muted)", marginTop: 8 }}>Dit duurt normaal een paar seconden.</p>
-      <div className="proc-steps">
-        {PROC.map((p, i) => (
-          <div className={"proc-line" + (stage > i ? " ok" : stage === i ? " active" : "")} key={i}>
-            <span className="tick">{stage > i ? React.cloneElement(I.checkSm, { style: { width: 12, height: 12 } }) : null}</span>
-            {p}
-          </div>
-        ))}
-      </div>
     </div>
   );
 }

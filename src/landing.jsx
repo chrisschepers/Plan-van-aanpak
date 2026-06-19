@@ -1,6 +1,10 @@
 /* Landing page sections */
 
-import { I } from "./data.jsx";
+import { I, CASE, INITIAL_FIELDS } from "./data.jsx";
+import { computeSchema } from "./engine.js";
+import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
+
+const { useState } = React;
 
 function Nav({ onOpenTool, session, onOpenLogin, onLogout, onOpenAccount }) {
   const email = session && session.user ? session.user.email : "";
@@ -53,46 +57,71 @@ function Hero({ onOpenTool }) {
           </div>
         </div>
         <div className="hero-visual reveal">
-          <HeroDiagram />
+          <HeroTeaser />
         </div>
       </div>
     </section>
   );
 }
 
-function HeroDiagram() {
+// Subtiele hero-teaser: een echt-ogend stukje resultaat (opbouwadvies) i.p.v. een
+// schematisch plaatje. Puur client-side, geen backend.
+function HeroTeaser() {
+  const schema = computeSchema(CASE);
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 14, alignItems: "center" }}>
-      <div className="doc-card">
-        <div className="doc-head">
-          <span className="ico" style={{ background: "var(--flag-bg)", color: "var(--flag-text)" }}>{I.doc}</span>
-          Terugkoppeling bedrijfsarts
-        </div>
-        <div className="skline w85"></div>
-        <div className="skline hl w70"></div>
-        <div className="skline redact w55"></div>
-        <div className="skline hl w90"></div>
-        <div className="skline w40"></div>
-        <div className="skline redact w70"></div>
-        <div className="skline hl w55"></div>
-      </div>
-      <div className="flow-arrow">{I.arrowRight}</div>
-      <div className="doc-card" style={{ borderColor: "var(--accent-100)" }}>
-        <div className="doc-head">
-          <span className="ico" style={{ background: "var(--accent-50)", color: "var(--accent-700)" }}>{I.check}</span>
-          Concept Plan van Aanpak
-        </div>
-        <div className="skline w90"></div>
-        <div className="skline w70"></div>
-        <div className="skline w85"></div>
-        <div style={{ display: "flex", gap: 6, margin: "12px 0 6px" }}>
-          <div className="pill pill-ok" style={{ fontSize: 11 }}><span className="pdot"></span>Ingevuld</div>
-          <div className="pill pill-amber" style={{ fontSize: 11 }}>Bron getoond</div>
-        </div>
-        <div className="skline w55"></div>
-        <div className="skline w70"></div>
-      </div>
+    <div className="hero-teaser">
+      <div className="ht-bar"><span className="ht-dot"></span>Concept · automatisch ingevuld</div>
+      <div className="ht-title">Opbouwadvies — J. de Vries</div>
+      <table className="ht-table"><tbody>
+        {schema.slice(0, 5).map((r, i) => (
+          <tr key={i}><td>{r.date}</td><td>{r.hours} uur/week</td><td className="ht-pct">{r.pct}%</td></tr>
+        ))}
+      </tbody></table>
+      <a className="ht-link" href="#voorbeeld">Bekijk het volledige voorbeeld {I.arrowRight}</a>
     </div>
+  );
+}
+
+// Statische voorbeeldcasus (J. de Vries) voor het showcase-blok — rendert de
+// bestaande preview-componenten client-side; geen backend en geen credits.
+const VOORBEELD_FUNCTIE = "Administratief medewerker: postverwerking, gegevensinvoer, factuurcontrole, archiefbeheer en telefonische klantvragen.";
+const VOORBEELD_TAAK = "lichte administratieve taken zoals gegevensinvoer en het ordenen van dossiers, in blokken van beperkte duur met afwisseling tussen zitten en staan, en zonder taken met piekbelasting of strakke deadlines";
+function voorbeeldCasus() {
+  return {
+    fields: INITIAL_FIELDS, schema: computeSchema(CASE), reportDate: CASE.reportDate,
+    functieomschrijving: VOORBEELD_FUNCTIE, taaksuggestie: VOORBEELD_TAAK,
+    signalen: {}, schemaZelfOpgesteld: false, opbouwReden: "",
+  };
+}
+
+function Showcase() {
+  const [tab, setTab] = useState(0);
+  const c = voorbeeldCasus();
+  const tabs = [
+    { t: "Opbouwadvies", el: <AdviesPreview fields={c.fields} schema={c.schema} reportDate={c.reportDate} schemaZelfOpgesteld={c.schemaZelfOpgesteld} opbouwReden={c.opbouwReden} /> },
+    { t: "Plan van Aanpak", el: <PvaPreview fields={c.fields} schema={c.schema} functieomschrijving={c.functieomschrijving} opbouwReden={c.opbouwReden} signalen={c.signalen} /> },
+    { t: "Begeleidend bericht", el: <BerichtPreview fields={c.fields} schema={c.schema} reportDate={c.reportDate} taaksuggestie={c.taaksuggestie} signalen={c.signalen} schemaZelfOpgesteld={c.schemaZelfOpgesteld} opbouwReden={c.opbouwReden} /> },
+  ];
+  return (
+    <section className="section showcase" id="voorbeeld">
+      <div className="wrap">
+        <div className="sec-head reveal">
+          <span className="eyebrow"><span className="dot"></span>Voorbeeldresultaat</span>
+          <h2>Zo ziet het ingevulde concept eruit</h2>
+          <p>Automatisch gegenereerd uit een fictieve terugkoppeling — geen echte gegevens.</p>
+        </div>
+        <div className="showcase-frame reveal">
+          <div className="preview-tabs">
+            {tabs.map((tb, i) => (
+              <button key={i} className={tab === i ? "active" : ""} onClick={() => setTab(i)}>
+                <span className="tnum">{i + 1}</span><span className="txt">{tb.t}</span>
+              </button>
+            ))}
+          </div>
+          <div className="showcase-doc">{tabs[tab].el}</div>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -363,6 +392,7 @@ export function Landing({ onOpenTool, onOpenPrivacy, session, onOpenLogin, onLog
       <Nav onOpenTool={onOpenTool} session={session} onOpenLogin={onOpenLogin} onLogout={onLogout} onOpenAccount={onOpenAccount} />
       <Hero onOpenTool={onOpenTool} />
       <HowItWorks />
+      <Showcase />
       <USP />
       <Hybrid />
       <Compliance onOpenPrivacy={onOpenPrivacy} />
