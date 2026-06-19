@@ -36,11 +36,13 @@ export async function mergeLetterAndForm(letterData, formData) {
   const bodyInner = lDoc.slice(lDoc.indexOf("<w:body>") + 8, lDoc.lastIndexOf("</w:body>"));
   const sectStart = bodyInner.lastIndexOf("<w:sectPr");
   if (sectStart < 0) throw new Error("Brief mist sectie-eigenschappen");
-  const letterContent = bodyInner.slice(0, sectStart);
+  let letterContent = bodyInner.slice(0, sectStart);
   let letterSect = bodyInner.slice(sectStart); // <w:sectPr ...>...</w:sectPr>
 
-  if (/r:embed=|r:link=|r:id="rId/.test(letterContent)) {
-    throw new Error("Brief-inhoud bevat onverwachte relaties (afbeelding/koppeling)");
+  // Hyperlinks (r:id) in de brief zijn toegestaan en worden verderop meegenomen;
+  // afbeeldingen/ingesloten objecten (r:embed/r:link) ondersteunen we niet in de brief.
+  if (/r:embed=|r:link=/.test(letterContent)) {
+    throw new Error("Brief-inhoud bevat een afbeelding of ingesloten object (niet ondersteund)");
   }
 
   // Alle kop-/voet-parts van de brief (eerste pagina + vervolg + voet).
@@ -55,6 +57,7 @@ export async function mergeLetterAndForm(letterData, formData) {
   let tCT = await T.file("[Content_Types].xml").async("string");
 
   const maxId = Math.max(0, ...[...tRels.matchAll(/Id="rId(\d+)"/g)].map((m) => +m[1]));
+  let nextId = maxId + 1; // verse rId's voor kop/voet, lege kop en brief-hyperlinks
 
   let ctAdd = "", relAdd = "";
   let n = 0;
@@ -77,7 +80,7 @@ export async function mergeLetterAndForm(letterData, formData) {
       T.file(`word/_rels/${name}.rels`, prels);
     }
 
-    const newId = "rId" + (maxId + n);
+    const newId = "rId" + nextId; nextId++;
     ctAdd += `<Override PartName="/word/${name}" ContentType="${part.ct}"/>`;
     relAdd += `<Relationship Id="${newId}" Type="${REL}${part.kind}" Target="${name}"/>`;
     letterSect = letterSect.split(`r:id="${part.id}"`).join(`r:id="${newId}"`);
@@ -96,7 +99,7 @@ export async function mergeLetterAndForm(letterData, formData) {
   const formSects = [...tDoc.matchAll(formSectRe)];
   const lastSect = formSects[formSects.length - 1]; // body-sectPr van het formulier
   if (lastSect && !/w:headerReference[^>]*w:type="first"/.test(lastSect[1])) {
-    const blankId = "rId" + (maxId + parts.length + 1);
+    const blankId = "rId" + nextId; nextId++;
     T.file("word/headerBlank.xml",
       '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
       '<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p/></w:hdr>');
@@ -105,6 +108,22 @@ export async function mergeLetterAndForm(letterData, formData) {
     const patched = lastSect[0].replace(/^(<w:sectPr\b[^>]*>)/,
       `$1<w:headerReference w:type="first" r:id="${blankId}"/>`);
     tDoc = tDoc.slice(0, lastSect.index) + patched + tDoc.slice(lastSect.index + lastSect[0].length);
+  }
+
+  // Brief-hyperlinks (externe links): relaties meenemen met verse rId's en de
+  // verwijzingen in de brief-inhoud bijwerken zodat ze in het samengevoegde
+  // document blijven werken.
+  const hyperRx = /<Relationship\b[^>]*Type="[^"]*\/hyperlink"[^>]*>/g;
+  let hm;
+  while ((hm = hyperRx.exec(lRels))) {
+    // De docx-bibliotheek geeft hyperlinks een niet-numeriek Id (bv. rIdab12cd),
+    // dus matchen we elk Id, niet alleen rId+cijfers.
+    const id = /Id="([^"]+)"/.exec(hm[0]);
+    const tgt = /Target="([^"]*)"/.exec(hm[0]);
+    if (!id || !tgt) continue;
+    const newId = "rId" + nextId; nextId++;
+    relAdd += `<Relationship Id="${newId}" Type="${REL}hyperlink" Target="${tgt[1]}" TargetMode="External"/>`;
+    letterContent = letterContent.split(`r:id="${id[1]}"`).join(`r:id="${newId}"`);
   }
 
   T.file("[Content_Types].xml", tCT.replace("</Types>", ctAdd + "</Types>"));

@@ -4,7 +4,7 @@
    het begeleidend bericht. */
 
 import {
-  Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType,
+  Document, Packer, Paragraph, TextRun, ExternalHyperlink, HeadingLevel, AlignmentType,
   Table, TableRow, TableCell, WidthType, BorderStyle, PageBreak,
   Header, Footer, ShadingType, VerticalAlign, ImageRun, TabStopType,
   PageNumber, HorizontalPositionRelativeFrom, VerticalPositionRelativeFrom,
@@ -12,7 +12,7 @@ import {
 } from "docx";
 import { getVal, isMissing } from "./casedata.js";
 import { fullRecoveryDate } from "./engine.js";
-import { adviceParagraphs, poortwachterTermijnen, berichtKern } from "./advice.js";
+import { adviceParagraphs, poortwachterTermijnen, berichtKern, splitLinks } from "./advice.js";
 import { fillTemplate, buildUwvValues } from "./filltemplate.js";
 import { BAND_PNG, DECO_PNG, MARK_PNG, pngBytes } from "./brandassets.js";
 
@@ -142,9 +142,21 @@ function h2(text) {
   return new Paragraph({ spacing: { before: 200, after: 80 },
     children: [new TextRun({ text, bold: true, color: NAVY, size: 24, font: FONT })] });
 }
+// Maakt URL's en e-mailadressen in lopende tekst klikbaar (ExternalHyperlink).
+function linkChildren(text, opts = {}) {
+  return splitLinks(text).map((part) => {
+    if (part.type === "text") {
+      return new TextRun({ text: part.value, color: opts.color, italics: opts.italics, size: 22, font: FONT });
+    }
+    const href = part.type === "email" ? `mailto:${part.value}` : part.value;
+    return new ExternalHyperlink({
+      link: href,
+      children: [new TextRun({ text: part.value, size: 22, font: FONT, color: "0563C1", underline: {} })],
+    });
+  });
+}
 function p(text, opts = {}) {
-  return new Paragraph({ spacing: { after: 120 },
-    children: [new TextRun({ text, color: opts.color, italics: opts.italics, size: 22, font: FONT })] });
+  return new Paragraph({ spacing: { after: 120 }, children: linkChildren(text, opts) });
 }
 function sub(text) {
   return new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text, color: GREY, size: 20, font: FONT })] });

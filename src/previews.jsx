@@ -7,7 +7,7 @@
 import { I, getVal, isMissing } from "./data.jsx";
 import { fullRecoveryDate } from "./engine.js";
 import { SchemaRows, TermijnenTabel } from "./fields.jsx";
-import { adviceParagraphs, berichtKern } from "./advice.js";
+import { adviceParagraphs, berichtKern, splitLinks } from "./advice.js";
 
 function DocPreviewHead({ title, icon }) {
   return (
@@ -196,6 +196,15 @@ export function PvaPreview({ fields, schema, functieomschrijving, opbouwReden })
   );
 }
 
+// Maakt URL's en e-mailadressen klikbaar in de preview.
+function linkify(text) {
+  return splitLinks(text).map((part, i) => {
+    if (part.type === "text") return part.value;
+    const href = part.type === "email" ? `mailto:${part.value}` : part.value;
+    return <a key={i} href={href} target={part.type === "url" ? "_blank" : undefined} rel="noopener noreferrer">{part.value}</a>;
+  });
+}
+
 // 3 — Begeleidend bericht aan werkgever (met de adviezen verweven)
 export function BerichtPreview({ fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden }) {
   const naam = getVal(fields, "naam");
@@ -215,7 +224,7 @@ export function BerichtPreview({ fields, schema, reportDate, taaksuggestie, sign
           opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. {reportDate}.
         </p>
         {kern.map((t, i) => <p key={"k" + i}>{t}</p>)}
-        {alineas.map((t, i) => <p key={i}>{t}</p>)}
+        {alineas.map((t, i) => <p key={i}>{linkify(t)}</p>)}
         {taak && (
           <p>
             <strong>Suggestie voor aangepaste taken.</strong> Op basis van de functieomschrijving zou je —

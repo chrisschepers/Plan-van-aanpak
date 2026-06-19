@@ -81,5 +81,12 @@ const relIds = new Set([...mRels.matchAll(/Id="(rId\d+)"/g)].map((m) => m[1]));
 const used = [...mDoc.matchAll(/r:id="(rId\d+)"/g)].map((m) => m[1]);
 check("alle header/footer-verwijzingen resolven", used.every((id) => relIds.has(id)));
 
+// 3b) Brief-hyperlinks (no-risk: uitlegvideo + e-mail) als externe relatie meegenomen
+const hyperRels = [...mRels.matchAll(/<Relationship[^>]*\/hyperlink"[^>]*>/g)].map((m) => m[0]);
+check("brief-hyperlinks als externe relatie in rels", hyperRels.length >= 2 && hyperRels.every((r) => r.includes('TargetMode="External"')));
+check("hyperlink-doelen aanwezig (video + mailto)", mRels.includes("youtube.com/shorts/P7rFE1839P8") && mRels.includes("mailto:planvanaanpakinvuller@gmail.com"));
+const hyperUsed = [...mDoc.matchAll(/<w:hyperlink[^>]*r:id="(rId\d+)"/g)].map((m) => m[1]);
+check("hyperlink-verwijzingen in de brief resolven", hyperUsed.length >= 2 && hyperUsed.every((id) => relIds.has(id)));
+
 console.log(failures === 0 ? "\nAlle merge-checks geslaagd." : `\n${failures} merge-check(s) gefaald.`);
 process.exit(failures === 0 ? 0 : 1);

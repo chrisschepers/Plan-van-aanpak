@@ -2839,6 +2839,19 @@
     }
     return alineas;
   }
+  function splitLinks(text) {
+    const s = String(text == null ? "" : text);
+    const re = /(https?:\/\/[^\s)]*[^\s).,;:!?])|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/g;
+    const parts = [];
+    let last = 0, m;
+    while ((m = re.exec(s)) !== null) {
+      if (m.index > last) parts.push({ type: "text", value: s.slice(last, m.index) });
+      parts.push(m[1] ? { type: "url", value: m[1] } : { type: "email", value: m[2] });
+      last = re.lastIndex;
+    }
+    if (last < s.length) parts.push({ type: "text", value: s.slice(last) });
+    return parts;
+  }
 
   // src/fields.jsx
   function TermijnenTabel({ fields, compact }) {
@@ -3004,13 +3017,20 @@
       ["Werknemer verschijnt op het vervolgconsult bij de bedrijfsarts.", "Werknemer", "Conform oproep arbodienst"]
     ] }), /* @__PURE__ */ React.createElement("div", { className: "uwv-cat" }, "7F  Overige activiteiten"), /* @__PURE__ */ React.createElement(ActTable, { rows: [["Werkgever en werknemer evalueren de voortgang en stellen het Plan van aanpak bij wanneer de belastbaarheid wijzigt.", "Werkgever en werknemer", "Elke 6 weken"]] }), /* @__PURE__ */ React.createElement(UwvBar, { nr: "8" }, "Mening over de gemaakte afspraken"), /* @__PURE__ */ React.createElement(UwvHelp, null, "In te vullen door werknemer en werkgever zelf."), /* @__PURE__ */ React.createElement(UwvBar, { nr: "9" }, "Te laat opgesteld Plan van aanpak"), /* @__PURE__ */ React.createElement(UwvRow, { label: "Reden", value: "" }), /* @__PURE__ */ React.createElement(UwvBar, { nr: "10" }, "Ondertekening"), /* @__PURE__ */ React.createElement("div", { className: "uwv-sign" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, "Werkgever"), /* @__PURE__ */ React.createElement("span", null, "Datum: ____________"), /* @__PURE__ */ React.createElement("span", null, "Handtekening:")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, "Werknemer"), /* @__PURE__ */ React.createElement("span", null, "Datum: ____________"), /* @__PURE__ */ React.createElement("span", null, "Handtekening:"))), /* @__PURE__ */ React.createElement("div", { className: "uwv-foot" }, "AG140  03041  05-23")));
   }
+  function linkify(text) {
+    return splitLinks(text).map((part, i) => {
+      if (part.type === "text") return part.value;
+      const href = part.type === "email" ? `mailto:${part.value}` : part.value;
+      return /* @__PURE__ */ React.createElement("a", { key: i, href, target: part.type === "url" ? "_blank" : void 0, rel: "noopener noreferrer" }, part.value);
+    });
+  }
   function BerichtPreview({ fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden }) {
     const naam = getVal(fields, "naam");
     const werknemer = isMissing(naam) ? "je werknemer" : naam;
     const kern = berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden);
     const alineas = adviceParagraphs(fields, reportDate, signalen);
     const taak = (taaksuggestie || "").trim();
-    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), kern.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: "k" + i }, t)), alineas.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: i }, t)), taak && /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Suggestie voor aangepaste taken."), " Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ", taak, ".", " ", /* @__PURE__ */ React.createElement("em", null, "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.")), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 } }, "[INVULLEN: naam afzender]"), /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontSize: 13 } }, "[INVULLEN: functie, bv. casemanager verzuim]"))));
+    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), kern.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: "k" + i }, t)), alineas.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: i }, linkify(t))), taak && /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Suggestie voor aangepaste taken."), " Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ", taak, ".", " ", /* @__PURE__ */ React.createElement("em", null, "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.")), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 } }, "[INVULLEN: naam afzender]"), /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontSize: 13 } }, "[INVULLEN: functie, bv. casemanager verzuim]"))));
   }
 
   // node_modules/docx/dist/index.mjs
@@ -22265,11 +22285,20 @@
       children: [new TextRun({ text, bold: true, color: NAVY, size: 24, font: FONT })]
     });
   }
-  function p(text, opts = {}) {
-    return new Paragraph({
-      spacing: { after: 120 },
-      children: [new TextRun({ text, color: opts.color, italics: opts.italics, size: 22, font: FONT })]
+  function linkChildren(text, opts = {}) {
+    return splitLinks(text).map((part) => {
+      if (part.type === "text") {
+        return new TextRun({ text: part.value, color: opts.color, italics: opts.italics, size: 22, font: FONT });
+      }
+      const href = part.type === "email" ? `mailto:${part.value}` : part.value;
+      return new ExternalHyperlink({
+        link: href,
+        children: [new TextRun({ text: part.value, size: 22, font: FONT, color: "0563C1", underline: {} })]
+      });
     });
+  }
+  function p(text, opts = {}) {
+    return new Paragraph({ spacing: { after: 120 }, children: linkChildren(text, opts) });
   }
   function sub(text) {
     return new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text, color: GREY, size: 20, font: FONT })] });

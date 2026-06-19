@@ -268,3 +268,20 @@ export function adviceParagraphs(fields, reportDate, signalen = {}) {
   }
   return alineas;
 }
+
+/** Splitst lopende tekst in segmenten {type:'text'|'url'|'email', value}, zodat de
+ *  preview (HTML <a>) en de .docx-export (ExternalHyperlink) links klikbaar maken.
+ *  Trailing leestekens (.,;:!?) blijven buiten de link. */
+export function splitLinks(text) {
+  const s = String(text == null ? "" : text);
+  const re = /(https?:\/\/[^\s)]*[^\s).,;:!?])|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})/g;
+  const parts = [];
+  let last = 0, m;
+  while ((m = re.exec(s)) !== null) {
+    if (m.index > last) parts.push({ type: "text", value: s.slice(last, m.index) });
+    parts.push(m[1] ? { type: "url", value: m[1] } : { type: "email", value: m[2] });
+    last = re.lastIndex;
+  }
+  if (last < s.length) parts.push({ type: "text", value: s.slice(last) });
+  return parts;
+}
