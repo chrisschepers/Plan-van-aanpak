@@ -76,26 +76,35 @@ export function poortwachterTermijnen(fields) {
 // Voorwaardelijke Werkwijzer-adviezen, afgevuurd op signaalwoorden die de AI detecteert.
 // De teksten komen letterlijk in het begeleidend bericht; daarom geformuleerd als
 // direct advies (de situatie is op dat moment al vastgesteld).
+// `body` = volledige tekst (catalogus); `kort` = één-regelige variant voor de bullet-lijst
+// in het begeleidend bericht.
 export const SIGNAAL_ADVIES = {
   geenBenutbareMogelijkheden: { level: "risk", title: "Geen benutbare mogelijkheden (GBM)",
-    body: "De bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn. Forceer dan geen re-integratieactiviteiten: de bedrijfsarts houdt de vinger aan de pols — plan vervolgconsulten en leg elke terugkoppeling vast in het verzuimdossier. Duurt deze situatie de volle twee jaar, dan volstaat een beperkt re-integratieverslag (Werkwijzer 5.9, 3.1)." },
+    body: "De bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn. Forceer dan geen re-integratieactiviteiten: de bedrijfsarts houdt de vinger aan de pols — plan vervolgconsulten en leg elke terugkoppeling vast in het verzuimdossier. Duurt deze situatie de volle twee jaar, dan volstaat een beperkt re-integratieverslag (Werkwijzer 5.9, 3.1).",
+    kort: "Geen benutbare mogelijkheden: forceer geen re-integratie, plan vervolgconsulten en leg elke terugkoppeling vast in het verzuimdossier (Werkwijzer 5.9)." },
   // (Geen 'duurzaam geen mogelijkheden'-advies: een vervroegde IVA-aanvraag wordt
   //  bewust NIET geautomatiseerd geadviseerd — dat ethische oordeel hoort bij mens/
   //  bedrijfsarts. Het signaal blijft bestaan en stuurt 'geen benutbare mogelijkheden'.)
   marginaleMogelijkheden: { level: "attention", title: "Marginale mogelijkheden",
     body: "De belastbaarheid is op dit moment zeer beperkt (marginale mogelijkheden). Lever extra inspanning om juist die geringe mogelijkheden bij de eigen werkgever te benutten — in taken, uren en begeleiding; het tweede spoor is hier niet snel aan de orde (Werkwijzer 5.8)." },
   arbeidstherapeutisch: { level: "attention", title: "Arbeidstherapeutisch werken — begrenzen",
-    body: "Er wordt (deels) op arbeidstherapeutische basis gewerkt. Begrens dit in tijd en bouw door naar uren mét loonwaarde; te lang arbeidstherapeutisch werken zonder loonwaarde is een grond om het Plan van Aanpak bij te stellen (Werkwijzer 3.2.4)." },
+    body: "Er wordt (deels) op arbeidstherapeutische basis gewerkt. Begrens dit in tijd en bouw door naar uren mét loonwaarde; te lang arbeidstherapeutisch werken zonder loonwaarde is een grond om het Plan van Aanpak bij te stellen (Werkwijzer 3.2.4).",
+    kort: "Arbeidstherapeutisch werken: begrens dit in tijd en bouw door naar uren mét loonwaarde (Werkwijzer 3.2.4)." },
   stagnatie: { level: "attention", title: "Stagnatie / hervatting instabiel",
-    body: "De opbouw loopt achter op schema of de hervatting is instabiel. Stel het Plan van Aanpak bij; komen werkgever en werknemer er samen niet uit, vraag dan een deskundigenoordeel aan bij UWV (Werkwijzer 3.2.4, 5.4)." },
+    body: "De opbouw loopt achter op schema of de hervatting is instabiel. Stel het Plan van Aanpak bij; komen werkgever en werknemer er samen niet uit, vraag dan een deskundigenoordeel aan bij UWV (Werkwijzer 3.2.4, 5.4).",
+    kort: "Opbouw stagneert of hervatting is instabiel: stel het Plan van aanpak bij; samen er niet uit? Vraag een deskundigenoordeel bij UWV (Werkwijzer 5.4)." },
   arbeidsconflict: { level: "risk", title: "Arbeidsconflict genoemd",
-    body: "Er speelt een arbeidsconflict of verstoorde arbeidsverhouding. Zet mediation of een gesprek onder begeleiding in; een ziekmelding is geen oplossing voor een conflict (Werkwijzer 5.3)." },
+    body: "Er speelt een arbeidsconflict of verstoorde arbeidsverhouding. Zet mediation of een gesprek onder begeleiding in; een ziekmelding is geen oplossing voor een conflict (Werkwijzer 5.3).",
+    kort: "Er speelt een arbeidsconflict: zet mediation of een begeleid gesprek in; een ziekmelding is geen oplossing voor een conflict (Werkwijzer 5.3)." },
   belastbaarheidNaEerstejaars: { level: "attention", title: "Belastbaarheid ontstaat pas na de eerstejaarsevaluatie",
-    body: "De belastbaarheid ontstaat pas na de eerstejaarsevaluatie. Houd dan maximaal 8 weken aan tussen het vaststellen van de belastbaarheid en de start van de activiteiten: 2 weken voor bijstelling van het Plan van Aanpak en 6 weken tot uitvoering (Werkwijzer 4.3.2)." },
+    body: "De belastbaarheid ontstaat pas na de eerstejaarsevaluatie. Houd dan maximaal 8 weken aan tussen het vaststellen van de belastbaarheid en de start van de activiteiten: 2 weken voor bijstelling van het Plan van Aanpak en 6 weken tot uitvoering (Werkwijzer 4.3.2).",
+    kort: "Belastbaarheid ontstaat pas na de eerstejaarsevaluatie: houd daarna maximaal 8 weken aan tot de start van de activiteiten (Werkwijzer 4.3.2)." },
   gewijzigdeBelastbaarheidSpoor2: { level: "attention", title: "Gewijzigde belastbaarheid terwijl spoor 2 loopt",
-    body: "De belastbaarheid is gewijzigd terwijl het tweede-spoortraject loopt. Informeer het re-integratiebureau hier direct over (Werkwijzer 4.3.4)." },
+    body: "De belastbaarheid is gewijzigd terwijl het tweede-spoortraject loopt. Informeer het re-integratiebureau hier direct over (Werkwijzer 4.3.4).",
+    kort: "Belastbaarheid gewijzigd terwijl spoor 2 loopt: informeer het re-integratiebureau direct (Werkwijzer 4.3.4)." },
   volledigInzetbaar: { level: "attention", title: "Volledige werkhervatting — let op de 4-wekenregel",
-    body: "De werknemer is (weer) volledig inzetbaar. Houd rekening met de 4-wekenregel: meldt de werknemer zich binnen vier weken na de hersteldatum opnieuw ziek, dan worden de verzuimperioden als één doorlopend verzuim gezien — de eerste ziektedag schuift niet op en de wachttijd van 104 weken loopt door. Meld volledig herstel daarom pas als de werkhervatting echt stabiel is." },
+    body: "De werknemer is (weer) volledig inzetbaar. Houd rekening met de 4-wekenregel: meldt de werknemer zich binnen vier weken na de hersteldatum opnieuw ziek, dan worden de verzuimperioden als één doorlopend verzuim gezien — de eerste ziektedag schuift niet op en de wachttijd van 104 weken loopt door. Meld volledig herstel daarom pas als de werkhervatting echt stabiel is.",
+    kort: "Weer volledig inzetbaar: let op de 4-wekenregel — meld volledig herstel pas als de werkhervatting echt stabiel is (anders loopt de wachttijd door)." },
 };
 
 // Dit signaal geeft geen eigen advies-alinea: het bepaalt mede welke
@@ -118,11 +127,15 @@ export function computeAdvice(fields, reportDate, signalen = {}) {
     level: "deadline",
     title: "Altijd",
     body: "Leg de terugkoppeling vast in het verzuimdossier; geef daadwerkelijk invulling aan de afgegeven arbeidsmogelijkheden; en stel het Plan van Aanpak bij zodra de belastbaarheid wijzigt.",
+    kort: "Leg de terugkoppeling vast in het verzuimdossier, geef de afgegeven mogelijkheden daadwerkelijk invulling en stel het Plan van aanpak bij zodra de belastbaarheid wijzigt.",
   });
 
   // ---- No-riskpolis (geldt voor elk nieuw/eerste PvA; bij een Bijstelling later te gaten) ----
+  // brief:false → staat NIET in het begeleidend bericht (te lang/niet kern), maar blijft
+  // wél in computeAdvice zodat de adviescatalogus het als los advies houdt.
   advies.push({
     level: "risk",
+    brief: false,
     title: "No-riskpolis — loop het doelgroepregister na (niet missen)",
     body: "Het is enorm zonde als een no-riskpolis onbenut blijft: bij no-risk vergoedt UWV via de Ziektewet (een deel van) je loonkosten als deze werknemer ziek is. Loop daarom elke medewerker na in het doelgroepregister om te controleren of er een registratie is — is die er, dan geldt no-risk. Je kunt deze uitlegvideo naar je werknemer doorsturen; daarin wordt getoond hoe de werknemer zelf zo'n registratie controleert: https://www.youtube.com/shorts/P7rFE1839P8. Er zijn ook andere routes naar een no-riskstatus, bijvoorbeeld op basis van het uitkeringsverleden. Leg in je dossier alleen vast dát no-risk van toepassing is, nooit waarom (die reden is medisch of privé). Vragen over de no-riskpolis? Mail gerust naar planvanaanpakinvuller@gmail.com.",
   });
@@ -163,6 +176,7 @@ export function computeAdvice(fields, reportDate, signalen = {}) {
         level: "attention",
         title: "Geen tweede spoor nodig — AOW binnen 1 jaar na de WIA-poort (Werkwijzer 5.14)",
         body: `De werknemer bereikt rond ${fmtNL(aow)} de AOW-leeftijd — dat is binnen één jaar na het einde van de wachttijd (de WIA-poort, ${fmtNL(eindeWacht)}). Daarom hóeft een tweede-spoortraject niet te worden ingezet, mits werkgever én werknemer hier beiden mee instemmen; leg die instemming schriftelijk vast. (AOW-datum indicatief — controleer bij de SVB.)`,
+        kort: `Tweede spoor is niet verplicht: de werknemer bereikt rond ${fmtNL(aow)} de AOW-leeftijd (binnen 1 jaar na de WIA-poort). Leg de wederzijdse instemming schriftelijk vast (Werkwijzer 5.14).`,
       });
     }
     const venster0109_2025 = new Date(2025, 8, 1);
@@ -172,6 +186,7 @@ export function computeAdvice(fields, reportDate, signalen = {}) {
         level: "attention",
         title: "60-plusser — vereenvoudigde WIA-beoordeling",
         body: `De werknemer is bij het einde van de wachttijd (${fmtNL(eindeWacht)}) ${leeftijdEW} jaar. Meld bij het WIA-venster (week 87–93): er bestaat een vereenvoudigde WIA-beoordeling voor 60-plussers, zonder verzekeringsarts; beide partijen moeten ermee instemmen. (Geldig voor einde wachttijd t/m 01-09-2027.)`,
+        kort: "60-plusser: er bestaat een vereenvoudigde WIA-beoordeling (zonder verzekeringsarts) bij het WIA-venster (week 87–93); beide partijen moeten instemmen.",
       });
     }
   } else if (!gebd && !zudActief) {
@@ -196,12 +211,14 @@ export function computeAdvice(fields, reportDate, signalen = {}) {
         level: "risk",
         title: "Ziek uit dienst — tijdelijk contract dat tijdens ziekte afloopt (Werkwijzer 5.5–5.7)",
         body: `Het tijdelijke contract eindigt op ${fmtNL(einddienst)} (ziekteduur op die datum ± ${ziekteWeken} weken). Ga er niet automatisch van uit dat het contract niet wordt verlengd. Laat je het tijdelijke contract van rechtswege aflopen (dus niet verlengen), dan geldt het volgende: ${riv} Ben je voornemens niet te verlengen, meld de werknemer dan uiterlijk op de laatste dag van het dienstverband ziek uit dienst bij UWV (Ziektewet) en geef hem een kopie van het verslag. Lever tot de laatste dag dezelfde re-integratie-inspanningen; wordt herstel vóór de einddatum niet verwacht, richt je dan vooral op spoor 2 en overweeg een participatieverzoek bij UWV.`,
+        kort: `Tijdelijk contract loopt tijdens ziekte af (${fmtNL(einddienst)}): bij niet-verlengen uiterlijk op de laatste dag ziek uit dienst melden bij UWV. ${riv}`,
       });
     } else {
       advies.push({
         level: "attention",
         title: "Einddatum dienstverband na einde wachttijd",
         body: `Het dienstverband eindigt op ${fmtNL(einddienst)}, na het einde van de wachttijd. De gebruikelijke re-integratieverplichtingen gedurende de eerste 104 weken blijven van toepassing.`,
+        kort: `Dienstverband eindigt ${fmtNL(einddienst)}, ná het einde van de wachttijd: de re-integratieverplichtingen in de eerste 104 weken blijven gelden.`,
       });
     }
   }
@@ -221,6 +238,9 @@ export function computeAdvice(fields, reportDate, signalen = {}) {
         body: rondJaar
           ? "De belastbaarheid is op dit moment zeer beperkt (marginale mogelijkheden). Lever extra inspanning om juist die geringe mogelijkheden bij de eigen werkgever te benutten — in taken, uren en begeleiding. Gezien de duur van het verzuim is het tweede spoor hier voorlopig niet snel aan de orde (Werkwijzer 5.8); beoordeel dit rond de eerstejaarsevaluatie opnieuw."
           : "De belastbaarheid is op dit moment zeer beperkt (marginale mogelijkheden). Lever extra inspanning om juist die geringe mogelijkheden bij de eigen werkgever te benutten — in taken, uren en begeleiding, en bouw uit zodra de belastbaarheid dat toelaat.",
+        kort: rondJaar
+          ? "Marginale mogelijkheden: benut juist die geringe mogelijkheden bij de eigen werkgever (taken, uren, begeleiding); tweede spoor voorlopig niet aan de orde (Werkwijzer 5.8)."
+          : "Marginale mogelijkheden: benut juist die geringe mogelijkheden bij de eigen werkgever (taken, uren, begeleiding) en bouw uit zodra de belastbaarheid dat toelaat.",
       });
       continue;
     }
@@ -261,19 +281,36 @@ export function berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden = "
   return zinnen;
 }
 
-/** Zet de adviezen om naar lopende alinea's voor het begeleidend bericht. */
-export function adviceParagraphs(fields, reportDate, signalen = {}) {
+function eersteZin(s) { return String(s || "").split(/(?<=[.!?])\s/)[0]; }
+function bulletTekst(a) { return a.kort || eersteZin(a.body); }
+
+/**
+ * Selecteert de praktische kernpunten voor het begeleidend bericht als korte
+ * bullet-lijst (max ~4–5). Volgorde: Altijd → eerstvolgende 1–2 procesacties →
+ * alle risk-adviezen (worden nooit weggelaten) → attention-adviezen tot de cap.
+ * Input-nudges (flags) en het no-risk-advies (brief:false) blijven eruit; die
+ * laatste blijft wél in computeAdvice voor de adviescatalogus.
+ * @returns {{bullets: string[], termijnRef: boolean}}
+ */
+export function adviceBullets(fields, reportDate, signalen = {}) {
   const advies = computeAdvice(fields, reportDate, signalen);
-  const alineas = [];
-  for (const a of advies) {
-    if (a.deadlines && a.deadlines.length) {
-      const punten = a.deadlines.map((d) => d.who).join(" ");
-      alineas.push(`${a.body} ${punten}`);
-    } else {
-      alineas.push(a.body);
-    }
+  const inBrief = advies.filter((a) => a.brief !== false && a.level !== "flag");
+
+  const altijd = inBrief.find((a) => a.title === "Altijd");
+  const proces = inBrief.find((a) => a.deadlines && a.deadlines.length);
+  const risks = inBrief.filter((a) => a.level === "risk" && a !== altijd);
+  const attentions = inBrief.filter((a) => a.level === "attention");
+
+  const CAP = 5; // zachte bovengrens; risk-adviezen tellen wél mee maar vallen nooit weg
+  const bullets = [];
+  if (altijd) bullets.push(bulletTekst(altijd));
+  if (proces) for (const d of proces.deadlines.slice(0, 2)) bullets.push(d.who);
+  for (const a of risks) bullets.push(bulletTekst(a)); // nooit weglaten
+  for (const a of attentions) {
+    if (bullets.length >= CAP) break;
+    bullets.push(bulletTekst(a));
   }
-  return alineas;
+  return { bullets, termijnRef: !!proces };
 }
 
 /** Splitst lopende tekst in segmenten {type:'text'|'url'|'email', value}, zodat de

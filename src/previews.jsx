@@ -7,7 +7,7 @@
 import { I, getVal, isMissing } from "./data.jsx";
 import { fullRecoveryDate } from "./engine.js";
 import { SchemaRows, TermijnenTabel } from "./fields.jsx";
-import { adviceParagraphs, berichtKern, splitLinks } from "./advice.js";
+import { adviceBullets, berichtKern, splitLinks } from "./advice.js";
 
 function DocPreviewHead({ title, icon }) {
   return (
@@ -227,7 +227,7 @@ export function BerichtPreview({ fields, schema, reportDate, taaksuggestie, sign
   const naam = getVal(fields, "naam");
   const werknemer = isMissing(naam) ? "je werknemer" : naam;
   const kern = berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden);
-  const alineas = adviceParagraphs(fields, reportDate, signalen);
+  const { bullets, termijnRef } = adviceBullets(fields, reportDate, signalen);
   const taak = (taaksuggestie || "").trim();
   return (
     <div className="doc-preview">
@@ -241,7 +241,15 @@ export function BerichtPreview({ fields, schema, reportDate, taaksuggestie, sign
           opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. {reportDate}.
         </p>
         {kern.map((t, i) => <p key={"k" + i}>{t}</p>)}
-        {alineas.map((t, i) => <p key={i}>{linkify(t)}</p>)}
+        <p className="bullets-intro"><strong>Een paar praktische aandachtspunten:</strong></p>
+        <ul className="msg-bullets">
+          {bullets.map((t, i) => <li key={i}>{linkify(t)}</li>)}
+        </ul>
+        {termijnRef && (
+          <p style={{ color: "var(--muted)" }}>
+            De volledige wettelijke termijnen staan in de bijgevoegde tabel Poortwachter-termijnen.
+          </p>
+        )}
         {taak && (
           <p>
             <strong>Suggestie voor aangepaste taken.</strong> Op basis van de functieomschrijving zou je —

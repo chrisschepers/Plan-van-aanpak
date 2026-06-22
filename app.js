@@ -2580,7 +2580,8 @@
     geenBenutbareMogelijkheden: {
       level: "risk",
       title: "Geen benutbare mogelijkheden (GBM)",
-      body: "De bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn. Forceer dan geen re-integratieactiviteiten: de bedrijfsarts houdt de vinger aan de pols \u2014 plan vervolgconsulten en leg elke terugkoppeling vast in het verzuimdossier. Duurt deze situatie de volle twee jaar, dan volstaat een beperkt re-integratieverslag (Werkwijzer 5.9, 3.1)."
+      body: "De bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn. Forceer dan geen re-integratieactiviteiten: de bedrijfsarts houdt de vinger aan de pols \u2014 plan vervolgconsulten en leg elke terugkoppeling vast in het verzuimdossier. Duurt deze situatie de volle twee jaar, dan volstaat een beperkt re-integratieverslag (Werkwijzer 5.9, 3.1).",
+      kort: "Geen benutbare mogelijkheden: forceer geen re-integratie, plan vervolgconsulten en leg elke terugkoppeling vast in het verzuimdossier (Werkwijzer 5.9)."
     },
     // (Geen 'duurzaam geen mogelijkheden'-advies: een vervroegde IVA-aanvraag wordt
     //  bewust NIET geautomatiseerd geadviseerd — dat ethische oordeel hoort bij mens/
@@ -2593,32 +2594,38 @@
     arbeidstherapeutisch: {
       level: "attention",
       title: "Arbeidstherapeutisch werken \u2014 begrenzen",
-      body: "Er wordt (deels) op arbeidstherapeutische basis gewerkt. Begrens dit in tijd en bouw door naar uren m\xE9t loonwaarde; te lang arbeidstherapeutisch werken zonder loonwaarde is een grond om het Plan van Aanpak bij te stellen (Werkwijzer 3.2.4)."
+      body: "Er wordt (deels) op arbeidstherapeutische basis gewerkt. Begrens dit in tijd en bouw door naar uren m\xE9t loonwaarde; te lang arbeidstherapeutisch werken zonder loonwaarde is een grond om het Plan van Aanpak bij te stellen (Werkwijzer 3.2.4).",
+      kort: "Arbeidstherapeutisch werken: begrens dit in tijd en bouw door naar uren m\xE9t loonwaarde (Werkwijzer 3.2.4)."
     },
     stagnatie: {
       level: "attention",
       title: "Stagnatie / hervatting instabiel",
-      body: "De opbouw loopt achter op schema of de hervatting is instabiel. Stel het Plan van Aanpak bij; komen werkgever en werknemer er samen niet uit, vraag dan een deskundigenoordeel aan bij UWV (Werkwijzer 3.2.4, 5.4)."
+      body: "De opbouw loopt achter op schema of de hervatting is instabiel. Stel het Plan van Aanpak bij; komen werkgever en werknemer er samen niet uit, vraag dan een deskundigenoordeel aan bij UWV (Werkwijzer 3.2.4, 5.4).",
+      kort: "Opbouw stagneert of hervatting is instabiel: stel het Plan van aanpak bij; samen er niet uit? Vraag een deskundigenoordeel bij UWV (Werkwijzer 5.4)."
     },
     arbeidsconflict: {
       level: "risk",
       title: "Arbeidsconflict genoemd",
-      body: "Er speelt een arbeidsconflict of verstoorde arbeidsverhouding. Zet mediation of een gesprek onder begeleiding in; een ziekmelding is geen oplossing voor een conflict (Werkwijzer 5.3)."
+      body: "Er speelt een arbeidsconflict of verstoorde arbeidsverhouding. Zet mediation of een gesprek onder begeleiding in; een ziekmelding is geen oplossing voor een conflict (Werkwijzer 5.3).",
+      kort: "Er speelt een arbeidsconflict: zet mediation of een begeleid gesprek in; een ziekmelding is geen oplossing voor een conflict (Werkwijzer 5.3)."
     },
     belastbaarheidNaEerstejaars: {
       level: "attention",
       title: "Belastbaarheid ontstaat pas na de eerstejaarsevaluatie",
-      body: "De belastbaarheid ontstaat pas na de eerstejaarsevaluatie. Houd dan maximaal 8 weken aan tussen het vaststellen van de belastbaarheid en de start van de activiteiten: 2 weken voor bijstelling van het Plan van Aanpak en 6 weken tot uitvoering (Werkwijzer 4.3.2)."
+      body: "De belastbaarheid ontstaat pas na de eerstejaarsevaluatie. Houd dan maximaal 8 weken aan tussen het vaststellen van de belastbaarheid en de start van de activiteiten: 2 weken voor bijstelling van het Plan van Aanpak en 6 weken tot uitvoering (Werkwijzer 4.3.2).",
+      kort: "Belastbaarheid ontstaat pas na de eerstejaarsevaluatie: houd daarna maximaal 8 weken aan tot de start van de activiteiten (Werkwijzer 4.3.2)."
     },
     gewijzigdeBelastbaarheidSpoor2: {
       level: "attention",
       title: "Gewijzigde belastbaarheid terwijl spoor 2 loopt",
-      body: "De belastbaarheid is gewijzigd terwijl het tweede-spoortraject loopt. Informeer het re-integratiebureau hier direct over (Werkwijzer 4.3.4)."
+      body: "De belastbaarheid is gewijzigd terwijl het tweede-spoortraject loopt. Informeer het re-integratiebureau hier direct over (Werkwijzer 4.3.4).",
+      kort: "Belastbaarheid gewijzigd terwijl spoor 2 loopt: informeer het re-integratiebureau direct (Werkwijzer 4.3.4)."
     },
     volledigInzetbaar: {
       level: "attention",
       title: "Volledige werkhervatting \u2014 let op de 4-wekenregel",
-      body: "De werknemer is (weer) volledig inzetbaar. Houd rekening met de 4-wekenregel: meldt de werknemer zich binnen vier weken na de hersteldatum opnieuw ziek, dan worden de verzuimperioden als \xE9\xE9n doorlopend verzuim gezien \u2014 de eerste ziektedag schuift niet op en de wachttijd van 104 weken loopt door. Meld volledig herstel daarom pas als de werkhervatting echt stabiel is."
+      body: "De werknemer is (weer) volledig inzetbaar. Houd rekening met de 4-wekenregel: meldt de werknemer zich binnen vier weken na de hersteldatum opnieuw ziek, dan worden de verzuimperioden als \xE9\xE9n doorlopend verzuim gezien \u2014 de eerste ziektedag schuift niet op en de wachttijd van 104 weken loopt door. Meld volledig herstel daarom pas als de werkhervatting echt stabiel is.",
+      kort: "Weer volledig inzetbaar: let op de 4-wekenregel \u2014 meld volledig herstel pas als de werkhervatting echt stabiel is (anders loopt de wachttijd door)."
     }
   };
   function computeAdvice(fields, reportDate, signalen = {}) {
@@ -2631,10 +2638,12 @@
     advies.push({
       level: "deadline",
       title: "Altijd",
-      body: "Leg de terugkoppeling vast in het verzuimdossier; geef daadwerkelijk invulling aan de afgegeven arbeidsmogelijkheden; en stel het Plan van Aanpak bij zodra de belastbaarheid wijzigt."
+      body: "Leg de terugkoppeling vast in het verzuimdossier; geef daadwerkelijk invulling aan de afgegeven arbeidsmogelijkheden; en stel het Plan van Aanpak bij zodra de belastbaarheid wijzigt.",
+      kort: "Leg de terugkoppeling vast in het verzuimdossier, geef de afgegeven mogelijkheden daadwerkelijk invulling en stel het Plan van aanpak bij zodra de belastbaarheid wijzigt."
     });
     advies.push({
       level: "risk",
+      brief: false,
       title: "No-riskpolis \u2014 loop het doelgroepregister na (niet missen)",
       body: "Het is enorm zonde als een no-riskpolis onbenut blijft: bij no-risk vergoedt UWV via de Ziektewet (een deel van) je loonkosten als deze werknemer ziek is. Loop daarom elke medewerker na in het doelgroepregister om te controleren of er een registratie is \u2014 is die er, dan geldt no-risk. Je kunt deze uitlegvideo naar je werknemer doorsturen; daarin wordt getoond hoe de werknemer zelf zo'n registratie controleert: https://www.youtube.com/shorts/P7rFE1839P8. Er zijn ook andere routes naar een no-riskstatus, bijvoorbeeld op basis van het uitkeringsverleden. Leg in je dossier alleen vast d\xE1t no-risk van toepassing is, nooit waarom (die reden is medisch of priv\xE9). Vragen over de no-riskpolis? Mail gerust naar planvanaanpakinvuller@gmail.com."
     });
@@ -2667,7 +2676,8 @@
         advies.push({
           level: "attention",
           title: "Geen tweede spoor nodig \u2014 AOW binnen 1 jaar na de WIA-poort (Werkwijzer 5.14)",
-          body: `De werknemer bereikt rond ${fmtNL(aow)} de AOW-leeftijd \u2014 dat is binnen \xE9\xE9n jaar na het einde van de wachttijd (de WIA-poort, ${fmtNL(eindeWacht)}). Daarom h\xF3eft een tweede-spoortraject niet te worden ingezet, mits werkgever \xE9n werknemer hier beiden mee instemmen; leg die instemming schriftelijk vast. (AOW-datum indicatief \u2014 controleer bij de SVB.)`
+          body: `De werknemer bereikt rond ${fmtNL(aow)} de AOW-leeftijd \u2014 dat is binnen \xE9\xE9n jaar na het einde van de wachttijd (de WIA-poort, ${fmtNL(eindeWacht)}). Daarom h\xF3eft een tweede-spoortraject niet te worden ingezet, mits werkgever \xE9n werknemer hier beiden mee instemmen; leg die instemming schriftelijk vast. (AOW-datum indicatief \u2014 controleer bij de SVB.)`,
+          kort: `Tweede spoor is niet verplicht: de werknemer bereikt rond ${fmtNL(aow)} de AOW-leeftijd (binnen 1 jaar na de WIA-poort). Leg de wederzijdse instemming schriftelijk vast (Werkwijzer 5.14).`
         });
       }
       const venster0109_2025 = new Date(2025, 8, 1);
@@ -2676,7 +2686,8 @@
         advies.push({
           level: "attention",
           title: "60-plusser \u2014 vereenvoudigde WIA-beoordeling",
-          body: `De werknemer is bij het einde van de wachttijd (${fmtNL(eindeWacht)}) ${leeftijdEW} jaar. Meld bij het WIA-venster (week 87\u201393): er bestaat een vereenvoudigde WIA-beoordeling voor 60-plussers, zonder verzekeringsarts; beide partijen moeten ermee instemmen. (Geldig voor einde wachttijd t/m 01-09-2027.)`
+          body: `De werknemer is bij het einde van de wachttijd (${fmtNL(eindeWacht)}) ${leeftijdEW} jaar. Meld bij het WIA-venster (week 87\u201393): er bestaat een vereenvoudigde WIA-beoordeling voor 60-plussers, zonder verzekeringsarts; beide partijen moeten ermee instemmen. (Geldig voor einde wachttijd t/m 01-09-2027.)`,
+          kort: "60-plusser: er bestaat een vereenvoudigde WIA-beoordeling (zonder verzekeringsarts) bij het WIA-venster (week 87\u201393); beide partijen moeten instemmen."
         });
       }
     } else if (!gebd && !zudActief) {
@@ -2698,13 +2709,15 @@
         advies.push({
           level: "risk",
           title: "Ziek uit dienst \u2014 tijdelijk contract dat tijdens ziekte afloopt (Werkwijzer 5.5\u20135.7)",
-          body: `Het tijdelijke contract eindigt op ${fmtNL(einddienst)} (ziekteduur op die datum \xB1 ${ziekteWeken} weken). Ga er niet automatisch van uit dat het contract niet wordt verlengd. Laat je het tijdelijke contract van rechtswege aflopen (dus niet verlengen), dan geldt het volgende: ${riv} Ben je voornemens niet te verlengen, meld de werknemer dan uiterlijk op de laatste dag van het dienstverband ziek uit dienst bij UWV (Ziektewet) en geef hem een kopie van het verslag. Lever tot de laatste dag dezelfde re-integratie-inspanningen; wordt herstel v\xF3\xF3r de einddatum niet verwacht, richt je dan vooral op spoor 2 en overweeg een participatieverzoek bij UWV.`
+          body: `Het tijdelijke contract eindigt op ${fmtNL(einddienst)} (ziekteduur op die datum \xB1 ${ziekteWeken} weken). Ga er niet automatisch van uit dat het contract niet wordt verlengd. Laat je het tijdelijke contract van rechtswege aflopen (dus niet verlengen), dan geldt het volgende: ${riv} Ben je voornemens niet te verlengen, meld de werknemer dan uiterlijk op de laatste dag van het dienstverband ziek uit dienst bij UWV (Ziektewet) en geef hem een kopie van het verslag. Lever tot de laatste dag dezelfde re-integratie-inspanningen; wordt herstel v\xF3\xF3r de einddatum niet verwacht, richt je dan vooral op spoor 2 en overweeg een participatieverzoek bij UWV.`,
+          kort: `Tijdelijk contract loopt tijdens ziekte af (${fmtNL(einddienst)}): bij niet-verlengen uiterlijk op de laatste dag ziek uit dienst melden bij UWV. ${riv}`
         });
       } else {
         advies.push({
           level: "attention",
           title: "Einddatum dienstverband na einde wachttijd",
-          body: `Het dienstverband eindigt op ${fmtNL(einddienst)}, na het einde van de wachttijd. De gebruikelijke re-integratieverplichtingen gedurende de eerste 104 weken blijven van toepassing.`
+          body: `Het dienstverband eindigt op ${fmtNL(einddienst)}, na het einde van de wachttijd. De gebruikelijke re-integratieverplichtingen gedurende de eerste 104 weken blijven van toepassing.`,
+          kort: `Dienstverband eindigt ${fmtNL(einddienst)}, n\xE1 het einde van de wachttijd: de re-integratieverplichtingen in de eerste 104 weken blijven gelden.`
         });
       }
     }
@@ -2716,7 +2729,8 @@
         advies.push({
           level: "attention",
           title: "Marginale mogelijkheden",
-          body: rondJaar ? "De belastbaarheid is op dit moment zeer beperkt (marginale mogelijkheden). Lever extra inspanning om juist die geringe mogelijkheden bij de eigen werkgever te benutten \u2014 in taken, uren en begeleiding. Gezien de duur van het verzuim is het tweede spoor hier voorlopig niet snel aan de orde (Werkwijzer 5.8); beoordeel dit rond de eerstejaarsevaluatie opnieuw." : "De belastbaarheid is op dit moment zeer beperkt (marginale mogelijkheden). Lever extra inspanning om juist die geringe mogelijkheden bij de eigen werkgever te benutten \u2014 in taken, uren en begeleiding, en bouw uit zodra de belastbaarheid dat toelaat."
+          body: rondJaar ? "De belastbaarheid is op dit moment zeer beperkt (marginale mogelijkheden). Lever extra inspanning om juist die geringe mogelijkheden bij de eigen werkgever te benutten \u2014 in taken, uren en begeleiding. Gezien de duur van het verzuim is het tweede spoor hier voorlopig niet snel aan de orde (Werkwijzer 5.8); beoordeel dit rond de eerstejaarsevaluatie opnieuw." : "De belastbaarheid is op dit moment zeer beperkt (marginale mogelijkheden). Lever extra inspanning om juist die geringe mogelijkheden bij de eigen werkgever te benutten \u2014 in taken, uren en begeleiding, en bouw uit zodra de belastbaarheid dat toelaat.",
+          kort: rondJaar ? "Marginale mogelijkheden: benut juist die geringe mogelijkheden bij de eigen werkgever (taken, uren, begeleiding); tweede spoor voorlopig niet aan de orde (Werkwijzer 5.8)." : "Marginale mogelijkheden: benut juist die geringe mogelijkheden bij de eigen werkgever (taken, uren, begeleiding) en bouw uit zodra de belastbaarheid dat toelaat."
         });
         continue;
       }
@@ -2753,18 +2767,29 @@
     if (!isMissing(beperking)) zinnen.push(ensureDot(`Houd rekening met de werkaanpassing: ${beperking}`));
     return zinnen;
   }
-  function adviceParagraphs(fields, reportDate, signalen = {}) {
+  function eersteZin(s) {
+    return String(s || "").split(/(?<=[.!?])\s/)[0];
+  }
+  function bulletTekst(a) {
+    return a.kort || eersteZin(a.body);
+  }
+  function adviceBullets(fields, reportDate, signalen = {}) {
     const advies = computeAdvice(fields, reportDate, signalen);
-    const alineas = [];
-    for (const a of advies) {
-      if (a.deadlines && a.deadlines.length) {
-        const punten = a.deadlines.map((d) => d.who).join(" ");
-        alineas.push(`${a.body} ${punten}`);
-      } else {
-        alineas.push(a.body);
-      }
+    const inBrief = advies.filter((a) => a.brief !== false && a.level !== "flag");
+    const altijd = inBrief.find((a) => a.title === "Altijd");
+    const proces = inBrief.find((a) => a.deadlines && a.deadlines.length);
+    const risks = inBrief.filter((a) => a.level === "risk" && a !== altijd);
+    const attentions = inBrief.filter((a) => a.level === "attention");
+    const CAP = 5;
+    const bullets = [];
+    if (altijd) bullets.push(bulletTekst(altijd));
+    if (proces) for (const d of proces.deadlines.slice(0, 2)) bullets.push(d.who);
+    for (const a of risks) bullets.push(bulletTekst(a));
+    for (const a of attentions) {
+      if (bullets.length >= CAP) break;
+      bullets.push(bulletTekst(a));
     }
-    return alineas;
+    return { bullets, termijnRef: !!proces };
   }
   function splitLinks(text) {
     const s = String(text == null ? "" : text);
@@ -2931,9 +2956,9 @@
     const naam = getVal(fields, "naam");
     const werknemer = isMissing(naam) ? "je werknemer" : naam;
     const kern = berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden);
-    const alineas = adviceParagraphs(fields, reportDate, signalen);
+    const { bullets, termijnRef } = adviceBullets(fields, reportDate, signalen);
     const taak = (taaksuggestie || "").trim();
-    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), kern.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: "k" + i }, t)), alineas.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: i }, linkify(t))), taak && /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Suggestie voor aangepaste taken."), " Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ", taak, ".", " ", /* @__PURE__ */ React.createElement("em", null, "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.")), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Dit document is een concept, opgesteld op basis van de terugkoppeling van de bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je werknemer vast \u2014 het is een document van jullie beiden."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Ben je eigenrisicodrager voor de Ziektewet of de WGA? Dan gelden aanvullende of afwijkende regels en kun je niet afgaan op dit automatisch gegenereerde advies \u2014 raadpleeg dan je eigen verzuim- of arbospecialist."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 } }, "[INVULLEN: naam afzender]"), /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontSize: 13 } }, "[INVULLEN: functie, bv. casemanager verzuim]"))));
+    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), kern.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: "k" + i }, t)), /* @__PURE__ */ React.createElement("p", { className: "bullets-intro" }, /* @__PURE__ */ React.createElement("strong", null, "Een paar praktische aandachtspunten:")), /* @__PURE__ */ React.createElement("ul", { className: "msg-bullets" }, bullets.map((t, i) => /* @__PURE__ */ React.createElement("li", { key: i }, linkify(t)))), termijnRef && /* @__PURE__ */ React.createElement("p", { style: { color: "var(--muted)" } }, "De volledige wettelijke termijnen staan in de bijgevoegde tabel Poortwachter-termijnen."), taak && /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Suggestie voor aangepaste taken."), " Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ", taak, ".", " ", /* @__PURE__ */ React.createElement("em", null, "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.")), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Dit document is een concept, opgesteld op basis van de terugkoppeling van de bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je werknemer vast \u2014 het is een document van jullie beiden."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Ben je eigenrisicodrager voor de Ziektewet of de WGA? Dan gelden aanvullende of afwijkende regels en kun je niet afgaan op dit automatisch gegenereerde advies \u2014 raadpleeg dan je eigen verzuim- of arbospecialist."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 } }, "[INVULLEN: naam afzender]"), /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontSize: 13 } }, "[INVULLEN: functie, bv. casemanager verzuim]"))));
   }
 
   // src/landing.jsx
@@ -22346,6 +22371,13 @@
   function p(text, opts = {}) {
     return new Paragraph({ spacing: { after: 120 }, children: linkChildren(text, opts) });
   }
+  function bullet(text) {
+    return new Paragraph({
+      spacing: { after: 80 },
+      indent: { left: 360, hanging: 200 },
+      children: [new TextRun({ text: "\u2022 ", color: NAVY, size: 22, font: FONT }), ...linkChildren(text)]
+    });
+  }
   function sub(text) {
     return new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text, color: GREY, size: 20, font: FONT })] });
   }
@@ -22474,7 +22506,7 @@
     const naam = getVal(fields, "naam");
     const geenOpbouw = !!opbouwReden || schema.length === 0;
     const hersteld = schema.length ? fullRecoveryDate(schema) : "";
-    const alineas = adviceParagraphs(fields, reportDate, signalen);
+    const { bullets, termijnRef } = adviceBullets(fields, reportDate, signalen);
     const kern = berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden);
     const taak = (taaksuggestie || "").trim();
     const termijnen = poortwachterTermijnen(fields);
@@ -22507,7 +22539,11 @@
           }),
           p(`Hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}. Dit document bevat het opbouwadvies en de poortwachter-termijnen ter ondersteuning. Het ingevulde Plan van aanpak (UWV-formulier AG140) ontvang je als apart document; dat hoort in het personeelsdossier.`),
           ...kern.map((t) => p(t)),
-          ...alineas.map((t) => p(t)),
+          new Paragraph({ spacing: { before: 60, after: 80 }, children: [
+            new TextRun({ text: "Een paar praktische aandachtspunten:", bold: true, color: "18202F", size: 22, font: FONT })
+          ] }),
+          ...bullets.map((t) => bullet(t)),
+          ...termijnRef ? [p("De volledige wettelijke termijnen staan in de bijgevoegde tabel Poortwachter-termijnen.", { color: GREY })] : [],
           ...taak ? [new Paragraph({ spacing: { after: 120 }, children: [
             new TextRun({ text: "Suggestie voor aangepaste taken. ", bold: true, color: NAVY, size: 22, font: FONT }),
             new TextRun({ text: `Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ${taak}. `, size: 22, font: FONT }),

@@ -201,6 +201,9 @@
 .msg-sheet { white-space: normal; }
 .msg-sheet .greeting { margin-bottom: 14px; }
 .msg-sheet .sign { margin-top: 22px; }
+.msg-sheet .bullets-intro { margin-bottom: 6px; }
+.msg-sheet .msg-bullets { margin: 0 0 12px; padding-left: 22px; }
+.msg-sheet .msg-bullets li { margin-bottom: 6px; line-height: 1.6; }
 
 /* download bar */
 .download-bar { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin-top: 26px; padding: 22px 26px; background: var(--navy); border-radius: 16px; color: #fff; }

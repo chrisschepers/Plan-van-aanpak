@@ -81,12 +81,16 @@ const relIds = new Set([...mRels.matchAll(/Id="(rId\d+)"/g)].map((m) => m[1]));
 const used = [...mDoc.matchAll(/r:id="(rId\d+)"/g)].map((m) => m[1]);
 check("alle header/footer-verwijzingen resolven", used.every((id) => relIds.has(id)));
 
-// 3b) Brief-hyperlinks (no-risk: uitlegvideo + e-mail) als externe relatie meegenomen
+// 3b) Eventuele brief-hyperlinks moeten als EXTERNE relatie meekomen en resolven.
+// Sinds het no-risk-advies uit het begeleidend bericht is, bevat de standaardbrief geen
+// hyperlinks meer; deze checks borgen dat ZODRA een advies wél een link bevat, de merge
+// die correct als externe relatie meeneemt en de verwijzing oplost.
 const hyperRels = [...mRels.matchAll(/<Relationship[^>]*\/hyperlink"[^>]*>/g)].map((m) => m[0]);
-check("brief-hyperlinks als externe relatie in rels", hyperRels.length >= 2 && hyperRels.every((r) => r.includes('TargetMode="External"')));
-check("hyperlink-doelen aanwezig (video + mailto)", mRels.includes("youtube.com/shorts/P7rFE1839P8") && mRels.includes("mailto:planvanaanpakinvuller@gmail.com"));
-const hyperUsed = [...mDoc.matchAll(/<w:hyperlink[^>]*r:id="(rId\d+)"/g)].map((m) => m[1]);
-check("hyperlink-verwijzingen in de brief resolven", hyperUsed.length >= 2 && hyperUsed.every((id) => relIds.has(id)));
+check("alle brief-hyperlinks zijn externe relaties", hyperRels.every((r) => r.includes('TargetMode="External"')));
+// De docx-lib geeft hyperlinks een NIET-numeriek rId (bv. rIdab12cd) — match elk Id.
+const allRelIds = new Set([...mRels.matchAll(/Id="([^"]+)"/g)].map((m) => m[1]));
+const hyperUsed = [...mDoc.matchAll(/<w:hyperlink[^>]*r:id="([^"]+)"/g)].map((m) => m[1]);
+check("brief-hyperlink-verwijzingen resolven", hyperUsed.every((id) => allRelIds.has(id)));
 
 console.log(failures === 0 ? "\nAlle merge-checks geslaagd." : `\n${failures} merge-check(s) gefaald.`);
 process.exit(failures === 0 ? 0 : 1);

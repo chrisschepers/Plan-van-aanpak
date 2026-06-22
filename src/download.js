@@ -12,7 +12,7 @@ import {
 } from "docx";
 import { getVal, isMissing } from "./casedata.js";
 import { fullRecoveryDate } from "./engine.js";
-import { adviceParagraphs, poortwachterTermijnen, berichtKern, splitLinks } from "./advice.js";
+import { adviceBullets, poortwachterTermijnen, berichtKern, splitLinks } from "./advice.js";
 import { fillTemplate, buildUwvValues } from "./filltemplate.js";
 import { BAND_PNG, DECO_PNG, MARK_PNG, pngBytes } from "./brandassets.js";
 
@@ -158,6 +158,15 @@ function linkChildren(text, opts = {}) {
 function p(text, opts = {}) {
   return new Paragraph({ spacing: { after: 120 }, children: linkChildren(text, opts) });
 }
+// Bullet zonder numbering.xml (literaal "• " + hangende inspringing) — veilig bij
+// het samenvoegen met het UWV-formulier, dat geen eigen lijststijlen meekrijgt.
+function bullet(text) {
+  return new Paragraph({
+    spacing: { after: 80 },
+    indent: { left: 360, hanging: 200 },
+    children: [new TextRun({ text: "• ", color: NAVY, size: 22, font: FONT }), ...linkChildren(text)],
+  });
+}
 function sub(text) {
   return new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text, color: GREY, size: 20, font: FONT })] });
 }
@@ -259,7 +268,7 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
   const naam = getVal(fields, "naam");
   const geenOpbouw = !!opbouwReden || schema.length === 0;
   const hersteld = schema.length ? fullRecoveryDate(schema) : "";
-  const alineas = adviceParagraphs(fields, reportDate, signalen);
+  const { bullets, termijnRef } = adviceBullets(fields, reportDate, signalen);
   const kern = berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden);
   const taak = (taaksuggestie || "").trim();
   const termijnen = poortwachterTermijnen(fields);
@@ -291,7 +300,10 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
           children: [new TextRun({ text: "Beste werkgever,", color: "18202F", size: 22, font: FONT })] }),
         p(`Hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}. Dit document bevat het opbouwadvies en de poortwachter-termijnen ter ondersteuning. Het ingevulde Plan van aanpak (UWV-formulier AG140) ontvang je als apart document; dat hoort in het personeelsdossier.`),
         ...kern.map((t) => p(t)),
-        ...alineas.map((t) => p(t)),
+        new Paragraph({ spacing: { before: 60, after: 80 }, children: [
+          new TextRun({ text: "Een paar praktische aandachtspunten:", bold: true, color: "18202F", size: 22, font: FONT })] }),
+        ...bullets.map((t) => bullet(t)),
+        ...(termijnRef ? [p("De volledige wettelijke termijnen staan in de bijgevoegde tabel Poortwachter-termijnen.", { color: GREY })] : []),
         ...(taak ? [new Paragraph({ spacing: { after: 120 }, children: [
           new TextRun({ text: "Suggestie voor aangepaste taken. ", bold: true, color: NAVY, size: 22, font: FONT }),
           new TextRun({ text: `Op basis van de functieomschrijving zou je — binnen de afgegeven mogelijkheden — kunnen denken aan ${taak}. `, size: 22, font: FONT }),
