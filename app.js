@@ -2520,6 +2520,11 @@
     x.setDate(x.getDate() + w * 7);
     return x;
   }
+  function addDays(d, n) {
+    const x = new Date(d);
+    x.setDate(x.getDate() + n);
+    return x;
+  }
   function addYears(d, y) {
     const x = new Date(d);
     x.setFullYear(x.getFullYear() + y);
@@ -2575,6 +2580,85 @@
       ...m,
       datum: eersteZ ? fmtNL(addWeeks(eersteZ, m.week)) : ""
     }));
+  }
+  function computeTijdlijn(fields, { wazo = null } = {}) {
+    const eersteZ = parseNL(getVal(fields, "eersteZ"));
+    if (!eersteZ) return null;
+    const gebd = parseNL(getVal(fields, "geboortedatum"));
+    const einddienst = parseNL(getVal(fields, "einddatum"));
+    const wazoDagen = wazo ? wazo.totaalDagen : 0;
+    const wazoStart = wazo ? parseNL(wazo.zwangerschapsverlof.start) : null;
+    const verschuif = (d) => wazoStart && d >= wazoStart ? addDays(d, wazoDagen) : d;
+    const wkVan = (d) => Math.round((d - eersteZ) / (7 * 864e5));
+    const events = POORTWACHTER.map((m) => {
+      const nominaal = addWeeks(eersteZ, m.week);
+      const datum = verschuif(nominaal);
+      return {
+        id: `pw-${m.week}`,
+        type: "mijlpaal",
+        categorie: "poortwachter",
+        week: wkVan(datum),
+        datum: fmtNL(datum),
+        titel: m.mijlpaal,
+        sub: m.actie,
+        verschoven: !!(wazoStart && nominaal >= wazoStart)
+      };
+    });
+    if (wazo) {
+      const eind = parseNL(wazo.bevallingsverlof.eind);
+      events.push({
+        id: "wazo",
+        type: "verlof",
+        categorie: "wazo",
+        week: wkVan(wazoStart),
+        datum: wazo.zwangerschapsverlof.start,
+        totWeek: wkVan(eind),
+        totDatum: wazo.bevallingsverlof.eind,
+        titel: "WAZO-verlof (zwangerschap/bevalling)",
+        sub: `${wazo.totaalWeken} wk \u2014 wachttijd pauzeert`
+      });
+    }
+    if (einddienst) {
+      events.push({
+        id: "zud",
+        type: "eindpunt",
+        categorie: "zud",
+        week: wkVan(einddienst),
+        datum: fmtNL(einddienst),
+        titel: "Einde dienstverband",
+        sub: "Bij een tijdelijk contract dat tijdens ziekte afloopt: mogelijk ziek uit dienst (Ziektewet/UWV)."
+      });
+    }
+    const eindeWachtDatum = verschuif(addWeeks(eersteZ, 104));
+    if (gebd) {
+      const aow = aowDatum(gebd);
+      if (aow <= addYears(eindeWachtDatum, 1)) {
+        events.push({
+          id: "aow",
+          type: "eindpunt",
+          categorie: "aow",
+          week: wkVan(aow),
+          datum: fmtNL(aow),
+          titel: "AOW-leeftijd (indicatief)",
+          sub: "Het traject vervalt rond de AOW-leeftijd; dan geldt een kortere termijn."
+        });
+      }
+    }
+    events.sort((a, b) => a.week - b.week);
+    return {
+      anker: { week: 0, datum: fmtNL(eersteZ), titel: "Eerste ziektedag" },
+      eindeWachttijd: { week: wkVan(eindeWachtDatum), datum: fmtNL(eindeWachtDatum), verschovenDoorWazo: !!wazo },
+      events,
+      banen: [{
+        id: "loondoorbetaling",
+        titel: "Loondoorbetaling",
+        vanWeek: 0,
+        totWeek: wkVan(eindeWachtDatum),
+        vanDatum: fmtNL(eersteZ),
+        totDatum: fmtNL(eindeWachtDatum),
+        noot: "Cao-afhankelijk; in de meeste cao's geldt vanaf jaar 1 al 70%."
+      }]
+    };
   }
   var SIGNAAL_ADVIES = {
     geenBenutbareMogelijkheden: {
@@ -2961,6 +3045,289 @@
     return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), kern.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: "k" + i }, t)), /* @__PURE__ */ React.createElement("p", { className: "bullets-intro" }, /* @__PURE__ */ React.createElement("strong", null, "Een paar praktische aandachtspunten:")), /* @__PURE__ */ React.createElement("ul", { className: "msg-bullets" }, bullets.map((t, i) => /* @__PURE__ */ React.createElement("li", { key: i }, linkify(t)))), termijnRef && /* @__PURE__ */ React.createElement("p", { style: { color: "var(--muted)" } }, "De volledige wettelijke termijnen staan in de bijgevoegde tabel Poortwachter-termijnen."), taak && /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Suggestie voor aangepaste taken."), " Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ", taak, ".", " ", /* @__PURE__ */ React.createElement("em", null, "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.")), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Dit document is een concept, opgesteld op basis van de terugkoppeling van de bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je werknemer vast \u2014 het is een document van jullie beiden."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Ben je eigenrisicodrager voor de Ziektewet of de WGA? Dan gelden aanvullende of afwijkende regels en kun je niet afgaan op dit automatisch gegenereerde advies \u2014 raadpleeg dan je eigen verzuim- of arbospecialist."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 } }, "[INVULLEN: naam afzender]"), /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontSize: 13 } }, "[INVULLEN: functie, bv. casemanager verzuim]"))));
   }
 
+  // src/tijdlijn.jsx
+  var TIJDLIJN_DEFAULT = {
+    anker: { week: 0, datum: "03-02-2025", titel: "Eerste ziektedag" },
+    eindeWachttijd: { week: 120, datum: "24-05-2027", verschovenDoorWazo: true },
+    events: [
+      { id: "pw-1", type: "mijlpaal", categorie: "poortwachter", week: 1, datum: "10-02-2025", titel: "Ziekmelding", sub: "Meld de werknemer ziek bij de arbodienst en leg de eerste ziektedag vast.", verschoven: false },
+      { id: "pw-6", type: "mijlpaal", categorie: "poortwachter", week: 6, datum: "17-03-2025", titel: "Probleemanalyse", sub: "De bedrijfsarts stelt de Probleemanalyse op (uiterlijk week 6).", verschoven: false },
+      { id: "pw-8", type: "mijlpaal", categorie: "poortwachter", week: 8, datum: "31-03-2025", titel: "Plan van Aanpak", sub: "Stel samen met de werknemer het Plan van Aanpak op.", verschoven: false },
+      { id: "wazo", type: "verlof", categorie: "wazo", week: 24, datum: "22-07-2025", totWeek: 40, totDatum: "10-11-2025", titel: "WAZO-verlof (zwangerschap/bevalling)", sub: "16 wk \u2014 wachttijd pauzeert" },
+      { id: "pw-42", type: "mijlpaal", categorie: "poortwachter", week: 58, datum: "16-03-2026", titel: "42e-weeksmelding bij UWV", sub: "Meld het langdurig verzuim bij UWV (verplicht in week 42).", verschoven: true },
+      { id: "pw-52", type: "mijlpaal", categorie: "poortwachter", week: 68, datum: "25-05-2026", titel: "Eerstejaarsevaluatie", sub: "Evalueer het eerste jaar; beoordeel of het tweede spoor moet starten.", verschoven: true },
+      { id: "pw-58", type: "mijlpaal", categorie: "poortwachter", week: 74, datum: "06-07-2026", titel: "Tweede spoor uiterlijk gestart", sub: "Start zo nodig het tweede spoor.", verschoven: true },
+      { id: "pw-87", type: "mijlpaal", categorie: "poortwachter", week: 103, datum: "25-01-2027", titel: "WIA-aanvraag mogelijk", sub: "Actueel oordeel + re-integratieverslag compleet.", verschoven: true },
+      { id: "pw-93", type: "mijlpaal", categorie: "poortwachter", week: 109, datum: "08-03-2027", titel: "WIA uiterlijk aanvragen", sub: "Werknemer vraagt uiterlijk week 93 WIA aan.", verschoven: true },
+      { id: "pw-104", type: "mijlpaal", categorie: "poortwachter", week: 120, datum: "24-05-2027", titel: "Einde wachttijd", sub: "Einde van de 2 jaar loondoorbetaling; WIA-beoordeling volgt.", verschoven: true }
+    ],
+    banen: [
+      { id: "loondoorbetaling", titel: "Loondoorbetaling", vanWeek: 0, totWeek: 120, vanDatum: "03-02-2025", totDatum: "24-05-2027", noot: "Cao-afhankelijk; in de meeste cao's geldt vanaf jaar 1 al 70%." }
+    ]
+  };
+  var CAT = {
+    poortwachter: { kleur: "var(--navy)", bg: "var(--navy-50)", tekst: "var(--navy)", label: "Poortwachter" },
+    wazo: { kleur: "var(--green)", bg: "var(--green-50)", tekst: "var(--green-700)", label: "WAZO-verlof" },
+    zud: { kleur: "var(--amber-line)", bg: "var(--amber-bg)", tekst: "var(--amber-text)", label: "Einde dienstverband" },
+    aow: { kleur: "var(--purple)", bg: "var(--purple-bg)", tekst: "var(--purple-text)", label: "AOW" }
+  };
+  function PoortwachterTijdlijn({ tijdlijn = TIJDLIJN_DEFAULT }) {
+    const [hover, setHover] = React.useState(null);
+    const total = tijdlijn.eindeWachttijd.week || 1;
+    const pct = (w) => w / total * 100;
+    const mijlpalen = tijdlijn.events.filter((e) => e.type === "mijlpaal");
+    const verloven = tijdlijn.events.filter((e) => e.type === "verlof");
+    const eindpunten = tijdlijn.events.filter((e) => e.type === "eindpunt");
+    const labelLayout = React.useMemo(() => {
+      const HALF = 7.4;
+      const sides = { boven: [], onder: [] };
+      const res = {};
+      let alt = 0;
+      const all = [...mijlpalen, ...eindpunten].sort((a, b) => a.week - b.week);
+      all.forEach((e) => {
+        const p2 = pct(e.week);
+        const side = alt % 2 === 0 ? "boven" : "onder";
+        alt++;
+        const lo = p2 - HALF, hi = p2 + HALF;
+        const placed = sides[side];
+        let tier = 0;
+        while (placed.some((q) => q.tier === tier && !(hi < q.lo || lo > q.hi))) tier++;
+        placed.push({ lo, hi, tier });
+        res[e.id] = { side, tier };
+      });
+      const maxTier = { boven: 0, onder: 0 };
+      Object.values(res).forEach((r) => {
+        maxTier[r.side] = Math.max(maxTier[r.side], r.tier);
+      });
+      return { res, maxTier };
+    }, [tijdlijn]);
+    const TIER_STEP = 58;
+    const bovenH = 16 + (labelLayout.maxTier.boven + 1) * TIER_STEP;
+    const onderH = 16 + (labelLayout.maxTier.onder + 1) * TIER_STEP;
+    const jaren = [];
+    for (let w = 0; w <= total; w += 52) jaren.push(w);
+    const gebruikteCats = Array.from(/* @__PURE__ */ new Set([
+      ...tijdlijn.events.map((e) => e.categorie)
+    ])).filter((c) => CAT[c]);
+    return /* @__PURE__ */ React.createElement("div", { className: "pwt" }, /* @__PURE__ */ React.createElement("style", null, CSS), /* @__PURE__ */ React.createElement("header", { className: "pwt-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("span", { className: "pwt-eyebrow" }, /* @__PURE__ */ React.createElement("span", { className: "dot" }), "Wet verbetering poortwachter"), /* @__PURE__ */ React.createElement("h2", null, "Tijdlijn verzuim \u2014 van eerste ziektedag tot einde wachttijd"), /* @__PURE__ */ React.createElement("p", { className: "pwt-sub" }, tijdlijn.anker.datum, " t/m ", tijdlijn.eindeWachttijd.datum, " \xB7 ", total, " weken", tijdlijn.eindeWachttijd.verschovenDoorWazo ? " (verlengd door WAZO-verlof)" : "")), /* @__PURE__ */ React.createElement("div", { className: "pwt-legend" }, gebruikteCats.map((c) => /* @__PURE__ */ React.createElement("span", { className: "lg", key: c }, /* @__PURE__ */ React.createElement("span", { className: "lg-sw", style: { background: CAT[c].kleur } }), CAT[c].label)))), /* @__PURE__ */ React.createElement("div", { className: "pwt-scroll" }, /* @__PURE__ */ React.createElement("div", { className: "pwt-canvas" }, /* @__PURE__ */ React.createElement("div", { className: "pwt-grid" }, jaren.map((w) => /* @__PURE__ */ React.createElement("div", { className: "pwt-gridline", key: w, style: { left: pct(w) + "%" } }, /* @__PURE__ */ React.createElement("span", { className: "pwt-gridlabel" }, w === 0 ? "Start" : "Jaar " + Math.round(w / 52))))), /* @__PURE__ */ React.createElement("div", { className: "pwt-labels-boven", style: { height: bovenH } }, [...mijlpalen, ...eindpunten].map((e) => {
+      const lay = labelLayout.res[e.id];
+      if (!lay || lay.side !== "boven") return null;
+      return /* @__PURE__ */ React.createElement(
+        EventLabel,
+        {
+          key: e.id,
+          e,
+          pct,
+          kant: "boven",
+          tier: lay.tier,
+          step: TIER_STEP,
+          eindpunt: e.type === "eindpunt",
+          onHover: setHover
+        }
+      );
+    })), /* @__PURE__ */ React.createElement("div", { className: "pwt-axis" }, verloven.map((v) => /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        key: v.id,
+        className: "pwt-verlof",
+        style: { left: pct(v.week) + "%", width: pct(v.totWeek - v.week) + "%" },
+        onMouseEnter: (ev) => setHover({ id: v.id, sub: v.sub, titel: v.titel, x: ev.clientX, y: ev.clientY }),
+        onMouseMove: (ev) => setHover({ id: v.id, sub: v.sub, titel: v.titel, x: ev.clientX, y: ev.clientY }),
+        onMouseLeave: () => setHover(null)
+      },
+      /* @__PURE__ */ React.createElement("span", { className: "pwt-verlof-label" }, "WAZO-verlof \xB7 ", v.sub)
+    )), /* @__PURE__ */ React.createElement("div", { className: "pwt-line" }), mijlpalen.map((e) => {
+      const isEinde = e.week === total;
+      return /* @__PURE__ */ React.createElement(
+        "div",
+        {
+          key: e.id,
+          className: "pwt-marker" + (isEinde ? " einde" : ""),
+          style: { left: pct(e.week) + "%" },
+          onMouseEnter: (ev) => setHover({ id: e.id, sub: e.sub, titel: e.titel, x: ev.clientX, y: ev.clientY }),
+          onMouseMove: (ev) => setHover({ id: e.id, sub: e.sub, titel: e.titel, x: ev.clientX, y: ev.clientY }),
+          onMouseLeave: () => setHover(null)
+        },
+        /* @__PURE__ */ React.createElement("span", { className: "dot" })
+      );
+    }), eindpunten.map((e) => /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        key: e.id,
+        className: "pwt-eindpunt cat-" + e.categorie,
+        style: { left: pct(e.week) + "%" },
+        onMouseEnter: (ev) => setHover({ id: e.id, sub: e.sub, titel: e.titel, x: ev.clientX, y: ev.clientY }),
+        onMouseLeave: () => setHover(null)
+      },
+      /* @__PURE__ */ React.createElement("span", { className: "ruit" })
+    ))), /* @__PURE__ */ React.createElement("div", { className: "pwt-labels-onder", style: { height: onderH } }, [...mijlpalen, ...eindpunten].map((e) => {
+      const lay = labelLayout.res[e.id];
+      if (!lay || lay.side !== "onder") return null;
+      return /* @__PURE__ */ React.createElement(
+        EventLabel,
+        {
+          key: e.id,
+          e,
+          pct,
+          kant: "onder",
+          tier: lay.tier,
+          step: TIER_STEP,
+          eindpunt: e.type === "eindpunt",
+          onHover: setHover
+        }
+      );
+    })), /* @__PURE__ */ React.createElement("div", { className: "pwt-banen" }, tijdlijn.banen.map((b) => /* @__PURE__ */ React.createElement("div", { className: "pwt-baan-rij", key: b.id }, /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        className: "pwt-baan",
+        style: { left: pct(b.vanWeek) + "%", width: pct(b.totWeek - b.vanWeek) + "%" }
+      },
+      /* @__PURE__ */ React.createElement("span", { className: "pwt-baan-titel" }, b.titel),
+      /* @__PURE__ */ React.createElement("span", { className: "pwt-baan-bereik" }, b.vanDatum, " \u2013 ", b.totDatum)
+    ), b.noot ? /* @__PURE__ */ React.createElement("div", { className: "pwt-baan-noot", style: { left: pct(b.vanWeek) + "%" } }, b.noot) : null))))), hover ? /* @__PURE__ */ React.createElement("div", { className: "pwt-tooltip", style: { left: hover.x, top: hover.y } }, /* @__PURE__ */ React.createElement("strong", null, hover.titel), hover.sub ? /* @__PURE__ */ React.createElement("span", null, hover.sub) : null) : null);
+  }
+  function EventLabel({ e, pct, kant, tier = 0, step = 58, eindpunt, onHover }) {
+    const cat = CAT[e.categorie] || CAT.poortwachter;
+    const p2 = pct(e.week);
+    const edge = p2 < 7 ? "edge-left" : p2 > 93 ? "edge-right" : "";
+    const offset = tier * step;
+    const posStyle = { left: p2 + "%", "--cat": cat.kleur };
+    if (kant === "boven") posStyle.bottom = 14 + offset;
+    else posStyle.top = 14 + offset;
+    const connLen = 14 + offset;
+    return /* @__PURE__ */ React.createElement(
+      "div",
+      {
+        className: "pwt-evlabel " + kant + " " + edge + (eindpunt ? " is-eindpunt" : ""),
+        style: posStyle,
+        onMouseEnter: (ev) => onHover({ id: e.id, sub: e.sub, titel: e.titel, x: ev.clientX, y: ev.clientY }),
+        onMouseMove: (ev) => onHover({ id: e.id, sub: e.sub, titel: e.titel, x: ev.clientX, y: ev.clientY }),
+        onMouseLeave: () => onHover(null)
+      },
+      /* @__PURE__ */ React.createElement("span", { className: "pwt-conn", style: { height: connLen } }),
+      /* @__PURE__ */ React.createElement("div", { className: "pwt-evlabel-inner" }, /* @__PURE__ */ React.createElement("span", { className: "pwt-evtitel" }, e.verschoven ? /* @__PURE__ */ React.createElement("span", { className: "pwt-shift", title: "Opgeschoven door WAZO-verlof" }, "\u2192") : null, e.titel), /* @__PURE__ */ React.createElement("span", { className: "pwt-evmeta" }, e.datum, " \xB7 wk ", e.week))
+    );
+  }
+  var CSS = `
+.pwt {
+  --navy:#1F3864; --navy-900:#14264a; --navy-600:#2c4a7e; --navy-400:#5b76a6;
+  --navy-100:#e6ebf4; --navy-50:#f2f5fa;
+  --green:#157f5b; --green-700:#0f6a4a; --green-100:#e1f1ea; --green-50:#f0f8f4;
+  --amber-line:#f0b429; --amber-bg:#fdf4dd; --amber-text:#8a5a00;
+  --purple:#6b4d9a; --purple-bg:#efeaf7; --purple-text:#4a3470;
+  --ink:#18202f; --ink-soft:#3c465a; --muted:#69748b; --faint:#97a0b2;
+  --line:#e3e7ee; --line-soft:#eef1f6;
+  --radius:12px;
+  --shadow-sm:0 1px 2px rgba(20,38,74,.06),0 1px 3px rgba(20,38,74,.05);
+  --shadow:0 6px 24px -10px rgba(20,38,74,.22),0 2px 6px rgba(20,38,74,.06);
+  --shadow-lg:0 24px 60px -24px rgba(20,38,74,.34);
+  font-family: inherit; color: var(--ink);
+}
+.pwt-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; flex-wrap: wrap; margin-bottom: 26px; }
+.pwt-eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--navy-600); }
+.pwt-eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+.pwt-head h2 { font-size: 25px; font-weight: 700; letter-spacing: -.02em; color: var(--navy-900); margin: 12px 0 0; line-height: 1.15; }
+.pwt-sub { color: var(--muted); font-size: 14.5px; margin: 8px 0 0; }
+.pwt-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; padding-top: 4px; }
+.pwt-legend .lg { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; color: var(--ink-soft); }
+.pwt-legend .lg-sw { width: 14px; height: 14px; border-radius: 4px; }
+
+.pwt-scroll { overflow-x: auto; overflow-y: visible; padding: 4px 0 6px; }
+.pwt-scroll::-webkit-scrollbar { height: 9px; }
+.pwt-scroll::-webkit-scrollbar-thumb { background: var(--navy-100); border-radius: 999px; }
+.pwt-canvas {
+  position: relative; min-width: 1040px;
+  background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: 18px 84px 24px;
+}
+
+/* Jaarraster */
+.pwt-grid { position: absolute; inset: 18px 84px 24px; pointer-events: none; }
+.pwt-gridline { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--line-soft); }
+.pwt-gridline:first-child { background: var(--line); }
+.pwt-gridlabel { position: absolute; top: -2px; left: 6px; font-size: 11px; font-weight: 600; color: var(--faint); white-space: nowrap; letter-spacing: .02em; }
+
+/* Labelrijen */
+.pwt-labels-boven { position: relative; }
+.pwt-labels-onder { position: relative; }
+
+.pwt-evlabel { position: absolute; transform: translateX(-50%); width: 146px; cursor: default; }
+.pwt-evlabel.edge-left { transform: translateX(-14px); }
+.pwt-evlabel.edge-right { transform: translateX(calc(-100% + 14px)); }
+.pwt-evlabel-inner {
+  position: relative; z-index: 1; background: #fff; border: 1px solid var(--line);
+  border-left: 3px solid var(--cat); border-radius: 8px; padding: 7px 10px;
+  box-shadow: var(--shadow-sm); transition: box-shadow .15s, transform .15s;
+}
+.pwt-evlabel:hover .pwt-evlabel-inner { box-shadow: var(--shadow); transform: translateY(-1px); }
+.pwt-evtitel { display: block; font-size: 12.5px; font-weight: 600; color: var(--navy-900); line-height: 1.25; }
+.pwt-evmeta { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.pwt-shift { color: var(--green-700); font-weight: 700; margin-right: 4px; }
+.pwt-evlabel.is-eindpunt .pwt-evlabel-inner { border-left-color: var(--cat); background: var(--navy-50); }
+
+/* Connector-lijntje van label naar de as */
+.pwt-conn { position: absolute; left: 50%; width: 1px; background: var(--line); z-index: 0; }
+.pwt-evlabel.edge-left .pwt-conn { left: 14px; }
+.pwt-evlabel.edge-right .pwt-conn { left: auto; right: 14px; }
+.pwt-evlabel.boven .pwt-conn { top: 100%; }
+.pwt-evlabel.onder .pwt-conn { bottom: 100%; }
+
+/* De as */
+.pwt-axis { position: relative; height: 56px; }
+.pwt-line { position: absolute; left: 0; right: 0; top: 50%; height: 3px; transform: translateY(-50%); background: var(--navy); border-radius: 2px; }
+
+/* WAZO-verlof blok */
+.pwt-verlof {
+  position: absolute; top: 50%; transform: translateY(-50%); height: 30px;
+  background-color: var(--green-50);
+  background-image: repeating-linear-gradient(45deg, transparent 0 7px, rgba(21,127,91,.14) 7px 14px);
+  border: 1.5px dashed var(--green); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; z-index: 3; cursor: default;
+}
+.pwt-verlof-label { font-size: 11px; font-weight: 700; color: var(--green-700); white-space: nowrap; padding: 0 8px; overflow: hidden; text-overflow: ellipsis; }
+
+/* Mijlpaal-markers */
+.pwt-marker { position: absolute; top: 50%; transform: translate(-50%, -50%); z-index: 4; cursor: default; }
+.pwt-marker .dot { display: block; width: 15px; height: 15px; border-radius: 50%; background: #fff; border: 3.5px solid var(--navy); transition: transform .15s, box-shadow .15s; }
+.pwt-marker:hover .dot { transform: scale(1.25); box-shadow: 0 0 0 5px var(--navy-100); }
+.pwt-marker.einde .dot { width: 18px; height: 18px; background: var(--navy); border-color: var(--green); box-shadow: 0 0 0 4px var(--green-100); }
+
+/* Eindpunten (ruit) */
+.pwt-eindpunt { position: absolute; top: 50%; transform: translate(-50%, -50%); z-index: 4; cursor: default; }
+.pwt-eindpunt .ruit { display: block; width: 16px; height: 16px; transform: rotate(45deg); background: #fff; border: 3px solid var(--cat, var(--amber-line)); }
+.pwt-eindpunt.cat-zud .ruit { border-color: var(--amber-line); }
+.pwt-eindpunt.cat-aow .ruit { border-color: var(--purple); }
+
+/* Banen */
+.pwt-banen { position: relative; margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--line); }
+.pwt-baan-rij { position: relative; min-height: 38px; margin-bottom: 28px; }
+.pwt-baan-rij:last-child { margin-bottom: 0; min-height: 60px; }
+.pwt-baan {
+  position: absolute; height: 34px; background: linear-gradient(var(--navy-50), var(--navy-50));
+  border: 1px solid var(--navy-100); border-radius: 8px;
+  display: flex; align-items: center; gap: 10px; padding: 0 14px; overflow: hidden;
+}
+.pwt-baan::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--navy); }
+.pwt-baan-titel { font-size: 12.5px; font-weight: 700; color: var(--navy-900); white-space: nowrap; }
+.pwt-baan-bereik { font-size: 11px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.pwt-baan-noot { position: absolute; top: 40px; transform: translateX(0); font-size: 11px; color: var(--muted); font-style: italic; max-width: 60ch; }
+
+/* Tooltip */
+.pwt-tooltip {
+  position: fixed; transform: translate(-50%, calc(-100% - 14px)); z-index: 50;
+  background: var(--navy-900); color: #fff; border-radius: 9px; padding: 10px 13px;
+  max-width: 280px; box-shadow: var(--shadow-lg); pointer-events: none;
+}
+.pwt-tooltip strong { display: block; font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.pwt-tooltip span { display: block; font-size: 12px; color: rgba(255,255,255,.78); line-height: 1.45; }
+.pwt-tooltip::after { content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--navy-900); }
+
+@media (max-width: 720px) {
+  .pwt-head h2 { font-size: 21px; }
+}
+`;
+
   // src/landing.jsx
   var { useState } = React;
   function Nav({ onOpenTool, session, onOpenLogin, onLogout, onOpenAccount }) {
@@ -2997,6 +3364,11 @@
       { t: "Begeleidend bericht", el: /* @__PURE__ */ React.createElement(BerichtPreview, { fields: c.fields, schema: c.schema, reportDate: c.reportDate, taaksuggestie: c.taaksuggestie, signalen: c.signalen, schemaZelfOpgesteld: c.schemaZelfOpgesteld, opbouwReden: c.opbouwReden }) }
     ];
     return /* @__PURE__ */ React.createElement("section", { className: "section showcase", id: "voorbeeld" }, /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "sec-head reveal" }, /* @__PURE__ */ React.createElement("span", { className: "eyebrow" }, /* @__PURE__ */ React.createElement("span", { className: "dot" }), "Voorbeeldresultaat"), /* @__PURE__ */ React.createElement("h2", null, "Zo ziet het ingevulde concept eruit"), /* @__PURE__ */ React.createElement("p", null, "Automatisch gegenereerd uit een fictieve terugkoppeling \u2014 geen echte gegevens.")), /* @__PURE__ */ React.createElement("div", { className: "showcase-frame reveal" }, /* @__PURE__ */ React.createElement("div", { className: "preview-tabs" }, tabs.map((tb, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: tab === i ? "active" : "", onClick: () => setTab(i) }, /* @__PURE__ */ React.createElement("span", { className: "tnum" }, i + 1), /* @__PURE__ */ React.createElement("span", { className: "txt" }, tb.t)))), /* @__PURE__ */ React.createElement("div", { className: "showcase-doc" }, tabs[tab].el))));
+  }
+  function Tijdlijn() {
+    const tijdlijn = computeTijdlijn(INITIAL_FIELDS);
+    if (!tijdlijn) return null;
+    return /* @__PURE__ */ React.createElement("section", { className: "section", id: "tijdlijn" }, /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "sec-head reveal" }, /* @__PURE__ */ React.createElement("span", { className: "eyebrow" }, /* @__PURE__ */ React.createElement("span", { className: "dot" }), "Tijdlijn"), /* @__PURE__ */ React.createElement("h2", null, "De hele verzuimperiode in \xE9\xE9n oogopslag"), /* @__PURE__ */ React.createElement("p", null, "Van de eerste ziektedag tot het einde van de wachttijd, met alle wettelijke mijlpalen op hun plek. Bij zwangerschap rekt het WAZO-verlof de tijdlijn automatisch op.")), /* @__PURE__ */ React.createElement("div", { className: "reveal" }, /* @__PURE__ */ React.createElement(PoortwachterTijdlijn, { tijdlijn }))));
   }
   var STEPS = [
     { n: 1, icon: I.upload, t: "Upload", d: "Sleep de terugkoppeling van de bedrijfsarts erin \u2014 PDF of Word." },
@@ -3063,7 +3435,7 @@
     return /* @__PURE__ */ React.createElement("footer", { className: "footer" }, /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "footer-grid" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("a", { className: "brand", href: "#top", style: { marginBottom: 14 } }, /* @__PURE__ */ React.createElement("span", { className: "mark" }, I.doc), /* @__PURE__ */ React.createElement("span", null, "planvanaanpak", /* @__PURE__ */ React.createElement("span", { className: "tld" }, "invuller.nl"))), /* @__PURE__ */ React.createElement("p", { style: { fontSize: 14.5, maxWidth: "34ch", color: "rgba(255,255,255,.6)" } }, "Concept Plannen van Aanpak invullen volgens de Wet verbetering poortwachter \u2014 privacy by design, mens in de loop.")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Product"), /* @__PURE__ */ React.createElement("a", { href: "#hoe" }, "Hoe het werkt"), /* @__PURE__ */ React.createElement("a", { href: "#aanpak" }, "Hybride aanpak"), /* @__PURE__ */ React.createElement("a", { href: "#demo" }, "Demo aanvragen")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Vertrouwen"), /* @__PURE__ */ React.createElement("a", { href: "#privacy" }, "Privacy & AVG"), /* @__PURE__ */ React.createElement("a", { href: "#privacyverklaring", onClick: openPrivacy }, "Privacyverklaring & AI"), /* @__PURE__ */ React.createElement("a", { href: "mailto:contact@planvanaanpakinvuller.nl?subject=Verwerkersovereenkomst" }, "Verwerkersovereenkomst"), /* @__PURE__ */ React.createElement("a", { href: "mailto:contact@planvanaanpakinvuller.nl?subject=DPIA%20opvragen" }, "DPIA opvragen")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Contact"), /* @__PURE__ */ React.createElement("a", { href: "mailto:contact@planvanaanpakinvuller.nl" }, "contact@planvanaanpakinvuller.nl"), /* @__PURE__ */ React.createElement("span", { style: { display: "block", padding: "5px 0", fontSize: 15 } }, "planvanaanpakinvuller.nl"), /* @__PURE__ */ React.createElement("span", { style: { display: "block", padding: "5px 0", fontSize: 15 } }, "KVK-nummer volgt"))), /* @__PURE__ */ React.createElement("div", { className: "footer-bot" }, /* @__PURE__ */ React.createElement("span", null, "\xA9 2026 planvanaanpakinvuller.nl \xB7 KVK-nummer volgt"), /* @__PURE__ */ React.createElement("span", null, "Verwerking binnen de EER \xB7 Geen training op klantdata"))));
   }
   function Landing({ onOpenTool, onOpenPrivacy, session, onOpenLogin, onLogout, onOpenAccount }) {
-    return /* @__PURE__ */ React.createElement("div", { className: "site" }, /* @__PURE__ */ React.createElement(Nav, { onOpenTool, session, onOpenLogin, onLogout, onOpenAccount }), /* @__PURE__ */ React.createElement(Hero, { onOpenTool }), /* @__PURE__ */ React.createElement(HowItWorks, null), /* @__PURE__ */ React.createElement(Showcase, null), /* @__PURE__ */ React.createElement(USP, null), /* @__PURE__ */ React.createElement(Hybrid, null), /* @__PURE__ */ React.createElement(Compliance, { onOpenPrivacy }), /* @__PURE__ */ React.createElement(Faq, null), /* @__PURE__ */ React.createElement(CtaBand, { onOpenTool }), /* @__PURE__ */ React.createElement(Footer, { onOpenPrivacy }));
+    return /* @__PURE__ */ React.createElement("div", { className: "site" }, /* @__PURE__ */ React.createElement(Nav, { onOpenTool, session, onOpenLogin, onLogout, onOpenAccount }), /* @__PURE__ */ React.createElement(Hero, { onOpenTool }), /* @__PURE__ */ React.createElement(HowItWorks, null), /* @__PURE__ */ React.createElement(Showcase, null), /* @__PURE__ */ React.createElement(Tijdlijn, null), /* @__PURE__ */ React.createElement(USP, null), /* @__PURE__ */ React.createElement(Hybrid, null), /* @__PURE__ */ React.createElement(Compliance, { onOpenPrivacy }), /* @__PURE__ */ React.createElement(Faq, null), /* @__PURE__ */ React.createElement(CtaBand, { onOpenTool }), /* @__PURE__ */ React.createElement(Footer, { onOpenPrivacy }));
   }
 
   // src/sourcedoc.jsx
