@@ -77,6 +77,12 @@ const docSig = buildDocxDocument(INITIAL_FIELDS, schema, CASE.reportDate, "", { 
 const xmlSig = await (await JSZip.loadAsync(await Packer.toBuffer(docSig))).file("word/document.xml").async("string");
 check(".docx vuurt voorwaardelijk advies (arbeidsconflict → mediation 5.3)", xmlSig.includes("mediation") && xmlSig.includes("5.3"));
 
+// no-riskpolis: alleen als de bedrijfsarts het aangeeft (signaal), met UWV-melding-actie
+check(".docx toont GEEN no-risk-advies zonder signaal", !xml.includes("no-risk"));
+const docNoRisk = buildDocxDocument(INITIAL_FIELDS, schema, CASE.reportDate, "", { noRiskMogelijk: true });
+const xmlNoRisk = await (await JSZip.loadAsync(await Packer.toBuffer(docNoRisk))).file("word/document.xml").async("string");
+check(".docx toont no-risk-advies bij signaal (UWV-melding + classificatie)", xmlNoRisk.includes("no-risk") && xmlNoRisk.includes("classificatie") && xmlNoRisk.includes("UWV"));
+
 // adviezen verweven in het begeleidend bericht
 check(".docx bevat altijd-advies (verzuimdossier)", xml.includes("verzuimdossier"));
 check(".docx bevat procesadvies (PvA uiterlijk week 8)", xml.includes("week 8"));

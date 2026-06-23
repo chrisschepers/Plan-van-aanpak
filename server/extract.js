@@ -56,6 +56,7 @@ SIGNALEN: zet elk signaal op true ALLEEN als de terugkoppeling dit duidelijk aan
 - belastbaarheidNaEerstejaars: de belastbaarheid ontstaat pas (ruim) na ongeveer een jaar verzuim.
 - gewijzigdeBelastbaarheidSpoor2: de belastbaarheid is gewijzigd terwijl een tweede-spoortraject loopt.
 - herstelVerwachtBinnen3Maanden: de bedrijfsarts verwacht volledig herstel/volledige werkhervatting binnen circa 3 maanden.
+- noRiskMogelijk: de bedrijfsarts geeft aan dat mogelijk een no-riskpolis of vangnetregeling (Ziektewet) van toepassing is, of noemt de no-riskstatus van de werknemer expliciet. Zet dit alleen op true bij een duidelijke aanwijzing in de terugkoppeling; neem nooit de medische reden over.
 
 De belastbaarheidstoestanden sluiten elkaar uit: kies er hooguit één van
 geenBenutbareMogelijkheden/duurzaamGeenMogelijkheden, marginaleMogelijkheden of
@@ -132,8 +133,9 @@ const SCHEMA = {
         gewijzigdeBelastbaarheidSpoor2: { type: "boolean" },
         herstelVerwachtBinnen3Maanden: { type: "boolean" },
         volledigInzetbaar: { type: "boolean" },
+        noRiskMogelijk: { type: "boolean" },
       },
-      required: ["geenBenutbareMogelijkheden", "duurzaamGeenMogelijkheden", "marginaleMogelijkheden", "arbeidstherapeutisch", "stagnatie", "arbeidsconflict", "belastbaarheidNaEerstejaars", "gewijzigdeBelastbaarheidSpoor2", "herstelVerwachtBinnen3Maanden", "volledigInzetbaar"],
+      required: ["geenBenutbareMogelijkheden", "duurzaamGeenMogelijkheden", "marginaleMogelijkheden", "arbeidstherapeutisch", "stagnatie", "arbeidsconflict", "belastbaarheidNaEerstejaars", "gewijzigdeBelastbaarheidSpoor2", "herstelVerwachtBinnen3Maanden", "volledigInzetbaar", "noRiskMogelijk"],
     },
   },
   required: [

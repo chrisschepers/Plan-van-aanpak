@@ -84,9 +84,6 @@ H("1. ALTIJD-ADVIEZEN (in elk begeleidend bericht)");
 for (const a of computeAdvice(BASE, REPORT, {}).filter((x) => x.title === "Altijd")) {
   L.push(adviesBlok(a));
 }
-for (const a of computeAdvice(BASE, REPORT, {}).filter((x) => x.title.startsWith("No-risk"))) {
-  L.push("", adviesBlok(a));
-}
 
 // 2. Poortwachter-termijnen --------------------------------------------------
 H("2. POORTWACHTER-TERMIJNEN (volledig overzicht; staat in scherm én document)");
@@ -156,6 +153,7 @@ const TRIGGERS = {
   belastbaarheidNaEerstejaars: "De belastbaarheid ontstaat pas (ruim) na ongeveer een jaar verzuim.",
   gewijzigdeBelastbaarheidSpoor2: "De belastbaarheid is gewijzigd terwijl een tweede-spoortraject loopt.",
   volledigInzetbaar: "De werknemer is (weer) volledig inzetbaar voor het eigen werk in de eigen uren / heeft geen functionele beperkingen door ziekte (bv. bij een herstelmelding of een arbeidsconflict zonder ziekte).",
+  noRiskMogelijk: "De bedrijfsarts geeft aan dat mogelijk een no-riskpolis of vangnetregeling (Ziektewet) van toepassing is, of noemt de no-riskstatus expliciet.",
 };
 let nr = 0;
 for (const [key, advies] of Object.entries(SIGNAAL_ADVIES)) {

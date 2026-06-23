@@ -23,18 +23,6 @@
    aan de afgegeven arbeidsmogelijkheden; en stel het Plan van Aanpak bij zodra
    de belastbaarheid wijzigt.
 
- • No-riskpolis — loop het doelgroepregister na (niet missen)   [let op]
-   Het is enorm zonde als een no-riskpolis onbenut blijft: bij no-risk vergoedt
-   UWV via de Ziektewet (een deel van) je loonkosten als deze werknemer ziek is.
-   Loop daarom elke medewerker na in het doelgroepregister om te controleren of
-   er een registratie is — is die er, dan geldt no-risk. Je kunt deze uitlegvideo
-   naar je werknemer doorsturen; daarin wordt getoond hoe de werknemer zelf zo'n
-   registratie controleert: https://www.youtube.com/shorts/P7rFE1839P8. Er zijn
-   ook andere routes naar een no-riskstatus, bijvoorbeeld op basis van het
-   uitkeringsverleden. Leg in je dossier alleen vast dát no-risk van toepassing
-   is, nooit waarom (die reden is medisch of privé). Vragen over de no-riskpolis?
-   Mail gerust naar planvanaanpakinvuller@gmail.com.
-
 ================================================================================
  2. POORTWACHTER-TERMIJNEN (volledig overzicht; staat in scherm én document)
 ================================================================================
@@ -190,7 +178,20 @@
       de volle twee jaar, dan volstaat een beperkt re-integratieverslag
       (Werkwijzer 5.9, 3.1).
 
- 6.2  Marginale mogelijkheden   [aandachtspunt]
+ 6.2  Mogelijk no-riskpolis — meld bij UWV (UWV beoordeelt)   [let op]
+      Gaat aan wanneer: De bedrijfsarts geeft aan dat mogelijk een
+      no-riskpolis of vangnetregeling (Ziektewet) van toepassing is, of noemt
+      de no-riskstatus expliciet.
+      Advies dat dan in het bericht komt:
+      De bedrijfsarts geeft aan dat mogelijk een no-riskpolis van toepassing
+      is. Meld de werknemer in dat geval ziek bij UWV met de classificatie dat
+      hij/zij onder de no-riskpolis van de Ziektewet valt; UWV beoordeelt
+      vervolgens of er daadwerkelijk sprake is van een no-risksituatie. Bij
+      no-risk vergoedt UWV via de Ziektewet (een deel van) je loonkosten
+      tijdens de ziekte. Leg in je dossier alleen vast dát no-risk van
+      toepassing is, nooit waarom (die reden is medisch of privé).
+
+ 6.3  Marginale mogelijkheden   [aandachtspunt]
       Gaat aan wanneer: Marginale belastbaarheid: maximaal circa 2 uur per dag
       inzetbaar én zonder uitzicht op opbouw. Bij een opbouwperspectief (tempo
       genoemd of volgt op het vervolgconsult) gaat dit signaal niet aan.
@@ -201,7 +202,7 @@
       begeleiding; het tweede spoor is hier niet snel aan de orde (Werkwijzer
       5.8).
 
- 6.3  Arbeidstherapeutisch werken — begrenzen   [aandachtspunt]
+ 6.4  Arbeidstherapeutisch werken — begrenzen   [aandachtspunt]
       Gaat aan wanneer: Werken op arbeidstherapeutische basis (zonder
       loonwaarde) wordt genoemd.
       Advies dat dan in het bericht komt:
@@ -210,7 +211,7 @@
       werken zonder loonwaarde is een grond om het Plan van Aanpak bij te
       stellen (Werkwijzer 3.2.4).
 
- 6.4  Stagnatie / hervatting instabiel   [aandachtspunt]
+ 6.5  Stagnatie / hervatting instabiel   [aandachtspunt]
       Gaat aan wanneer: De opbouw loopt achter op schema, de hervatting is
       instabiel, of er is uitval/terugval.
       Advies dat dan in het bericht komt:
@@ -218,7 +219,7 @@
       Plan van Aanpak bij; komen werkgever en werknemer er samen niet uit,
       vraag dan een deskundigenoordeel aan bij UWV (Werkwijzer 3.2.4, 5.4).
 
- 6.5  Arbeidsconflict genoemd   [let op]
+ 6.6  Arbeidsconflict genoemd   [let op]
       Gaat aan wanneer: Er is sprake van een arbeidsconflict of verstoorde
       arbeidsverhouding.
       Advies dat dan in het bericht komt:
@@ -226,7 +227,7 @@
       mediation of een gesprek onder begeleiding in; een ziekmelding is geen
       oplossing voor een conflict (Werkwijzer 5.3).
 
- 6.6  Belastbaarheid ontstaat pas na de eerstejaarsevaluatie   [aandachtspunt]
+ 6.7  Belastbaarheid ontstaat pas na de eerstejaarsevaluatie   [aandachtspunt]
       Gaat aan wanneer: De belastbaarheid ontstaat pas (ruim) na ongeveer een
       jaar verzuim.
       Advies dat dan in het bericht komt:
@@ -235,14 +236,14 @@
       start van de activiteiten: 2 weken voor bijstelling van het Plan van
       Aanpak en 6 weken tot uitvoering (Werkwijzer 4.3.2).
 
- 6.7  Gewijzigde belastbaarheid terwijl spoor 2 loopt   [aandachtspunt]
+ 6.8  Gewijzigde belastbaarheid terwijl spoor 2 loopt   [aandachtspunt]
       Gaat aan wanneer: De belastbaarheid is gewijzigd terwijl een
       tweede-spoortraject loopt.
       Advies dat dan in het bericht komt:
       De belastbaarheid is gewijzigd terwijl het tweede-spoortraject loopt.
       Informeer het re-integratiebureau hier direct over (Werkwijzer 4.3.4).
 
- 6.8  Volledige werkhervatting — let op de 4-wekenregel   [aandachtspunt]
+ 6.9  Volledige werkhervatting — let op de 4-wekenregel   [aandachtspunt]
       Gaat aan wanneer: De werknemer is (weer) volledig inzetbaar voor het
       eigen werk in de eigen uren / heeft geen functionele beperkingen door
       ziekte (bv. bij een herstelmelding of een arbeidsconflict zonder
@@ -255,7 +256,7 @@
       wachttijd van 104 weken loopt door. Meld volledig herstel daarom pas als
       de werkhervatting echt stabiel is.
 
- 6.9  Herstel verwacht binnen 3 maanden   [geen eigen alinea]
+ 6.10  Herstel verwacht binnen 3 maanden   [geen eigen alinea]
       Gaat aan wanneer: de bedrijfsarts verwacht volledig herstel/volledige
       werkhervatting binnen circa 3 maanden.
       Effect: geen losse advies-alinea, maar bij ziek-uit-dienst volstaat dan

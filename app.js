@@ -2583,6 +2583,12 @@
       body: "De bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn. Forceer dan geen re-integratieactiviteiten: de bedrijfsarts houdt de vinger aan de pols \u2014 plan vervolgconsulten en leg elke terugkoppeling vast in het verzuimdossier. Duurt deze situatie de volle twee jaar, dan volstaat een beperkt re-integratieverslag (Werkwijzer 5.9, 3.1).",
       kort: "Geen benutbare mogelijkheden: forceer geen re-integratie, plan vervolgconsulten en leg elke terugkoppeling vast in het verzuimdossier (Werkwijzer 5.9)."
     },
+    noRiskMogelijk: {
+      level: "risk",
+      title: "Mogelijk no-riskpolis \u2014 meld bij UWV (UWV beoordeelt)",
+      body: "De bedrijfsarts geeft aan dat mogelijk een no-riskpolis van toepassing is. Meld de werknemer in dat geval ziek bij UWV met de classificatie dat hij/zij onder de no-riskpolis van de Ziektewet valt; UWV beoordeelt vervolgens of er daadwerkelijk sprake is van een no-risksituatie. Bij no-risk vergoedt UWV via de Ziektewet (een deel van) je loonkosten tijdens de ziekte. Leg in je dossier alleen vast d\xE1t no-risk van toepassing is, nooit waarom (die reden is medisch of priv\xE9).",
+      kort: "Mogelijk no-risk: meld de werknemer ziek bij UWV met de classificatie 'valt onder de no-riskpolis van de Ziektewet' \u2014 UWV beoordeelt of no-risk geldt; bij no-risk vergoedt UWV een deel van je loonkosten."
+    },
     // (Geen 'duurzaam geen mogelijkheden'-advies: een vervroegde IVA-aanvraag wordt
     //  bewust NIET geautomatiseerd geadviseerd — dat ethische oordeel hoort bij mens/
     //  bedrijfsarts. Het signaal blijft bestaan en stuurt 'geen benutbare mogelijkheden'.)
@@ -2640,12 +2646,6 @@
       title: "Altijd",
       body: "Leg de terugkoppeling vast in het verzuimdossier; geef daadwerkelijk invulling aan de afgegeven arbeidsmogelijkheden; en stel het Plan van Aanpak bij zodra de belastbaarheid wijzigt.",
       kort: "Leg de terugkoppeling vast in het verzuimdossier, geef de afgegeven mogelijkheden daadwerkelijk invulling en stel het Plan van aanpak bij zodra de belastbaarheid wijzigt."
-    });
-    advies.push({
-      level: "risk",
-      brief: false,
-      title: "No-riskpolis \u2014 loop het doelgroepregister na (niet missen)",
-      body: "Het is enorm zonde als een no-riskpolis onbenut blijft: bij no-risk vergoedt UWV via de Ziektewet (een deel van) je loonkosten als deze werknemer ziek is. Loop daarom elke medewerker na in het doelgroepregister om te controleren of er een registratie is \u2014 is die er, dan geldt no-risk. Je kunt deze uitlegvideo naar je werknemer doorsturen; daarin wordt getoond hoe de werknemer zelf zo'n registratie controleert: https://www.youtube.com/shorts/P7rFE1839P8. Er zijn ook andere routes naar een no-riskstatus, bijvoorbeeld op basis van het uitkeringsverleden. Leg in je dossier alleen vast d\xE1t no-risk van toepassing is, nooit waarom (die reden is medisch of priv\xE9). Vragen over de no-riskpolis? Mail gerust naar planvanaanpakinvuller@gmail.com."
     });
     if (eersteZ) {
       const verzuimweek2 = Math.max(0, weeksBetween(eersteZ, peil));
@@ -22692,6 +22692,7 @@
     const lageBelastbaarheid = r.contractHours > 0 && r.startHours > 0 && r.startHours <= r.contractHours * 0.4 || /maximaal\b[^.]{0,25}\b(uur|uren)\b/.test(belast);
     if (geenUitzicht && lageBelastbaarheid) sig.marginaleMogelijkheden = true;
     if (/arbeidstherapeut/.test(tekst)) sig.arbeidstherapeutisch = true;
+    if (/\bno.?risk\b|vangnet/.test(`${tekst} ${(data.werkaanpassing || "").toLowerCase()}`)) sig.noRiskMogelijk = true;
     data.signalen = sig;
     return data;
   }

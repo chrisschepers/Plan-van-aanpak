@@ -83,6 +83,8 @@ export function reviewSignals(d) {
     || /maximaal\b[^.]{0,25}\b(uur|uren)\b/.test(belast);
   if (geenUitzicht && lageBelastbaarheid) sig.marginaleMogelijkheden = true;
   if (/arbeidstherapeut/.test(tekst)) sig.arbeidstherapeutisch = true;
+  // No-risk: hoge precisie — alleen bij een expliciete vermelding van no-risk/vangnet.
+  if (/\bno.?risk\b|vangnet/.test(`${tekst} ${(data.werkaanpassing || "").toLowerCase()}`)) sig.noRiskMogelijk = true;
 
   data.signalen = sig;
   return data;

@@ -82,6 +82,9 @@ export const SIGNAAL_ADVIES = {
   geenBenutbareMogelijkheden: { level: "risk", title: "Geen benutbare mogelijkheden (GBM)",
     body: "De bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn. Forceer dan geen re-integratieactiviteiten: de bedrijfsarts houdt de vinger aan de pols — plan vervolgconsulten en leg elke terugkoppeling vast in het verzuimdossier. Duurt deze situatie de volle twee jaar, dan volstaat een beperkt re-integratieverslag (Werkwijzer 5.9, 3.1).",
     kort: "Geen benutbare mogelijkheden: forceer geen re-integratie, plan vervolgconsulten en leg elke terugkoppeling vast in het verzuimdossier (Werkwijzer 5.9)." },
+  noRiskMogelijk: { level: "risk", title: "Mogelijk no-riskpolis — meld bij UWV (UWV beoordeelt)",
+    body: "De bedrijfsarts geeft aan dat mogelijk een no-riskpolis van toepassing is. Meld de werknemer in dat geval ziek bij UWV met de classificatie dat hij/zij onder de no-riskpolis van de Ziektewet valt; UWV beoordeelt vervolgens of er daadwerkelijk sprake is van een no-risksituatie. Bij no-risk vergoedt UWV via de Ziektewet (een deel van) je loonkosten tijdens de ziekte. Leg in je dossier alleen vast dát no-risk van toepassing is, nooit waarom (die reden is medisch of privé).",
+    kort: "Mogelijk no-risk: meld de werknemer ziek bij UWV met de classificatie 'valt onder de no-riskpolis van de Ziektewet' — UWV beoordeelt of no-risk geldt; bij no-risk vergoedt UWV een deel van je loonkosten." },
   // (Geen 'duurzaam geen mogelijkheden'-advies: een vervroegde IVA-aanvraag wordt
   //  bewust NIET geautomatiseerd geadviseerd — dat ethische oordeel hoort bij mens/
   //  bedrijfsarts. Het signaal blijft bestaan en stuurt 'geen benutbare mogelijkheden'.)
@@ -130,15 +133,8 @@ export function computeAdvice(fields, reportDate, signalen = {}) {
     kort: "Leg de terugkoppeling vast in het verzuimdossier, geef de afgegeven mogelijkheden daadwerkelijk invulling en stel het Plan van aanpak bij zodra de belastbaarheid wijzigt.",
   });
 
-  // ---- No-riskpolis (geldt voor elk nieuw/eerste PvA; bij een Bijstelling later te gaten) ----
-  // brief:false → staat NIET in het begeleidend bericht (te lang/niet kern), maar blijft
-  // wél in computeAdvice zodat de adviescatalogus het als los advies houdt.
-  advies.push({
-    level: "risk",
-    brief: false,
-    title: "No-riskpolis — loop het doelgroepregister na (niet missen)",
-    body: "Het is enorm zonde als een no-riskpolis onbenut blijft: bij no-risk vergoedt UWV via de Ziektewet (een deel van) je loonkosten als deze werknemer ziek is. Loop daarom elke medewerker na in het doelgroepregister om te controleren of er een registratie is — is die er, dan geldt no-risk. Je kunt deze uitlegvideo naar je werknemer doorsturen; daarin wordt getoond hoe de werknemer zelf zo'n registratie controleert: https://www.youtube.com/shorts/P7rFE1839P8. Er zijn ook andere routes naar een no-riskstatus, bijvoorbeeld op basis van het uitkeringsverleden. Leg in je dossier alleen vast dát no-risk van toepassing is, nooit waarom (die reden is medisch of privé). Vragen over de no-riskpolis? Mail gerust naar planvanaanpakinvuller@gmail.com.",
-  });
+  // No-risk is een SIGNAAL-advies (zie SIGNAAL_ADVIES.noRiskMogelijk): het komt
+  // alleen in het bericht als de bedrijfsarts aangeeft dat het mogelijk speelt.
 
   // ---- Tijdlijn op verzuimweek ----
   if (eersteZ) {
