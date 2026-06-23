@@ -17,6 +17,7 @@ function fmtNL(d) {
   return `${p(d.getDate())}-${p(d.getMonth() + 1)}-${d.getFullYear()}`;
 }
 function addWeeks(d, w) { const x = new Date(d); x.setDate(x.getDate() + w * 7); return x; }
+function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
 function addYears(d, y) { const x = new Date(d); x.setFullYear(x.getFullYear() + y); return x; }
 function weeksBetween(a, b) { return Math.floor((b - a) / (7 * 864e5)); }
 function yearsBetween(from, to) {
@@ -71,6 +72,91 @@ export function poortwachterTermijnen(fields) {
     ...m,
     datum: eersteZ ? fmtNL(addWeeks(eersteZ, m.week)) : "",
   }));
+}
+
+/**
+ * Chronologische verzuim-tijdlijn ("x-as") voor de visuele weergave.
+ * Anker = eerste ziektedag; vaste Poortwachter-mijlpalen; optioneel een
+ * WAZO-verlofblok dat de wachttijd pauzeert (mijlpalen ná de verlofstart
+ * schuiven mee, einde wachttijd schuift op); eindpunt-markers (einde
+ * dienstverband, AOW); en een loondoorbetaling-baan (cao-afhankelijk).
+ *
+ * Bewust NIET opgenomen (besluiten Chris): vervroegde IVA (ethiek), loonsanctie
+ * (niet voor de hand liggend), 4-wekenregel/samentelling (niet uit een
+ * terugkoppeling af te leiden).
+ *
+ * @param {object} fields  veldenmodel (zoals in de tool)
+ * @param {{wazo?: object}} [opts]  optioneel een computeWazo()-resultaat
+ * @returns {null | {anker, eindeWachttijd, events: Array, banen: Array}}
+ */
+export function computeTijdlijn(fields, { wazo = null } = {}) {
+  const eersteZ = parseNL(getVal(fields, "eersteZ"));
+  if (!eersteZ) return null; // zonder eerste ziektedag geen anker
+  const gebd = parseNL(getVal(fields, "geboortedatum"));
+  const einddienst = parseNL(getVal(fields, "einddatum"));
+  const wazoDagen = wazo ? wazo.totaalDagen : 0;
+  const wazoStart = wazo ? parseNL(wazo.zwangerschapsverlof.start) : null;
+
+  // De wachttijd pauzeert tijdens WAZO-verlof: datums vanaf de verlofstart schuiven op.
+  const verschuif = (d) => (wazoStart && d >= wazoStart ? addDays(d, wazoDagen) : d);
+  const wkVan = (d) => Math.round((d - eersteZ) / (7 * 864e5));
+
+  const events = POORTWACHTER.map((m) => {
+    const nominaal = addWeeks(eersteZ, m.week);
+    const datum = verschuif(nominaal);
+    return {
+      id: `pw-${m.week}`, type: "mijlpaal", categorie: "poortwachter",
+      week: wkVan(datum), datum: fmtNL(datum), titel: m.mijlpaal, sub: m.actie,
+      verschoven: !!(wazoStart && nominaal >= wazoStart),
+    };
+  });
+
+  if (wazo) {
+    const eind = parseNL(wazo.bevallingsverlof.eind);
+    events.push({
+      id: "wazo", type: "verlof", categorie: "wazo",
+      week: wkVan(wazoStart), datum: wazo.zwangerschapsverlof.start,
+      totWeek: wkVan(eind), totDatum: wazo.bevallingsverlof.eind,
+      titel: "WAZO-verlof (zwangerschap/bevalling)",
+      sub: `${wazo.totaalWeken} wk — wachttijd pauzeert`,
+    });
+  }
+
+  if (einddienst) {
+    events.push({
+      id: "zud", type: "eindpunt", categorie: "zud",
+      week: wkVan(einddienst), datum: fmtNL(einddienst),
+      titel: "Einde dienstverband",
+      sub: "Bij een tijdelijk contract dat tijdens ziekte afloopt: mogelijk ziek uit dienst (Ziektewet/UWV).",
+    });
+  }
+
+  const eindeWachtDatum = verschuif(addWeeks(eersteZ, 104));
+  if (gebd) {
+    const aow = aowDatum(gebd);
+    if (aow <= addYears(eindeWachtDatum, 1)) { // alleen tonen als de AOW dicht bij de as ligt
+      events.push({
+        id: "aow", type: "eindpunt", categorie: "aow",
+        week: wkVan(aow), datum: fmtNL(aow),
+        titel: "AOW-leeftijd (indicatief)",
+        sub: "Het traject vervalt rond de AOW-leeftijd; dan geldt een kortere termijn.",
+      });
+    }
+  }
+
+  events.sort((a, b) => a.week - b.week);
+
+  return {
+    anker: { week: 0, datum: fmtNL(eersteZ), titel: "Eerste ziektedag" },
+    eindeWachttijd: { week: wkVan(eindeWachtDatum), datum: fmtNL(eindeWachtDatum), verschovenDoorWazo: !!wazo },
+    events,
+    banen: [{
+      id: "loondoorbetaling", titel: "Loondoorbetaling",
+      vanWeek: 0, totWeek: wkVan(eindeWachtDatum),
+      vanDatum: fmtNL(eersteZ), totDatum: fmtNL(eindeWachtDatum),
+      noot: "Cao-afhankelijk; in de meeste cao's geldt vanaf jaar 1 al 70%.",
+    }],
+  };
 }
 
 // Voorwaardelijke Werkwijzer-adviezen, afgevuurd op signaalwoorden die de AI detecteert.
