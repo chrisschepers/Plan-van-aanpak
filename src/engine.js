@@ -56,3 +56,66 @@ export function computeDefaultSchema({ contractHours, startDate }) {
   }
   return rows;
 }
+
+// ---- WAZO: zwangerschaps- en bevallingsverlof (deterministisch) ----
+const DAG_MS = 86400000;
+const WEEK = 7;
+function parseDatum(s) {
+  // accepteert "JJJJ-MM-DD" of "DD-MM-JJJJ"
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s || "")) return new Date(s + "T00:00:00");
+  const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(s || "");
+  return m ? new Date(+m[3], +m[2] - 1, +m[1]) : null;
+}
+function addDagen(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+
+/**
+ * Berekent het WAZO-verlof uit de (vermoedelijke) bevallingsdatum. UWV-regels:
+ * - terugtellen vanaf de DAG NÁ de uitgerekende datum;
+ * - zwangerschapsverlof start in de flexibiliseringsperiode: 6-4 wk vóór
+ *   (meerling 10-8 wk); stopt op de dag van de bevalling;
+ * - bevallingsverlof start de dag ná de geboorte, minimaal 10 wk;
+ * - niet-opgenomen zwangerschapsverlofdagen schuiven naar het bevallingsverlof,
+ *   zodat het totaal minimaal 16 wk is (meerling 20 wk);
+ * - later bevallen dan gepland → zwangerschapsverlof langer, bevallingsverlof
+ *   blijft ≥10 wk, dus totaal > 16 wk.
+ * Zonder werkelijke bevallingsdatum wordt met geboorte op de uitgerekende datum
+ * gerekend (gepland=true). De flexibiliseringsperiode-ziektedagenregel wordt
+ * NIET automatisch toegepast (randgeval).
+ *
+ * @param {{uitgerekendeDatum:string, meerling?:boolean, startWekenVoor?:number, werkelijkeBevalling?:string}} p
+ * @returns {{gepland:boolean, venster:{vroegst:string,uiterlijk:string},
+ *   zwangerschapsverlof:{start,eind,dagen,weken}, bevallingsverlof:{start,eind,dagen,weken},
+ *   totaalDagen:number, totaalWeken:number}}
+ */
+export function computeWazo({ uitgerekendeDatum, meerling = false, startWekenVoor, werkelijkeBevalling } = {}) {
+  const due = parseDatum(uitgerekendeDatum);
+  if (!due) throw new Error("Ongeldige uitgerekende datum");
+  const dagNa = addDagen(due, 1);                       // terugtellen vanaf de dag ná de uitgerekende datum
+  const maxVoor = meerling ? 10 : 6;                    // vroegste start (weken vóór)
+  const minVoor = meerling ? 8 : 4;                     // verplichte uiterste start
+  const totaalMinDagen = (meerling ? 20 : 16) * WEEK;
+  const bevMinDagen = 10 * WEEK;
+
+  let weken = startWekenVoor == null ? maxVoor : startWekenVoor;
+  weken = Math.max(minVoor, Math.min(maxVoor, weken));  // klem op de flexibiliseringsperiode
+  const zwStart = addDagen(dagNa, -weken * WEEK);
+
+  const bevalling = werkelijkeBevalling ? parseDatum(werkelijkeBevalling) : due;
+  if (!bevalling) throw new Error("Ongeldige werkelijke bevallingsdatum");
+
+  const takenZwDagen = Math.round((bevalling - zwStart) / DAG_MS) + 1; // t/m de dag van de bevalling
+  const bevDagen = Math.max(bevMinDagen, totaalMinDagen - takenZwDagen);
+  const bevStart = addDagen(bevalling, 1);              // dag ná de geboorte
+  const bevEind = addDagen(bevStart, bevDagen - 1);
+  const totaalDagen = takenZwDagen + bevDagen;
+
+  const blok = (start, eind, dagen) => ({ start: fmtDate(start), eind: fmtDate(eind), dagen, weken: +(dagen / WEEK).toFixed(1) });
+  return {
+    gepland: !werkelijkeBevalling,
+    venster: { vroegst: fmtDate(addDagen(dagNa, -maxVoor * WEEK)), uiterlijk: fmtDate(addDagen(dagNa, -minVoor * WEEK)) },
+    zwangerschapsverlof: blok(zwStart, bevalling, takenZwDagen),
+    bevallingsverlof: blok(bevStart, bevEind, bevDagen),
+    totaalDagen,
+    totaalWeken: +(totaalDagen / WEEK).toFixed(1),
+  };
+}
