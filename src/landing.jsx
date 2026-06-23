@@ -192,36 +192,39 @@ function Hybrid() {
     <section className="section" id="aanpak">
       <div className="wrap">
         <div className="sec-head reveal" style={{ maxWidth: 720 }}>
-          <span className="eyebrow"><span className="dot"></span>Hybride aanpak</span>
-          <h2>AI extraheert, een vaste rekenmotor bouwt</h2>
+          <span className="eyebrow"><span className="dot"></span>Wat je krijgt</span>
+          <h2>Eén document erin — praktisch advies en het invulwerk eruit</h2>
           <p>
-            Het taalmodel leest alleen de feiten uit de terugkoppeling. Het rekenwerk —
-            het opbouwschema, de data, de percentages — doet een vaste rekenmotor.
-            Voorspelbaar en controleerbaar, zonder verzinsels.
+            Je uploadt de terugkoppeling van de bedrijfsarts. Daaruit krijg je praktische
+            adviezen over de volgende stappen, én het administratieve werk al ingevuld:
+            een concept-Plan van Aanpak, een opbouwschema en een begeleidend bericht.
           </p>
         </div>
         <div className="hybrid reveal">
           <div className="hybrid-col ai">
-            <span className="tag">Stap A · AI-extractie</span>
-            <h3>Leest de functionele feiten uit</h3>
-            <p>Het model herkent waar belastbaarheid, uren en prognose staan en haalt die gestructureerd op — met verwijzing naar de bronpassage.</p>
+            <span className="tag">Praktische adviezen</span>
+            <h3>Weten wat je nu moet doen</h3>
+            <p>Concrete adviezen die passen bij deze situatie: welke stappen en termijnen eraan komen en waar je op moet letten — zoals de no-riskpolis of een ziekmelding uit dienst.</p>
             <ul>
-              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--navy)" } })}<span>Herkent functionele gegevens in PDF of Word</span></li>
-              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--navy)" } })}<span>Filtert medische en bijzondere gegevens eruit</span></li>
-              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--navy)" } })}<span>Bewaart per veld de exacte bronpassage</span></li>
+              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--navy)" } })}<span>Wat er nu speelt en wanneer</span></li>
+              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--navy)" } })}<span>Aandachtspunten die vaak gemist worden</span></li>
+              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--navy)" } })}<span>Afgestemd op deze terugkoppeling</span></li>
             </ul>
           </div>
           <div className="hybrid-col engine">
-            <span className="tag">Stap B · Rekenmotor</span>
-            <h3>Bouwt het schema volgens vaste regels</h3>
-            <p>Een deterministische motor zet de uitgangspunten om in een opbouwschema met data en herstelpercentages. Zelfde input, zelfde uitkomst.</p>
+            <span className="tag">Administratieve ondersteuning</span>
+            <h3>Het invulwerk is al gedaan</h3>
+            <p>Je hoeft niets meer over te typen. Je krijgt een ingevuld concept-Plan van Aanpak (het UWV-formulier), een opbouwschema met datums en uren, en een begeleidend bericht — klaar om samen met je werknemer vast te stellen.</p>
             <ul>
-              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--accent-700)" } })}<span>Berekent data, uren en percentages exact</span></li>
-              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--accent-700)" } })}<span>Geen gegenereerde cijfers of aannames</span></li>
-              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--accent-700)" } })}<span>Volledig herleidbaar en reproduceerbaar</span></li>
+              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--accent-700)" } })}<span>Ingevuld concept-Plan van Aanpak (UWV-formulier)</span></li>
+              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--accent-700)" } })}<span>Opbouwschema met datums en uren</span></li>
+              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--accent-700)" } })}<span>Begeleidend bericht, klaar om te delen</span></li>
             </ul>
           </div>
         </div>
+        <p className="reveal" style={{ marginTop: 20, textAlign: "center", color: "var(--muted)", fontSize: 14 }}>
+          Medische gegevens blijven er bewust buiten en cijfers worden niet verzonnen, maar volgens vaste regels berekend.
+        </p>
       </div>
     </section>
   );
