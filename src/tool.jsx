@@ -4,7 +4,7 @@
    - AI: een geüpload bestand of geplakte tekst → backend (Claude) → gegevens. */
 
 import { I, MISSING } from "./data.jsx";
-import { SchemaTable, FieldsPanel, TermijnenTabel } from "./fields.jsx";
+import { SchemaTable, FieldsPanel } from "./fields.jsx";
 import { SourceDoc } from "./sourcedoc.jsx";
 import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
 import { downloadBericht, downloadUwvPva } from "./download.js";
@@ -16,6 +16,19 @@ import { computeTijdlijn } from "./advice.js";
 import { PoortwachterTijdlijn } from "./tijdlijn.jsx";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
+
+// WAZO-resultaat uit de (handmatige) zwangerschap-invoer; null als niet van toepassing.
+function wazoFrom(z) {
+  z = z || {};
+  if (!z.actief || !ISO.test(z.uitgerekendeDatum || "")) return null;
+  try {
+    return computeWazo({
+      uitgerekendeDatum: z.uitgerekendeDatum,
+      meerling: !!z.meerling,
+      werkelijkeBevalling: ISO.test(z.werkelijkeBevalling || "") ? z.werkelijkeBevalling : undefined,
+    });
+  } catch { return null; }
+}
 
 const TOOL_STEPS = ["Upload", "Controleren", "Downloaden"];
 
@@ -313,18 +326,7 @@ function ZwangerschapPanel({ value, onChange }) {
 
 /* Verzuim-tijdlijn voor de actuele casus, optioneel verlengd door WAZO. */
 function TijdlijnPanel({ fields, zwangerschap }) {
-  const z = zwangerschap || {};
-  let wazo = null;
-  if (z.actief && ISO.test(z.uitgerekendeDatum || "")) {
-    try {
-      wazo = computeWazo({
-        uitgerekendeDatum: z.uitgerekendeDatum,
-        meerling: !!z.meerling,
-        werkelijkeBevalling: ISO.test(z.werkelijkeBevalling || "") ? z.werkelijkeBevalling : undefined,
-      });
-    } catch { wazo = null; }
-  }
-  const tijdlijn = computeTijdlijn(fields, { wazo });
+  const tijdlijn = computeTijdlijn(fields, { wazo: wazoFrom(zwangerschap) });
   return (
     <div className="panel tijdlijn-panel" style={{ marginTop: 22 }}>
       <div className="panel-head">
@@ -398,8 +400,6 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit, zwange
           </div>
         : <SchemaTable schema={schema} contractHours={contractHours} />}
 
-      <TermijnenTabel fields={fields} />
-
       <ZwangerschapPanel value={zwangerschap} onChange={setZwangerschap} />
       <TijdlijnPanel fields={fields} zwangerschap={zwangerschap} />
 
@@ -425,13 +425,14 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit, zwange
 }
 
 /* ---------- Stap 3: Preview ---------- */
-function PreviewStep({ onBack, controleOk, casus }) {
+function PreviewStep({ onBack, controleOk, casus, zwangerschap }) {
   const { fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld, opbouwReden } = casus;
+  const wazo = wazoFrom(zwangerschap);
   const [tab, setTab] = React.useState(0);
   const [downloaded, setDownloaded] = React.useState(null);
   const [busyKey, setBusyKey] = React.useState(null);
   const tabs = [
-    { t: "Opbouwadvies", el: <AdviesPreview fields={fields} schema={schema} reportDate={reportDate} schemaZelfOpgesteld={schemaZelfOpgesteld} opbouwReden={opbouwReden} /> },
+    { t: "Opbouwadvies", el: <AdviesPreview fields={fields} schema={schema} reportDate={reportDate} schemaZelfOpgesteld={schemaZelfOpgesteld} opbouwReden={opbouwReden} wazo={wazo} /> },
     { t: "Plan van Aanpak", el: <PvaPreview fields={fields} schema={schema} functieomschrijving={functieomschrijving} opbouwReden={opbouwReden} signalen={signalen} /> },
     { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} reportDate={reportDate} taaksuggestie={taaksuggestie} signalen={signalen} schemaZelfOpgesteld={schemaZelfOpgesteld} opbouwReden={opbouwReden} /> },
   ];
@@ -545,7 +546,7 @@ export function Tool({ onClose, session, onNeedLogin, credits, onNeedCredits, on
       <div className="tool-body">
         {step === 0 && <UploadStep onResult={handleResult} session={session} onNeedLogin={onNeedLogin} credits={credits} onNeedCredits={onNeedCredits} />}
         {step === 1 && casus && <VerifyStep onBack={() => setStep(0)} onNext={() => setStep(2)} checked={checked} setChecked={setChecked} casus={casus} onEdit={handleEdit} zwangerschap={zwangerschap} setZwangerschap={setZwangerschap} />}
-        {step === 2 && casus && <PreviewStep onBack={() => setStep(1)} controleOk={checked} casus={casus} />}
+        {step === 2 && casus && <PreviewStep onBack={() => setStep(1)} controleOk={checked} casus={casus} zwangerschap={zwangerschap} />}
       </div>
     </div>
   );

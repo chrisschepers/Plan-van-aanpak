@@ -1,10 +1,8 @@
 /* Landing page sections */
 
 import { I, CASE, INITIAL_FIELDS } from "./data.jsx";
-import { computeSchema, computeWazo } from "./engine.js";
-import { computeTijdlijn } from "./advice.js";
+import { computeSchema } from "./engine.js";
 import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
-import { PoortwachterTijdlijn } from "./tijdlijn.jsx";
 
 const { useState } = React;
 
@@ -121,30 +119,6 @@ function Showcase() {
             ))}
           </div>
           <div className="showcase-doc">{tabs[tab].el}</div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// Verzuim-tijdlijn (x-as) voor de showcase-casus J. de Vries — client-side uit
-// computeTijdlijn(); geen backend. WAZO/einde dienstverband/AOW verschijnen
-// automatisch zodra die in een casus voorkomen.
-function Tijdlijn() {
-  // Voorbeeld mét zwangerschapsverlof, zodat het WAZO-blok, de uitgerekende-datum-
-  // markering en de jaar 1/jaar 2-loondoorbetaling zichtbaar zijn.
-  const tijdlijn = computeTijdlijn(INITIAL_FIELDS, { wazo: computeWazo({ uitgerekendeDatum: "2025-08-01" }) });
-  if (!tijdlijn) return null;
-  return (
-    <section className="section" id="tijdlijn">
-      <div className="wrap">
-        <div className="sec-head reveal">
-          <span className="eyebrow"><span className="dot"></span>Tijdlijn</span>
-          <h2>De hele verzuimperiode in één oogopslag</h2>
-          <p>Van de eerste ziektedag tot het einde van de wachttijd, met alle wettelijke mijlpalen op hun plek. Dit voorbeeld bevat een zwangerschapsverlof: het WAZO-verlof rekt de tijdlijn automatisch op en de einde-wachttijd schuift mee.</p>
-        </div>
-        <div className="reveal">
-          <PoortwachterTijdlijn tijdlijn={tijdlijn} />
         </div>
       </div>
     </section>
@@ -429,7 +403,6 @@ export function Landing({ onOpenTool, onOpenPrivacy, session, onOpenLogin, onLog
       <Hero onOpenTool={onOpenTool} />
       <HowItWorks />
       <Showcase />
-      <Tijdlijn />
       <USP />
       <Hybrid />
       <Compliance onOpenPrivacy={onOpenPrivacy} />

@@ -6,8 +6,9 @@
 
 import { I, getVal, isMissing } from "./data.jsx";
 import { fullRecoveryDate } from "./engine.js";
-import { SchemaRows, TermijnenTabel } from "./fields.jsx";
-import { adviceBullets, berichtKern, splitLinks } from "./advice.js";
+import { SchemaRows } from "./fields.jsx";
+import { adviceBullets, berichtKern, splitLinks, computeTijdlijn } from "./advice.js";
+import { PoortwachterTijdlijn } from "./tijdlijn.jsx";
 
 function DocPreviewHead({ title, icon }) {
   return (
@@ -24,7 +25,8 @@ function Val({ fields, id }) {
 }
 
 // 1 — Loonwaarde-/opbouwadvies
-export function AdviesPreview({ fields, schema, reportDate, schemaZelfOpgesteld, opbouwReden }) {
+export function AdviesPreview({ fields, schema, reportDate, schemaZelfOpgesteld, opbouwReden, wazo }) {
+  const tijdlijn = computeTijdlijn(fields, { wazo });
   const geenOpbouw = !!opbouwReden || schema.length === 0;
   const start = getVal(fields, "start");
   const startDisplay = geenOpbouw ? "—" : (isMissing(start) ? (schema[0] ? schema[0].date : "—") : start);
@@ -75,8 +77,10 @@ export function AdviesPreview({ fields, schema, reportDate, schemaZelfOpgesteld,
           </>
         )}
 
-        <h3>Poortwachter-termijnen</h3>
-        <TermijnenTabel fields={fields} compact />
+        <h3>Tijdlijn van het verzuim</h3>
+        {tijdlijn
+          ? <PoortwachterTijdlijn tijdlijn={tijdlijn} />
+          : <p style={{ fontSize: 13.5, color: "var(--muted)" }}>Geef de eerste ziektedag op, dan tonen we de volledige tijdlijn met de wettelijke mijlpalen.</p>}
       </div>
     </div>
   );
