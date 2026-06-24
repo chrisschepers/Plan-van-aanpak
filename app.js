@@ -3385,9 +3385,9 @@
 
   // src/landing.jsx
   var { useState } = React;
-  function Nav({ onOpenTool, session, onOpenLogin, onLogout, onOpenAccount }) {
+  function Nav({ onOpenTool, session, onOpenLogin, onLogout, onOpenAccount, isAdmin, onOpenAdmin }) {
     const email = session && session.user ? session.user.email : "";
-    return /* @__PURE__ */ React.createElement("header", { className: "nav" }, /* @__PURE__ */ React.createElement("div", { className: "wrap nav-inner" }, /* @__PURE__ */ React.createElement("a", { className: "brand", href: "#top" }, /* @__PURE__ */ React.createElement("span", { className: "mark" }, I.doc), /* @__PURE__ */ React.createElement("span", null, "planvanaanpak", /* @__PURE__ */ React.createElement("span", { className: "tld" }, "invuller.nl"))), /* @__PURE__ */ React.createElement("nav", { className: "nav-links" }, /* @__PURE__ */ React.createElement("a", { href: "#hoe" }, "Hoe het werkt"), /* @__PURE__ */ React.createElement("a", { href: "#aanpak" }, "Aanpak"), /* @__PURE__ */ React.createElement("a", { href: "#privacy" }, "Privacy"), /* @__PURE__ */ React.createElement("a", { href: "#faq" }, "Veelgestelde vragen")), /* @__PURE__ */ React.createElement("div", { className: "nav-cta" }, session ? /* @__PURE__ */ React.createElement("span", { className: "nav-account" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet", onClick: onOpenAccount, title: email }, "Mijn account"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet", onClick: onLogout }, "Uitloggen")) : /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet", onClick: onOpenLogin }, "Inloggen"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", onClick: onOpenTool }, "Probeer de invuller"))));
+    return /* @__PURE__ */ React.createElement("header", { className: "nav" }, /* @__PURE__ */ React.createElement("div", { className: "wrap nav-inner" }, /* @__PURE__ */ React.createElement("a", { className: "brand", href: "#top" }, /* @__PURE__ */ React.createElement("span", { className: "mark" }, I.doc), /* @__PURE__ */ React.createElement("span", null, "planvanaanpak", /* @__PURE__ */ React.createElement("span", { className: "tld" }, "invuller.nl"))), /* @__PURE__ */ React.createElement("nav", { className: "nav-links" }, /* @__PURE__ */ React.createElement("a", { href: "#hoe" }, "Hoe het werkt"), /* @__PURE__ */ React.createElement("a", { href: "#aanpak" }, "Aanpak"), /* @__PURE__ */ React.createElement("a", { href: "#privacy" }, "Privacy"), /* @__PURE__ */ React.createElement("a", { href: "#faq" }, "Veelgestelde vragen")), /* @__PURE__ */ React.createElement("div", { className: "nav-cta" }, session ? /* @__PURE__ */ React.createElement("span", { className: "nav-account" }, isAdmin && /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet", onClick: onOpenAdmin }, "Beheer"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet", onClick: onOpenAccount, title: email }, "Mijn account"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet", onClick: onLogout }, "Uitloggen")) : /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet", onClick: onOpenLogin }, "Inloggen"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", onClick: onOpenTool }, "Probeer de invuller"))));
   }
   function Hero({ onOpenTool }) {
     return /* @__PURE__ */ React.createElement("section", { className: "hero", id: "top" }, /* @__PURE__ */ React.createElement("div", { className: "wrap hero-grid" }, /* @__PURE__ */ React.createElement("div", { className: "reveal" }, /* @__PURE__ */ React.createElement("span", { className: "eyebrow" }, /* @__PURE__ */ React.createElement("span", { className: "dot" }), "Wet verbetering poortwachter"), /* @__PURE__ */ React.createElement("h1", null, "Het concept Plan van Aanpak, automatisch ingevuld."), /* @__PURE__ */ React.createElement("p", { className: "lead" }, "Upload de terugkoppeling van de bedrijfsarts. Je krijgt een ingevuld concept-PvA, een opbouwadvies en een begeleidend bericht terug \u2014 jij controleert en stelt vast. Geen overtypen meer."), /* @__PURE__ */ React.createElement("div", { className: "hero-cta" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", onClick: onOpenTool }, "Probeer de PvA-invuller ", I.arrowRight), /* @__PURE__ */ React.createElement("a", { className: "btn btn-ghost btn-lg", href: "#demo" }, "Demo aanvragen")), /* @__PURE__ */ React.createElement("div", { className: "hero-trust" }, /* @__PURE__ */ React.createElement("span", null, I.shield, " AVG / DPIA-proof"), /* @__PURE__ */ React.createElement("span", null, I.server, " EER-hosting"), /* @__PURE__ */ React.createElement("span", null, I.lock, " Geen training op klantdata"))), /* @__PURE__ */ React.createElement("div", { className: "hero-visual reveal" }, /* @__PURE__ */ React.createElement(HeroTeaser, null))));
@@ -3484,8 +3484,8 @@
     };
     return /* @__PURE__ */ React.createElement("footer", { className: "footer" }, /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "footer-grid" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("a", { className: "brand", href: "#top", style: { marginBottom: 14 } }, /* @__PURE__ */ React.createElement("span", { className: "mark" }, I.doc), /* @__PURE__ */ React.createElement("span", null, "planvanaanpak", /* @__PURE__ */ React.createElement("span", { className: "tld" }, "invuller.nl"))), /* @__PURE__ */ React.createElement("p", { style: { fontSize: 14.5, maxWidth: "34ch", color: "rgba(255,255,255,.6)" } }, "Concept Plannen van Aanpak invullen volgens de Wet verbetering poortwachter \u2014 privacy by design, mens in de loop.")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Product"), /* @__PURE__ */ React.createElement("a", { href: "#hoe" }, "Hoe het werkt"), /* @__PURE__ */ React.createElement("a", { href: "#aanpak" }, "Hybride aanpak"), /* @__PURE__ */ React.createElement("a", { href: "#demo" }, "Demo aanvragen")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Vertrouwen"), /* @__PURE__ */ React.createElement("a", { href: "#privacy" }, "Privacy & AVG"), /* @__PURE__ */ React.createElement("a", { href: "#privacyverklaring", onClick: openPrivacy }, "Privacyverklaring & AI"), /* @__PURE__ */ React.createElement("a", { href: "mailto:contact@planvanaanpakinvuller.nl?subject=Verwerkersovereenkomst" }, "Verwerkersovereenkomst"), /* @__PURE__ */ React.createElement("a", { href: "mailto:contact@planvanaanpakinvuller.nl?subject=DPIA%20opvragen" }, "DPIA opvragen")), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Contact"), /* @__PURE__ */ React.createElement("a", { href: "mailto:contact@planvanaanpakinvuller.nl" }, "contact@planvanaanpakinvuller.nl"), /* @__PURE__ */ React.createElement("span", { style: { display: "block", padding: "5px 0", fontSize: 15 } }, "planvanaanpakinvuller.nl"), /* @__PURE__ */ React.createElement("span", { style: { display: "block", padding: "5px 0", fontSize: 15 } }, "KVK-nummer volgt"))), /* @__PURE__ */ React.createElement("div", { className: "footer-bot" }, /* @__PURE__ */ React.createElement("span", null, "\xA9 2026 planvanaanpakinvuller.nl \xB7 KVK-nummer volgt"), /* @__PURE__ */ React.createElement("span", null, "Verwerking binnen de EER \xB7 Geen training op klantdata"))));
   }
-  function Landing({ onOpenTool, onOpenPrivacy, session, onOpenLogin, onLogout, onOpenAccount }) {
-    return /* @__PURE__ */ React.createElement("div", { className: "site" }, /* @__PURE__ */ React.createElement(Nav, { onOpenTool, session, onOpenLogin, onLogout, onOpenAccount }), /* @__PURE__ */ React.createElement(Hero, { onOpenTool }), /* @__PURE__ */ React.createElement(HowItWorks, null), /* @__PURE__ */ React.createElement(Showcase, null), /* @__PURE__ */ React.createElement(USP, null), /* @__PURE__ */ React.createElement(Hybrid, null), /* @__PURE__ */ React.createElement(Compliance, { onOpenPrivacy }), /* @__PURE__ */ React.createElement(Faq, null), /* @__PURE__ */ React.createElement(CtaBand, { onOpenTool }), /* @__PURE__ */ React.createElement(Footer, { onOpenPrivacy }));
+  function Landing({ onOpenTool, onOpenPrivacy, session, onOpenLogin, onLogout, onOpenAccount, isAdmin, onOpenAdmin }) {
+    return /* @__PURE__ */ React.createElement("div", { className: "site" }, /* @__PURE__ */ React.createElement(Nav, { onOpenTool, session, onOpenLogin, onLogout, onOpenAccount, isAdmin, onOpenAdmin }), /* @__PURE__ */ React.createElement(Hero, { onOpenTool }), /* @__PURE__ */ React.createElement(HowItWorks, null), /* @__PURE__ */ React.createElement(Showcase, null), /* @__PURE__ */ React.createElement(USP, null), /* @__PURE__ */ React.createElement(Hybrid, null), /* @__PURE__ */ React.createElement(Compliance, { onOpenPrivacy }), /* @__PURE__ */ React.createElement(Faq, null), /* @__PURE__ */ React.createElement(CtaBand, { onOpenTool }), /* @__PURE__ */ React.createElement(Footer, { onOpenPrivacy }));
   }
 
   // src/sourcedoc.jsx
@@ -23854,10 +23854,169 @@
     }, style: { fontSize: 15 } }, /* @__PURE__ */ React.createElement("span", { className: "mark", style: { width: 28, height: 28 } }, I.doc)))), /* @__PURE__ */ React.createElement("div", { className: "tool-body" }, /* @__PURE__ */ React.createElement("div", { className: "account-wrap" }, /* @__PURE__ */ React.createElement("div", { className: "account-card account-profile" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h2", null, "Profiel"), /* @__PURE__ */ React.createElement("p", { className: "acc-email" }, email)), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onLogout }, "Uitloggen")), justPaid && /* @__PURE__ */ React.createElement("div", { className: "demo-note", style: { marginBottom: 16 } }, I.info, /* @__PURE__ */ React.createElement("p", null, "Betaling verwerkt \u2014 je saldo wordt zo bijgewerkt. Ververst het niet? Open deze pagina zo dadelijk opnieuw.")), /* @__PURE__ */ React.createElement("div", { className: "account-card" }, /* @__PURE__ */ React.createElement("h2", null, "Credits"), creditsActive ? /* @__PURE__ */ React.createElement("p", { className: "acc-balance" }, /* @__PURE__ */ React.createElement("strong", null, credits), " credit", credits === 1 ? "" : "s") : /* @__PURE__ */ React.createElement("p", { className: "acc-balance acc-muted" }, "Credits zijn nog niet geactiveerd."), /* @__PURE__ */ React.createElement("p", { className: "acc-sub" }, "E\xE9n verwerking van een terugkoppeling van de bedrijfsarts kost 1 credit. De demo (voorbeeldcasus) blijft gratis."), /* @__PURE__ */ React.createElement("div", { className: "bundle-grid" }, BUNDLES.map((b) => /* @__PURE__ */ React.createElement("div", { className: "bundle", key: b.key }, /* @__PURE__ */ React.createElement("div", { className: "bundle-credits" }, b.credits, " credit", b.credits === 1 ? "" : "s"), /* @__PURE__ */ React.createElement("div", { className: "bundle-price" }, b.price), /* @__PURE__ */ React.createElement("div", { className: "bundle-note" }, b.note || "\xA0"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary", disabled: !creditsActive || !!busy, onClick: () => buy(b.key) }, busy === b.key ? "Bezig\u2026" : "Kopen")))), /* @__PURE__ */ React.createElement("p", { className: "acc-fine" }, "Prijzen incl. btw. Betaling via Mollie (iDEAL/creditcard)."), !creditsActive && /* @__PURE__ */ React.createElement("p", { className: "acc-fine" }, "Betalen wordt geactiveerd zodra het creditsysteem live staat."), error && /* @__PURE__ */ React.createElement("div", { className: "upload-error", style: { marginTop: 12 } }, error)))));
   }
 
-  // src/app.jsx
+  // src/adminapi.js
+  function api3(p2) {
+    return BACKEND_URL.replace(/\/$/, "") + p2;
+  }
+  function auth(token) {
+    return { Authorization: `Bearer ${token}` };
+  }
+  async function checkAdmin(token) {
+    if (!BACKEND_URL || !token) return false;
+    try {
+      const r = await fetch(api3("/api/admin/me"), { headers: auth(token) });
+      if (!r.ok) return false;
+      return !!(await r.json()).admin;
+    } catch {
+      return false;
+    }
+  }
+  async function adminListUsers(token) {
+    const r = await fetch(api3("/api/admin/users"), { headers: auth(token) });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Serverfout (${r.status})`);
+    return (await r.json()).users || [];
+  }
+  async function adminStats(token) {
+    const r = await fetch(api3("/api/admin/stats"), { headers: auth(token) });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Serverfout (${r.status})`);
+    return r.json();
+  }
+  async function adminAdjust(token, userId, amount, note) {
+    const r = await fetch(api3("/api/admin/credits"), {
+      method: "POST",
+      headers: { ...auth(token), "content-type": "application/json" },
+      body: JSON.stringify({ userId, amount, note })
+    });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Serverfout (${r.status})`);
+    return (await r.json()).balance;
+  }
+  async function adminUserTransactions(token, userId) {
+    const r = await fetch(api3(`/api/admin/user/${userId}/transactions`), { headers: auth(token) });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Serverfout (${r.status})`);
+    return (await r.json()).transactions || [];
+  }
+
+  // src/admin.jsx
   var { useState: useState3, useEffect: useEffect2 } = React;
-  function useReveal() {
+  function fmtDate2(iso) {
+    if (!iso) return "\u2014";
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+    return m ? `${m[3]}-${m[2]}-${m[1]}` : "\u2014";
+  }
+  function euro(cents) {
+    return "\u20AC " + (cents / 100).toFixed(2).replace(".", ",");
+  }
+  var KIND_LABEL = {
+    signup_bonus: "Gratis proefcredit",
+    purchase: "Aankoop",
+    consume: "Verwerking",
+    refund: "Terugboeking",
+    admin: "Handmatig (admin)",
+    bonus: "Bonus"
+  };
+  function Admin({ onClose, session }) {
+    const token = session && session.access_token;
+    const [users, setUsers] = useState3(null);
+    const [stats, setStats] = useState3(null);
+    const [error, setError] = useState3(null);
+    const [query, setQuery] = useState3("");
+    const [drafts, setDrafts] = useState3({});
+    const [busy, setBusy] = useState3(null);
+    const [openTx, setOpenTx] = useState3(null);
+    const [tx, setTx] = useState3({});
+    const [toast, setToast] = useState3(null);
+    async function load() {
+      setError(null);
+      try {
+        const [u, s] = await Promise.all([adminListUsers(token), adminStats(token).catch(() => null)]);
+        setUsers(u);
+        setStats(s);
+      } catch (e) {
+        setError(e && e.message ? e.message : "Kon de gegevens niet laden.");
+        setUsers([]);
+      }
+    }
     useEffect2(() => {
+      const body = document.querySelector(".tool-body");
+      if (body) body.scrollTo({ top: 0 });
+      window.scrollTo({ top: 0 });
+      load();
+    }, []);
+    const setDraft = (id, patch) => setDrafts((d) => ({ ...d, [id]: { amount: "", note: "", ...d[id], ...patch } }));
+    async function doAdjust(u) {
+      const d = drafts[u.id] || {};
+      const amount = parseInt(d.amount, 10);
+      if (!Number.isFinite(amount) || amount === 0) {
+        setDraft(u.id, {});
+        setError("Geef een bedrag \u2260 0 (bijv. 5 of -1).");
+        return;
+      }
+      setError(null);
+      setBusy(u.id);
+      try {
+        const balance = await adminAdjust(token, u.id, amount, (d.note || "").trim());
+        setUsers((list) => list.map((x) => x.id === u.id ? { ...x, balance } : x));
+        setDraft(u.id, { amount: "", note: "" });
+        if (openTx === u.id) {
+          const t = await adminUserTransactions(token, u.id).catch(() => null);
+          if (t) setTx((m) => ({ ...m, [u.id]: t }));
+        }
+        adminStats(token).then(setStats).catch(() => {
+        });
+        setToast(`${amount > 0 ? "+" : ""}${amount} credit${Math.abs(amount) === 1 ? "" : "s"} \u2192 ${u.email} (nieuw saldo ${balance})`);
+      } catch (e) {
+        setError(e && e.message ? e.message : "Mutatie mislukt.");
+      } finally {
+        setBusy(null);
+      }
+    }
+    async function toggleTx(u) {
+      if (openTx === u.id) {
+        setOpenTx(null);
+        return;
+      }
+      setOpenTx(u.id);
+      if (!tx[u.id]) {
+        try {
+          const t = await adminUserTransactions(token, u.id);
+          setTx((m) => ({ ...m, [u.id]: t }));
+        } catch (e) {
+          setError(e && e.message ? e.message : "Kon historie niet laden.");
+        }
+      }
+    }
+    const q = query.trim().toLowerCase();
+    const shown = (users || []).filter((u) => !q || (u.email || "").toLowerCase().includes(q));
+    return /* @__PURE__ */ React.createElement("div", { className: "tool" }, /* @__PURE__ */ React.createElement("div", { className: "tool-bar" }, /* @__PURE__ */ React.createElement("div", { className: "tool-bar-inner" }, /* @__PURE__ */ React.createElement("button", { className: "tool-back", onClick: onClose }, I.arrowLeft, " Terug naar site"), /* @__PURE__ */ React.createElement("span", { style: { fontWeight: 700, color: "var(--navy-900)" } }, "Beheer"), /* @__PURE__ */ React.createElement("a", { className: "brand", href: "#", onClick: (e) => {
+      e.preventDefault();
+      onClose();
+    }, style: { fontSize: 15 } }, /* @__PURE__ */ React.createElement("span", { className: "mark", style: { width: 28, height: 28 } }, I.doc)))), /* @__PURE__ */ React.createElement("div", { className: "tool-body" }, /* @__PURE__ */ React.createElement("div", { className: "account-wrap admin-wrap" }, /* @__PURE__ */ React.createElement("h2", { style: { margin: "0 0 4px" } }, "Beheer"), /* @__PURE__ */ React.createElement("p", { className: "acc-sub", style: { marginTop: 0 } }, "Gebruikers, credits en cijfers. Mutaties worden vastgelegd in de historie."), stats && /* @__PURE__ */ React.createElement("div", { className: "admin-stats" }, /* @__PURE__ */ React.createElement("div", { className: "admin-stat" }, /* @__PURE__ */ React.createElement("span", { className: "n" }, stats.gebruikers), /* @__PURE__ */ React.createElement("span", { className: "l" }, "Gebruikers")), /* @__PURE__ */ React.createElement("div", { className: "admin-stat" }, /* @__PURE__ */ React.createElement("span", { className: "n" }, stats.verwerkingen), /* @__PURE__ */ React.createElement("span", { className: "l" }, "Verwerkingen")), /* @__PURE__ */ React.createElement("div", { className: "admin-stat" }, /* @__PURE__ */ React.createElement("span", { className: "n" }, stats.totaalSaldo), /* @__PURE__ */ React.createElement("span", { className: "l" }, "Openstaand saldo (credits)")), /* @__PURE__ */ React.createElement("div", { className: "admin-stat" }, /* @__PURE__ */ React.createElement("span", { className: "n" }, stats.betalingen), /* @__PURE__ */ React.createElement("span", { className: "l" }, "Betalingen")), /* @__PURE__ */ React.createElement("div", { className: "admin-stat" }, /* @__PURE__ */ React.createElement("span", { className: "n" }, euro(stats.omzetCents)), /* @__PURE__ */ React.createElement("span", { className: "l" }, "Omzet (incl. btw)"))), error && /* @__PURE__ */ React.createElement("div", { className: "upload-error", style: { marginBottom: 14 } }, error), /* @__PURE__ */ React.createElement("div", { className: "admin-toolbar" }, /* @__PURE__ */ React.createElement("input", { className: "admin-search", placeholder: "Zoek op e-mailadres\u2026", value: query, onChange: (e) => setQuery(e.target.value) }), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: load }, "Verversen")), users === null ? /* @__PURE__ */ React.createElement("p", { className: "acc-sub" }, "Laden\u2026") : /* @__PURE__ */ React.createElement("div", { className: "admin-table-wrap" }, /* @__PURE__ */ React.createElement("table", { className: "admin-table" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "E-mailadres"), /* @__PURE__ */ React.createElement("th", null, "Aangemaakt"), /* @__PURE__ */ React.createElement("th", null, "Laatste login"), /* @__PURE__ */ React.createElement("th", { className: "num" }, "Saldo"), /* @__PURE__ */ React.createElement("th", null, "Credits aanpassen"))), /* @__PURE__ */ React.createElement("tbody", null, shown.map((u) => {
+      const d = drafts[u.id] || {};
+      return /* @__PURE__ */ React.createElement(React.Fragment, { key: u.id }, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { className: "email" }, u.email || "\u2014"), /* @__PURE__ */ React.createElement("td", null, fmtDate2(u.created_at)), /* @__PURE__ */ React.createElement("td", null, fmtDate2(u.last_sign_in_at)), /* @__PURE__ */ React.createElement("td", { className: "num" }, /* @__PURE__ */ React.createElement("strong", null, u.balance)), /* @__PURE__ */ React.createElement("td", null, /* @__PURE__ */ React.createElement("div", { className: "admin-adjust" }, /* @__PURE__ */ React.createElement(
+        "input",
+        {
+          type: "number",
+          step: "1",
+          placeholder: "\xB1",
+          value: d.amount || "",
+          onChange: (e) => setDraft(u.id, { amount: e.target.value })
+        }
+      ), /* @__PURE__ */ React.createElement(
+        "input",
+        {
+          type: "text",
+          placeholder: "reden (optioneel)",
+          value: d.note || "",
+          onChange: (e) => setDraft(u.id, { note: e.target.value })
+        }
+      ), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-sm", disabled: busy === u.id, onClick: () => doAdjust(u) }, busy === u.id ? "\u2026" : "Bijwerken"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet btn-sm", onClick: () => toggleTx(u) }, openTx === u.id ? "Verberg" : "Historie")))), openTx === u.id && /* @__PURE__ */ React.createElement("tr", { className: "admin-tx-row" }, /* @__PURE__ */ React.createElement("td", { colSpan: 5 }, !tx[u.id] ? /* @__PURE__ */ React.createElement("span", { className: "acc-sub" }, "Laden\u2026") : tx[u.id].length === 0 ? /* @__PURE__ */ React.createElement("span", { className: "acc-sub" }, "Nog geen transacties.") : /* @__PURE__ */ React.createElement("table", { className: "admin-tx" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Datum"), /* @__PURE__ */ React.createElement("th", null, "Soort"), /* @__PURE__ */ React.createElement("th", { className: "num" }, "Aantal"), /* @__PURE__ */ React.createElement("th", { className: "num" }, "Saldo na"), /* @__PURE__ */ React.createElement("th", null, "Details"))), /* @__PURE__ */ React.createElement("tbody", null, tx[u.id].map((t, i) => /* @__PURE__ */ React.createElement("tr", { key: i }, /* @__PURE__ */ React.createElement("td", null, fmtDate2(t.created_at)), /* @__PURE__ */ React.createElement("td", null, KIND_LABEL[t.kind] || t.kind), /* @__PURE__ */ React.createElement("td", { className: "num" }, t.amount > 0 ? "+" : "", t.amount), /* @__PURE__ */ React.createElement("td", { className: "num" }, t.balance_after), /* @__PURE__ */ React.createElement("td", { className: "muted" }, t.note || (t.amount_cents ? euro(t.amount_cents) : "")))))))));
+    }), shown.length === 0 && /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { colSpan: 5, className: "acc-sub", style: { padding: 16 } }, "Geen gebruikers gevonden."))))))), toast && /* @__PURE__ */ React.createElement("div", { className: "toast", onClick: () => setToast(null) }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.checkSm), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tt" }, "Saldo bijgewerkt"), /* @__PURE__ */ React.createElement("div", { className: "ts" }, toast))));
+  }
+
+  // src/app.jsx
+  var { useState: useState4, useEffect: useEffect3 } = React;
+  function useReveal() {
+    useEffect3(() => {
       document.documentElement.classList.add("js-reveal");
       const reveal = () => {
         document.querySelectorAll(".reveal:not(.in)").forEach((el) => {
@@ -23876,28 +24035,36 @@
     });
   }
   function App() {
-    const [view, setView] = useState3("landing");
-    const [session, setSession] = useState3(null);
-    const [credits, setCredits] = useState3(null);
+    const [view, setView] = useState4("landing");
+    const [session, setSession] = useState4(null);
+    const [credits, setCredits] = useState4(null);
+    const [isAdmin, setIsAdmin] = useState4(false);
     useReveal();
-    useEffect2(() => {
+    useEffect3(() => {
       currentSession().then(setSession);
       return onAuthChange(setSession);
     }, []);
-    useEffect2(() => {
+    useEffect3(() => {
       if (!session) {
         setCredits(null);
         return;
       }
       fetchBalance(session.access_token).then(setCredits);
     }, [session]);
+    useEffect3(() => {
+      if (!session) {
+        setIsAdmin(false);
+        return;
+      }
+      checkAdmin(session.access_token).then(setIsAdmin);
+    }, [session]);
     const refreshCredits = () => {
       if (session) fetchBalance(session.access_token).then(setCredits);
     };
-    useEffect2(() => {
+    useEffect3(() => {
       document.body.style.overflow = view === "landing" ? "" : "hidden";
     }, [view]);
-    useEffect2(() => {
+    useEffect3(() => {
       if (typeof window !== "undefined" && /[?&]betaling=terug/.test(window.location.search)) setView("account");
     }, []);
     const logout = async () => {
@@ -23913,9 +24080,11 @@
         session,
         onOpenLogin: () => setView("login"),
         onLogout: logout,
-        onOpenAccount: () => setView("account")
+        onOpenAccount: () => setView("account"),
+        isAdmin,
+        onOpenAdmin: () => setView("admin")
       }
-    ), view === "tool" && /* @__PURE__ */ React.createElement(Tool, { onClose: () => setView("landing"), session, onNeedLogin: () => setView("login"), credits, onNeedCredits: () => setView("account"), onCreditsChange: setCredits }), view === "privacy" && /* @__PURE__ */ React.createElement(PrivacyVerklaring, { onClose: () => setView("landing") }), view === "login" && /* @__PURE__ */ React.createElement(Login, { onClose: () => setView("landing"), onOpenPrivacy: () => setView("privacy"), session }), view === "account" && /* @__PURE__ */ React.createElement(Account, { onClose: () => setView("landing"), session, onLogout: logout, credits, refreshCredits }));
+    ), view === "tool" && /* @__PURE__ */ React.createElement(Tool, { onClose: () => setView("landing"), session, onNeedLogin: () => setView("login"), credits, onNeedCredits: () => setView("account"), onCreditsChange: setCredits }), view === "privacy" && /* @__PURE__ */ React.createElement(PrivacyVerklaring, { onClose: () => setView("landing") }), view === "login" && /* @__PURE__ */ React.createElement(Login, { onClose: () => setView("landing"), onOpenPrivacy: () => setView("privacy"), session }), view === "account" && /* @__PURE__ */ React.createElement(Account, { onClose: () => setView("landing"), session, onLogout: logout, credits, refreshCredits }), view === "admin" && /* @__PURE__ */ React.createElement(Admin, { onClose: () => setView("landing"), session }));
   }
   ReactDOM.createRoot(document.getElementById("root")).render(/* @__PURE__ */ React.createElement(App, null));
 })();

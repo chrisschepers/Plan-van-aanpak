@@ -6,7 +6,7 @@ import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
 
 const { useState } = React;
 
-function Nav({ onOpenTool, session, onOpenLogin, onLogout, onOpenAccount }) {
+function Nav({ onOpenTool, session, onOpenLogin, onLogout, onOpenAccount, isAdmin, onOpenAdmin }) {
   const email = session && session.user ? session.user.email : "";
   return (
     <header className="nav">
@@ -23,7 +23,7 @@ function Nav({ onOpenTool, session, onOpenLogin, onLogout, onOpenAccount }) {
         </nav>
         <div className="nav-cta">
           {session
-            ? <span className="nav-account"><button className="btn btn-quiet" onClick={onOpenAccount} title={email}>Mijn account</button><button className="btn btn-quiet" onClick={onLogout}>Uitloggen</button></span>
+            ? <span className="nav-account">{isAdmin && <button className="btn btn-quiet" onClick={onOpenAdmin}>Beheer</button>}<button className="btn btn-quiet" onClick={onOpenAccount} title={email}>Mijn account</button><button className="btn btn-quiet" onClick={onLogout}>Uitloggen</button></span>
             : <button className="btn btn-quiet" onClick={onOpenLogin}>Inloggen</button>}
           <button className="btn btn-primary" onClick={onOpenTool}>Probeer de invuller</button>
         </div>
@@ -396,10 +396,10 @@ function Footer({ onOpenPrivacy }) {
   );
 }
 
-export function Landing({ onOpenTool, onOpenPrivacy, session, onOpenLogin, onLogout, onOpenAccount }) {
+export function Landing({ onOpenTool, onOpenPrivacy, session, onOpenLogin, onLogout, onOpenAccount, isAdmin, onOpenAdmin }) {
   return (
     <div className="site">
-      <Nav onOpenTool={onOpenTool} session={session} onOpenLogin={onOpenLogin} onLogout={onLogout} onOpenAccount={onOpenAccount} />
+      <Nav onOpenTool={onOpenTool} session={session} onOpenLogin={onOpenLogin} onLogout={onLogout} onOpenAccount={onOpenAccount} isAdmin={isAdmin} onOpenAdmin={onOpenAdmin} />
       <Hero onOpenTool={onOpenTool} />
       <HowItWorks />
       <Showcase />

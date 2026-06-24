@@ -15,6 +15,7 @@ import { extractFields } from "./extract.js";
 import { redactBSN } from "./redact.js";
 import { requireAuth, authConfigured } from "./auth.js";
 import { creditsConfigured, consumeCredit, refundCredit, addCredits, getBalance, BUNDLES } from "./credits.js";
+import { requireAdmin, isAdminEmail, adminUsers, adminAdjust, adminUserTransactions, adminStats } from "./admin.js";
 
 const app = express();
 app.set("trust proxy", 1); // achter de Railway-proxy: gebruik X-Forwarded-For voor req.ip
@@ -179,6 +180,39 @@ app.post("/api/mollie-webhook", express.urlencoded({ extended: false }), async (
     console.error("mollie-webhook-fout:", e && e.message ? e.message : e);
     res.status(500).end(); // Mollie retryt later
   }
+});
+
+// ---- Admin (superuser): gebruikersbeheer + credits + cijfers ----
+// 'me' staat alleen achter requireAuth zodat de frontend de knop kan tonen;
+// de echte data-endpoints staan achter requireAuth + requireAdmin.
+app.get("/api/admin/me", requireAuth, (req, res) => {
+  res.json({ admin: isAdminEmail(req.user && req.user.email) });
+});
+
+app.get("/api/admin/users", requireAuth, requireAdmin, async (_req, res) => {
+  try { res.json({ users: await adminUsers() }); }
+  catch (e) { console.error("admin-users-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Kon de gebruikers niet laden." }); }
+});
+
+app.post("/api/admin/credits", requireAuth, requireAdmin, async (req, res) => {
+  const userId = req.body && req.body.userId;
+  const amount = parseInt(req.body && req.body.amount, 10);
+  const note = (req.body && req.body.note ? String(req.body.note) : "").slice(0, 200);
+  if (!userId || !Number.isFinite(amount) || amount === 0) {
+    return res.status(400).json({ error: "Geef een userId en een bedrag (≠ 0)." });
+  }
+  try { res.json({ balance: await adminAdjust(userId, amount, note) }); }
+  catch (e) { console.error("admin-credits-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "De mutatie is mislukt." }); }
+});
+
+app.get("/api/admin/user/:id/transactions", requireAuth, requireAdmin, async (req, res) => {
+  try { res.json({ transactions: await adminUserTransactions(req.params.id) }); }
+  catch (e) { console.error("admin-tx-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Kon de historie niet laden." }); }
+});
+
+app.get("/api/admin/stats", requireAuth, requireAdmin, async (_req, res) => {
+  try { res.json(await adminStats()); }
+  catch (e) { console.error("admin-stats-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Kon de cijfers niet laden." }); }
 });
 
 const port = process.env.PORT || 8080;
