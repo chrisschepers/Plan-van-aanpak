@@ -8,7 +8,7 @@ import JSZip from "jszip";
 import { buildDocxDocument } from "../src/download.js";
 import { computeAdvice } from "../src/advice.js";
 import { INITIAL_FIELDS, CASE, getVal } from "../src/casedata.js";
-import { computeSchema } from "../src/engine.js";
+import { computeSchema, computeWazo } from "../src/engine.js";
 
 let failures = 0;
 function check(name, cond) {
@@ -86,6 +86,13 @@ check(".docx toont no-risk-advies bij signaal (UWV-melding + classificatie)", xm
 // adviezen verweven in het begeleidend bericht
 check(".docx bevat altijd-advies (verzuimdossier)", xml.includes("verzuimdossier"));
 check(".docx bevat procesadvies (PvA uiterlijk week 8)", xml.includes("week 8"));
+
+// Zwangerschap → WAZO/Ziektewet-vangnet-advies, alleen wanneer wazo is meegegeven
+const wazoTest = computeWazo({ uitgerekendeDatum: "2025-08-01" });
+check("zwangerschapsadvies met wazo (art. 29a)", computeAdvice(INITIAL_FIELDS, CASE.reportDate, {}, { wazo: wazoTest }).some((a) => a.title.startsWith("Zwangerschap") && /art\. 29a/.test(a.body)));
+check("geen zwangerschapsadvies zonder wazo", !computeAdvice(INITIAL_FIELDS, CASE.reportDate, {}).some((a) => a.title.startsWith("Zwangerschap")));
+const xmlZw = await (await JSZip.loadAsync(await Packer.toBuffer(buildDocxDocument(INITIAL_FIELDS, schema, CASE.reportDate, "", {}, false, "", { wazo: wazoTest })))).file("word/document.xml").async("string");
+check(".docx-bericht bevat zwangerschaps-/Ziektewet-advies", xmlZw.includes("Ziektewet") && xmlZw.includes("29a"));
 check(".docx neemt vast contract aan bij ontbrekende einddatum (geen flag)", !xml.includes("Einddatum dienstverband ontbreekt"));
 check(".docx bevat geen letterlijke [INVULLEN]", !xml.includes("[INVULLEN]"));
 

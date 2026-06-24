@@ -263,6 +263,23 @@
       een verkort re-integratieverslag (zie 5d).
 
 ================================================================================
+ ZWANGERSCHAP / WAZO-VERLOF (handmatig: uitgerekende datum invoeren)
+================================================================================
+
+ Gaat aan wanneer: de gebruiker geeft in de tool aan dat de werknemer zwanger is
+ en vult de uitgerekende datum in. De tool berekent het zwangerschaps-/bevallings-
+ verlof (WAZO), verschuift de einde-wachttijd en zet dit advies in het bericht:
+
+ • Zwangerschap — WAZO-verlof verschuift de wachttijd   [let op]
+   Het zwangerschaps- en bevallingsverlof (WAZO, 16 weken) pauzeert de
+   loondoorbetaling en de 104-wekentermijn; de einde-wachttijd schuift daardoor
+   op naar 24-05-2027. Komt het verzuim voort uit de zwangerschap of bevalling,
+   dan valt het onder de Ziektewet (vangnet, art. 29a ZW): meld dat bij UWV, dan
+   vergoedt UWV (een deel van) je loonkosten via ziekengeld. Leg in je dossier
+   alleen vast dát het zwangerschaps-/bevallingsgerelateerd is, nooit de medische
+   details.
+
+================================================================================
  7. MELDINGEN BIJ ONTBREKENDE GEGEVENS (aanvul-verzoeken in het bericht)
 ================================================================================
 

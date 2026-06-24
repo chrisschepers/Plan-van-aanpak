@@ -266,11 +266,11 @@ function metaBlock(naam) {
 }
 
 export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden = "", opts = {}) {
-  const { tijdlijnPng = null, pngW = 0, pngH = 0 } = opts;
+  const { tijdlijnPng = null, pngW = 0, pngH = 0, wazo = null } = opts;
   const naam = getVal(fields, "naam");
   const geenOpbouw = !!opbouwReden || schema.length === 0;
   const hersteld = schema.length ? fullRecoveryDate(schema) : "";
-  const { bullets, termijnRef } = adviceBullets(fields, reportDate, signalen);
+  const { bullets, termijnRef } = adviceBullets(fields, reportDate, signalen, { wazo });
   const kern = berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden);
   const taak = (taaksuggestie || "").trim();
   const termijnen = poortwachterTermijnen(fields);
@@ -429,14 +429,14 @@ async function svgToPng(svg, w, h, scale = 2) {
 // het Plan van aanpak, want dit hoort niet in het personeelsdossier.
 export async function downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo) {
   const filename = `Begeleidend-bericht-${safeName(fields)}.docx`;
-  let opts = {};
+  const opts = { wazo: wazo || null }; // wazo voedt het zwangerschapsadvies, ook als de afbeelding faalt
   try {
     const tijdlijn = computeTijdlijn(fields, { wazo: wazo || null });
     if (tijdlijn) {
       const { svg, width, height } = renderTijdlijnSvg(tijdlijn);
       const png = await svgToPng(svg, width, height);
       const dispW = mmPx(255); // liggende A4-tekstbreedte (≈ 297 − 2×21 mm)
-      opts = { tijdlijnPng: png, pngW: dispW, pngH: Math.round(dispW * height / width) };
+      opts.tijdlijnPng = png; opts.pngW = dispW; opts.pngH = Math.round(dispW * height / width);
     }
   } catch (e) {
     console.warn("Tijdlijn-afbeelding mislukt; val terug op de termijnen-tabel.", e && e.message);

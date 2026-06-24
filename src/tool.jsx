@@ -434,7 +434,7 @@ function PreviewStep({ onBack, controleOk, casus, zwangerschap }) {
   const tabs = [
     { t: "Opbouwadvies", el: <AdviesPreview fields={fields} schema={schema} reportDate={reportDate} schemaZelfOpgesteld={schemaZelfOpgesteld} opbouwReden={opbouwReden} wazo={wazo} /> },
     { t: "Plan van Aanpak", el: <PvaPreview fields={fields} schema={schema} functieomschrijving={functieomschrijving} opbouwReden={opbouwReden} signalen={signalen} /> },
-    { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} reportDate={reportDate} taaksuggestie={taaksuggestie} signalen={signalen} schemaZelfOpgesteld={schemaZelfOpgesteld} opbouwReden={opbouwReden} /> },
+    { t: "Begeleidend bericht", el: <BerichtPreview fields={fields} schema={schema} reportDate={reportDate} taaksuggestie={taaksuggestie} signalen={signalen} schemaZelfOpgesteld={schemaZelfOpgesteld} opbouwReden={opbouwReden} wazo={wazo} /> },
   ];
 
   async function run(key, fn) {

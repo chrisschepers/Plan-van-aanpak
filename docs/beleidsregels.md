@@ -168,6 +168,30 @@ PvA bij zodra de belastbaarheid wijzigt.
 
 ---
 
+## 7b. Zwangerschap / WAZO-verlof
+
+Zwangerschap is **handmatige** invoer (komt niet uit de terugkoppeling): de
+gebruiker vinkt "is uw medewerker zwanger?" aan en geeft de uitgerekende datum
+(en evt. meerling / werkelijke bevallingsdatum). De tool rekent dan:
+
+- **WAZO-verlof** uit de (vermoedelijke) bevallingsdatum: terugtellen vanaf de
+  dag ná de uitgerekende datum; flexibiliseringsperiode 6–4 wk vóór (meerling
+  10–8 wk); bevallingsverlof min. 10 wk; niet-opgenomen dagen schuiven door →
+  totaal min. 16 wk (meerling 20 wk).
+- Het WAZO-verlof **pauzeert de 104-wekentermijn** (art. 23 lid 5 Wet WIA) → de
+  einde-wachttijd schuift op met de verlofduur. Dit is zichtbaar op de tijdlijn.
+
+In het begeleidend bericht komt dan een advies: meld bij UWV als het verzuim
+**zwangerschaps-/bevallingsgerelateerd** is — dan valt het onder de **Ziektewet
+(vangnet, art. 29a ZW)** en vergoedt UWV (een deel van) de loonkosten via
+ziekengeld. Leg alleen vast *dát* het gerelateerd is, niet de medische details.
+
+*Let op (mens-in-de-loop):* "dezelfde oorzaak" vóór én ná het verlof betekent
+dezelfde aandoening; verschilt de klacht (bv. fysiek vóór, psychisch ná), dan
+worden de periodes niet samengeteld en kan de wachttijd opnieuw beginnen.
+
+---
+
 ## 8. Grenzen en voorbehoud
 
 - De tool **rekent niet** met medische informatie en geeft geen medisch oordeel —

@@ -2767,7 +2767,7 @@
       kort: "Weer volledig inzetbaar: let op de 4-wekenregel \u2014 meld volledig herstel pas als de werkhervatting echt stabiel is (anders loopt de wachttijd door)."
     }
   };
-  function computeAdvice(fields, reportDate, signalen = {}) {
+  function computeAdvice(fields, reportDate, signalen = {}, opts = {}) {
     const advies = [];
     const eersteZ = parseNL(getVal(fields, "eersteZ"));
     const gebd = parseNL(getVal(fields, "geboortedatum"));
@@ -2854,6 +2854,16 @@
         });
       }
     }
+    if (opts.wazo && eersteZ) {
+      const w = opts.wazo;
+      const eindeVerschoven = fmtNL(addDays(addWeeks(eersteZ, 104), w.totaalDagen));
+      advies.push({
+        level: "risk",
+        title: "Zwangerschap \u2014 WAZO-verlof verschuift de wachttijd",
+        body: `Het zwangerschaps- en bevallingsverlof (WAZO, ${w.totaalWeken} weken) pauzeert de loondoorbetaling en de 104-wekentermijn; de einde-wachttijd schuift daardoor op naar ${eindeVerschoven}. Komt het verzuim voort uit de zwangerschap of bevalling, dan valt het onder de Ziektewet (vangnet, art. 29a ZW): meld dat bij UWV, dan vergoedt UWV (een deel van) je loonkosten via ziekengeld. Leg in je dossier alleen vast d\xE1t het zwangerschaps-/bevallingsgerelateerd is, nooit de medische details.`,
+        kort: `Zwangerschap: het WAZO-verlof (${w.totaalWeken} wk) pauzeert de wachttijd \u2014 einde wachttijd schuift op naar ${eindeVerschoven}. Is het verzuim zwangerschaps-/bevallingsgerelateerd, meld dat dan bij UWV (Ziektewet-vangnet, art. 29a ZW): UWV vergoedt dan een deel van je loonkosten.`
+      });
+    }
     const verzuimweek = eersteZ ? Math.max(0, weeksBetween(eersteZ, peil)) : 0;
     for (const key of Object.keys(SIGNAAL_ADVIES)) {
       if (!signalen || !signalen[key]) continue;
@@ -2906,8 +2916,8 @@
   function bulletTekst(a) {
     return a.kort || eersteZin(a.body);
   }
-  function adviceBullets(fields, reportDate, signalen = {}) {
-    const advies = computeAdvice(fields, reportDate, signalen);
+  function adviceBullets(fields, reportDate, signalen = {}, opts = {}) {
+    const advies = computeAdvice(fields, reportDate, signalen, opts);
     const inBrief = advies.filter((a) => a.brief !== false && a.level !== "flag");
     const altijd = inBrief.find((a) => a.title === "Altijd");
     const proces = inBrief.find((a) => a.deadlines && a.deadlines.length);
@@ -3374,11 +3384,11 @@
       return /* @__PURE__ */ React.createElement("a", { key: i, href, target: part.type === "url" ? "_blank" : void 0, rel: "noopener noreferrer" }, part.value);
     });
   }
-  function BerichtPreview({ fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden }) {
+  function BerichtPreview({ fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo }) {
     const naam = getVal(fields, "naam");
     const werknemer = isMissing(naam) ? "je werknemer" : naam;
     const kern = berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden);
-    const { bullets, termijnRef } = adviceBullets(fields, reportDate, signalen);
+    const { bullets, termijnRef } = adviceBullets(fields, reportDate, signalen, { wazo });
     const taak = (taaksuggestie || "").trim();
     return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), kern.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: "k" + i }, t)), /* @__PURE__ */ React.createElement("p", { className: "bullets-intro" }, /* @__PURE__ */ React.createElement("strong", null, "Een paar praktische aandachtspunten:")), /* @__PURE__ */ React.createElement("ul", { className: "msg-bullets" }, bullets.map((t, i) => /* @__PURE__ */ React.createElement("li", { key: i }, linkify(t)))), termijnRef && /* @__PURE__ */ React.createElement("p", { style: { color: "var(--muted)" } }, "De volledige wettelijke termijnen staan in de bijgevoegde tabel Poortwachter-termijnen."), taak && /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Suggestie voor aangepaste taken."), " Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ", taak, ".", " ", /* @__PURE__ */ React.createElement("em", null, "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.")), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Dit document is een concept, opgesteld op basis van de terugkoppeling van de bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je werknemer vast \u2014 het is een document van jullie beiden."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Ben je eigenrisicodrager voor de Ziektewet of de WGA? Dan gelden aanvullende of afwijkende regels en kun je niet afgaan op dit automatisch gegenereerde advies \u2014 raadpleeg dan je eigen verzuim- of arbospecialist."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 } }, "[INVULLEN: naam afzender]"), /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontSize: 13 } }, "[INVULLEN: functie, bv. casemanager verzuim]"))));
   }
@@ -23080,11 +23090,11 @@
     });
   }
   function buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden = "", opts = {}) {
-    const { tijdlijnPng = null, pngW = 0, pngH = 0 } = opts;
+    const { tijdlijnPng = null, pngW = 0, pngH = 0, wazo = null } = opts;
     const naam = getVal(fields, "naam");
     const geenOpbouw = !!opbouwReden || schema.length === 0;
     const hersteld = schema.length ? fullRecoveryDate(schema) : "";
-    const { bullets, termijnRef } = adviceBullets(fields, reportDate, signalen);
+    const { bullets, termijnRef } = adviceBullets(fields, reportDate, signalen, { wazo });
     const kern = berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden);
     const taak = (taaksuggestie || "").trim();
     const termijnen = poortwachterTermijnen(fields);
@@ -23245,14 +23255,16 @@
   }
   async function downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo) {
     const filename = `Begeleidend-bericht-${safeName(fields)}.docx`;
-    let opts = {};
+    const opts = { wazo: wazo || null };
     try {
       const tijdlijn = computeTijdlijn(fields, { wazo: wazo || null });
       if (tijdlijn) {
         const { svg, width, height } = renderTijdlijnSvg(tijdlijn);
         const png = await svgToPng(svg, width, height);
         const dispW = mmPx(255);
-        opts = { tijdlijnPng: png, pngW: dispW, pngH: Math.round(dispW * height / width) };
+        opts.tijdlijnPng = png;
+        opts.pngW = dispW;
+        opts.pngH = Math.round(dispW * height / width);
       }
     } catch (e) {
       console.warn("Tijdlijn-afbeelding mislukt; val terug op de termijnen-tabel.", e && e.message);
@@ -23677,7 +23689,7 @@
     const tabs = [
       { t: "Opbouwadvies", el: /* @__PURE__ */ React.createElement(AdviesPreview, { fields, schema, reportDate, schemaZelfOpgesteld, opbouwReden, wazo }) },
       { t: "Plan van Aanpak", el: /* @__PURE__ */ React.createElement(PvaPreview, { fields, schema, functieomschrijving, opbouwReden, signalen }) },
-      { t: "Begeleidend bericht", el: /* @__PURE__ */ React.createElement(BerichtPreview, { fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden }) }
+      { t: "Begeleidend bericht", el: /* @__PURE__ */ React.createElement(BerichtPreview, { fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo }) }
     ];
     async function run(key, fn) {
       setBusyKey(key);

@@ -11,6 +11,7 @@ import { dirname, join } from "path";
 import {
   POORTWACHTER, TIMELINE, SIGNAAL_ADVIES, computeAdvice, computeDerived,
 } from "../src/advice.js";
+import { computeWazo } from "../src/engine.js";
 import { INITIAL_FIELDS } from "../src/casedata.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -171,6 +172,17 @@ L.push(
   "      Effect: geen losse advies-alinea, maar bij ziek-uit-dienst volstaat dan",
   "      een verkort re-integratieverslag (zie 5d).",
 );
+
+// 6b. Zwangerschap / WAZO-verlof ---------------------------------------------
+H("ZWANGERSCHAP / WAZO-VERLOF (handmatig: uitgerekende datum invoeren)");
+L.push(
+  " Gaat aan wanneer: de gebruiker geeft in de tool aan dat de werknemer zwanger is",
+  " en vult de uitgerekende datum in. De tool berekent het zwangerschaps-/bevallings-",
+  " verlof (WAZO), verschuift de einde-wachttijd en zet dit advies in het bericht:", "",
+);
+for (const a of computeAdvice(BASE, REPORT, {}, { wazo: computeWazo({ uitgerekendeDatum: "2025-08-01" }) }).filter((x) => x.title.startsWith("Zwangerschap"))) {
+  L.push(adviesBlok(a));
+}
 
 // 7. Meldingen bij ontbrekende gegevens --------------------------------------
 H("7. MELDINGEN BIJ ONTBREKENDE GEGEVENS (aanvul-verzoeken in het bericht)");

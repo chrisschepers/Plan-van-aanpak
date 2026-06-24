@@ -212,7 +212,7 @@ export const ZUD_MODIFIER_SIGNALEN = ["herstelVerwachtBinnen3Maanden"];
 /**
  * @returns {Array<{level:'deadline'|'risk'|'attention'|'flag', title, body, deadlines?}>}
  */
-export function computeAdvice(fields, reportDate, signalen = {}) {
+export function computeAdvice(fields, reportDate, signalen = {}, opts = {}) {
   const advies = [];
   const eersteZ = parseNL(getVal(fields, "eersteZ"));
   const gebd = parseNL(getVal(fields, "geboortedatum"));
@@ -315,6 +315,18 @@ export function computeAdvice(fields, reportDate, signalen = {}) {
   }
   // Geen einddatum doorgegeven → uitgaan van een vast contract; hierover niets melden.
 
+  // ---- Zwangerschap / WAZO-verlof (handmatig ingevoerd; opts.wazo) ----
+  if (opts.wazo && eersteZ) {
+    const w = opts.wazo;
+    const eindeVerschoven = fmtNL(addDays(addWeeks(eersteZ, 104), w.totaalDagen));
+    advies.push({
+      level: "risk",
+      title: "Zwangerschap — WAZO-verlof verschuift de wachttijd",
+      body: `Het zwangerschaps- en bevallingsverlof (WAZO, ${w.totaalWeken} weken) pauzeert de loondoorbetaling en de 104-wekentermijn; de einde-wachttijd schuift daardoor op naar ${eindeVerschoven}. Komt het verzuim voort uit de zwangerschap of bevalling, dan valt het onder de Ziektewet (vangnet, art. 29a ZW): meld dat bij UWV, dan vergoedt UWV (een deel van) je loonkosten via ziekengeld. Leg in je dossier alleen vast dát het zwangerschaps-/bevallingsgerelateerd is, nooit de medische details.`,
+      kort: `Zwangerschap: het WAZO-verlof (${w.totaalWeken} wk) pauzeert de wachttijd — einde wachttijd schuift op naar ${eindeVerschoven}. Is het verzuim zwangerschaps-/bevallingsgerelateerd, meld dat dan bij UWV (Ziektewet-vangnet, art. 29a ZW): UWV vergoedt dan een deel van je loonkosten.`,
+    });
+  }
+
   // ---- Voorwaardelijke adviezen op signaalwoorden (door de AI gedetecteerd) ----
   const verzuimweek = eersteZ ? Math.max(0, weeksBetween(eersteZ, peil)) : 0;
   for (const key of Object.keys(SIGNAAL_ADVIES)) {
@@ -383,8 +395,8 @@ function bulletTekst(a) { return a.kort || eersteZin(a.body); }
  * laatste blijft wél in computeAdvice voor de adviescatalogus.
  * @returns {{bullets: string[], termijnRef: boolean}}
  */
-export function adviceBullets(fields, reportDate, signalen = {}) {
-  const advies = computeAdvice(fields, reportDate, signalen);
+export function adviceBullets(fields, reportDate, signalen = {}, opts = {}) {
+  const advies = computeAdvice(fields, reportDate, signalen, opts);
   const inBrief = advies.filter((a) => a.brief !== false && a.level !== "flag");
 
   const altijd = inBrief.find((a) => a.title === "Altijd");
