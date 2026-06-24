@@ -205,6 +205,19 @@
 .msg-sheet .msg-bullets { margin: 0 0 12px; padding-left: 22px; }
 .msg-sheet .msg-bullets li { margin-bottom: 6px; line-height: 1.6; }
 
+/* Zwangerschap / WAZO-invoer (stap 2) */
+.wazo-inputs { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
+.wazo-field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; color: var(--ink-soft); }
+.wazo-field em { font-weight: 400; color: var(--muted); font-style: normal; }
+.wazo-field input[type="date"] {
+  font: inherit; font-weight: 500; padding: 9px 12px; border: 1px solid var(--line);
+  border-radius: 9px; background: #fff; color: var(--ink); min-width: 200px;
+}
+.wazo-field input[type="date"]:focus { outline: none; border-color: var(--navy-400, #5b76a6); box-shadow: 0 0 0 3px var(--navy-50); }
+.wazo-meerling { flex-basis: 100%; margin-top: 2px; }
+.wazo-hint { flex-basis: 100%; display: flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; color: var(--muted); }
+.wazo-hint svg { flex-shrink: 0; }
+
 /* download bar */
 .download-bar { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; margin-top: 26px; padding: 22px 26px; background: var(--navy); border-radius: 16px; color: #fff; }
 .download-bar .dl-info { display: flex; align-items: center; gap: 14px; }

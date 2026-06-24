@@ -11,6 +11,11 @@ import { downloadBericht, downloadUwvPva } from "./download.js";
 import { hasBackend } from "./config.js";
 import { extractCasus } from "./extract.js";
 import { authConfigured } from "./supa.js";
+import { computeWazo } from "./engine.js";
+import { computeTijdlijn } from "./advice.js";
+import { PoortwachterTijdlijn } from "./tijdlijn.jsx";
+
+const ISO = /^\d{4}-\d{2}-\d{2}$/;
 
 const TOOL_STEPS = ["Upload", "Controleren", "Downloaden"];
 
@@ -266,8 +271,74 @@ function AiSourcePanel({ selected, sources }) {
   );
 }
 
+/* Handmatige gatingvraag zwangerschap → uitgerekende datum/meerling voor WAZO.
+   Komt NIET uit de terugkoppeling; de gebruiker vult dit zelf in. */
+function ZwangerschapPanel({ value, onChange }) {
+  const v = value || {};
+  const set = (patch) => onChange({ ...v, ...patch });
+  return (
+    <div className="panel zwanger-panel" style={{ marginTop: 22 }}>
+      <div className="panel-head">
+        <div><h3>Zwangerschap &amp; WAZO-verlof</h3><div className="sub">Niet uit de terugkoppeling — vul dit zelf in</div></div>
+      </div>
+      <label className={"control-check" + (v.actief ? " on" : "")} onClick={() => set({ actief: !v.actief })}>
+        <span className="box">{I.checkSm}</span>
+        <span className="ct">
+          <strong>Is uw medewerker zwanger?</strong>
+          Het zwangerschaps-/bevallingsverlof (WAZO) pauzeert de wachttijd; de einde-wachttijd schuift dan op.
+        </span>
+      </label>
+      {v.actief && (
+        <div className="wazo-inputs">
+          <label className="wazo-field">
+            <span>Uitgerekende datum</span>
+            <input type="date" value={v.uitgerekendeDatum || ""} onChange={(e) => set({ uitgerekendeDatum: e.target.value })} />
+          </label>
+          <label className="wazo-field">
+            <span>Werkelijke bevallingsdatum <em>(indien al bevallen)</em></span>
+            <input type="date" value={v.werkelijkeBevalling || ""} onChange={(e) => set({ werkelijkeBevalling: e.target.value })} />
+          </label>
+          <label className={"control-check wazo-meerling" + (v.meerling ? " on" : "")} onClick={() => set({ meerling: !v.meerling })}>
+            <span className="box">{I.checkSm}</span>
+            <span className="ct"><strong>Tweeling of meerling</strong>Verlofvenster 10–8 wk vóór en totaal minimaal 20 weken.</span>
+          </label>
+          {!ISO.test(v.uitgerekendeDatum || "") && (
+            <p className="wazo-hint">{I.info} Vul de uitgerekende datum in om het WAZO-verlof en de opgeschoven tijdlijn te berekenen.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* Verzuim-tijdlijn voor de actuele casus, optioneel verlengd door WAZO. */
+function TijdlijnPanel({ fields, zwangerschap }) {
+  const z = zwangerschap || {};
+  let wazo = null;
+  if (z.actief && ISO.test(z.uitgerekendeDatum || "")) {
+    try {
+      wazo = computeWazo({
+        uitgerekendeDatum: z.uitgerekendeDatum,
+        meerling: !!z.meerling,
+        werkelijkeBevalling: ISO.test(z.werkelijkeBevalling || "") ? z.werkelijkeBevalling : undefined,
+      });
+    } catch { wazo = null; }
+  }
+  const tijdlijn = computeTijdlijn(fields, { wazo });
+  return (
+    <div className="panel tijdlijn-panel" style={{ marginTop: 22 }}>
+      <div className="panel-head">
+        <div><h3>Tijdlijn verzuim</h3><div className="sub">Mijlpalen vanaf de eerste ziektedag tot einde wachttijd</div></div>
+      </div>
+      {tijdlijn
+        ? <PoortwachterTijdlijn tijdlijn={tijdlijn} />
+        : <p style={{ padding: "4px 2px", color: "var(--ink-soft)" }}>Geef de eerste ziektedag op, dan tonen we de volledige tijdlijn.</p>}
+    </div>
+  );
+}
+
 /* ---------- Stap 2: Verificatie ---------- */
-function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
+function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit, zwangerschap, setZwangerschap }) {
   const { fields, schema, mode, sources } = casus;
   const allItems = fields.flatMap((g) => g.items);
   const [selectedId, setSelectedId] = React.useState(allItems[0] ? allItems[0].id : null);
@@ -328,6 +399,9 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit }) {
         : <SchemaTable schema={schema} contractHours={contractHours} />}
 
       <TermijnenTabel fields={fields} />
+
+      <ZwangerschapPanel value={zwangerschap} onChange={setZwangerschap} />
+      <TijdlijnPanel fields={fields} zwangerschap={zwangerschap} />
 
       <div className="verify-foot">
         <label className={"control-check" + (checked ? " on" : "")} onClick={() => setChecked(!checked)}>
@@ -432,6 +506,7 @@ export function Tool({ onClose, session, onNeedLogin, credits, onNeedCredits, on
   const [step, setStep] = React.useState(0);
   const [checked, setChecked] = React.useState(false);
   const [casus, setCasus] = React.useState(null);
+  const [zwangerschap, setZwangerschap] = React.useState({ actief: false });
 
   function handleResult(c) {
     if (c && typeof c.balance === "number" && onCreditsChange) onCreditsChange(c.balance);
@@ -469,7 +544,7 @@ export function Tool({ onClose, session, onNeedLogin, credits, onNeedCredits, on
       </div>
       <div className="tool-body">
         {step === 0 && <UploadStep onResult={handleResult} session={session} onNeedLogin={onNeedLogin} credits={credits} onNeedCredits={onNeedCredits} />}
-        {step === 1 && casus && <VerifyStep onBack={() => setStep(0)} onNext={() => setStep(2)} checked={checked} setChecked={setChecked} casus={casus} onEdit={handleEdit} />}
+        {step === 1 && casus && <VerifyStep onBack={() => setStep(0)} onNext={() => setStep(2)} checked={checked} setChecked={setChecked} casus={casus} onEdit={handleEdit} zwangerschap={zwangerschap} setZwangerschap={setZwangerschap} />}
         {step === 2 && casus && <PreviewStep onBack={() => setStep(1)} controleOk={checked} casus={casus} />}
       </div>
     </div>
