@@ -240,11 +240,12 @@ function Hybrid() {
           <div className="hybrid-col engine">
             <span className="tag">Administratieve ondersteuning</span>
             <h3>Het invulwerk is al gedaan</h3>
-            <p>Je hoeft niets meer over te typen. Je krijgt een ingevuld concept-Plan van Aanpak (het UWV-formulier), een opbouwschema met datums en uren, en een begeleidend bericht — klaar om samen met je werknemer vast te stellen.</p>
+            <p>Je hoeft niets meer over te typen. Je krijgt een ingevuld concept-Plan van Aanpak (het UWV-formulier), een opbouwschema met datums en uren, een begeleidend bericht en een tijdlijn van het hele verzuim — klaar om samen met je werknemer vast te stellen.</p>
             <ul>
               <li>{React.cloneElement(I.checkSm, { style: { color: "var(--accent-700)" } })}<span>Ingevuld concept-Plan van Aanpak (UWV-formulier)</span></li>
               <li>{React.cloneElement(I.checkSm, { style: { color: "var(--accent-700)" } })}<span>Opbouwschema met datums en uren</span></li>
               <li>{React.cloneElement(I.checkSm, { style: { color: "var(--accent-700)" } })}<span>Begeleidend bericht, klaar om te delen</span></li>
+              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--accent-700)" } })}<span>Tijdlijn van het verzuim — alle mijlpalen tot einde wachttijd</span></li>
             </ul>
           </div>
         </div>
