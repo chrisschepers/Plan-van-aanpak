@@ -265,6 +265,9 @@
 .promo-create input[type="date"] { width: 150px; }
 .pill-ok { font-size: 12px; font-weight: 700; color: var(--accent-700, #157f5b); background: var(--accent-50, #e1f1ea); padding: 2px 8px; border-radius: 999px; }
 .pill-off { font-size: 12px; font-weight: 700; color: var(--muted); background: var(--navy-50); padding: 2px 8px; border-radius: 999px; }
+.pill-block { font-size: 11px; font-weight: 700; color: #fff; background: #d9776b; padding: 2px 8px; border-radius: 999px; margin-left: 8px; }
+.btn-danger { background: #d9776b; color: #fff; border: 1px solid #d9776b; }
+.btn-danger:hover { background: #c9695d; border-color: #c9695d; }
 .promo-reds { margin: 0; padding-left: 18px; font-size: 13px; }
 .promo-reds li { margin-bottom: 3px; }
 .promo-reds .muted { color: var(--muted); }

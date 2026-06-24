@@ -3,7 +3,7 @@
 
 import { I } from "./data.jsx";
 import {
-  adminListUsers, adminStats, adminAdjust, adminUserTransactions,
+  adminListUsers, adminStats, adminAdjust, adminUserTransactions, adminSetBlocked,
   adminSystem, adminListPromos, adminCreatePromo, adminSetPromoActive, adminPromoRedemptions,
 } from "./adminapi.js";
 
@@ -196,6 +196,17 @@ export function Admin({ onClose, session }) {
     } finally { setBusy(null); }
   }
 
+  async function doBlock(u) {
+    const block = !u.blocked;
+    if (block && typeof window !== "undefined" && !window.confirm(`Account blokkeren?\n\n${u.email}\n\nDeze gebruiker kan dan niet meer verwerken, kopen of codes inwisselen.`)) return;
+    setError(null);
+    try {
+      await adminSetBlocked(token, u.id, block);
+      setUsers((list) => list.map((x) => x.id === u.id ? { ...x, blocked: block } : x));
+      setToast(`${u.email} is ${block ? "geblokkeerd" : "gedeblokkeerd"}.`);
+    } catch (e) { setError(e && e.message ? e.message : "Mislukt."); }
+  }
+
   async function toggleTx(u) {
     if (openTx === u.id) { setOpenTx(null); return; }
     setOpenTx(u.id);
@@ -259,7 +270,7 @@ export function Admin({ onClose, session }) {
                       return (
                         <React.Fragment key={u.id}>
                           <tr>
-                            <td className="email">{u.email || "—"}</td>
+                            <td className="email">{u.email || "—"}{u.blocked && <span className="pill-block">geblokkeerd</span>}</td>
                             <td>{fmtDate(u.created_at)}</td>
                             <td>{fmtDate(u.last_sign_in_at)}</td>
                             <td className="num"><strong>{u.balance}</strong></td>
@@ -273,6 +284,7 @@ export function Admin({ onClose, session }) {
                                   {busy === u.id ? "…" : "Bijwerken"}
                                 </button>
                                 <button className="btn btn-quiet btn-sm" onClick={() => toggleTx(u)}>{openTx === u.id ? "Verberg" : "Historie"}</button>
+                                <button className={"btn btn-sm " + (u.blocked ? "btn-quiet" : "btn-danger")} onClick={() => doBlock(u)}>{u.blocked ? "Deblokkeer" : "Blokkeer"}</button>
                               </div>
                             </td>
                           </tr>

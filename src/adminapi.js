@@ -44,6 +44,16 @@ export async function adminUserTransactions(token, userId) {
   return (await r.json()).transactions || [];
 }
 
+export async function adminSetBlocked(token, userId, blocked, reason) {
+  const r = await fetch(api(`/api/admin/user/${userId}/block`), {
+    method: "POST",
+    headers: { ...auth(token), "content-type": "application/json" },
+    body: JSON.stringify({ blocked, reason }),
+  });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Serverfout (${r.status})`);
+  return (await r.json()).flag;
+}
+
 export async function adminSystem(token) {
   const r = await fetch(api("/api/admin/system"), { headers: auth(token) });
   if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Serverfout (${r.status})`);

@@ -23936,6 +23936,15 @@
     if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Serverfout (${r.status})`);
     return (await r.json()).transactions || [];
   }
+  async function adminSetBlocked(token, userId, blocked, reason) {
+    const r = await fetch(api3(`/api/admin/user/${userId}/block`), {
+      method: "POST",
+      headers: { ...auth(token), "content-type": "application/json" },
+      body: JSON.stringify({ blocked, reason })
+    });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Serverfout (${r.status})`);
+    return (await r.json()).flag;
+  }
   async function adminSystem(token) {
     const r = await fetch(api3("/api/admin/system"), { headers: auth(token) });
     if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Serverfout (${r.status})`);
@@ -24127,6 +24136,22 @@
         setBusy(null);
       }
     }
+    async function doBlock(u) {
+      const block = !u.blocked;
+      if (block && typeof window !== "undefined" && !window.confirm(`Account blokkeren?
+
+${u.email}
+
+Deze gebruiker kan dan niet meer verwerken, kopen of codes inwisselen.`)) return;
+      setError(null);
+      try {
+        await adminSetBlocked(token, u.id, block);
+        setUsers((list) => list.map((x) => x.id === u.id ? { ...x, blocked: block } : x));
+        setToast(`${u.email} is ${block ? "geblokkeerd" : "gedeblokkeerd"}.`);
+      } catch (e) {
+        setError(e && e.message ? e.message : "Mislukt.");
+      }
+    }
     async function toggleTx(u) {
       if (openTx === u.id) {
         setOpenTx(null);
@@ -24153,7 +24178,7 @@
       onClose();
     }, style: { fontSize: 15 } }, /* @__PURE__ */ React.createElement("span", { className: "mark", style: { width: 28, height: 28 } }, I.doc)))), /* @__PURE__ */ React.createElement("div", { className: "tool-body" }, /* @__PURE__ */ React.createElement("div", { className: "account-wrap admin-wrap" }, /* @__PURE__ */ React.createElement("h2", { style: { margin: "0 0 4px" } }, "Beheer"), /* @__PURE__ */ React.createElement("p", { className: "acc-sub", style: { marginTop: 0 } }, "Gebruikers, credits en cijfers. Mutaties worden vastgelegd in de historie."), stats && /* @__PURE__ */ React.createElement("div", { className: "admin-stats" }, /* @__PURE__ */ React.createElement("div", { className: "admin-stat" }, /* @__PURE__ */ React.createElement("span", { className: "n" }, stats.gebruikers), /* @__PURE__ */ React.createElement("span", { className: "l" }, "Gebruikers")), /* @__PURE__ */ React.createElement("div", { className: "admin-stat" }, /* @__PURE__ */ React.createElement("span", { className: "n" }, stats.verwerkingen), /* @__PURE__ */ React.createElement("span", { className: "l" }, "Verwerkingen")), /* @__PURE__ */ React.createElement("div", { className: "admin-stat" }, /* @__PURE__ */ React.createElement("span", { className: "n" }, stats.totaalSaldo), /* @__PURE__ */ React.createElement("span", { className: "l" }, "Openstaand saldo (credits)")), /* @__PURE__ */ React.createElement("div", { className: "admin-stat" }, /* @__PURE__ */ React.createElement("span", { className: "n" }, stats.betalingen), /* @__PURE__ */ React.createElement("span", { className: "l" }, "Betalingen")), /* @__PURE__ */ React.createElement("div", { className: "admin-stat" }, /* @__PURE__ */ React.createElement("span", { className: "n" }, euro(stats.omzetCents)), /* @__PURE__ */ React.createElement("span", { className: "l" }, "Omzet (incl. btw)"))), /* @__PURE__ */ React.createElement(SystemPanel, { token }), error && /* @__PURE__ */ React.createElement("div", { className: "upload-error", style: { marginBottom: 14 } }, error), /* @__PURE__ */ React.createElement("div", { className: "admin-toolbar" }, /* @__PURE__ */ React.createElement("input", { className: "admin-search", placeholder: "Zoek op e-mailadres\u2026", value: query, onChange: (e) => setQuery(e.target.value) }), /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: load }, "Verversen")), users === null ? /* @__PURE__ */ React.createElement("p", { className: "acc-sub" }, "Laden\u2026") : /* @__PURE__ */ React.createElement("div", { className: "admin-table-wrap" }, /* @__PURE__ */ React.createElement("table", { className: "admin-table" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "E-mailadres"), /* @__PURE__ */ React.createElement("th", null, "Aangemaakt"), /* @__PURE__ */ React.createElement("th", null, "Laatste login"), /* @__PURE__ */ React.createElement("th", { className: "num" }, "Saldo"), /* @__PURE__ */ React.createElement("th", null, "Credits aanpassen"))), /* @__PURE__ */ React.createElement("tbody", null, shown.map((u) => {
       const d = drafts[u.id] || {};
-      return /* @__PURE__ */ React.createElement(React.Fragment, { key: u.id }, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { className: "email" }, u.email || "\u2014"), /* @__PURE__ */ React.createElement("td", null, fmtDate2(u.created_at)), /* @__PURE__ */ React.createElement("td", null, fmtDate2(u.last_sign_in_at)), /* @__PURE__ */ React.createElement("td", { className: "num" }, /* @__PURE__ */ React.createElement("strong", null, u.balance)), /* @__PURE__ */ React.createElement("td", null, /* @__PURE__ */ React.createElement("div", { className: "admin-adjust" }, /* @__PURE__ */ React.createElement(
+      return /* @__PURE__ */ React.createElement(React.Fragment, { key: u.id }, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { className: "email" }, u.email || "\u2014", u.blocked && /* @__PURE__ */ React.createElement("span", { className: "pill-block" }, "geblokkeerd")), /* @__PURE__ */ React.createElement("td", null, fmtDate2(u.created_at)), /* @__PURE__ */ React.createElement("td", null, fmtDate2(u.last_sign_in_at)), /* @__PURE__ */ React.createElement("td", { className: "num" }, /* @__PURE__ */ React.createElement("strong", null, u.balance)), /* @__PURE__ */ React.createElement("td", null, /* @__PURE__ */ React.createElement("div", { className: "admin-adjust" }, /* @__PURE__ */ React.createElement(
         "input",
         {
           type: "number",
@@ -24170,7 +24195,7 @@
           value: d.note || "",
           onChange: (e) => setDraft(u.id, { note: e.target.value })
         }
-      ), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-sm", disabled: busy === u.id, onClick: () => doAdjust(u) }, busy === u.id ? "\u2026" : "Bijwerken"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet btn-sm", onClick: () => toggleTx(u) }, openTx === u.id ? "Verberg" : "Historie")))), openTx === u.id && /* @__PURE__ */ React.createElement("tr", { className: "admin-tx-row" }, /* @__PURE__ */ React.createElement("td", { colSpan: 5 }, !tx[u.id] ? /* @__PURE__ */ React.createElement("span", { className: "acc-sub" }, "Laden\u2026") : tx[u.id].length === 0 ? /* @__PURE__ */ React.createElement("span", { className: "acc-sub" }, "Nog geen transacties.") : /* @__PURE__ */ React.createElement("table", { className: "admin-tx" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Datum"), /* @__PURE__ */ React.createElement("th", null, "Soort"), /* @__PURE__ */ React.createElement("th", { className: "num" }, "Aantal"), /* @__PURE__ */ React.createElement("th", { className: "num" }, "Saldo na"), /* @__PURE__ */ React.createElement("th", null, "Details"))), /* @__PURE__ */ React.createElement("tbody", null, tx[u.id].map((t, i) => /* @__PURE__ */ React.createElement("tr", { key: i }, /* @__PURE__ */ React.createElement("td", null, fmtDate2(t.created_at)), /* @__PURE__ */ React.createElement("td", null, KIND_LABEL[t.kind] || t.kind), /* @__PURE__ */ React.createElement("td", { className: "num" }, t.amount > 0 ? "+" : "", t.amount), /* @__PURE__ */ React.createElement("td", { className: "num" }, t.balance_after), /* @__PURE__ */ React.createElement("td", { className: "muted" }, t.note || (t.amount_cents ? euro(t.amount_cents) : "")))))))));
+      ), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-sm", disabled: busy === u.id, onClick: () => doAdjust(u) }, busy === u.id ? "\u2026" : "Bijwerken"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-quiet btn-sm", onClick: () => toggleTx(u) }, openTx === u.id ? "Verberg" : "Historie"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-sm " + (u.blocked ? "btn-quiet" : "btn-danger"), onClick: () => doBlock(u) }, u.blocked ? "Deblokkeer" : "Blokkeer")))), openTx === u.id && /* @__PURE__ */ React.createElement("tr", { className: "admin-tx-row" }, /* @__PURE__ */ React.createElement("td", { colSpan: 5 }, !tx[u.id] ? /* @__PURE__ */ React.createElement("span", { className: "acc-sub" }, "Laden\u2026") : tx[u.id].length === 0 ? /* @__PURE__ */ React.createElement("span", { className: "acc-sub" }, "Nog geen transacties.") : /* @__PURE__ */ React.createElement("table", { className: "admin-tx" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Datum"), /* @__PURE__ */ React.createElement("th", null, "Soort"), /* @__PURE__ */ React.createElement("th", { className: "num" }, "Aantal"), /* @__PURE__ */ React.createElement("th", { className: "num" }, "Saldo na"), /* @__PURE__ */ React.createElement("th", null, "Details"))), /* @__PURE__ */ React.createElement("tbody", null, tx[u.id].map((t, i) => /* @__PURE__ */ React.createElement("tr", { key: i }, /* @__PURE__ */ React.createElement("td", null, fmtDate2(t.created_at)), /* @__PURE__ */ React.createElement("td", null, KIND_LABEL[t.kind] || t.kind), /* @__PURE__ */ React.createElement("td", { className: "num" }, t.amount > 0 ? "+" : "", t.amount), /* @__PURE__ */ React.createElement("td", { className: "num" }, t.balance_after), /* @__PURE__ */ React.createElement("td", { className: "muted" }, t.note || (t.amount_cents ? euro(t.amount_cents) : "")))))))));
     }), shown.length === 0 && /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("td", { colSpan: 5, className: "acc-sub", style: { padding: 16 } }, "Geen gebruikers gevonden."))))), /* @__PURE__ */ React.createElement(PromoSection, { token, usersMap }))), toast && /* @__PURE__ */ React.createElement("div", { className: "toast", onClick: () => setToast(null) }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.checkSm), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tt" }, "Saldo bijgewerkt"), /* @__PURE__ */ React.createElement("div", { className: "ts" }, toast))));
   }
 

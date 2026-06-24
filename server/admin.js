@@ -34,13 +34,39 @@ export async function adminUsers() {
   const bal = {};
   const br = await fetch(`${SUPA_URL}/rest/v1/credit_balances?select=user_id,balance`, { headers: svc() });
   if (br.ok) for (const row of await br.json()) bal[row.user_id] = row.balance;
+  const flags = {};
+  const fr = await fetch(`${SUPA_URL}/rest/v1/user_flags?select=user_id,blocked`, { headers: svc() });
+  if (fr.ok) for (const row of await fr.json()) flags[row.user_id] = row.blocked;
   return users.map((u) => ({
     id: u.id,
     email: u.email || "",
     created_at: u.created_at || null,
     last_sign_in_at: u.last_sign_in_at || null,
     balance: bal[u.id] || 0,
+    blocked: !!flags[u.id],
   })).sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
+}
+
+// Is dit account geblokkeerd? Faalt veilig (false) bij twijfel.
+export async function isBlocked(userId) {
+  if (!SUPA_URL || !SERVICE_KEY || !userId) return false;
+  try {
+    const r = await fetch(`${SUPA_URL}/rest/v1/user_flags?user_id=eq.${encodeURIComponent(userId)}&select=blocked`, { headers: svc() });
+    if (!r.ok) return false;
+    const rows = await r.json();
+    return !!(rows[0] && rows[0].blocked);
+  } catch { return false; }
+}
+
+// Account (de)blokkeren (upsert in user_flags).
+export async function adminSetBlocked(userId, blocked, reason) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/user_flags?on_conflict=user_id`, {
+    method: "POST",
+    headers: svc({ "content-type": "application/json", Prefer: "resolution=merge-duplicates,return=representation" }),
+    body: JSON.stringify({ user_id: userId, blocked: !!blocked, blocked_reason: reason || null, updated_at: new Date().toISOString() }),
+  });
+  if (!r.ok) throw new Error(`block (${r.status})`);
+  return (await r.json())[0];
 }
 
 // Saldo aanpassen (+/-) met reden; geeft het nieuwe saldo terug.

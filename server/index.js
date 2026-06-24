@@ -15,7 +15,7 @@ import { extractFields } from "./extract.js";
 import { redactBSN } from "./redact.js";
 import { requireAuth, authConfigured } from "./auth.js";
 import { creditsConfigured, consumeCredit, refundCredit, addCredits, getBalance, BUNDLES, redeemPromo } from "./credits.js";
-import { requireAdmin, isAdminEmail, adminUsers, adminAdjust, adminUserTransactions, adminStats, adminListPromos, adminCreatePromo, adminSetPromoActive, adminPromoRedemptions } from "./admin.js";
+import { requireAdmin, isAdminEmail, adminUsers, adminAdjust, adminUserTransactions, adminStats, adminListPromos, adminCreatePromo, adminSetPromoActive, adminPromoRedemptions, isBlocked, adminSetBlocked } from "./admin.js";
 
 const app = express();
 app.set("trust proxy", 1); // achter de Railway-proxy: gebruik X-Forwarded-For voor req.ip
@@ -46,13 +46,24 @@ function rateLimit(req, res, next) {
   next();
 }
 
+// Geblokkeerd account? Tegenhouden. Faalt veilig OPEN: een check-fout legt niet
+// de hele dienst plat. Draait na requireAuth (req.user gezet).
+async function blockGuard(req, res, next) {
+  try {
+    if (req.user && req.user.id && await isBlocked(req.user.id)) {
+      return res.status(403).json({ error: "Je account is geblokkeerd. Neem contact op via planvanaanpakinvuller@gmail.com." });
+    }
+  } catch { /* bij twijfel doorlaten */ }
+  next();
+}
+
 const upload = multer({ limits: { fileSize: 20 * 1024 * 1024 } }); // 20 MB
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true, model: process.env.PVA_MODEL || "claude-opus-4-8", keyConfigured: !!process.env.ANTHROPIC_API_KEY, authRequired: authConfigured(), credits: creditsConfigured() });
 });
 
-app.post("/api/extract", rateLimit, requireAuth, upload.single("document"), async (req, res) => {
+app.post("/api/extract", rateLimit, requireAuth, blockGuard, upload.single("document"), async (req, res) => {
   try {
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({ error: "Server niet geconfigureerd: ANTHROPIC_API_KEY ontbreekt." });
@@ -129,7 +140,7 @@ app.get("/api/credits", requireAuth, async (req, res) => {
 });
 
 // ---- Credits: Mollie-checkout starten ----
-app.post("/api/checkout", requireAuth, async (req, res) => {
+app.post("/api/checkout", requireAuth, blockGuard, async (req, res) => {
   if (!creditsConfigured() || !process.env.MOLLIE_API_KEY) {
     return res.status(503).json({ error: "Betalen is nog niet beschikbaar." });
   }
@@ -210,6 +221,13 @@ app.get("/api/admin/user/:id/transactions", requireAuth, requireAdmin, async (re
   catch (e) { console.error("admin-tx-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Kon de historie niet laden." }); }
 });
 
+app.post("/api/admin/user/:id/block", requireAuth, requireAdmin, async (req, res) => {
+  const id = req.params.id;
+  if (id === (req.user && req.user.id)) return res.status(400).json({ error: "Je kunt jezelf niet blokkeren." });
+  try { res.json({ flag: await adminSetBlocked(id, !!(req.body && req.body.blocked), (req.body && req.body.reason) || null) }); }
+  catch (e) { console.error("block-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Kon de blokkade niet wijzigen." }); }
+});
+
 app.get("/api/admin/stats", requireAuth, requireAdmin, async (_req, res) => {
   try { res.json(await adminStats()); }
   catch (e) { console.error("admin-stats-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Kon de cijfers niet laden." }); }
@@ -223,7 +241,7 @@ const REDEEM_MSG = {
   uitgeput: "Deze code is al maximaal gebruikt.",
   al_gebruikt: "Je hebt deze code al ingewisseld.",
 };
-app.post("/api/redeem", rateLimit, requireAuth, async (req, res) => {
+app.post("/api/redeem", rateLimit, requireAuth, blockGuard, async (req, res) => {
   if (!creditsConfigured()) return res.status(503).json({ error: "Actiecodes zijn nog niet beschikbaar." });
   if (!req.user || !req.user.id) return res.status(401).json({ error: "Log in om een code in te wisselen." });
   const code = (req.body && req.body.code ? String(req.body.code) : "").trim();
