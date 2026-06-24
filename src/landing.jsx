@@ -276,7 +276,7 @@ function Compliance({ onOpenPrivacy }) {
             <span className="ico" style={{ width: 46, height: 46, borderRadius: 12, background: "rgba(255,255,255,.12)", display: "grid", placeItems: "center" }}>{I.server}</span>
             <div>
               <div className="big">EER-hosting</div>
-              <div className="sub">Verwerking en opslag binnen de Europese Economische Ruimte.</div>
+              <div className="sub">Hosting en opslag van je gegevens binnen de Europese Economische Ruimte.</div>
             </div>
           </div>
           <div className="badge alt">
@@ -303,7 +303,7 @@ const FAQS = [
   { q: "Welke gegevens komen wél en niet in het Plan van Aanpak?", a: "Alleen functionele gegevens: belastbaarheid, inzetbare uren, werkaanpassingen en prognose. Medische informatie zoals diagnose, klachten of behandeling wordt herkend en juist niet overgenomen — die hoort niet thuis in een Plan van Aanpak." },
   { q: "Wie is verwerkingsverantwoordelijke?", a: "Jij, als werkgever, blijft verwerkingsverantwoordelijke voor de re-integratiegegevens. Wij zijn verwerker en handelen uitsluitend in jouw opdracht, vastgelegd in een verwerkersovereenkomst." },
   { q: "Hoe lang worden mijn documenten bewaard?", a: "Het geüploade bestand en de tussenresultaten worden uitsluitend bewaard zolang nodig om jouw concept te genereren, en daarna automatisch verwijderd. Het eindresultaat beheer je zelf in je eigen systemen." },
-  { q: "Wordt er met mijn data een model getraind?", a: "Nee. Je documenten en gegevens worden nooit gebruikt om AI-modellen te trainen of te verbeteren. Verwerking vindt plaats binnen de EER." },
+  { q: "Wordt er met mijn data een model getraind?", a: "Nee. Je documenten en gegevens worden nooit gebruikt om AI-modellen te trainen of te verbeteren. Hosting en opslag blijven binnen de EER; in de privacyverklaring lees je welke subverwerkers we gebruiken en onder welke waarborgen." },
   { q: "Wat doet de tool nadrukkelijk níet?", a: "De tool stelt geen Plan van Aanpak vast en neemt geen beslissingen. Het levert een concept dat je verplicht zelf controleert, corrigeert en vaststelt. Het vervangt geen bedrijfsarts, casemanager of arbeidsdeskundige." },
   { q: "Kan ik de gegenereerde tekst aanpassen?", a: "Ja. Elk veld is bewerkbaar en ontbrekende velden markeren we duidelijk als [INVULLEN]. Pas aan wat nodig is en download daarna het definitieve Word-document." },
 ];
@@ -389,7 +389,7 @@ function Footer({ onOpenPrivacy }) {
         </div>
         <div className="footer-bot">
           <span>© 2026 planvanaanpakinvuller.nl · KVK-nummer volgt</span>
-          <span>Verwerking binnen de EER · Geen training op klantdata</span>
+          <span>Hosting en opslag binnen de EER · Geen training op klantdata</span>
         </div>
       </div>
     </footer>

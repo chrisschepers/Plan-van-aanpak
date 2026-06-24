@@ -102,8 +102,9 @@ export function PrivacyVerklaring({ onClose }) {
 
           <Sectie nr="5" titel="Subverwerkers, hosting en bewaren">
             <ul style={{ paddingLeft: 20, display: "grid", gap: 8 }}>
-              <li><strong>AI-model:</strong> Anthropic (Claude), als subverwerker — verwerking binnen de EER, geen training
-                op klantdata.</li>
+              <li><strong>AI-model:</strong> Anthropic (Claude), als subverwerker — de AI-verwerking vindt plaats in de VS
+                onder passende waarborgen (EU-US Data Privacy Framework / SCC's); je gegevens worden niet gebruikt om
+                modellen te trainen.</li>
               <li><strong>Verwerking is vluchtig:</strong> documenten en gegevens worden verwerkt om het concept te maken en
                 niet langer bewaard dan nodig; er wordt geen verzuimdossier opgebouwd in de tool.</li>
               <li>Met subverwerkers worden verwerkersovereenkomsten gesloten.</li>
@@ -112,7 +113,8 @@ export function PrivacyVerklaring({ onClose }) {
 
           <Sectie nr="6" titel="Beveiliging">
             <p>Versleutelde verbindingen (TLS), sleutels uitsluitend server-side, toegangsbeheer en een procedure voor
-              datalekken. De verwerking vindt plaats binnen de EER.</p>
+              datalekken. Hosting en opslag vinden plaats binnen de EER; zie de subverwerkers hierboven voor waar de
+              AI-verwerking gebeurt.</p>
           </Sectie>
 
           <Sectie nr="7" titel="Rechten van betrokkenen">

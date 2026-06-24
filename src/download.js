@@ -118,7 +118,7 @@ function brandFooter() {
       children: [
         new TextRun({ text: "● ", color: GREEN, size: 17, font: FONT }),
         new TextRun({ text: "planvanaanpakinvuller.nl", bold: true, color: NAVY, size: 17, font: FONT }),
-        new TextRun({ text: "\tPrivacy by design · verwerking binnen de EER", color: GREY, size: 16, font: FONT }),
+        new TextRun({ text: "\tPrivacy by design · hosting en opslag binnen de EER", color: GREY, size: 16, font: FONT }),
       ] }),
     new Paragraph({ ...RIGHT_TAB, spacing: { after: 0 }, children: [
       new TextRun({ text: "\t", size: 16 }),
