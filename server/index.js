@@ -15,7 +15,7 @@ import { extractFields } from "./extract.js";
 import { redactBSN } from "./redact.js";
 import { requireAuth, authConfigured } from "./auth.js";
 import { creditsConfigured, consumeCredit, refundCredit, addCredits, getBalance, BUNDLES, redeemPromo } from "./credits.js";
-import { requireAdmin, isAdminEmail, adminUsers, adminAdjust, adminUserTransactions, adminStats, adminListPromos, adminCreatePromo, adminSetPromoActive, adminPromoRedemptions, isBlocked, adminSetBlocked } from "./admin.js";
+import { requireAdmin, isAdminEmail, adminUsers, adminAdjust, adminUserTransactions, adminStats, adminListPromos, adminCreatePromo, adminSetPromoActive, adminPromoRedemptions, isBlocked, adminSetBlocked, deleteUser } from "./admin.js";
 
 const app = express();
 app.set("trust proxy", 1); // achter de Railway-proxy: gebruik X-Forwarded-For voor req.ip
@@ -145,6 +145,13 @@ app.get("/api/credits", requireAuth, async (req, res) => {
   if (!creditsConfigured() || !req.user || !req.user.id) return res.json({ balance: null });
   try { res.json({ balance: await getBalance(req.user.id) }); }
   catch (e) { console.error("credits-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Saldo niet op te halen." }); }
+});
+
+// ---- Account verwijderen (recht op wissing) — ook voor geblokkeerde accounts ----
+app.post("/api/account/delete", requireAuth, async (req, res) => {
+  if (!req.user || !req.user.id) return res.status(401).json({ error: "Log in om je account te verwijderen." });
+  try { await deleteUser(req.user.id); res.json({ ok: true }); }
+  catch (e) { console.error("account-delete-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Account verwijderen mislukt. Probeer het later opnieuw." }); }
 });
 
 // ---- Credits: Mollie-checkout starten ----

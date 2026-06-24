@@ -69,6 +69,17 @@ export async function adminSetBlocked(userId, blocked, reason) {
   return (await r.json())[0];
 }
 
+// Account volledig verwijderen (recht op wissing). Verwijdert de auth-user; de
+// FK's met 'on delete cascade' ruimen credits/transacties/flags/redemptions op.
+export async function deleteUser(userId) {
+  const r = await fetch(`${SUPA_URL}/auth/v1/admin/users/${encodeURIComponent(userId)}`, {
+    method: "DELETE",
+    headers: svc(),
+  });
+  if (!r.ok) throw new Error(`delete-user (${r.status})`);
+  return true;
+}
+
 // Saldo aanpassen (+/-) met reden; geeft het nieuwe saldo terug.
 export async function adminAdjust(userId, amount, note) {
   const r = await fetch(`${SUPA_URL}/rest/v1/rpc/rpc_admin_adjust`, {

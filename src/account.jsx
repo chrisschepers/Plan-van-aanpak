@@ -2,7 +2,7 @@
    Zelfde paginastructuur als src/privacy.jsx (.tool / .tool-bar / .tool-body). */
 
 import { I } from "./data.jsx";
-import { BUNDLES, startCheckout, redeemCode } from "./credits.js";
+import { BUNDLES, startCheckout, redeemCode, deleteAccount } from "./credits.js";
 
 const { useState, useEffect } = React;
 
@@ -14,7 +14,21 @@ export function Account({ onClose, session, onLogout, credits, refreshCredits })
   const [code, setCode] = useState("");
   const [redeeming, setRedeeming] = useState(false);
   const [redeemMsg, setRedeemMsg] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [delError, setDelError] = useState(null);
   const creditsActive = typeof credits === "number";
+
+  async function removeAccount() {
+    if (typeof window !== "undefined" && !window.confirm("Weet je het zeker? Je account, je saldo en je historie worden permanent verwijderd. Dit kan niet ongedaan worden gemaakt.")) return;
+    setDeleting(true); setDelError(null);
+    try {
+      await deleteAccount(session && session.access_token);
+      if (onLogout) onLogout();
+    } catch (e) {
+      setDelError(e && e.message ? e.message : "Verwijderen mislukt.");
+      setDeleting(false);
+    }
+  }
 
   async function redeem() {
     const c = code.trim();
@@ -122,6 +136,15 @@ export function Account({ onClose, session, onLogout, credits, refreshCredits })
             {redeemMsg && (redeemMsg.ok
               ? <p className="redeem-ok">{I.checkSm} {redeemMsg.text}</p>
               : <div className="upload-error" style={{ marginTop: 10 }}>{redeemMsg.text}</div>)}
+          </div>
+
+          <div className="account-card">
+            <h2>Account verwijderen</h2>
+            <p className="acc-sub">Hiermee verwijder je je account, je saldo en je historie permanent. Dit kan niet ongedaan worden gemaakt.</p>
+            <button className="btn btn-danger" disabled={deleting} onClick={removeAccount}>
+              {deleting ? "Bezig…" : "Account verwijderen"}
+            </button>
+            {delError && <div className="upload-error" style={{ marginTop: 10 }}>{delError}</div>}
           </div>
         </div>
       </div>

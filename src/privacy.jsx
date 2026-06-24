@@ -105,8 +105,10 @@ export function PrivacyVerklaring({ onClose }) {
               <li><strong>AI-model:</strong> Anthropic (Claude), als subverwerker — de AI-verwerking vindt plaats in de VS
                 onder passende waarborgen (EU-US Data Privacy Framework / SCC's); je gegevens worden niet gebruikt om
                 modellen te trainen.</li>
-              <li><strong>Verwerking is vluchtig:</strong> documenten en gegevens worden verwerkt om het concept te maken en
-                niet langer bewaard dan nodig; er wordt geen verzuimdossier opgebouwd in de tool.</li>
+              <li><strong>Verwerking is vluchtig:</strong> het geüploade document en de AI-uitkomst worden uitsluitend in
+                het werkgeheugen verwerkt en <strong>niet door ons opgeslagen</strong>; er wordt geen verzuimdossier
+                opgebouwd. Alleen je account- en creditgegevens (e-mail, saldo, transacties) worden bewaard zolang je
+                account bestaat.</li>
               <li>Met subverwerkers worden verwerkersovereenkomsten gesloten.</li>
             </ul>
           </Sectie>
@@ -117,13 +119,22 @@ export function PrivacyVerklaring({ onClose }) {
               AI-verwerking gebeurt.</p>
           </Sectie>
 
-          <Sectie nr="7" titel="Rechten van betrokkenen">
-            <p>Betrokkenen hebben recht op inzage, rectificatie, wissing, beperking en bezwaar. Omdat de werkgever
-              verwerkingsverantwoordelijke is, lopen verzoeken in eerste instantie via de werkgever; wij ondersteunen de
-              werkgever daarbij. Neem contact op via het onderstaande adres.</p>
+          <Sectie nr="7" titel="Cookies">
+            <p>De site gebruikt alleen <strong>functionele opslag</strong> om je ingelogd te houden (via de inlogdienst
+              Supabase). Er worden <strong>geen tracking- of marketingcookies</strong> geplaatst en er draait geen
+              analytics. Daarom is geen cookie-toestemming nodig.</p>
           </Sectie>
 
-          <Sectie nr="8" titel="Contact">
+          <Sectie nr="8" titel="Rechten van betrokkenen">
+            <p>Betrokkenen hebben recht op inzage, rectificatie, wissing, beperking en bezwaar. Omdat de werkgever
+              verwerkingsverantwoordelijke is, lopen verzoeken over verzuimgegevens in eerste instantie via de werkgever;
+              wij ondersteunen de werkgever daarbij.</p>
+            <p style={{ marginTop: 10 }}>Heb je zelf een account bij ons? Dan kun je dat op elk moment verwijderen via
+              <strong> Mijn account → Account verwijderen</strong>; je account, saldo en historie worden dan permanent
+              gewist. Vragen? Neem contact op via het onderstaande adres.</p>
+          </Sectie>
+
+          <Sectie nr="9" titel="Contact">
             <p>
               <a href="mailto:contact@planvanaanpakinvuller.nl" style={{ color: NAVY, fontWeight: 600 }}>contact@planvanaanpakinvuller.nl</a><br />
               planvanaanpakinvuller.nl · KVK-nummer volgt

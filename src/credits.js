@@ -46,6 +46,20 @@ export async function redeemCode(accessToken, code) {
   return j;
 }
 
+// Account volledig verwijderen (recht op wissing). Gooit een Error met bericht bij falen.
+export async function deleteAccount(accessToken) {
+  if (!BACKEND_URL || !accessToken) throw new Error("Niet ingelogd.");
+  const r = await fetch(api("/api/account/delete"), {
+    method: "POST",
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (!r.ok) {
+    const e = await r.json().catch(() => ({}));
+    throw new Error(e.error || `Serverfout (${r.status})`);
+  }
+  return true;
+}
+
 // Weergave-bundels (server is autoriteit op prijs).
 export const BUNDLES = [
   { key: "single",   credits: 1,  price: "€3,99" },
