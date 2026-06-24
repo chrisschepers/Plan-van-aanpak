@@ -113,12 +113,14 @@ export function computeTijdlijn(fields, { wazo = null } = {}) {
 
   if (wazo) {
     const eind = parseNL(wazo.bevallingsverlof.eind);
+    const splitDatum = wazo.zwangerschapsverlof.eind; // overgang zwangerschaps- → bevallingsverlof = (vermoedelijke) bevallingsdatum
     events.push({
       id: "wazo", type: "verlof", categorie: "wazo",
       week: wkVan(wazoStart), datum: wazo.zwangerschapsverlof.start,
       totWeek: wkVan(eind), totDatum: wazo.bevallingsverlof.eind,
       titel: "WAZO-verlof (zwangerschap/bevalling)",
       sub: `${wazo.totaalWeken} wk — wachttijd pauzeert`,
+      split: { week: wkVan(parseNL(splitDatum)), datum: splitDatum, label: wazo.gepland ? "uitgerekend" : "bevallen" },
     });
   }
 
@@ -146,15 +148,22 @@ export function computeTijdlijn(fields, { wazo = null } = {}) {
 
   events.sort((a, b) => a.week - b.week);
 
+  const eindeWachtWeek = wkVan(eindeWachtDatum);
   return {
     anker: { week: 0, datum: fmtNL(eersteZ), titel: "Eerste ziektedag" },
-    eindeWachttijd: { week: wkVan(eindeWachtDatum), datum: fmtNL(eindeWachtDatum), verschovenDoorWazo: !!wazo },
+    eindeWachttijd: { week: eindeWachtWeek, datum: fmtNL(eindeWachtDatum), verschovenDoorWazo: !!wazo },
     events,
     banen: [{
       id: "loondoorbetaling", titel: "Loondoorbetaling",
-      vanWeek: 0, totWeek: wkVan(eindeWachtDatum),
+      vanWeek: 0, totWeek: eindeWachtWeek,
       vanDatum: fmtNL(eersteZ), totDatum: fmtNL(eindeWachtDatum),
-      noot: "Cao-afhankelijk; in de meeste cao's geldt vanaf jaar 1 al 70%.",
+      // Loondoorbetaling in twee jaren: het wettelijk minimum is 70% per jaar;
+      // veel cao's vullen jaar 1 aan tot 100% en betalen jaar 2 vaak 70%.
+      segmenten: [
+        { vanWeek: 0, totWeek: Math.min(52, eindeWachtWeek), label: "Jaar 1 · cao-afhankelijk (vaak 100%)" },
+        ...(eindeWachtWeek > 52 ? [{ vanWeek: 52, totWeek: eindeWachtWeek, label: "Jaar 2 · meestal 70%" }] : []),
+      ],
+      noot: "Wettelijk minimum 70% per jaar; veel cao's vullen jaar 1 aan tot 100% en betalen vanaf jaar 2 vaak 70%.",
     }],
   };
 }

@@ -43,7 +43,7 @@ export function PoortwachterTijdlijn({ tijdlijn = TIJDLIJN_DEFAULT }) {
   // Layout: wijs elk label een kant (boven/onder) en een tier (stapelniveau) toe
   // zodat labels elkaar nooit overlappen. Gebaseerd op horizontale extent in %.
   const labelLayout = React.useMemo(() => {
-    const HALF = 7.4; // halve labelbreedte in % van de plotbreedte
+    const HALF = 8.8; // halve labelbreedte in % van de plotbreedte (marge tegen overlap)
     const sides = { boven: [], onder: [] };
     const res = {};
     let alt = 0;
@@ -141,6 +141,15 @@ export function PoortwachterTijdlijn({ tijdlijn = TIJDLIJN_DEFAULT }) {
                 <span className="pwt-verlof-label">
                   WAZO-verlof · {v.sub}
                 </span>
+                {v.split ? (
+                  <span
+                    className="pwt-verlof-split"
+                    style={{ left: ((v.split.week - v.week) / (v.totWeek - v.week)) * 100 + "%" }}
+                  >
+                    <span className="tick" />
+                    <span className="lbl">{v.split.label} {v.split.datum}</span>
+                  </span>
+                ) : null}
               </div>
             ))}
 
@@ -190,20 +199,25 @@ export function PoortwachterTijdlijn({ tijdlijn = TIJDLIJN_DEFAULT }) {
             })}
           </div>
 
-          {/* Banen (loondoorbetaling e.d.) */}
+          {/* Banen (loondoorbetaling e.d.) — met segmenten (jaar 1 / jaar 2) */}
           <div className="pwt-banen">
-            {tijdlijn.banen.map((b) => (
-              <div className="pwt-baan-rij" key={b.id}>
-                <div
-                  className="pwt-baan"
-                  style={{ left: pct(b.vanWeek) + "%", width: pct(b.totWeek - b.vanWeek) + "%" }}
-                >
-                  <span className="pwt-baan-titel">{b.titel}</span>
-                  <span className="pwt-baan-bereik">{b.vanDatum} – {b.totDatum}</span>
+            {tijdlijn.banen.map((b) => {
+              const segs = (b.segmenten && b.segmenten.length) ? b.segmenten : [{ vanWeek: b.vanWeek, totWeek: b.totWeek, label: b.titel }];
+              const span = (b.totWeek - b.vanWeek) || 1;
+              return (
+                <div className="pwt-baan-rij" key={b.id}>
+                  <span className="pwt-baan-titel">{b.titel}<span className="pwt-baan-bereik">{b.vanDatum} – {b.totDatum}</span></span>
+                  <div className="pwt-baan" style={{ left: pct(b.vanWeek) + "%", width: pct(b.totWeek - b.vanWeek) + "%" }}>
+                    {segs.map((s, i) => (
+                      <div key={i} className={"pwt-baan-seg" + (i ? " alt" : "")} style={{ width: ((s.totWeek - s.vanWeek) / span) * 100 + "%" }}>
+                        <span className="pwt-baan-seglabel">{s.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {b.noot ? <div className="pwt-baan-noot">{b.noot}</div> : null}
                 </div>
-                {b.noot ? <div className="pwt-baan-noot" style={{ left: pct(b.vanWeek) + "%" }}>{b.noot}</div> : null}
-              </div>
-            ))}
+              );
+            })}
           </div>
 
         </div>
@@ -277,14 +291,14 @@ const CSS = `
 .pwt-scroll::-webkit-scrollbar { height: 9px; }
 .pwt-scroll::-webkit-scrollbar-thumb { background: var(--navy-100); border-radius: 999px; }
 .pwt-canvas {
-  position: relative; min-width: 1040px;
+  position: relative; min-width: 1180px;
   background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-  padding: 18px 84px 24px;
+  padding: 16px 72px 22px;
 }
 
 /* Jaarraster */
-.pwt-grid { position: absolute; inset: 18px 84px 24px; pointer-events: none; }
+.pwt-grid { position: absolute; inset: 16px 72px 22px; pointer-events: none; }
 .pwt-gridline { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--line-soft); }
 .pwt-gridline:first-child { background: var(--line); }
 .pwt-gridlabel { position: absolute; top: -2px; left: 6px; font-size: 11px; font-weight: 600; color: var(--faint); white-space: nowrap; letter-spacing: .02em; }
@@ -293,17 +307,18 @@ const CSS = `
 .pwt-labels-boven { position: relative; }
 .pwt-labels-onder { position: relative; }
 
-.pwt-evlabel { position: absolute; transform: translateX(-50%); width: 146px; cursor: default; }
-.pwt-evlabel.edge-left { transform: translateX(-14px); }
-.pwt-evlabel.edge-right { transform: translateX(calc(-100% + 14px)); }
+.pwt-evlabel { position: absolute; transform: translateX(-50%); width: 134px; cursor: default; }
+.pwt-evlabel.edge-left { transform: translateX(-12px); }
+.pwt-evlabel.edge-right { transform: translateX(calc(-100% + 12px)); }
 .pwt-evlabel-inner {
   position: relative; z-index: 1; background: #fff; border: 1px solid var(--line);
-  border-left: 3px solid var(--cat); border-radius: 8px; padding: 7px 10px;
-  box-shadow: var(--shadow-sm); transition: box-shadow .15s, transform .15s;
+  border-left: 2px solid var(--cat); border-radius: 7px; padding: 6px 9px;
+  transition: box-shadow .15s, transform .15s, border-color .15s;
 }
-.pwt-evlabel:hover .pwt-evlabel-inner { box-shadow: var(--shadow); transform: translateY(-1px); }
-.pwt-evtitel { display: block; font-size: 12.5px; font-weight: 600; color: var(--navy-900); line-height: 1.25; }
-.pwt-evmeta { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.pwt-evlabel:hover { z-index: 6; }
+.pwt-evlabel:hover .pwt-evlabel-inner { box-shadow: var(--shadow-sm); transform: translateY(-1px); border-color: var(--cat); }
+.pwt-evtitel { display: block; font-size: 12px; font-weight: 600; color: var(--navy-900); line-height: 1.22; }
+.pwt-evmeta { display: block; font-size: 10.5px; color: var(--muted); margin-top: 2px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .pwt-shift { color: var(--green-700); font-weight: 700; margin-right: 4px; }
 .pwt-evlabel.is-eindpunt .pwt-evlabel-inner { border-left-color: var(--cat); background: var(--navy-50); }
 
@@ -330,9 +345,14 @@ const CSS = `
 
 /* Mijlpaal-markers */
 .pwt-marker { position: absolute; top: 50%; transform: translate(-50%, -50%); z-index: 4; cursor: default; }
-.pwt-marker .dot { display: block; width: 15px; height: 15px; border-radius: 50%; background: #fff; border: 3.5px solid var(--navy); transition: transform .15s, box-shadow .15s; }
+.pwt-marker .dot { display: block; width: 13px; height: 13px; border-radius: 50%; background: #fff; border: 3px solid var(--navy); transition: transform .15s, box-shadow .15s; }
 .pwt-marker:hover .dot { transform: scale(1.25); box-shadow: 0 0 0 5px var(--navy-100); }
-.pwt-marker.einde .dot { width: 18px; height: 18px; background: var(--navy); border-color: var(--green); box-shadow: 0 0 0 4px var(--green-100); }
+.pwt-marker.einde .dot { width: 16px; height: 16px; background: var(--navy); border-color: var(--green); box-shadow: 0 0 0 4px var(--green-100); }
+
+/* Split-marker op het WAZO-blok (vermoedelijke / werkelijke bevallingsdatum) */
+.pwt-verlof-split { position: absolute; top: 0; bottom: 0; pointer-events: none; }
+.pwt-verlof-split .tick { position: absolute; top: 0; bottom: 0; left: 0; width: 1.5px; transform: translateX(-50%); background: var(--green-700); }
+.pwt-verlof-split .lbl { position: absolute; bottom: calc(100% + 4px); left: 0; transform: translateX(-50%); font-size: 9.5px; font-weight: 700; color: var(--green-700); white-space: nowrap; }
 
 /* Eindpunten (ruit) */
 .pwt-eindpunt { position: absolute; top: 50%; transform: translate(-50%, -50%); z-index: 4; cursor: default; }
@@ -340,19 +360,17 @@ const CSS = `
 .pwt-eindpunt.cat-zud .ruit { border-color: var(--amber-line); }
 .pwt-eindpunt.cat-aow .ruit { border-color: var(--purple); }
 
-/* Banen */
-.pwt-banen { position: relative; margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--line); }
-.pwt-baan-rij { position: relative; min-height: 38px; margin-bottom: 28px; }
-.pwt-baan-rij:last-child { margin-bottom: 0; min-height: 60px; }
-.pwt-baan {
-  position: absolute; height: 34px; background: linear-gradient(var(--navy-50), var(--navy-50));
-  border: 1px solid var(--navy-100); border-radius: 8px;
-  display: flex; align-items: center; gap: 10px; padding: 0 14px; overflow: hidden;
-}
-.pwt-baan::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--navy); }
-.pwt-baan-titel { font-size: 12.5px; font-weight: 700; color: var(--navy-900); white-space: nowrap; }
-.pwt-baan-bereik { font-size: 11px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
-.pwt-baan-noot { position: absolute; top: 40px; transform: translateX(0); font-size: 11px; color: var(--muted); font-style: italic; max-width: 60ch; }
+/* Banen (loondoorbetaling) — titel boven, balk met segmenten, noot eronder */
+.pwt-banen { position: relative; margin-top: 18px; padding-top: 18px; border-top: 1px dashed var(--line); }
+.pwt-baan-rij { position: relative; padding-top: 20px; min-height: 80px; }
+.pwt-baan-titel { position: absolute; top: 0; left: 0; display: flex; align-items: baseline; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--navy-600); }
+.pwt-baan-bereik { font-size: 11px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pwt-baan { position: absolute; top: 20px; height: 30px; border: 1px solid var(--navy-100); border-radius: 8px; overflow: hidden; display: flex; }
+.pwt-baan-seg { display: flex; align-items: center; padding: 0 12px; height: 100%; background: var(--navy-50); border-right: 1px dashed var(--navy-100); min-width: 0; }
+.pwt-baan-seg:last-child { border-right: none; }
+.pwt-baan-seg.alt { background: #fff; }
+.pwt-baan-seglabel { font-size: 11.5px; font-weight: 600; color: var(--navy-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pwt-baan-noot { position: absolute; top: 56px; left: 0; font-size: 11px; color: var(--muted); font-style: italic; max-width: 72ch; }
 
 /* Tooltip */
 .pwt-tooltip {

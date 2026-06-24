@@ -2504,6 +2504,46 @@
     }
     return rows;
   }
+  var DAG_MS = 864e5;
+  var WEEK = 7;
+  function parseDatum(s) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s || "")) return /* @__PURE__ */ new Date(s + "T00:00:00");
+    const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(s || "");
+    return m ? new Date(+m[3], +m[2] - 1, +m[1]) : null;
+  }
+  function addDagen(d, n) {
+    const x = new Date(d);
+    x.setDate(x.getDate() + n);
+    return x;
+  }
+  function computeWazo({ uitgerekendeDatum, meerling = false, startWekenVoor, werkelijkeBevalling } = {}) {
+    const due = parseDatum(uitgerekendeDatum);
+    if (!due) throw new Error("Ongeldige uitgerekende datum");
+    const dagNa = addDagen(due, 1);
+    const maxVoor = meerling ? 10 : 6;
+    const minVoor = meerling ? 8 : 4;
+    const totaalMinDagen = (meerling ? 20 : 16) * WEEK;
+    const bevMinDagen = 10 * WEEK;
+    let weken = startWekenVoor == null ? maxVoor : startWekenVoor;
+    weken = Math.max(minVoor, Math.min(maxVoor, weken));
+    const zwStart = addDagen(dagNa, -weken * WEEK);
+    const bevalling = werkelijkeBevalling ? parseDatum(werkelijkeBevalling) : due;
+    if (!bevalling) throw new Error("Ongeldige werkelijke bevallingsdatum");
+    const takenZwDagen = Math.round((bevalling - zwStart) / DAG_MS) + 1;
+    const bevDagen = Math.max(bevMinDagen, totaalMinDagen - takenZwDagen);
+    const bevStart = addDagen(bevalling, 1);
+    const bevEind = addDagen(bevStart, bevDagen - 1);
+    const totaalDagen = takenZwDagen + bevDagen;
+    const blok = (start, eind, dagen) => ({ start: fmtDate(start), eind: fmtDate(eind), dagen, weken: +(dagen / WEEK).toFixed(1) });
+    return {
+      gepland: !werkelijkeBevalling,
+      venster: { vroegst: fmtDate(addDagen(dagNa, -maxVoor * WEEK)), uiterlijk: fmtDate(addDagen(dagNa, -minVoor * WEEK)) },
+      zwangerschapsverlof: blok(zwStart, bevalling, takenZwDagen),
+      bevallingsverlof: blok(bevStart, bevEind, bevDagen),
+      totaalDagen,
+      totaalWeken: +(totaalDagen / WEEK).toFixed(1)
+    };
+  }
 
   // src/advice.js
   function parseNL(s) {
@@ -2606,6 +2646,7 @@
     });
     if (wazo) {
       const eind = parseNL(wazo.bevallingsverlof.eind);
+      const splitDatum = wazo.zwangerschapsverlof.eind;
       events.push({
         id: "wazo",
         type: "verlof",
@@ -2615,7 +2656,8 @@
         totWeek: wkVan(eind),
         totDatum: wazo.bevallingsverlof.eind,
         titel: "WAZO-verlof (zwangerschap/bevalling)",
-        sub: `${wazo.totaalWeken} wk \u2014 wachttijd pauzeert`
+        sub: `${wazo.totaalWeken} wk \u2014 wachttijd pauzeert`,
+        split: { week: wkVan(parseNL(splitDatum)), datum: splitDatum, label: wazo.gepland ? "uitgerekend" : "bevallen" }
       });
     }
     if (einddienst) {
@@ -2645,18 +2687,25 @@
       }
     }
     events.sort((a, b) => a.week - b.week);
+    const eindeWachtWeek = wkVan(eindeWachtDatum);
     return {
       anker: { week: 0, datum: fmtNL(eersteZ), titel: "Eerste ziektedag" },
-      eindeWachttijd: { week: wkVan(eindeWachtDatum), datum: fmtNL(eindeWachtDatum), verschovenDoorWazo: !!wazo },
+      eindeWachttijd: { week: eindeWachtWeek, datum: fmtNL(eindeWachtDatum), verschovenDoorWazo: !!wazo },
       events,
       banen: [{
         id: "loondoorbetaling",
         titel: "Loondoorbetaling",
         vanWeek: 0,
-        totWeek: wkVan(eindeWachtDatum),
+        totWeek: eindeWachtWeek,
         vanDatum: fmtNL(eersteZ),
         totDatum: fmtNL(eindeWachtDatum),
-        noot: "Cao-afhankelijk; in de meeste cao's geldt vanaf jaar 1 al 70%."
+        // Loondoorbetaling in twee jaren: het wettelijk minimum is 70% per jaar;
+        // veel cao's vullen jaar 1 aan tot 100% en betalen jaar 2 vaak 70%.
+        segmenten: [
+          { vanWeek: 0, totWeek: Math.min(52, eindeWachtWeek), label: "Jaar 1 \xB7 cao-afhankelijk (vaak 100%)" },
+          ...eindeWachtWeek > 52 ? [{ vanWeek: 52, totWeek: eindeWachtWeek, label: "Jaar 2 \xB7 meestal 70%" }] : []
+        ],
+        noot: "Wettelijk minimum 70% per jaar; veel cao's vullen jaar 1 aan tot 100% en betalen vanaf jaar 2 vaak 70%."
       }]
     };
   }
@@ -3079,7 +3128,7 @@
     const verloven = tijdlijn.events.filter((e) => e.type === "verlof");
     const eindpunten = tijdlijn.events.filter((e) => e.type === "eindpunt");
     const labelLayout = React.useMemo(() => {
-      const HALF = 7.4;
+      const HALF = 8.8;
       const sides = { boven: [], onder: [] };
       const res = {};
       let alt = 0;
@@ -3135,7 +3184,16 @@
         onMouseMove: (ev) => setHover({ id: v.id, sub: v.sub, titel: v.titel, x: ev.clientX, y: ev.clientY }),
         onMouseLeave: () => setHover(null)
       },
-      /* @__PURE__ */ React.createElement("span", { className: "pwt-verlof-label" }, "WAZO-verlof \xB7 ", v.sub)
+      /* @__PURE__ */ React.createElement("span", { className: "pwt-verlof-label" }, "WAZO-verlof \xB7 ", v.sub),
+      v.split ? /* @__PURE__ */ React.createElement(
+        "span",
+        {
+          className: "pwt-verlof-split",
+          style: { left: (v.split.week - v.week) / (v.totWeek - v.week) * 100 + "%" }
+        },
+        /* @__PURE__ */ React.createElement("span", { className: "tick" }),
+        /* @__PURE__ */ React.createElement("span", { className: "lbl" }, v.split.label, " ", v.split.datum)
+      ) : null
     )), /* @__PURE__ */ React.createElement("div", { className: "pwt-line" }), mijlpalen.map((e) => {
       const isEinde = e.week === total;
       return /* @__PURE__ */ React.createElement(
@@ -3176,15 +3234,11 @@
           onHover: setHover
         }
       );
-    })), /* @__PURE__ */ React.createElement("div", { className: "pwt-banen" }, tijdlijn.banen.map((b) => /* @__PURE__ */ React.createElement("div", { className: "pwt-baan-rij", key: b.id }, /* @__PURE__ */ React.createElement(
-      "div",
-      {
-        className: "pwt-baan",
-        style: { left: pct(b.vanWeek) + "%", width: pct(b.totWeek - b.vanWeek) + "%" }
-      },
-      /* @__PURE__ */ React.createElement("span", { className: "pwt-baan-titel" }, b.titel),
-      /* @__PURE__ */ React.createElement("span", { className: "pwt-baan-bereik" }, b.vanDatum, " \u2013 ", b.totDatum)
-    ), b.noot ? /* @__PURE__ */ React.createElement("div", { className: "pwt-baan-noot", style: { left: pct(b.vanWeek) + "%" } }, b.noot) : null))))), hover ? /* @__PURE__ */ React.createElement("div", { className: "pwt-tooltip", style: { left: hover.x, top: hover.y } }, /* @__PURE__ */ React.createElement("strong", null, hover.titel), hover.sub ? /* @__PURE__ */ React.createElement("span", null, hover.sub) : null) : null);
+    })), /* @__PURE__ */ React.createElement("div", { className: "pwt-banen" }, tijdlijn.banen.map((b) => {
+      const segs = b.segmenten && b.segmenten.length ? b.segmenten : [{ vanWeek: b.vanWeek, totWeek: b.totWeek, label: b.titel }];
+      const span = b.totWeek - b.vanWeek || 1;
+      return /* @__PURE__ */ React.createElement("div", { className: "pwt-baan-rij", key: b.id }, /* @__PURE__ */ React.createElement("span", { className: "pwt-baan-titel" }, b.titel, /* @__PURE__ */ React.createElement("span", { className: "pwt-baan-bereik" }, b.vanDatum, " \u2013 ", b.totDatum)), /* @__PURE__ */ React.createElement("div", { className: "pwt-baan", style: { left: pct(b.vanWeek) + "%", width: pct(b.totWeek - b.vanWeek) + "%" } }, segs.map((s, i) => /* @__PURE__ */ React.createElement("div", { key: i, className: "pwt-baan-seg" + (i ? " alt" : ""), style: { width: (s.totWeek - s.vanWeek) / span * 100 + "%" } }, /* @__PURE__ */ React.createElement("span", { className: "pwt-baan-seglabel" }, s.label)))), b.noot ? /* @__PURE__ */ React.createElement("div", { className: "pwt-baan-noot" }, b.noot) : null);
+    })))), hover ? /* @__PURE__ */ React.createElement("div", { className: "pwt-tooltip", style: { left: hover.x, top: hover.y } }, /* @__PURE__ */ React.createElement("strong", null, hover.titel), hover.sub ? /* @__PURE__ */ React.createElement("span", null, hover.sub) : null) : null);
   }
   function EventLabel({ e, pct, kant, tier = 0, step = 58, eindpunt, onHover }) {
     const cat = CAT[e.categorie] || CAT.poortwachter;
@@ -3236,14 +3290,14 @@
 .pwt-scroll::-webkit-scrollbar { height: 9px; }
 .pwt-scroll::-webkit-scrollbar-thumb { background: var(--navy-100); border-radius: 999px; }
 .pwt-canvas {
-  position: relative; min-width: 1040px;
+  position: relative; min-width: 1180px;
   background: #fff; border: 1px solid var(--line); border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-  padding: 18px 84px 24px;
+  padding: 16px 72px 22px;
 }
 
 /* Jaarraster */
-.pwt-grid { position: absolute; inset: 18px 84px 24px; pointer-events: none; }
+.pwt-grid { position: absolute; inset: 16px 72px 22px; pointer-events: none; }
 .pwt-gridline { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--line-soft); }
 .pwt-gridline:first-child { background: var(--line); }
 .pwt-gridlabel { position: absolute; top: -2px; left: 6px; font-size: 11px; font-weight: 600; color: var(--faint); white-space: nowrap; letter-spacing: .02em; }
@@ -3252,17 +3306,18 @@
 .pwt-labels-boven { position: relative; }
 .pwt-labels-onder { position: relative; }
 
-.pwt-evlabel { position: absolute; transform: translateX(-50%); width: 146px; cursor: default; }
-.pwt-evlabel.edge-left { transform: translateX(-14px); }
-.pwt-evlabel.edge-right { transform: translateX(calc(-100% + 14px)); }
+.pwt-evlabel { position: absolute; transform: translateX(-50%); width: 134px; cursor: default; }
+.pwt-evlabel.edge-left { transform: translateX(-12px); }
+.pwt-evlabel.edge-right { transform: translateX(calc(-100% + 12px)); }
 .pwt-evlabel-inner {
   position: relative; z-index: 1; background: #fff; border: 1px solid var(--line);
-  border-left: 3px solid var(--cat); border-radius: 8px; padding: 7px 10px;
-  box-shadow: var(--shadow-sm); transition: box-shadow .15s, transform .15s;
+  border-left: 2px solid var(--cat); border-radius: 7px; padding: 6px 9px;
+  transition: box-shadow .15s, transform .15s, border-color .15s;
 }
-.pwt-evlabel:hover .pwt-evlabel-inner { box-shadow: var(--shadow); transform: translateY(-1px); }
-.pwt-evtitel { display: block; font-size: 12.5px; font-weight: 600; color: var(--navy-900); line-height: 1.25; }
-.pwt-evmeta { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; font-variant-numeric: tabular-nums; }
+.pwt-evlabel:hover { z-index: 6; }
+.pwt-evlabel:hover .pwt-evlabel-inner { box-shadow: var(--shadow-sm); transform: translateY(-1px); border-color: var(--cat); }
+.pwt-evtitel { display: block; font-size: 12px; font-weight: 600; color: var(--navy-900); line-height: 1.22; }
+.pwt-evmeta { display: block; font-size: 10.5px; color: var(--muted); margin-top: 2px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .pwt-shift { color: var(--green-700); font-weight: 700; margin-right: 4px; }
 .pwt-evlabel.is-eindpunt .pwt-evlabel-inner { border-left-color: var(--cat); background: var(--navy-50); }
 
@@ -3289,9 +3344,14 @@
 
 /* Mijlpaal-markers */
 .pwt-marker { position: absolute; top: 50%; transform: translate(-50%, -50%); z-index: 4; cursor: default; }
-.pwt-marker .dot { display: block; width: 15px; height: 15px; border-radius: 50%; background: #fff; border: 3.5px solid var(--navy); transition: transform .15s, box-shadow .15s; }
+.pwt-marker .dot { display: block; width: 13px; height: 13px; border-radius: 50%; background: #fff; border: 3px solid var(--navy); transition: transform .15s, box-shadow .15s; }
 .pwt-marker:hover .dot { transform: scale(1.25); box-shadow: 0 0 0 5px var(--navy-100); }
-.pwt-marker.einde .dot { width: 18px; height: 18px; background: var(--navy); border-color: var(--green); box-shadow: 0 0 0 4px var(--green-100); }
+.pwt-marker.einde .dot { width: 16px; height: 16px; background: var(--navy); border-color: var(--green); box-shadow: 0 0 0 4px var(--green-100); }
+
+/* Split-marker op het WAZO-blok (vermoedelijke / werkelijke bevallingsdatum) */
+.pwt-verlof-split { position: absolute; top: 0; bottom: 0; pointer-events: none; }
+.pwt-verlof-split .tick { position: absolute; top: 0; bottom: 0; left: 0; width: 1.5px; transform: translateX(-50%); background: var(--green-700); }
+.pwt-verlof-split .lbl { position: absolute; bottom: calc(100% + 4px); left: 0; transform: translateX(-50%); font-size: 9.5px; font-weight: 700; color: var(--green-700); white-space: nowrap; }
 
 /* Eindpunten (ruit) */
 .pwt-eindpunt { position: absolute; top: 50%; transform: translate(-50%, -50%); z-index: 4; cursor: default; }
@@ -3299,19 +3359,17 @@
 .pwt-eindpunt.cat-zud .ruit { border-color: var(--amber-line); }
 .pwt-eindpunt.cat-aow .ruit { border-color: var(--purple); }
 
-/* Banen */
-.pwt-banen { position: relative; margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--line); }
-.pwt-baan-rij { position: relative; min-height: 38px; margin-bottom: 28px; }
-.pwt-baan-rij:last-child { margin-bottom: 0; min-height: 60px; }
-.pwt-baan {
-  position: absolute; height: 34px; background: linear-gradient(var(--navy-50), var(--navy-50));
-  border: 1px solid var(--navy-100); border-radius: 8px;
-  display: flex; align-items: center; gap: 10px; padding: 0 14px; overflow: hidden;
-}
-.pwt-baan::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--navy); }
-.pwt-baan-titel { font-size: 12.5px; font-weight: 700; color: var(--navy-900); white-space: nowrap; }
-.pwt-baan-bereik { font-size: 11px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
-.pwt-baan-noot { position: absolute; top: 40px; transform: translateX(0); font-size: 11px; color: var(--muted); font-style: italic; max-width: 60ch; }
+/* Banen (loondoorbetaling) \u2014 titel boven, balk met segmenten, noot eronder */
+.pwt-banen { position: relative; margin-top: 18px; padding-top: 18px; border-top: 1px dashed var(--line); }
+.pwt-baan-rij { position: relative; padding-top: 20px; min-height: 80px; }
+.pwt-baan-titel { position: absolute; top: 0; left: 0; display: flex; align-items: baseline; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--navy-600); }
+.pwt-baan-bereik { font-size: 11px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--muted); font-variant-numeric: tabular-nums; }
+.pwt-baan { position: absolute; top: 20px; height: 30px; border: 1px solid var(--navy-100); border-radius: 8px; overflow: hidden; display: flex; }
+.pwt-baan-seg { display: flex; align-items: center; padding: 0 12px; height: 100%; background: var(--navy-50); border-right: 1px dashed var(--navy-100); min-width: 0; }
+.pwt-baan-seg:last-child { border-right: none; }
+.pwt-baan-seg.alt { background: #fff; }
+.pwt-baan-seglabel { font-size: 11.5px; font-weight: 600; color: var(--navy-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pwt-baan-noot { position: absolute; top: 56px; left: 0; font-size: 11px; color: var(--muted); font-style: italic; max-width: 72ch; }
 
 /* Tooltip */
 .pwt-tooltip {
@@ -3366,9 +3424,9 @@
     return /* @__PURE__ */ React.createElement("section", { className: "section showcase", id: "voorbeeld" }, /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "sec-head reveal" }, /* @__PURE__ */ React.createElement("span", { className: "eyebrow" }, /* @__PURE__ */ React.createElement("span", { className: "dot" }), "Voorbeeldresultaat"), /* @__PURE__ */ React.createElement("h2", null, "Zo ziet het ingevulde concept eruit"), /* @__PURE__ */ React.createElement("p", null, "Automatisch gegenereerd uit een fictieve terugkoppeling \u2014 geen echte gegevens.")), /* @__PURE__ */ React.createElement("div", { className: "showcase-frame reveal" }, /* @__PURE__ */ React.createElement("div", { className: "preview-tabs" }, tabs.map((tb, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: tab === i ? "active" : "", onClick: () => setTab(i) }, /* @__PURE__ */ React.createElement("span", { className: "tnum" }, i + 1), /* @__PURE__ */ React.createElement("span", { className: "txt" }, tb.t)))), /* @__PURE__ */ React.createElement("div", { className: "showcase-doc" }, tabs[tab].el))));
   }
   function Tijdlijn() {
-    const tijdlijn = computeTijdlijn(INITIAL_FIELDS);
+    const tijdlijn = computeTijdlijn(INITIAL_FIELDS, { wazo: computeWazo({ uitgerekendeDatum: "2025-08-01" }) });
     if (!tijdlijn) return null;
-    return /* @__PURE__ */ React.createElement("section", { className: "section", id: "tijdlijn" }, /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "sec-head reveal" }, /* @__PURE__ */ React.createElement("span", { className: "eyebrow" }, /* @__PURE__ */ React.createElement("span", { className: "dot" }), "Tijdlijn"), /* @__PURE__ */ React.createElement("h2", null, "De hele verzuimperiode in \xE9\xE9n oogopslag"), /* @__PURE__ */ React.createElement("p", null, "Van de eerste ziektedag tot het einde van de wachttijd, met alle wettelijke mijlpalen op hun plek. Bij zwangerschap rekt het WAZO-verlof de tijdlijn automatisch op.")), /* @__PURE__ */ React.createElement("div", { className: "reveal" }, /* @__PURE__ */ React.createElement(PoortwachterTijdlijn, { tijdlijn }))));
+    return /* @__PURE__ */ React.createElement("section", { className: "section", id: "tijdlijn" }, /* @__PURE__ */ React.createElement("div", { className: "wrap" }, /* @__PURE__ */ React.createElement("div", { className: "sec-head reveal" }, /* @__PURE__ */ React.createElement("span", { className: "eyebrow" }, /* @__PURE__ */ React.createElement("span", { className: "dot" }), "Tijdlijn"), /* @__PURE__ */ React.createElement("h2", null, "De hele verzuimperiode in \xE9\xE9n oogopslag"), /* @__PURE__ */ React.createElement("p", null, "Van de eerste ziektedag tot het einde van de wachttijd, met alle wettelijke mijlpalen op hun plek. Dit voorbeeld bevat een zwangerschapsverlof: het WAZO-verlof rekt de tijdlijn automatisch op en de einde-wachttijd schuift mee.")), /* @__PURE__ */ React.createElement("div", { className: "reveal" }, /* @__PURE__ */ React.createElement(PoortwachterTijdlijn, { tijdlijn }))));
   }
   var STEPS = [
     { n: 1, icon: I.upload, t: "Upload", d: "Sleep de terugkoppeling van de bedrijfsarts erin \u2014 PDF of Word." },
