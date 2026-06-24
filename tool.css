@@ -248,8 +248,8 @@
 .redeem-row { display: flex; gap: 8px; align-items: center; }
 .redeem-input { flex: 1; font: inherit; padding: 9px 12px; border: 1px solid var(--line); border-radius: 9px; text-transform: uppercase; letter-spacing: .04em; }
 .redeem-input:focus { outline: none; border-color: var(--navy-400, #5b76a6); box-shadow: 0 0 0 3px var(--navy-50); }
-.redeem-ok { display: flex; align-items: center; gap: 7px; margin-top: 10px; color: var(--accent-700, #157f5b); font-weight: 600; font-size: 14px; }
-.redeem-ok svg { flex-shrink: 0; }
+.redeem-ok { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 12px; background: var(--accent-50, #e1f1ea); border: 1px solid var(--accent-100, #cfe8dd); border-radius: 9px; color: var(--accent-700, #157f5b); font-weight: 600; font-size: 14px; }
+.redeem-ok svg { width: 18px; height: 18px; flex-shrink: 0; }
 
 /* Systeemstatus */
 .sys-card .sys-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 8px 18px; font-size: 14px; color: var(--ink-soft); }
