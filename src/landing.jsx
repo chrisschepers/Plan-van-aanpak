@@ -157,10 +157,10 @@ function HowItWorks() {
 }
 
 const USPS = [
-  { icon: I.clock, accent: false, t: "Bespaart tijd", d: "Geen overtypen meer uit de terugkoppeling. Een concept-PvA dat normaal een half uur kost, staat er in minuten — inclusief opbouwschema." },
-  { icon: I.filter, accent: true, t: "Privacy by design", d: "Medische en bijzondere gegevens worden er juist uitgefilterd. Alleen functionele gegevens — belastbaarheid, uren, prognose — komen in het PvA." },
-  { icon: I.eye, accent: false, t: "Mens in de loop", d: "Per veld tonen we de bronpassage uit het document, zodat je alles in één oogopslag kunt controleren vóór vaststellen." },
-  { icon: I.shield, accent: true, t: "AVG / DPIA-proof", d: "Verwerkersovereenkomst, EER-hosting en DPIA beschikbaar. We trainen geen modellen op jouw klantdata." },
+  { icon: I.clock, accent: false, t: "Je hoeft niks meer over te tikken", d: "Het overtypen van de terugkoppeling kost je zo een halfuur. Hier staat het concept-Plan van Aanpak, inclusief opbouwschema, er in een paar minuten. Jij hoeft het alleen nog na te lopen." },
+  { icon: I.filter, accent: true, t: "Medische details blijven eruit", d: "Een diagnose of klacht hoort niet in een Plan van Aanpak. De tool herkent die en laat ze er bewust uit. Alleen wat functioneel telt komt erin: wat iemand aankan, hoeveel uur en de verwachting." },
+  { icon: I.eye, accent: false, t: "Jij houdt de regie", d: "Bij elk veld zie je de zin uit de terugkoppeling waar het vandaan komt. Zo controleer je in één oogopslag of het klopt, voordat je het samen met je werknemer vaststelt." },
+  { icon: I.shield, accent: true, t: "Zorgvuldig met privacy", d: "Je werkt met gevoelige gegevens, dus daar gaan we netjes mee om. De verwerking blijft binnen Europa, een verwerkersovereenkomst en DPIA zijn beschikbaar, en je documenten worden nooit gebruikt om AI te trainen." },
 ];
 
 function USP() {
@@ -169,7 +169,7 @@ function USP() {
       <div className="wrap">
         <div className="sec-head reveal">
           <span className="eyebrow"><span className="dot"></span>Waarom deze tool</span>
-          <h2>Sneller klaar, zonder concessies aan privacy</h2>
+          <h2>Sneller klaar, en zorgvuldig met wat gevoelig is</h2>
         </div>
         <div className="usp">
           {USPS.map((u, i) => (
