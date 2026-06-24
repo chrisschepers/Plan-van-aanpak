@@ -77,8 +77,10 @@ export function PrivacyVerklaring({ onClose }) {
               belastbaarheid en mogelijkheden in werktermen, opbouwadvies, prognose in werkhervattingstermen, en de naam
               van werknemer en bedrijfsarts.</p>
             <p style={{ marginTop: 10 }}><strong>Niet:</strong> medische gegevens (diagnose, klachten, behandeling, aard of
-              oorzaak van het verzuim) en het BSN. Een ingebouwd filter verwijdert deze; staat zoiets per ongeluk in een
-              geüpload document, dan wordt het niet overgenomen in het concept.</p>
+              oorzaak van het verzuim) en het BSN. Strikte AI-instructies houden deze uit het concept; bij geplakte tekst en
+              Word-bestanden wordt een herkende BSN bovendien al vóór de verwerking weggehaald. Een geüploade PDF wordt door
+              het model zelf gelezen — ook daar worden deze gegevens niet in het concept overgenomen. Controleer als
+              mens-in-de-loop altijd het eindresultaat.</p>
           </Sectie>
 
           <Sectie nr="3" titel="Op welke grondslag?">

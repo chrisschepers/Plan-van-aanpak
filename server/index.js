@@ -21,30 +21,38 @@ const app = express();
 app.set("trust proxy", 1); // achter de Railway-proxy: gebruik X-Forwarded-For voor req.ip
 app.use(express.json({ limit: "2mb" }));
 
-// CORS: standaard alles toestaan (demo). Beperk in productie met ALLOWED_ORIGIN.
-const allowed = (process.env.ALLOWED_ORIGIN || "*").split(",").map((s) => s.trim());
-app.use(cors({ origin: allowed.includes("*") ? true : allowed }));
-if (allowed.includes("*")) console.warn("LET OP: CORS staat open voor alle origins. Zet ALLOWED_ORIGIN in productie (bv. https://chrisschepers.github.io).");
+// CORS: fail-closed. Zonder ALLOWED_ORIGIN geldt de productie-origin (GitHub
+// Pages), NIET "*". Zet ALLOWED_ORIGIN (komma-gescheiden) voor een eigen domein.
+const DEFAULT_ORIGINS = ["https://chrisschepers.github.io"];
+const allowedRaw = (process.env.ALLOWED_ORIGIN || "").split(",").map((s) => s.trim()).filter(Boolean);
+const allowed = allowedRaw.length ? allowedRaw : DEFAULT_ORIGINS;
+const openCors = allowed.includes("*");
+app.use(cors({ origin: openCors ? true : allowed }));
+if (openCors) console.warn("LET OP: CORS staat open voor alle origins (ALLOWED_ORIGIN=*). Beperk dit in productie.");
 
 // Eenvoudige in-memory rate-limiter per IP (één Railway-instance, geen externe
 // dependency): beschermt /api/extract tegen kostenmisbruik. Instelbaar via env.
-const RATE_MAX = parseInt(process.env.PVA_RATE_MAX || "20", 10);
-const RATE_WINDOW_MS = parseInt(process.env.PVA_RATE_WINDOW_MS || String(10 * 60 * 1000), 10);
-const rateHits = new Map(); // ip -> timestamps[]
-function rateLimit(req, res, next) {
-  const now = Date.now();
-  const ip = req.ip || "onbekend";
-  const recent = (rateHits.get(ip) || []).filter((t) => now - t < RATE_WINDOW_MS);
-  if (recent.length >= RATE_MAX) {
-    res.set("Retry-After", String(Math.ceil(RATE_WINDOW_MS / 1000)));
-    return res.status(429).json({ error: "Te veel verzoeken vanaf dit adres. Probeer het later opnieuw." });
-  }
-  recent.push(now);
-  rateHits.set(ip, recent);
-  // Opruimen: verwijder IP's zonder recente activiteit zodra de map groot wordt.
-  if (rateHits.size > 5000) for (const [k, v] of rateHits) if (!v.some((t) => now - t < RATE_WINDOW_MS)) rateHits.delete(k);
-  next();
+// In-memory rate-limiter per IP (één Railway-instance, geen externe dependency).
+function makeRateLimit(max, windowMs) {
+  const hits = new Map(); // ip -> timestamps[]
+  return function (req, res, next) {
+    const now = Date.now();
+    const ip = req.ip || "onbekend";
+    const recent = (hits.get(ip) || []).filter((t) => now - t < windowMs);
+    if (recent.length >= max) {
+      res.set("Retry-After", String(Math.ceil(windowMs / 1000)));
+      return res.status(429).json({ error: "Te veel verzoeken vanaf dit adres. Probeer het later opnieuw." });
+    }
+    recent.push(now);
+    hits.set(ip, recent);
+    // Opruimen: verwijder IP's zonder recente activiteit zodra de map groot wordt.
+    if (hits.size > 5000) for (const [k, v] of hits) if (!v.some((t) => now - t < windowMs)) hits.delete(k);
+    next();
+  };
 }
+const rateLimit = makeRateLimit(parseInt(process.env.PVA_RATE_MAX || "20", 10), parseInt(process.env.PVA_RATE_WINDOW_MS || String(10 * 60 * 1000), 10));
+const webhookLimit = makeRateLimit(120, 60 * 1000); // webhook: ruim, maar tegen misbruik/DoS
+const WEBHOOK_SECRET = (process.env.PVA_WEBHOOK_SECRET || "").trim(); // optioneel geheim padsegment
 
 // Geblokkeerd account? Tegenhouden. Faalt veilig OPEN: een check-fout legt niet
 // de hele dienst plat. Draait na requireAuth (req.user gezet).
@@ -128,7 +136,7 @@ app.post("/api/extract", rateLimit, requireAuth, blockGuard, upload.single("docu
   } catch (err) {
     const status = err && err.status ? err.status : 500;
     console.error("extract-fout:", err && err.message ? err.message : err);
-    res.status(status).json({ error: "Extractie mislukt", detail: err && err.message ? err.message : String(err) });
+    res.status(status).json({ error: "Extractie mislukt." });
   }
 });
 
@@ -136,7 +144,7 @@ app.post("/api/extract", rateLimit, requireAuth, blockGuard, upload.single("docu
 app.get("/api/credits", requireAuth, async (req, res) => {
   if (!creditsConfigured() || !req.user || !req.user.id) return res.json({ balance: null });
   try { res.json({ balance: await getBalance(req.user.id) }); }
-  catch (e) { console.error("credits-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Saldo niet op te halen.", detail: e && e.message ? e.message : String(e) }); }
+  catch (e) { console.error("credits-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Saldo niet op te halen." }); }
 });
 
 // ---- Credits: Mollie-checkout starten ----
@@ -156,7 +164,7 @@ app.post("/api/checkout", requireAuth, blockGuard, async (req, res) => {
         amount: { currency: "EUR", value: (bundle.cents / 100).toFixed(2) },
         description: `planvanaanpakinvuller.nl — ${bundle.label}`,
         redirectUrl: `${siteUrl}?betaling=terug`,
-        webhookUrl: backend ? `${backend}/api/mollie-webhook` : undefined,
+        webhookUrl: backend ? `${backend}/api/mollie-webhook${WEBHOOK_SECRET ? "/" + encodeURIComponent(WEBHOOK_SECRET) : ""}` : undefined,
         metadata: { userId: req.user.id, credits: bundle.credits, bundle: req.body.bundle, cents: bundle.cents },
       }),
     });
@@ -170,7 +178,8 @@ app.post("/api/checkout", requireAuth, blockGuard, async (req, res) => {
 });
 
 // ---- Credits: Mollie-webhook (server-naar-server; status bij Mollie verifiëren) ----
-app.post("/api/mollie-webhook", express.urlencoded({ extended: false }), async (req, res) => {
+app.post("/api/mollie-webhook/:secret?", webhookLimit, express.urlencoded({ extended: false }), async (req, res) => {
+  if (WEBHOOK_SECRET && req.params.secret !== WEBHOOK_SECRET) return res.status(404).end();
   const id = req.body && req.body.id;
   if (!id) return res.status(400).end();
   if (!process.env.MOLLIE_API_KEY || !creditsConfigured()) return res.status(200).end();

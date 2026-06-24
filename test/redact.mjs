@@ -14,6 +14,10 @@ check("geldige BSN wordt geredigeerd", redactBSN("BSN: 111222333 in de tekst") =
 check("ongeldig getal blijft staan", redactBSN("factuur 123456789 euro") === "factuur 123456789 euro");
 check("bedrag/telefoon ongemoeid", redactBSN("bel 0612345678 of betaal 1500") === "bel 0612345678 of betaal 1500");
 check("meerdere BSN's geredigeerd", redactBSN("111222333 en 111222333") === "[BSN GEFILTERD] en [BSN GEFILTERD]");
+check("BSN met punten (3-3-3)", redactBSN("BSN 111.222.333 hier") === "BSN [BSN GEFILTERD] hier");
+check("BSN met punten (4-2-3)", redactBSN("nr 1112.22.333 ok") === "nr [BSN GEFILTERD] ok");
+check("BSN met spaties (3-3-3)", redactBSN("zie 111 222 333 end") === "zie [BSN GEFILTERD] end");
+check("gegroepeerd maar geen geldige BSN blijft staan", redactBSN("123 456 789 hier") === "123 456 789 hier");
 check("gewone tekst ongemoeid", redactBSN("geen nummers hier") === "geen nummers hier");
 check("leeg/null veilig", redactBSN("") === "" && redactBSN(null) === null);
 

@@ -24,6 +24,6 @@ export async function requireAuth(req, res, next) {
     next();
   } catch (err) {
     console.error("auth-verificatie-fout:", err && err.message ? err.message : err);
-    return res.status(502).json({ error: "Kon de sessie niet verifiëren. Probeer het later opnieuw.", detail: err && err.message ? err.message : String(err) });
+    return res.status(502).json({ error: "Kon de sessie niet verifiëren. Probeer het later opnieuw." });
   }
 }

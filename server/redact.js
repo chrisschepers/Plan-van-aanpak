@@ -14,7 +14,12 @@ export function isBSN(s) {
   return sum % 11 === 0;
 }
 
+// Matcht 9 aaneengesloten cijfers, óf de gangbare groeperingen (4-2-3 en 3-3-3)
+// met een punt/spatie/streepje ertussen. De elfproef (isBSN) houdt de precisie
+// hoog, dus losse groeperingen die geen geldige BSN vormen blijven staan.
+const BSN_RE = /\b\d{9}\b|\b\d{4}[.\s-]\d{2}[.\s-]\d{3}\b|\b\d{3}[.\s-]\d{3}[.\s-]\d{3}\b/g;
+
 export function redactBSN(text) {
   if (!text) return text;
-  return String(text).replace(/\b\d{9}\b/g, (m) => (isBSN(m) ? "[BSN GEFILTERD]" : m));
+  return String(text).replace(BSN_RE, (m) => (isBSN(m.replace(/\D/g, "")) ? "[BSN GEFILTERD]" : m));
 }
