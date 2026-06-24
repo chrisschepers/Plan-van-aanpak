@@ -478,7 +478,7 @@ function PreviewStep({ onBack, controleOk, casus, zwangerschap }) {
           <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("pva", () => downloadUwvPva(fields, schema, functieomschrijving, opbouwReden, signalen))}>
             {I.download} {busyKey === "pva" ? "Bezig…" : "Plan van aanpak (UWV) — voor dossier"}
           </button>
-          <button className="btn btn-primary btn-lg" disabled={!controleOk || busyKey} onClick={() => run("bericht", () => downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden))}>
+          <button className="btn btn-primary btn-lg" disabled={!controleOk || busyKey} onClick={() => run("bericht", () => downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo))}>
             {I.download} {busyKey === "bericht" ? "Bezig…" : "Begeleidend bericht & adviezen"}
           </button>
         </div>

@@ -8,13 +8,14 @@ import {
   Table, TableRow, TableCell, WidthType, BorderStyle, PageBreak,
   Header, Footer, ShadingType, VerticalAlign, ImageRun, TabStopType,
   PageNumber, HorizontalPositionRelativeFrom, VerticalPositionRelativeFrom,
-  TextWrappingType,
+  TextWrappingType, PageOrientation,
 } from "docx";
 import { getVal, isMissing } from "./casedata.js";
 import { fullRecoveryDate } from "./engine.js";
-import { adviceBullets, poortwachterTermijnen, berichtKern, splitLinks } from "./advice.js";
+import { adviceBullets, poortwachterTermijnen, berichtKern, splitLinks, computeTijdlijn } from "./advice.js";
 import { fillTemplate, buildUwvValues } from "./filltemplate.js";
 import { BAND_PNG, DECO_PNG, MARK_PNG, pngBytes } from "./brandassets.js";
+import { renderTijdlijnSvg } from "./tijdlijnsvg.js";
 
 const NAVY = "1F3864";
 const NAVY_900 = "14264A";
@@ -264,7 +265,8 @@ function metaBlock(naam) {
   });
 }
 
-export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden = "") {
+export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden = "", opts = {}) {
+  const { tijdlijnPng = null, pngW = 0, pngH = 0 } = opts;
   const naam = getVal(fields, "naam");
   const geenOpbouw = !!opbouwReden || schema.length === 0;
   const hersteld = schema.length ? fullRecoveryDate(schema) : "";
@@ -279,11 +281,7 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
     : (schemaZelfOpgesteld || isMissing(getVal(fields, "opbouw"))
       ? "Niet door de bedrijfsarts gespecificeerd" : getVal(fields, "opbouw"));
 
-  const doc = new Document({
-    creator: "planvanaanpakinvuller.nl",
-    title: `Plan van Aanpak — ${naam}`,
-    styles: { default: { document: { run: { font: "Calibri" } } } },
-    sections: [{
+  const sections = [{
       properties: {
         titlePage: true, // eerste pagina: volledige briefkop; vervolg: compacte kop
         page: { size: { width: 11906, height: 16838 },
@@ -303,7 +301,7 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
         new Paragraph({ spacing: { before: 60, after: 80 }, children: [
           new TextRun({ text: "Een paar praktische aandachtspunten:", bold: true, color: "18202F", size: 22, font: FONT })] }),
         ...bullets.map((t) => bullet(t)),
-        ...(termijnRef ? [p("De volledige wettelijke termijnen staan in de bijgevoegde tabel Poortwachter-termijnen.", { color: GREY })] : []),
+        ...(termijnRef ? [p(tijdlijnPng ? "De volledige tijdlijn met alle wettelijke mijlpalen staat op de laatste (liggende) pagina." : "De volledige wettelijke termijnen staan in de bijgevoegde tabel Poortwachter-termijnen.", { color: GREY })] : []),
         ...(taak ? [new Paragraph({ spacing: { after: 120 }, children: [
           new TextRun({ text: "Suggestie voor aangepaste taken. ", bold: true, color: NAVY, size: 22, font: FONT }),
           new TextRun({ text: `Op basis van de functieomschrijving zou je — binnen de afgegeven mogelijkheden — kunnen denken aan ${taak}. `, size: 22, font: FONT }),
@@ -339,15 +337,46 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
               p(`Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.`, { color: GREY }),
             ]),
 
-        // ---- BIJLAGE 2 — Poortwachter-termijnen: afsluitend overzicht,
-        // direct vóór het Plan van aanpak (het UWV-formulier volgt als sectie 2). ----
-        new Paragraph({ children: [new PageBreak()] }),
-        h1("Poortwachter-termijnen"),
-        sub("Overzicht van de wettelijke mijlpalen, gerekend vanaf de eerste ziektedag."),
-        table(["Termijn", "Mijlpaal", "Wat de werkgever doet"], termijnen.map((m) => [`wk ${m.week}${m.datum ? " · " + m.datum : ""}`, m.mijlpaal, m.actie])),
-        p("Het ingevulde Plan van aanpak ontvang je als apart document (UWV-formulier AG140); dat hoort in het personeelsdossier. De adviezen in dit document zijn bedoeld als ondersteuning voor werkgever en werknemer en horen niet in het personeelsdossier.", { color: GREY }),
+        // ---- BIJLAGE 2 — Poortwachter-termijnen (tabel). Alleen als er GÉÉN
+        // tijdlijn-afbeelding is; anders komt de tijdlijn op een liggende pagina. ----
+        ...(tijdlijnPng ? [] : [
+          new Paragraph({ children: [new PageBreak()] }),
+          h1("Poortwachter-termijnen"),
+          sub("Overzicht van de wettelijke mijlpalen, gerekend vanaf de eerste ziektedag."),
+          table(["Termijn", "Mijlpaal", "Wat de werkgever doet"], termijnen.map((m) => [`wk ${m.week}${m.datum ? " · " + m.datum : ""}`, m.mijlpaal, m.actie])),
+          p("Het ingevulde Plan van aanpak ontvang je als apart document (UWV-formulier AG140); dat hoort in het personeelsdossier. De adviezen in dit document zijn bedoeld als ondersteuning voor werkgever en werknemer en horen niet in het personeelsdossier.", { color: GREY }),
+        ]),
       ],
-    }],
+    }];
+
+  // Tijdlijn als afbeelding op een afsluitende LIGGENDE pagina (alleen browser-pad;
+  // in Node/tests is er geen rasterisatie en valt het terug op de tabel hierboven).
+  if (tijdlijnPng) {
+    const blankH = new Header({ children: [new Paragraph({ children: [] })] });
+    const blankF = new Footer({ children: [new Paragraph({ children: [] })] });
+    sections.push({
+      properties: {
+        titlePage: false,
+        page: {
+          size: { orientation: PageOrientation.LANDSCAPE, width: 16838, height: 11906 },
+          margin: { top: 1000, bottom: 1000, left: 1000, right: 1000 },
+        },
+      },
+      headers: { default: blankH, first: blankH },
+      footers: { default: blankF, first: blankF },
+      children: [
+        h1("Tijdlijn van het verzuim"),
+        sub("Van de eerste ziektedag tot het einde van de wachttijd, met de wettelijke mijlpalen. Het ingevulde Plan van aanpak (UWV-formulier AG140) ontvang je als apart document."),
+        new Paragraph({ children: [new ImageRun({ type: "png", data: tijdlijnPng, transformation: { width: pngW, height: pngH } })] }),
+      ],
+    });
+  }
+
+  const doc = new Document({
+    creator: "planvanaanpakinvuller.nl",
+    title: `Plan van Aanpak — ${naam}`,
+    styles: { default: { document: { run: { font: "Calibri" } } } },
+    sections,
   });
   return doc;
 }
@@ -370,12 +399,49 @@ function triggerDownload(blob, filename) {
   return filename;
 }
 
-// Begeleidend bericht op briefpapier: opbouwadvies + poortwachter-termijnen +
-// verweven adviezen ("verzuimtips"). Bewust LOS van het Plan van aanpak, want
-// dit hoort niet in het personeelsdossier.
-export async function downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden) {
+// Rasteriseer de tijdlijn-SVG naar PNG-bytes (browser; canvas-API, geen externe lib).
+function pngBytesFromDataUrl(dataUrl) {
+  const b64 = dataUrl.split(",")[1] || "";
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+async function svgToPng(svg, w, h, scale = 2) {
+  const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
+  try {
+    const img = new Image();
+    await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error("svg laden mislukt")); img.src = url; });
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(w * scale);
+    canvas.height = Math.round(h * scale);
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.setTransform(scale, 0, 0, scale, 0, 0);
+    ctx.drawImage(img, 0, 0, w, h);
+    return pngBytesFromDataUrl(canvas.toDataURL("image/png"));
+  } finally { URL.revokeObjectURL(url); }
+}
+
+// Begeleidend bericht op briefpapier: opbouwadvies + verweven adviezen + de
+// verzuim-tijdlijn (als afbeelding op een liggende slotpagina). Bewust LOS van
+// het Plan van aanpak, want dit hoort niet in het personeelsdossier.
+export async function downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo) {
   const filename = `Begeleidend-bericht-${safeName(fields)}.docx`;
-  const blob = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden));
+  let opts = {};
+  try {
+    const tijdlijn = computeTijdlijn(fields, { wazo: wazo || null });
+    if (tijdlijn) {
+      const { svg, width, height } = renderTijdlijnSvg(tijdlijn);
+      const png = await svgToPng(svg, width, height);
+      const dispW = mmPx(255); // liggende A4-tekstbreedte (≈ 297 − 2×21 mm)
+      opts = { tijdlijnPng: png, pngW: dispW, pngH: Math.round(dispW * height / width) };
+    }
+  } catch (e) {
+    console.warn("Tijdlijn-afbeelding mislukt; val terug op de termijnen-tabel.", e && e.message);
+  }
+  const blob = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, opts));
   return triggerDownload(blob, filename);
 }
 

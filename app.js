@@ -165,15 +165,15 @@
             t2 && !r2 || (x.crc32 = e2.crc32, x.compressedSize = e2.compressedSize, x.uncompressedSize = e2.uncompressedSize);
             var S = 0;
             t2 && (S |= 8), l || !_ && !g || (S |= 2048);
-            var z = 0, C = 0;
-            w && (z |= 16), "UNIX" === i2 ? (C = 798, z |= (function(e3, t3) {
+            var z = 0, C2 = 0;
+            w && (z |= 16), "UNIX" === i2 ? (C2 = 798, z |= (function(e3, t3) {
               var r3 = e3;
               return e3 || (r3 = t3 ? 16893 : 33204), (65535 & r3) << 16;
-            })(h.unixPermissions, w)) : (C = 20, z |= (function(e3) {
+            })(h.unixPermissions, w)) : (C2 = 20, z |= (function(e3) {
               return 63 & (e3 || 0);
             })(h.dosPermissions)), a = k.getUTCHours(), a <<= 6, a |= k.getUTCMinutes(), a <<= 5, a |= k.getUTCSeconds() / 2, o = k.getUTCFullYear() - 1980, o <<= 4, o |= k.getUTCMonth() + 1, o <<= 5, o |= k.getUTCDate(), _ && (v = A(1, 1) + A(B(f), 4) + c, b += "up" + A(v.length, 2) + v), g && (y = A(1, 1) + A(B(p2), 4) + m, b += "uc" + A(y.length, 2) + y);
             var E = "";
-            return E += "\n\0", E += A(S, 2), E += u.magic, E += A(a, 2), E += A(o, 2), E += A(x.crc32, 4), E += A(x.compressedSize, 4), E += A(x.uncompressedSize, 4), E += A(f.length, 2), E += A(b.length, 2), { fileRecord: R.LOCAL_FILE_HEADER + E + f + b, dirRecord: R.CENTRAL_FILE_HEADER + A(C, 2) + E + A(p2.length, 2) + "\0\0\0\0" + A(z, 4) + A(n2, 4) + f + b + p2 };
+            return E += "\n\0", E += A(S, 2), E += u.magic, E += A(a, 2), E += A(o, 2), E += A(x.crc32, 4), E += A(x.compressedSize, 4), E += A(x.uncompressedSize, 4), E += A(f.length, 2), E += A(b.length, 2), { fileRecord: R.LOCAL_FILE_HEADER + E + f + b, dirRecord: R.CENTRAL_FILE_HEADER + A(C2, 2) + E + A(p2.length, 2) + "\0\0\0\0" + A(z, 4) + A(n2, 4) + f + b + p2 };
           }
           var I2 = e("../utils"), i = e("../stream/GenericWorker"), O = e("../utf8"), B = e("../crc32"), R = e("../signature");
           function s(e2, t2, r2, n2) {
@@ -1439,7 +1439,7 @@
           };
         }, {}], 46: [function(e, t, r) {
           "use strict";
-          var h, c = e("../utils/common"), u = e("./trees"), d = e("./adler32"), p2 = e("./crc32"), n = e("./messages"), l = 0, f = 4, m = 0, _ = -2, g = -1, b = 4, i = 2, v = 8, y = 9, s = 286, a = 30, o = 19, w = 2 * s + 1, k = 15, x = 3, S = 258, z = S + x + 1, C = 42, E = 113, A = 1, I2 = 2, O = 3, B = 4;
+          var h, c = e("../utils/common"), u = e("./trees"), d = e("./adler32"), p2 = e("./crc32"), n = e("./messages"), l = 0, f = 4, m = 0, _ = -2, g = -1, b = 4, i = 2, v = 8, y = 9, s = 286, a = 30, o = 19, w = 2 * s + 1, k = 15, x = 3, S = 258, z = S + x + 1, C2 = 42, E = 113, A = 1, I2 = 2, O = 3, B = 4;
           function R(e2, t2) {
             return e2.msg = n[t2], t2;
           }
@@ -1528,7 +1528,7 @@
           }
           function G(e2) {
             var t2;
-            return e2 && e2.state ? (e2.total_in = e2.total_out = 0, e2.data_type = i, (t2 = e2.state).pending = 0, t2.pending_out = 0, t2.wrap < 0 && (t2.wrap = -t2.wrap), t2.status = t2.wrap ? C : E, e2.adler = 2 === t2.wrap ? 0 : 1, t2.last_flush = l, u._tr_init(t2), m) : R(e2, _);
+            return e2 && e2.state ? (e2.total_in = e2.total_out = 0, e2.data_type = i, (t2 = e2.state).pending = 0, t2.pending_out = 0, t2.wrap < 0 && (t2.wrap = -t2.wrap), t2.status = t2.wrap ? C2 : E, e2.adler = 2 === t2.wrap ? 0 : 1, t2.last_flush = l, u._tr_init(t2), m) : R(e2, _);
           }
           function K(e2) {
             var t2 = G(e2);
@@ -1565,7 +1565,7 @@
             var r2, n2, i2, s2;
             if (!e2 || !e2.state || 5 < t2 || t2 < 0) return e2 ? R(e2, _) : _;
             if (n2 = e2.state, !e2.output || !e2.input && 0 !== e2.avail_in || 666 === n2.status && t2 !== f) return R(e2, 0 === e2.avail_out ? -5 : _);
-            if (n2.strm = e2, r2 = n2.last_flush, n2.last_flush = t2, n2.status === C) if (2 === n2.wrap) e2.adler = 0, U(n2, 31), U(n2, 139), U(n2, 8), n2.gzhead ? (U(n2, (n2.gzhead.text ? 1 : 0) + (n2.gzhead.hcrc ? 2 : 0) + (n2.gzhead.extra ? 4 : 0) + (n2.gzhead.name ? 8 : 0) + (n2.gzhead.comment ? 16 : 0)), U(n2, 255 & n2.gzhead.time), U(n2, n2.gzhead.time >> 8 & 255), U(n2, n2.gzhead.time >> 16 & 255), U(n2, n2.gzhead.time >> 24 & 255), U(n2, 9 === n2.level ? 2 : 2 <= n2.strategy || n2.level < 2 ? 4 : 0), U(n2, 255 & n2.gzhead.os), n2.gzhead.extra && n2.gzhead.extra.length && (U(n2, 255 & n2.gzhead.extra.length), U(n2, n2.gzhead.extra.length >> 8 & 255)), n2.gzhead.hcrc && (e2.adler = p2(e2.adler, n2.pending_buf, n2.pending, 0)), n2.gzindex = 0, n2.status = 69) : (U(n2, 0), U(n2, 0), U(n2, 0), U(n2, 0), U(n2, 0), U(n2, 9 === n2.level ? 2 : 2 <= n2.strategy || n2.level < 2 ? 4 : 0), U(n2, 3), n2.status = E);
+            if (n2.strm = e2, r2 = n2.last_flush, n2.last_flush = t2, n2.status === C2) if (2 === n2.wrap) e2.adler = 0, U(n2, 31), U(n2, 139), U(n2, 8), n2.gzhead ? (U(n2, (n2.gzhead.text ? 1 : 0) + (n2.gzhead.hcrc ? 2 : 0) + (n2.gzhead.extra ? 4 : 0) + (n2.gzhead.name ? 8 : 0) + (n2.gzhead.comment ? 16 : 0)), U(n2, 255 & n2.gzhead.time), U(n2, n2.gzhead.time >> 8 & 255), U(n2, n2.gzhead.time >> 16 & 255), U(n2, n2.gzhead.time >> 24 & 255), U(n2, 9 === n2.level ? 2 : 2 <= n2.strategy || n2.level < 2 ? 4 : 0), U(n2, 255 & n2.gzhead.os), n2.gzhead.extra && n2.gzhead.extra.length && (U(n2, 255 & n2.gzhead.extra.length), U(n2, n2.gzhead.extra.length >> 8 & 255)), n2.gzhead.hcrc && (e2.adler = p2(e2.adler, n2.pending_buf, n2.pending, 0)), n2.gzindex = 0, n2.status = 69) : (U(n2, 0), U(n2, 0), U(n2, 0), U(n2, 0), U(n2, 0), U(n2, 9 === n2.level ? 2 : 2 <= n2.strategy || n2.level < 2 ? 4 : 0), U(n2, 3), n2.status = E);
             else {
               var a2 = v + (n2.w_bits - 8 << 4) << 8;
               a2 |= (2 <= n2.strategy || n2.level < 2 ? 0 : n2.level < 6 ? 1 : 6 === n2.level ? 2 : 3) << 6, 0 !== n2.strstart && (a2 |= 32), a2 += 31 - a2 % 31, n2.status = E, P(n2, a2), 0 !== n2.strstart && (P(n2, e2.adler >>> 16), P(n2, 65535 & e2.adler)), e2.adler = 1;
@@ -1632,11 +1632,11 @@
             return t2 !== f ? m : n2.wrap <= 0 ? 1 : (2 === n2.wrap ? (U(n2, 255 & e2.adler), U(n2, e2.adler >> 8 & 255), U(n2, e2.adler >> 16 & 255), U(n2, e2.adler >> 24 & 255), U(n2, 255 & e2.total_in), U(n2, e2.total_in >> 8 & 255), U(n2, e2.total_in >> 16 & 255), U(n2, e2.total_in >> 24 & 255)) : (P(n2, e2.adler >>> 16), P(n2, 65535 & e2.adler)), F(e2), 0 < n2.wrap && (n2.wrap = -n2.wrap), 0 !== n2.pending ? m : 1);
           }, r.deflateEnd = function(e2) {
             var t2;
-            return e2 && e2.state ? (t2 = e2.state.status) !== C && 69 !== t2 && 73 !== t2 && 91 !== t2 && 103 !== t2 && t2 !== E && 666 !== t2 ? R(e2, _) : (e2.state = null, t2 === E ? R(e2, -3) : m) : _;
+            return e2 && e2.state ? (t2 = e2.state.status) !== C2 && 69 !== t2 && 73 !== t2 && 91 !== t2 && 103 !== t2 && t2 !== E && 666 !== t2 ? R(e2, _) : (e2.state = null, t2 === E ? R(e2, -3) : m) : _;
           }, r.deflateSetDictionary = function(e2, t2) {
             var r2, n2, i2, s2, a2, o2, h3, u2, l2 = t2.length;
             if (!e2 || !e2.state) return _;
-            if (2 === (s2 = (r2 = e2.state).wrap) || 1 === s2 && r2.status !== C || r2.lookahead) return _;
+            if (2 === (s2 = (r2 = e2.state).wrap) || 1 === s2 && r2.status !== C2 || r2.lookahead) return _;
             for (1 === s2 && (e2.adler = d(e2.adler, t2, l2, 0)), r2.wrap = 0, l2 >= r2.w_size && (0 === s2 && (D(r2.head), r2.strstart = 0, r2.block_start = 0, r2.insert = 0), u2 = new c.Buf8(r2.w_size), c.arraySet(u2, t2, l2 - r2.w_size, r2.w_size, 0), t2 = u2, l2 = r2.w_size), a2 = e2.avail_in, o2 = e2.next_in, h3 = e2.input, e2.avail_in = l2, e2.next_in = 0, e2.input = t2, j(r2); r2.lookahead >= x; ) {
               for (n2 = r2.strstart, i2 = r2.lookahead - (x - 1); r2.ins_h = (r2.ins_h << r2.hash_shift ^ r2.window[n2 + x - 1]) & r2.hash_mask, r2.prev[n2 & r2.w_mask] = r2.head[r2.ins_h], r2.head[r2.ins_h] = n2, n2++, --i2; ) ;
               r2.strstart = n2, r2.lookahead = x - 1, j(r2);
@@ -1651,12 +1651,12 @@
         }, {}], 48: [function(e, t, r) {
           "use strict";
           t.exports = function(e2, t2) {
-            var r2, n, i, s, a, o, h, u, l, f, c, d, p2, m, _, g, b, v, y, w, k, x, S, z, C;
-            r2 = e2.state, n = e2.next_in, z = e2.input, i = n + (e2.avail_in - 5), s = e2.next_out, C = e2.output, a = s - (t2 - e2.avail_out), o = s + (e2.avail_out - 257), h = r2.dmax, u = r2.wsize, l = r2.whave, f = r2.wnext, c = r2.window, d = r2.hold, p2 = r2.bits, m = r2.lencode, _ = r2.distcode, g = (1 << r2.lenbits) - 1, b = (1 << r2.distbits) - 1;
+            var r2, n, i, s, a, o, h, u, l, f, c, d, p2, m, _, g, b, v, y, w, k, x, S, z, C2;
+            r2 = e2.state, n = e2.next_in, z = e2.input, i = n + (e2.avail_in - 5), s = e2.next_out, C2 = e2.output, a = s - (t2 - e2.avail_out), o = s + (e2.avail_out - 257), h = r2.dmax, u = r2.wsize, l = r2.whave, f = r2.wnext, c = r2.window, d = r2.hold, p2 = r2.bits, m = r2.lencode, _ = r2.distcode, g = (1 << r2.lenbits) - 1, b = (1 << r2.distbits) - 1;
             e: do {
               p2 < 15 && (d += z[n++] << p2, p2 += 8, d += z[n++] << p2, p2 += 8), v = m[d & g];
               t: for (; ; ) {
-                if (d >>>= y = v >>> 24, p2 -= y, 0 === (y = v >>> 16 & 255)) C[s++] = 65535 & v;
+                if (d >>>= y = v >>> 24, p2 -= y, 0 === (y = v >>> 16 & 255)) C2[s++] = 65535 & v;
                 else {
                   if (!(16 & y)) {
                     if (0 == (64 & y)) {
@@ -1691,26 +1691,26 @@
                       }
                       if (S = c, (x = 0) === f) {
                         if (x += u - y, y < w) {
-                          for (w -= y; C[s++] = c[x++], --y; ) ;
-                          x = s - k, S = C;
+                          for (w -= y; C2[s++] = c[x++], --y; ) ;
+                          x = s - k, S = C2;
                         }
                       } else if (f < y) {
                         if (x += u + f - y, (y -= f) < w) {
-                          for (w -= y; C[s++] = c[x++], --y; ) ;
+                          for (w -= y; C2[s++] = c[x++], --y; ) ;
                           if (x = 0, f < w) {
-                            for (w -= y = f; C[s++] = c[x++], --y; ) ;
-                            x = s - k, S = C;
+                            for (w -= y = f; C2[s++] = c[x++], --y; ) ;
+                            x = s - k, S = C2;
                           }
                         }
                       } else if (x += f - y, y < w) {
-                        for (w -= y; C[s++] = c[x++], --y; ) ;
-                        x = s - k, S = C;
+                        for (w -= y; C2[s++] = c[x++], --y; ) ;
+                        x = s - k, S = C2;
                       }
-                      for (; 2 < w; ) C[s++] = S[x++], C[s++] = S[x++], C[s++] = S[x++], w -= 3;
-                      w && (C[s++] = S[x++], 1 < w && (C[s++] = S[x++]));
+                      for (; 2 < w; ) C2[s++] = S[x++], C2[s++] = S[x++], C2[s++] = S[x++], w -= 3;
+                      w && (C2[s++] = S[x++], 1 < w && (C2[s++] = S[x++]));
                     } else {
-                      for (x = s - k; C[s++] = C[x++], C[s++] = C[x++], C[s++] = C[x++], 2 < (w -= 3); ) ;
-                      w && (C[s++] = C[x++], 1 < w && (C[s++] = C[x++]));
+                      for (x = s - k; C2[s++] = C2[x++], C2[s++] = C2[x++], C2[s++] = C2[x++], 2 < (w -= 3); ) ;
+                      w && (C2[s++] = C2[x++], 1 < w && (C2[s++] = C2[x++]));
                     }
                     break;
                   }
@@ -1765,7 +1765,7 @@
           r.inflateReset = o, r.inflateReset2 = h, r.inflateResetKeep = a, r.inflateInit = function(e2) {
             return u(e2, 15);
           }, r.inflateInit2 = u, r.inflate = function(e2, t2) {
-            var r2, n2, i2, s2, a2, o2, h3, u2, l2, f2, c2, d, p2, m, _, g, b, v, y, w, k, x, S, z, C = 0, E = new I2.Buf8(4), A = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15];
+            var r2, n2, i2, s2, a2, o2, h3, u2, l2, f2, c2, d, p2, m, _, g, b, v, y, w, k, x, S, z, C2 = 0, E = new I2.Buf8(4), A = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15];
             if (!e2 || !e2.state || !e2.output || !e2.input && 0 !== e2.avail_in) return U;
             12 === (r2 = e2.state).mode && (r2.mode = 13), a2 = e2.next_out, i2 = e2.output, h3 = e2.avail_out, s2 = e2.next_in, n2 = e2.input, o2 = e2.avail_in, u2 = r2.hold, l2 = r2.bits, f2 = o2, c2 = h3, x = N;
             e: for (; ; ) switch (r2.mode) {
@@ -1945,7 +1945,7 @@
                 r2.have = 0, r2.mode = 19;
               case 19:
                 for (; r2.have < r2.nlen + r2.ndist; ) {
-                  for (; g = (C = r2.lencode[u2 & (1 << r2.lenbits) - 1]) >>> 16 & 255, b = 65535 & C, !((_ = C >>> 24) <= l2); ) {
+                  for (; g = (C2 = r2.lencode[u2 & (1 << r2.lenbits) - 1]) >>> 16 & 255, b = 65535 & C2, !((_ = C2 >>> 24) <= l2); ) {
                     if (0 === o2) break e;
                     o2--, u2 += n2[s2++] << l2, l2 += 8;
                   }
@@ -2002,12 +2002,12 @@
                   e2.next_out = a2, e2.avail_out = h3, e2.next_in = s2, e2.avail_in = o2, r2.hold = u2, r2.bits = l2, R(e2, c2), a2 = e2.next_out, i2 = e2.output, h3 = e2.avail_out, s2 = e2.next_in, n2 = e2.input, o2 = e2.avail_in, u2 = r2.hold, l2 = r2.bits, 12 === r2.mode && (r2.back = -1);
                   break;
                 }
-                for (r2.back = 0; g = (C = r2.lencode[u2 & (1 << r2.lenbits) - 1]) >>> 16 & 255, b = 65535 & C, !((_ = C >>> 24) <= l2); ) {
+                for (r2.back = 0; g = (C2 = r2.lencode[u2 & (1 << r2.lenbits) - 1]) >>> 16 & 255, b = 65535 & C2, !((_ = C2 >>> 24) <= l2); ) {
                   if (0 === o2) break e;
                   o2--, u2 += n2[s2++] << l2, l2 += 8;
                 }
                 if (g && 0 == (240 & g)) {
-                  for (v = _, y = g, w = b; g = (C = r2.lencode[w + ((u2 & (1 << v + y) - 1) >> v)]) >>> 16 & 255, b = 65535 & C, !(v + (_ = C >>> 24) <= l2); ) {
+                  for (v = _, y = g, w = b; g = (C2 = r2.lencode[w + ((u2 & (1 << v + y) - 1) >> v)]) >>> 16 & 255, b = 65535 & C2, !(v + (_ = C2 >>> 24) <= l2); ) {
                     if (0 === o2) break e;
                     o2--, u2 += n2[s2++] << l2, l2 += 8;
                   }
@@ -2036,12 +2036,12 @@
                 }
                 r2.was = r2.length, r2.mode = 23;
               case 23:
-                for (; g = (C = r2.distcode[u2 & (1 << r2.distbits) - 1]) >>> 16 & 255, b = 65535 & C, !((_ = C >>> 24) <= l2); ) {
+                for (; g = (C2 = r2.distcode[u2 & (1 << r2.distbits) - 1]) >>> 16 & 255, b = 65535 & C2, !((_ = C2 >>> 24) <= l2); ) {
                   if (0 === o2) break e;
                   o2--, u2 += n2[s2++] << l2, l2 += 8;
                 }
                 if (0 == (240 & g)) {
-                  for (v = _, y = g, w = b; g = (C = r2.distcode[w + ((u2 & (1 << v + y) - 1) >> v)]) >>> 16 & 255, b = 65535 & C, !(v + (_ = C >>> 24) <= l2); ) {
+                  for (v = _, y = g, w = b; g = (C2 = r2.distcode[w + ((u2 & (1 << v + y) - 1) >> v)]) >>> 16 & 255, b = 65535 & C2, !(v + (_ = C2 >>> 24) <= l2); ) {
                     if (0 === o2) break e;
                     o2--, u2 += n2[s2++] << l2, l2 += 8;
                   }
@@ -2135,7 +2135,7 @@
           "use strict";
           var D = e("../utils/common"), F = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0, 0], N = [16, 16, 16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 18, 18, 18, 18, 19, 19, 19, 19, 20, 20, 20, 20, 21, 21, 21, 21, 16, 72, 78], U = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193, 257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145, 8193, 12289, 16385, 24577, 0, 0], P = [16, 16, 16, 16, 17, 17, 18, 18, 19, 19, 20, 20, 21, 21, 22, 22, 23, 23, 24, 24, 25, 25, 26, 26, 27, 27, 28, 28, 29, 29, 64, 64];
           t.exports = function(e2, t2, r2, n, i, s, a, o) {
-            var h, u, l, f, c, d, p2, m, _, g = o.bits, b = 0, v = 0, y = 0, w = 0, k = 0, x = 0, S = 0, z = 0, C = 0, E = 0, A = null, I2 = 0, O = new D.Buf16(16), B = new D.Buf16(16), R = null, T = 0;
+            var h, u, l, f, c, d, p2, m, _, g = o.bits, b = 0, v = 0, y = 0, w = 0, k = 0, x = 0, S = 0, z = 0, C2 = 0, E = 0, A = null, I2 = 0, O = new D.Buf16(16), B = new D.Buf16(16), R = null, T = 0;
             for (b = 0; b <= 15; b++) O[b] = 0;
             for (v = 0; v < n; v++) O[t2[r2 + v]]++;
             for (k = g, w = 15; 1 <= w && 0 === O[w]; w--) ;
@@ -2145,7 +2145,7 @@
             if (0 < z && (0 === e2 || 1 !== w)) return -1;
             for (B[1] = 0, b = 1; b < 15; b++) B[b + 1] = B[b] + O[b];
             for (v = 0; v < n; v++) 0 !== t2[r2 + v] && (a[B[t2[r2 + v]]++] = v);
-            if (d = 0 === e2 ? (A = R = a, 19) : 1 === e2 ? (A = F, I2 -= 257, R = N, T -= 257, 256) : (A = U, R = P, -1), b = y, c = s, S = v = E = 0, l = -1, f = (C = 1 << (x = k)) - 1, 1 === e2 && 852 < C || 2 === e2 && 592 < C) return 1;
+            if (d = 0 === e2 ? (A = R = a, 19) : 1 === e2 ? (A = F, I2 -= 257, R = N, T -= 257, 256) : (A = U, R = P, -1), b = y, c = s, S = v = E = 0, l = -1, f = (C2 = 1 << (x = k)) - 1, 1 === e2 && 852 < C2 || 2 === e2 && 592 < C2) return 1;
             for (; ; ) {
               for (p2 = b - S, _ = a[v] < d ? (m = 0, a[v]) : a[v] > d ? (m = R[T + a[v]], A[I2 + a[v]]) : (m = 96, 0), h = 1 << b - S, y = u = 1 << x; i[c + (E >> S) + (u -= h)] = p2 << 24 | m << 16 | _ | 0, 0 !== u; ) ;
               for (h = 1 << b - 1; E & h; ) h >>= 1;
@@ -2155,7 +2155,7 @@
               }
               if (k < b && (E & f) !== l) {
                 for (0 === S && (S = k), c += y, z = 1 << (x = b - S); x + S < w && !((z -= O[x + S]) <= 0); ) x++, z <<= 1;
-                if (C += 1 << x, 1 === e2 && 852 < C || 2 === e2 && 592 < C) return 1;
+                if (C2 += 1 << x, 1 === e2 && 852 < C2 || 2 === e2 && 592 < C2) return 1;
                 i[l = E & f] = k << 24 | x << 16 | c - s | 0;
               }
             }
@@ -2172,8 +2172,8 @@
           }
           var s = 0, a = 29, u = 256, l = u + 1 + a, f = 30, c = 19, _ = 2 * l + 1, g = 15, d = 16, p2 = 7, m = 256, b = 16, v = 17, y = 18, w = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0], k = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13], x = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 7], S = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15], z = new Array(2 * (l + 2));
           n(z);
-          var C = new Array(2 * f);
-          n(C);
+          var C2 = new Array(2 * f);
+          n(C2);
           var E = new Array(512);
           n(E);
           var A = new Array(256);
@@ -2283,8 +2283,8 @@
               for (; e3 <= 255; ) z[2 * e3 + 1] = 9, e3++, s2[9]++;
               for (; e3 <= 279; ) z[2 * e3 + 1] = 7, e3++, s2[7]++;
               for (; e3 <= 287; ) z[2 * e3 + 1] = 8, e3++, s2[8]++;
-              for (Z(z, l + 1, s2), e3 = 0; e3 < f; e3++) C[2 * e3 + 1] = 5, C[2 * e3] = j(e3, 5);
-              O = new D(z, w, u + 1, l, g), B = new D(C, k, 0, f, g), R = new D(new Array(0), x, 0, c, p2);
+              for (Z(z, l + 1, s2), e3 = 0; e3 < f; e3++) C2[2 * e3 + 1] = 5, C2[2 * e3] = j(e3, 5);
+              O = new D(z, w, u + 1, l, g), B = new D(C2, k, 0, f, g), R = new D(new Array(0), x, 0, c, p2);
             })(), q = true), e2.l_desc = new F(e2.dyn_ltree, O), e2.d_desc = new F(e2.dyn_dtree, B), e2.bl_desc = new F(e2.bl_tree, R), e2.bi_buf = 0, e2.bi_valid = 0, W(e2);
           }, r._tr_stored_block = J, r._tr_flush_block = function(e2, t2, r2, n2) {
             var i2, s2, a2 = 0;
@@ -2298,7 +2298,7 @@
               var t3;
               for (X(e3, e3.dyn_ltree, e3.l_desc.max_code), X(e3, e3.dyn_dtree, e3.d_desc.max_code), Y(e3, e3.bl_desc), t3 = c - 1; 3 <= t3 && 0 === e3.bl_tree[2 * S[t3] + 1]; t3--) ;
               return e3.opt_len += 3 * (t3 + 1) + 5 + 5 + 4, t3;
-            })(e2), i2 = e2.opt_len + 3 + 7 >>> 3, (s2 = e2.static_len + 3 + 7 >>> 3) <= i2 && (i2 = s2)) : i2 = s2 = r2 + 5, r2 + 4 <= i2 && -1 !== t2 ? J(e2, t2, r2, n2) : 4 === e2.strategy || s2 === i2 ? (P(e2, 2 + (n2 ? 1 : 0), 3), K(e2, z, C)) : (P(e2, 4 + (n2 ? 1 : 0), 3), (function(e3, t3, r3, n3) {
+            })(e2), i2 = e2.opt_len + 3 + 7 >>> 3, (s2 = e2.static_len + 3 + 7 >>> 3) <= i2 && (i2 = s2)) : i2 = s2 = r2 + 5, r2 + 4 <= i2 && -1 !== t2 ? J(e2, t2, r2, n2) : 4 === e2.strategy || s2 === i2 ? (P(e2, 2 + (n2 ? 1 : 0), 3), K(e2, z, C2)) : (P(e2, 4 + (n2 ? 1 : 0), 3), (function(e3, t3, r3, n3) {
               var i3;
               for (P(e3, t3 - 257, 5), P(e3, r3 - 1, 5), P(e3, n3 - 4, 4), i3 = 0; i3 < n3; i3++) P(e3, e3.bl_tree[2 * S[i3] + 1], 3);
               V(e3, e3.dyn_ltree, t3 - 1), V(e3, e3.dyn_dtree, r3 - 1);
@@ -12914,20 +12914,20 @@
     RIPEMD160.prototype._update = function update(msg, start) {
       var A = this.h[0];
       var B = this.h[1];
-      var C = this.h[2];
+      var C2 = this.h[2];
       var D = this.h[3];
       var E = this.h[4];
       var Ah = A;
       var Bh = B;
-      var Ch = C;
+      var Ch = C2;
       var Dh = D;
       var Eh = E;
       for (var j = 0; j < 80; j++) {
-        var T = sum32(rotl32(sum32_4(A, f(j, B, C, D), msg[r[j] + start], K(j)), s[j]), E);
+        var T = sum32(rotl32(sum32_4(A, f(j, B, C2, D), msg[r[j] + start], K(j)), s[j]), E);
         A = E;
         E = D;
-        D = rotl32(C, 10);
-        C = B;
+        D = rotl32(C2, 10);
+        C2 = B;
         B = T;
         T = sum32(rotl32(sum32_4(Ah, f(79 - j, Bh, Ch, Dh), msg[rh[j] + start], Kh(j)), sh[j]), Eh);
         Ah = Eh;
@@ -12936,7 +12936,7 @@
         Ch = Bh;
         Bh = T;
       }
-      T = sum32_3(this.h[1], C, Dh);
+      T = sum32_3(this.h[1], C2, Dh);
       this.h[1] = sum32_3(this.h[2], D, Eh);
       this.h[2] = sum32_3(this.h[3], E, Ah);
       this.h[3] = sum32_3(this.h[4], A, Bh);
@@ -18313,17 +18313,17 @@
             t2 && !r2 || (x.crc32 = e2.crc32, x.compressedSize = e2.compressedSize, x.uncompressedSize = e2.uncompressedSize);
             var S = 0;
             t2 && (S |= 8), l || !_ && !g || (S |= 2048);
-            var z = 0, C = 0;
-            w && (z |= 16), "UNIX" === i2 ? (C = 798, z |= (function(e3, t3) {
+            var z = 0, C2 = 0;
+            w && (z |= 16), "UNIX" === i2 ? (C2 = 798, z |= (function(e3, t3) {
               var r3 = e3;
               return e3 || (r3 = t3 ? 16893 : 33204), (65535 & r3) << 16;
-            })(h.unixPermissions, w)) : (C = 20, z |= (function(e3) {
+            })(h.unixPermissions, w)) : (C2 = 20, z |= (function(e3) {
               return 63 & (e3 || 0);
             })(h.dosPermissions)), a = k.getUTCHours(), a <<= 6, a |= k.getUTCMinutes(), a <<= 5, a |= k.getUTCSeconds() / 2, o = k.getUTCFullYear() - 1980, o <<= 4, o |= k.getUTCMonth() + 1, o <<= 5, o |= k.getUTCDate(), _ && (v = A(1, 1) + A(B(f), 4) + c, b += "up" + A(v.length, 2) + v), g && (y = A(1, 1) + A(B(p2), 4) + m, b += "uc" + A(y.length, 2) + y);
             var E = "";
             return E += "\n\0", E += A(S, 2), E += u.magic, E += A(a, 2), E += A(o, 2), E += A(x.crc32, 4), E += A(x.compressedSize, 4), E += A(x.uncompressedSize, 4), E += A(f.length, 2), E += A(b.length, 2), {
               fileRecord: R.LOCAL_FILE_HEADER + E + f + b,
-              dirRecord: R.CENTRAL_FILE_HEADER + A(C, 2) + E + A(p2.length, 2) + "\0\0\0\0" + A(z, 4) + A(n2, 4) + f + b + p2
+              dirRecord: R.CENTRAL_FILE_HEADER + A(C2, 2) + E + A(p2.length, 2) + "\0\0\0\0" + A(z, 4) + A(n2, 4) + f + b + p2
             };
           }
           var I2 = e("../utils"), i = e("../stream/GenericWorker"), O = e("../utf8"), B = e("../crc32"), R = e("../signature");
@@ -20011,7 +20011,7 @@
         }, {}],
         46: [function(e, t, r) {
           "use strict";
-          var h, c = e("../utils/common"), u = e("./trees"), d = e("./adler32"), p2 = e("./crc32"), n = e("./messages"), l = 0, f = 4, m = 0, _ = -2, g = -1, b = 4, i = 2, v = 8, y = 9, s = 286, a = 30, o = 19, w = 2 * s + 1, k = 15, x = 3, S = 258, z = S + x + 1, C = 42, E = 113, A = 1, I2 = 2, O = 3, B = 4;
+          var h, c = e("../utils/common"), u = e("./trees"), d = e("./adler32"), p2 = e("./crc32"), n = e("./messages"), l = 0, f = 4, m = 0, _ = -2, g = -1, b = 4, i = 2, v = 8, y = 9, s = 286, a = 30, o = 19, w = 2 * s + 1, k = 15, x = 3, S = 258, z = S + x + 1, C2 = 42, E = 113, A = 1, I2 = 2, O = 3, B = 4;
           function R(e2, t2) {
             return e2.msg = n[t2], t2;
           }
@@ -20101,7 +20101,7 @@
           }
           function G(e2) {
             var t2;
-            return e2 && e2.state ? (e2.total_in = e2.total_out = 0, e2.data_type = i, (t2 = e2.state).pending = 0, t2.pending_out = 0, t2.wrap < 0 && (t2.wrap = -t2.wrap), t2.status = t2.wrap ? C : E, e2.adler = 2 === t2.wrap ? 0 : 1, t2.last_flush = l, u._tr_init(t2), m) : R(e2, _);
+            return e2 && e2.state ? (e2.total_in = e2.total_out = 0, e2.data_type = i, (t2 = e2.state).pending = 0, t2.pending_out = 0, t2.wrap < 0 && (t2.wrap = -t2.wrap), t2.status = t2.wrap ? C2 : E, e2.adler = 2 === t2.wrap ? 0 : 1, t2.last_flush = l, u._tr_init(t2), m) : R(e2, _);
           }
           function K(e2) {
             var t2 = G(e2);
@@ -20149,7 +20149,7 @@
             var r2, n2, i2, s2;
             if (!e2 || !e2.state || 5 < t2 || t2 < 0) return e2 ? R(e2, _) : _;
             if (n2 = e2.state, !e2.output || !e2.input && 0 !== e2.avail_in || 666 === n2.status && t2 !== f) return R(e2, 0 === e2.avail_out ? -5 : _);
-            if (n2.strm = e2, r2 = n2.last_flush, n2.last_flush = t2, n2.status === C) if (2 === n2.wrap) e2.adler = 0, U(n2, 31), U(n2, 139), U(n2, 8), n2.gzhead ? (U(n2, (n2.gzhead.text ? 1 : 0) + (n2.gzhead.hcrc ? 2 : 0) + (n2.gzhead.extra ? 4 : 0) + (n2.gzhead.name ? 8 : 0) + (n2.gzhead.comment ? 16 : 0)), U(n2, 255 & n2.gzhead.time), U(n2, n2.gzhead.time >> 8 & 255), U(n2, n2.gzhead.time >> 16 & 255), U(n2, n2.gzhead.time >> 24 & 255), U(n2, 9 === n2.level ? 2 : 2 <= n2.strategy || n2.level < 2 ? 4 : 0), U(n2, 255 & n2.gzhead.os), n2.gzhead.extra && n2.gzhead.extra.length && (U(n2, 255 & n2.gzhead.extra.length), U(n2, n2.gzhead.extra.length >> 8 & 255)), n2.gzhead.hcrc && (e2.adler = p2(e2.adler, n2.pending_buf, n2.pending, 0)), n2.gzindex = 0, n2.status = 69) : (U(n2, 0), U(n2, 0), U(n2, 0), U(n2, 0), U(n2, 0), U(n2, 9 === n2.level ? 2 : 2 <= n2.strategy || n2.level < 2 ? 4 : 0), U(n2, 3), n2.status = E);
+            if (n2.strm = e2, r2 = n2.last_flush, n2.last_flush = t2, n2.status === C2) if (2 === n2.wrap) e2.adler = 0, U(n2, 31), U(n2, 139), U(n2, 8), n2.gzhead ? (U(n2, (n2.gzhead.text ? 1 : 0) + (n2.gzhead.hcrc ? 2 : 0) + (n2.gzhead.extra ? 4 : 0) + (n2.gzhead.name ? 8 : 0) + (n2.gzhead.comment ? 16 : 0)), U(n2, 255 & n2.gzhead.time), U(n2, n2.gzhead.time >> 8 & 255), U(n2, n2.gzhead.time >> 16 & 255), U(n2, n2.gzhead.time >> 24 & 255), U(n2, 9 === n2.level ? 2 : 2 <= n2.strategy || n2.level < 2 ? 4 : 0), U(n2, 255 & n2.gzhead.os), n2.gzhead.extra && n2.gzhead.extra.length && (U(n2, 255 & n2.gzhead.extra.length), U(n2, n2.gzhead.extra.length >> 8 & 255)), n2.gzhead.hcrc && (e2.adler = p2(e2.adler, n2.pending_buf, n2.pending, 0)), n2.gzindex = 0, n2.status = 69) : (U(n2, 0), U(n2, 0), U(n2, 0), U(n2, 0), U(n2, 0), U(n2, 9 === n2.level ? 2 : 2 <= n2.strategy || n2.level < 2 ? 4 : 0), U(n2, 3), n2.status = E);
             else {
               var a2 = v + (n2.w_bits - 8 << 4) << 8;
               a2 |= (2 <= n2.strategy || n2.level < 2 ? 0 : n2.level < 6 ? 1 : 6 === n2.level ? 2 : 3) << 6, 0 !== n2.strstart && (a2 |= 32), a2 += 31 - a2 % 31, n2.status = E, P(n2, a2), 0 !== n2.strstart && (P(n2, e2.adler >>> 16), P(n2, 65535 & e2.adler)), e2.adler = 1;
@@ -20217,11 +20217,11 @@
             return t2 !== f ? m : n2.wrap <= 0 ? 1 : (2 === n2.wrap ? (U(n2, 255 & e2.adler), U(n2, e2.adler >> 8 & 255), U(n2, e2.adler >> 16 & 255), U(n2, e2.adler >> 24 & 255), U(n2, 255 & e2.total_in), U(n2, e2.total_in >> 8 & 255), U(n2, e2.total_in >> 16 & 255), U(n2, e2.total_in >> 24 & 255)) : (P(n2, e2.adler >>> 16), P(n2, 65535 & e2.adler)), F(e2), 0 < n2.wrap && (n2.wrap = -n2.wrap), 0 !== n2.pending ? m : 1);
           }, r.deflateEnd = function(e2) {
             var t2;
-            return e2 && e2.state ? (t2 = e2.state.status) !== C && 69 !== t2 && 73 !== t2 && 91 !== t2 && 103 !== t2 && t2 !== E && 666 !== t2 ? R(e2, _) : (e2.state = null, t2 === E ? R(e2, -3) : m) : _;
+            return e2 && e2.state ? (t2 = e2.state.status) !== C2 && 69 !== t2 && 73 !== t2 && 91 !== t2 && 103 !== t2 && t2 !== E && 666 !== t2 ? R(e2, _) : (e2.state = null, t2 === E ? R(e2, -3) : m) : _;
           }, r.deflateSetDictionary = function(e2, t2) {
             var r2, n2, i2, s2, a2, o2, h3, u2, l2 = t2.length;
             if (!e2 || !e2.state) return _;
-            if (2 === (s2 = (r2 = e2.state).wrap) || 1 === s2 && r2.status !== C || r2.lookahead) return _;
+            if (2 === (s2 = (r2 = e2.state).wrap) || 1 === s2 && r2.status !== C2 || r2.lookahead) return _;
             for (1 === s2 && (e2.adler = d(e2.adler, t2, l2, 0)), r2.wrap = 0, l2 >= r2.w_size && (0 === s2 && (D(r2.head), r2.strstart = 0, r2.block_start = 0, r2.insert = 0), u2 = new c.Buf8(r2.w_size), c.arraySet(u2, t2, l2 - r2.w_size, r2.w_size, 0), t2 = u2, l2 = r2.w_size), a2 = e2.avail_in, o2 = e2.next_in, h3 = e2.input, e2.avail_in = l2, e2.next_in = 0, e2.input = t2, j(r2); r2.lookahead >= x; ) {
               for (n2 = r2.strstart, i2 = r2.lookahead - (x - 1); r2.ins_h = (r2.ins_h << r2.hash_shift ^ r2.window[n2 + x - 1]) & r2.hash_mask, r2.prev[n2 & r2.w_mask] = r2.head[r2.ins_h], r2.head[r2.ins_h] = n2, n2++, --i2; ) ;
               r2.strstart = n2, r2.lookahead = x - 1, j(r2);
@@ -20244,12 +20244,12 @@
         48: [function(e, t, r) {
           "use strict";
           t.exports = function(e2, t2) {
-            var r2 = e2.state, n = e2.next_in, i, s, a, o, h, u, l, f, c, d, p2, m, _, g, b, v, y, w, k, x, S, z = e2.input, C;
-            i = n + (e2.avail_in - 5), s = e2.next_out, C = e2.output, a = s - (t2 - e2.avail_out), o = s + (e2.avail_out - 257), h = r2.dmax, u = r2.wsize, l = r2.whave, f = r2.wnext, c = r2.window, d = r2.hold, p2 = r2.bits, m = r2.lencode, _ = r2.distcode, g = (1 << r2.lenbits) - 1, b = (1 << r2.distbits) - 1;
+            var r2 = e2.state, n = e2.next_in, i, s, a, o, h, u, l, f, c, d, p2, m, _, g, b, v, y, w, k, x, S, z = e2.input, C2;
+            i = n + (e2.avail_in - 5), s = e2.next_out, C2 = e2.output, a = s - (t2 - e2.avail_out), o = s + (e2.avail_out - 257), h = r2.dmax, u = r2.wsize, l = r2.whave, f = r2.wnext, c = r2.window, d = r2.hold, p2 = r2.bits, m = r2.lencode, _ = r2.distcode, g = (1 << r2.lenbits) - 1, b = (1 << r2.distbits) - 1;
             e: do {
               p2 < 15 && (d += z[n++] << p2, p2 += 8, d += z[n++] << p2, p2 += 8), v = m[d & g];
               t: for (; ; ) {
-                if (d >>>= y = v >>> 24, p2 -= y, 0 === (y = v >>> 16 & 255)) C[s++] = 65535 & v;
+                if (d >>>= y = v >>> 24, p2 -= y, 0 === (y = v >>> 16 & 255)) C2[s++] = 65535 & v;
                 else {
                   if (!(16 & y)) {
                     if (0 == (64 & y)) {
@@ -20284,26 +20284,26 @@
                       }
                       if (S = c, (x = 0) === f) {
                         if (x += u - y, y < w) {
-                          for (w -= y; C[s++] = c[x++], --y; ) ;
-                          x = s - k, S = C;
+                          for (w -= y; C2[s++] = c[x++], --y; ) ;
+                          x = s - k, S = C2;
                         }
                       } else if (f < y) {
                         if (x += u + f - y, (y -= f) < w) {
-                          for (w -= y; C[s++] = c[x++], --y; ) ;
+                          for (w -= y; C2[s++] = c[x++], --y; ) ;
                           if (x = 0, f < w) {
-                            for (w -= y = f; C[s++] = c[x++], --y; ) ;
-                            x = s - k, S = C;
+                            for (w -= y = f; C2[s++] = c[x++], --y; ) ;
+                            x = s - k, S = C2;
                           }
                         }
                       } else if (x += f - y, y < w) {
-                        for (w -= y; C[s++] = c[x++], --y; ) ;
-                        x = s - k, S = C;
+                        for (w -= y; C2[s++] = c[x++], --y; ) ;
+                        x = s - k, S = C2;
                       }
-                      for (; 2 < w; ) C[s++] = S[x++], C[s++] = S[x++], C[s++] = S[x++], w -= 3;
-                      w && (C[s++] = S[x++], 1 < w && (C[s++] = S[x++]));
+                      for (; 2 < w; ) C2[s++] = S[x++], C2[s++] = S[x++], C2[s++] = S[x++], w -= 3;
+                      w && (C2[s++] = S[x++], 1 < w && (C2[s++] = S[x++]));
                     } else {
-                      for (x = s - k; C[s++] = C[x++], C[s++] = C[x++], C[s++] = C[x++], 2 < (w -= 3); ) ;
-                      w && (C[s++] = C[x++], 1 < w && (C[s++] = C[x++]));
+                      for (x = s - k; C2[s++] = C2[x++], C2[s++] = C2[x++], C2[s++] = C2[x++], 2 < (w -= 3); ) ;
+                      w && (C2[s++] = C2[x++], 1 < w && (C2[s++] = C2[x++]));
                     }
                     break;
                   }
@@ -20359,7 +20359,7 @@
           r.inflateReset = o, r.inflateReset2 = h, r.inflateResetKeep = a, r.inflateInit = function(e2) {
             return u(e2, 15);
           }, r.inflateInit2 = u, r.inflate = function(e2, t2) {
-            var r2, n2, i2, s2, a2, o2, h3, u2, l2, f2, c2, d, p2, m, _, g, b, v, y, w, k, x, S, z, C = 0, E = new I2.Buf8(4), A = [
+            var r2, n2, i2, s2, a2, o2, h3, u2, l2, f2, c2, d, p2, m, _, g, b, v, y, w, k, x, S, z, C2 = 0, E = new I2.Buf8(4), A = [
               16,
               17,
               18,
@@ -20559,7 +20559,7 @@
                 r2.have = 0, r2.mode = 19;
               case 19:
                 for (; r2.have < r2.nlen + r2.ndist; ) {
-                  for (; g = (C = r2.lencode[u2 & (1 << r2.lenbits) - 1]) >>> 16 & 255, b = 65535 & C, !((_ = C >>> 24) <= l2); ) {
+                  for (; g = (C2 = r2.lencode[u2 & (1 << r2.lenbits) - 1]) >>> 16 & 255, b = 65535 & C2, !((_ = C2 >>> 24) <= l2); ) {
                     if (0 === o2) break e;
                     o2--, u2 += n2[s2++] << l2, l2 += 8;
                   }
@@ -20616,12 +20616,12 @@
                   e2.next_out = a2, e2.avail_out = h3, e2.next_in = s2, e2.avail_in = o2, r2.hold = u2, r2.bits = l2, R(e2, c2), a2 = e2.next_out, i2 = e2.output, h3 = e2.avail_out, s2 = e2.next_in, n2 = e2.input, o2 = e2.avail_in, u2 = r2.hold, l2 = r2.bits, 12 === r2.mode && (r2.back = -1);
                   break;
                 }
-                for (r2.back = 0; g = (C = r2.lencode[u2 & (1 << r2.lenbits) - 1]) >>> 16 & 255, b = 65535 & C, !((_ = C >>> 24) <= l2); ) {
+                for (r2.back = 0; g = (C2 = r2.lencode[u2 & (1 << r2.lenbits) - 1]) >>> 16 & 255, b = 65535 & C2, !((_ = C2 >>> 24) <= l2); ) {
                   if (0 === o2) break e;
                   o2--, u2 += n2[s2++] << l2, l2 += 8;
                 }
                 if (g && 0 == (240 & g)) {
-                  for (v = _, y = g, w = b; g = (C = r2.lencode[w + ((u2 & (1 << v + y) - 1) >> v)]) >>> 16 & 255, b = 65535 & C, !(v + (_ = C >>> 24) <= l2); ) {
+                  for (v = _, y = g, w = b; g = (C2 = r2.lencode[w + ((u2 & (1 << v + y) - 1) >> v)]) >>> 16 & 255, b = 65535 & C2, !(v + (_ = C2 >>> 24) <= l2); ) {
                     if (0 === o2) break e;
                     o2--, u2 += n2[s2++] << l2, l2 += 8;
                   }
@@ -20650,12 +20650,12 @@
                 }
                 r2.was = r2.length, r2.mode = 23;
               case 23:
-                for (; g = (C = r2.distcode[u2 & (1 << r2.distbits) - 1]) >>> 16 & 255, b = 65535 & C, !((_ = C >>> 24) <= l2); ) {
+                for (; g = (C2 = r2.distcode[u2 & (1 << r2.distbits) - 1]) >>> 16 & 255, b = 65535 & C2, !((_ = C2 >>> 24) <= l2); ) {
                   if (0 === o2) break e;
                   o2--, u2 += n2[s2++] << l2, l2 += 8;
                 }
                 if (0 == (240 & g)) {
-                  for (v = _, y = g, w = b; g = (C = r2.distcode[w + ((u2 & (1 << v + y) - 1) >> v)]) >>> 16 & 255, b = 65535 & C, !(v + (_ = C >>> 24) <= l2); ) {
+                  for (v = _, y = g, w = b; g = (C2 = r2.distcode[w + ((u2 & (1 << v + y) - 1) >> v)]) >>> 16 & 255, b = 65535 & C2, !(v + (_ = C2 >>> 24) <= l2); ) {
                     if (0 === o2) break e;
                     o2--, u2 += n2[s2++] << l2, l2 += 8;
                   }
@@ -20886,7 +20886,7 @@
             64
           ];
           t.exports = function(e2, t2, r2, n, i, s, a, o) {
-            var h, u, l, f, c, d, p2, m, _, g = o.bits, b = 0, v = 0, y = 0, w = 0, k = 0, x = 0, S = 0, z = 0, C = 0, E = 0, A = null, I2 = 0, O = new D.Buf16(16), B = new D.Buf16(16), R = null, T = 0;
+            var h, u, l, f, c, d, p2, m, _, g = o.bits, b = 0, v = 0, y = 0, w = 0, k = 0, x = 0, S = 0, z = 0, C2 = 0, E = 0, A = null, I2 = 0, O = new D.Buf16(16), B = new D.Buf16(16), R = null, T = 0;
             for (b = 0; b <= 15; b++) O[b] = 0;
             for (v = 0; v < n; v++) O[t2[r2 + v]]++;
             for (k = g, w = 15; 1 <= w && 0 === O[w]; w--) ;
@@ -20896,7 +20896,7 @@
             if (0 < z && (0 === e2 || 1 !== w)) return -1;
             for (B[1] = 0, b = 1; b < 15; b++) B[b + 1] = B[b] + O[b];
             for (v = 0; v < n; v++) 0 !== t2[r2 + v] && (a[B[t2[r2 + v]]++] = v);
-            if (d = 0 === e2 ? (A = R = a, 19) : 1 === e2 ? (A = F, I2 -= 257, R = N, T -= 257, 256) : (A = U, R = P, -1), b = y, c = s, S = v = E = 0, l = -1, f = (C = 1 << (x = k)) - 1, 1 === e2 && 852 < C || 2 === e2 && 592 < C) return 1;
+            if (d = 0 === e2 ? (A = R = a, 19) : 1 === e2 ? (A = F, I2 -= 257, R = N, T -= 257, 256) : (A = U, R = P, -1), b = y, c = s, S = v = E = 0, l = -1, f = (C2 = 1 << (x = k)) - 1, 1 === e2 && 852 < C2 || 2 === e2 && 592 < C2) return 1;
             for (; ; ) {
               for (p2 = b - S, _ = a[v] < d ? (m = 0, a[v]) : a[v] > d ? (m = R[T + a[v]], A[I2 + a[v]]) : (m = 96, 0), h = 1 << b - S, y = u = 1 << x; i[c + (E >> S) + (u -= h)] = p2 << 24 | m << 16 | _ | 0, 0 !== u; ) ;
               for (h = 1 << b - 1; E & h; ) h >>= 1;
@@ -20906,7 +20906,7 @@
               }
               if (k < b && (E & f) !== l) {
                 for (0 === S && (S = k), c += y, z = 1 << (x = b - S); x + S < w && !((z -= O[x + S]) <= 0); ) x++, z <<= 1;
-                if (C += 1 << x, 1 === e2 && 852 < C || 2 === e2 && 592 < C) return 1;
+                if (C2 += 1 << x, 1 === e2 && 852 < C2 || 2 === e2 && 592 < C2) return 1;
                 i[l = E & f] = k << 24 | x << 16 | c - s | 0;
               }
             }
@@ -21036,8 +21036,8 @@
             15
           ], z = new Array(2 * (l + 2));
           n(z);
-          var C = new Array(2 * f);
-          n(C);
+          var C2 = new Array(2 * f);
+          n(C2);
           var E = new Array(512);
           n(E);
           var A = new Array(256);
@@ -21147,8 +21147,8 @@
               for (; e3 <= 255; ) z[2 * e3 + 1] = 9, e3++, s2[9]++;
               for (; e3 <= 279; ) z[2 * e3 + 1] = 7, e3++, s2[7]++;
               for (; e3 <= 287; ) z[2 * e3 + 1] = 8, e3++, s2[8]++;
-              for (Z(z, l + 1, s2), e3 = 0; e3 < f; e3++) C[2 * e3 + 1] = 5, C[2 * e3] = j(e3, 5);
-              O = new D(z, w, u + 1, l, g), B = new D(C, k, 0, f, g), R = new D(new Array(0), x, 0, c, p2);
+              for (Z(z, l + 1, s2), e3 = 0; e3 < f; e3++) C2[2 * e3 + 1] = 5, C2[2 * e3] = j(e3, 5);
+              O = new D(z, w, u + 1, l, g), B = new D(C2, k, 0, f, g), R = new D(new Array(0), x, 0, c, p2);
             })(), q = true), e2.l_desc = new F(e2.dyn_ltree, O), e2.d_desc = new F(e2.dyn_dtree, B), e2.bl_desc = new F(e2.bl_tree, R), e2.bi_buf = 0, e2.bi_valid = 0, W(e2);
           }, r._tr_stored_block = J, r._tr_flush_block = function(e2, t2, r2, n2) {
             var i2, s2, a2 = 0;
@@ -21162,7 +21162,7 @@
               var t3;
               for (X(e3, e3.dyn_ltree, e3.l_desc.max_code), X(e3, e3.dyn_dtree, e3.d_desc.max_code), Y(e3, e3.bl_desc), t3 = c - 1; 3 <= t3 && 0 === e3.bl_tree[2 * S[t3] + 1]; t3--) ;
               return e3.opt_len += 3 * (t3 + 1) + 5 + 5 + 4, t3;
-            })(e2), i2 = e2.opt_len + 3 + 7 >>> 3, (s2 = e2.static_len + 3 + 7 >>> 3) <= i2 && (i2 = s2)) : i2 = s2 = r2 + 5, r2 + 4 <= i2 && -1 !== t2 ? J(e2, t2, r2, n2) : 4 === e2.strategy || s2 === i2 ? (P(e2, 2 + (n2 ? 1 : 0), 3), K(e2, z, C)) : (P(e2, 4 + (n2 ? 1 : 0), 3), (function(e3, t3, r3, n3) {
+            })(e2), i2 = e2.opt_len + 3 + 7 >>> 3, (s2 = e2.static_len + 3 + 7 >>> 3) <= i2 && (i2 = s2)) : i2 = s2 = r2 + 5, r2 + 4 <= i2 && -1 !== t2 ? J(e2, t2, r2, n2) : 4 === e2.strategy || s2 === i2 ? (P(e2, 2 + (n2 ? 1 : 0), 3), K(e2, z, C2)) : (P(e2, 4 + (n2 ? 1 : 0), 3), (function(e3, t3, r3, n3) {
               var i3;
               for (P(e3, t3 - 257, 5), P(e3, r3 - 1, 5), P(e3, n3 - 4, 4), i3 = 0; i3 < n3; i3++) P(e3, e3.bl_tree[2 * S[i3] + 1], 3);
               V(e3, e3.dyn_ltree, t3 - 1), V(e3, e3.dyn_dtree, r3 - 1);
@@ -22660,6 +22660,161 @@
     return new Uint8Array(Buffer.from(b64, "base64"));
   }
 
+  // src/tijdlijnsvg.js
+  var C = {
+    navy: "#1F3864",
+    navy900: "#14264a",
+    navy600: "#2c4a7e",
+    navy100: "#e6ebf4",
+    navy50: "#f2f5fa",
+    green: "#157f5b",
+    green700: "#0f6a4a",
+    green50: "#f0f8f4",
+    amber: "#f0b429",
+    purple: "#6b4d9a",
+    ink: "#18202f",
+    muted: "#69748b",
+    faint: "#97a0b2",
+    line: "#e3e7ee",
+    lineSoft: "#eef1f6"
+  };
+  var CAT2 = {
+    poortwachter: { kleur: C.navy, label: "Poortwachter" },
+    wazo: { kleur: C.green, label: "WAZO-verlof" },
+    zud: { kleur: C.amber, label: "Einde dienstverband" },
+    aow: { kleur: C.purple, label: "AOW" }
+  };
+  function esc2(s) {
+    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+  function wrap2(text, maxCh) {
+    const words = String(text || "").split(/\s+/);
+    const lines = [];
+    let line = "";
+    for (const w of words) {
+      if ((line + " " + w).trim().length > maxCh && line) {
+        lines.push(line.trim());
+        line = w;
+      } else line = (line + " " + w).trim();
+      if (lines.length === 1 && (line + " ").length > maxCh) {
+      }
+    }
+    if (line) lines.push(line.trim());
+    if (lines.length > 2) {
+      lines[1] = lines.slice(1).join(" ");
+      lines.length = 2;
+    }
+    if (lines[1] && lines[1].length > maxCh) lines[1] = lines[1].slice(0, maxCh - 1) + "\u2026";
+    return lines;
+  }
+  function renderTijdlijnSvg(tijdlijn) {
+    const W = 1240, padX = 70;
+    const plotL = padX, plotR = W - padX, plotW = plotR - plotL;
+    const total = tijdlijn.eindeWachttijd.week || 1;
+    const x = (w) => plotL + w / total * plotW;
+    const mijlpalen = tijdlijn.events.filter((e) => e.type === "mijlpaal");
+    const verloven = tijdlijn.events.filter((e) => e.type === "verlof");
+    const eindpunten = tijdlijn.events.filter((e) => e.type === "eindpunt");
+    const labelEvents = [...mijlpalen, ...eindpunten].sort((a, b) => a.week - b.week);
+    const BOXW = 150, HALF = BOXW / 2 + 6, TIER = 52, BOXH = 42;
+    const sides = { boven: [], onder: [] };
+    const lay = {};
+    labelEvents.forEach((e, i) => {
+      const px = x(e.week), side = i % 2 === 0 ? "boven" : "onder";
+      const lo = px - HALF, hi = px + HALF;
+      let tier = 0;
+      while (sides[side].some((q) => q.tier === tier && !(hi < q.lo || lo > q.hi))) tier++;
+      sides[side].push({ lo, hi, tier });
+      lay[e.id] = { side, tier };
+    });
+    const maxBoven = sides.boven.reduce((m, q) => Math.max(m, q.tier), -1);
+    const maxOnder = sides.onder.reduce((m, q) => Math.max(m, q.tier), -1);
+    const headerH = 64;
+    const bovenH = (maxBoven + 1) * TIER + 16;
+    const axisY = headerH + bovenH;
+    const onderH = (maxOnder + 1) * TIER + 16 + BOXH;
+    const banenTop = axisY + onderH + 16;
+    const H = banenTop + 92;
+    const out = [];
+    out.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="'Segoe UI',Helvetica,Arial,sans-serif">`);
+    out.push(`<defs><pattern id="hatch" width="14" height="14" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="14" height="14" fill="${C.green50}"/><line x1="0" y1="0" x2="0" y2="14" stroke="${C.green}" stroke-opacity="0.22" stroke-width="7"/></pattern></defs>`);
+    out.push(`<rect x="1" y="1" width="${W - 2}" height="${H - 2}" rx="14" fill="#ffffff" stroke="${C.line}"/>`);
+    out.push(`<text x="${padX}" y="30" font-size="20" font-weight="700" fill="${C.navy900}">Tijdlijn verzuim</text>`);
+    out.push(`<text x="${padX}" y="52" font-size="13" fill="${C.muted}">${esc2(tijdlijn.anker.datum)} t/m ${esc2(tijdlijn.eindeWachttijd.datum)} \xB7 ${total} weken${tijdlijn.eindeWachttijd.verschovenDoorWazo ? " (verlengd door WAZO-verlof)" : ""}</text>`);
+    const cats = Array.from(new Set(tijdlijn.events.map((e) => e.categorie))).filter((c) => CAT2[c]);
+    let lx = W - padX;
+    const legParts = [];
+    for (let i = cats.length - 1; i >= 0; i--) {
+      const c = cats[i], label = CAT2[c].label, w = 14 + label.length * 6.7 + 18;
+      lx -= w;
+      legParts.push(`<rect x="${lx}" y="20" width="11" height="11" rx="3" fill="${CAT2[c].kleur}"/><text x="${lx + 16}" y="29" font-size="12" fill="${C.ink}">${esc2(label)}</text>`);
+    }
+    out.push(legParts.join(""));
+    for (let w = 0; w <= total; w += 52) {
+      const gx = x(w);
+      out.push(`<line x1="${gx}" y1="${headerH}" x2="${gx}" y2="${axisY + onderH}" stroke="${w === 0 ? C.line : C.lineSoft}"/>`);
+      out.push(`<text x="${gx + 6}" y="${headerH + 12}" font-size="11" font-weight="600" fill="${C.faint}">${w === 0 ? "Start" : "Jaar " + Math.round(w / 52)}</text>`);
+    }
+    for (const v of verloven) {
+      const vx = x(v.week), vw = x(v.totWeek) - vx;
+      out.push(`<rect x="${vx}" y="${axisY - 15}" width="${vw}" height="30" rx="8" fill="url(#hatch)" stroke="${C.green}" stroke-width="1.5" stroke-dasharray="4 3"/>`);
+      out.push(`<text x="${vx + vw / 2}" y="${axisY + 4}" font-size="11" font-weight="700" fill="${C.green700}" text-anchor="middle">WAZO \xB7 ${esc2(v.sub)}</text>`);
+      if (v.split) {
+        const sx = x(v.split.week);
+        out.push(`<line x1="${sx}" y1="${axisY - 15}" x2="${sx}" y2="${axisY + 15}" stroke="${C.green700}" stroke-width="1.5"/>`);
+        out.push(`<text x="${sx}" y="${axisY - 20}" font-size="10" font-weight="700" fill="${C.green700}" text-anchor="middle">${esc2(v.split.label)} ${esc2(v.split.datum)}</text>`);
+      }
+    }
+    out.push(`<line x1="${plotL}" y1="${axisY}" x2="${plotR}" y2="${axisY}" stroke="${C.navy}" stroke-width="3" stroke-linecap="round"/>`);
+    const labelBox = (e) => {
+      const l = lay[e.id];
+      const px = x(e.week);
+      const cat = CAT2[e.categorie] || CAT2.poortwachter;
+      const lines = wrap2(e.titel, 22);
+      const boxY = l.side === "boven" ? axisY - 16 - l.tier * TIER - BOXH : axisY + 16 + l.tier * TIER;
+      const connFrom = l.side === "boven" ? axisY : axisY;
+      const connTo = l.side === "boven" ? boxY + BOXH : boxY;
+      let bx = px - BOXW / 2;
+      bx = Math.max(plotL - 6, Math.min(plotR + 6 - BOXW, bx));
+      const parts = [];
+      parts.push(`<line x1="${px}" y1="${connFrom}" x2="${px}" y2="${connTo}" stroke="${C.line}"/>`);
+      parts.push(`<rect x="${bx}" y="${boxY}" width="${BOXW}" height="${BOXH}" rx="7" fill="#ffffff" stroke="${C.line}"/>`);
+      parts.push(`<rect x="${bx}" y="${boxY}" width="3" height="${BOXH}" rx="1.5" fill="${cat.kleur}"/>`);
+      const tx = bx + 11;
+      let ty = boxY + 16;
+      for (const ln of lines) {
+        parts.push(`<text x="${tx}" y="${ty}" font-size="12" font-weight="600" fill="${C.navy900}">${esc2(ln)}</text>`);
+        ty += 13;
+      }
+      parts.push(`<text x="${tx}" y="${boxY + BOXH - 7}" font-size="10.5" fill="${C.muted}">${esc2(e.datum)} \xB7 wk ${e.week}</text>`);
+      return parts.join("");
+    };
+    for (const e of labelEvents) out.push(labelBox(e));
+    for (const e of mijlpalen) {
+      const px = x(e.week), isEinde = e.week === total;
+      out.push(`<circle cx="${px}" cy="${axisY}" r="${isEinde ? 9 : 7}" fill="${isEinde ? C.navy : "#ffffff"}" stroke="${isEinde ? C.green : C.navy}" stroke-width="3"/>`);
+    }
+    for (const e of eindpunten) {
+      const px = x(e.week), cat = CAT2[e.categorie] || CAT2.zud, s = 7;
+      out.push(`<rect x="${px - s}" y="${axisY - s}" width="${s * 2}" height="${s * 2}" fill="#ffffff" stroke="${cat.kleur}" stroke-width="3" transform="rotate(45 ${px} ${axisY})"/>`);
+    }
+    for (const b of tijdlijn.banen) {
+      const segs = b.segmenten && b.segmenten.length ? b.segmenten : [{ vanWeek: b.vanWeek, totWeek: b.totWeek, label: b.titel }];
+      out.push(`<text x="${plotL}" y="${banenTop + 4}" font-size="11" font-weight="700" fill="${C.navy600}" letter-spacing="0.5">${esc2(b.titel.toUpperCase())}</text>`);
+      const barY = banenTop + 14, barH = 30;
+      const bx0 = x(b.vanWeek), bx1 = x(b.totWeek);
+      out.push(`<rect x="${bx0}" y="${barY}" width="${bx1 - bx0}" height="${barH}" rx="8" fill="${C.navy50}" stroke="${C.navy100}"/>`);
+      for (let i = 0; i < segs.length; i++) {
+        const s = segs[i], sx0 = x(s.vanWeek), sx1 = x(s.totWeek);
+        if (i > 0) out.push(`<line x1="${sx0}" y1="${barY}" x2="${sx0}" y2="${barY + barH}" stroke="${C.navy100}" stroke-dasharray="3 3"/>`);
+        out.push(`<text x="${sx0 + 12}" y="${barY + barH / 2 + 4}" font-size="11.5" font-weight="600" fill="${C.navy900}">${esc2(s.label)}</text>`);
+      }
+      if (b.noot) out.push(`<text x="${plotL}" y="${barY + barH + 18}" font-size="11" font-style="italic" fill="${C.muted}">${esc2(b.noot)}</text>`);
+    }
+    out.push(`</svg>`);
+    return { svg: out.join(""), width: W, height: H };
+  }
+
   // src/download.js
   var NAVY = "1F3864";
   var NAVY_900 = "14264A";
@@ -22924,7 +23079,8 @@
       rows: rows.map(([k, v]) => new TableRow({ children: [cellOf(k, true), cellOf(v, false)] }))
     });
   }
-  function buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden = "") {
+  function buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden = "", opts = {}) {
+    const { tijdlijnPng = null, pngW = 0, pngH = 0 } = opts;
     const naam = getVal(fields, "naam");
     const geenOpbouw = !!opbouwReden || schema.length === 0;
     const hersteld = schema.length ? fullRecoveryDate(schema) : "";
@@ -22935,87 +23091,110 @@
     const startRaw = getVal(fields, "start");
     const startDisplay = geenOpbouw ? "\u2014" : isMissing(startRaw) ? schema[0] ? schema[0].date : "\u2014" : startRaw;
     const opbouwDisplay = geenOpbouw ? "Niet van toepassing" : schemaZelfOpgesteld || isMissing(getVal(fields, "opbouw")) ? "Niet door de bedrijfsarts gespecificeerd" : getVal(fields, "opbouw");
-    const doc = new File({
-      creator: "planvanaanpakinvuller.nl",
-      title: `Plan van Aanpak \u2014 ${naam}`,
-      styles: { default: { document: { run: { font: "Calibri" } } } },
-      sections: [{
-        properties: {
-          titlePage: true,
-          // eerste pagina: volledige briefkop; vervolg: compacte kop
-          page: {
-            size: { width: 11906, height: 16838 },
-            margin: { top: 2100, bottom: 2300, left: 1247, right: 1247, header: 680, footer: 1e3 }
-          }
-        },
-        headers: { first: letterHeadFirst(), default: letterHeadCompact(naam) },
-        footers: { first: brandFooter(), default: brandFooter() },
-        children: [
-          // ---- PAGINA 1 — het begeleidend bericht als brief (ontwerp Briefpapier v2) ----
-          ...addresseeBlock(),
-          new Paragraph({ spacing: { before: 240, after: 0 }, children: [] }),
-          metaBlock(naam),
-          new Paragraph({
-            spacing: { before: 200, after: 120 },
-            children: [new TextRun({ text: "Beste werkgever,", color: "18202F", size: 22, font: FONT })]
-          }),
-          p(`Hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}. Dit document bevat het opbouwadvies en de poortwachter-termijnen ter ondersteuning. Het ingevulde Plan van aanpak (UWV-formulier AG140) ontvang je als apart document; dat hoort in het personeelsdossier.`),
-          ...kern.map((t) => p(t)),
-          new Paragraph({ spacing: { before: 60, after: 80 }, children: [
-            new TextRun({ text: "Een paar praktische aandachtspunten:", bold: true, color: "18202F", size: 22, font: FONT })
-          ] }),
-          ...bullets.map((t) => bullet(t)),
-          ...termijnRef ? [p("De volledige wettelijke termijnen staan in de bijgevoegde tabel Poortwachter-termijnen.", { color: GREY })] : [],
-          ...taak ? [new Paragraph({ spacing: { after: 120 }, children: [
-            new TextRun({ text: "Suggestie voor aangepaste taken. ", bold: true, color: NAVY, size: 22, font: FONT }),
-            new TextRun({ text: `Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ${taak}. `, size: 22, font: FONT }),
-            new TextRun({ text: "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.", italics: true, size: 22, font: FONT })
-          ] })] : [],
-          p("Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."),
-          new Paragraph({ spacing: { after: 120 }, children: [new TextRun({
-            text: "Dit document is een concept, opgesteld op basis van de terugkoppeling van de bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je werknemer vast \u2014 het is een document van jullie beiden.",
-            italics: true,
-            color: GREY,
-            size: 22,
-            font: FONT
-          })] }),
-          new Paragraph({ spacing: { after: 120 }, children: [new TextRun({
-            text: "Ben je eigenrisicodrager voor de Ziektewet of de WGA? Dan gelden aanvullende of afwijkende regels en kun je niet afgaan op dit automatisch gegenereerde advies \u2014 raadpleeg dan je eigen verzuim- of arbospecialist.",
-            italics: true,
-            color: GREY,
-            size: 22,
-            font: FONT
-          })] }),
-          new Paragraph({
-            spacing: { before: 200, after: 700 },
-            children: [new TextRun({ text: "Met vriendelijke groet,", color: "3C465A", size: 22, font: FONT })]
-          }),
-          new Paragraph({ spacing: { after: 20 }, children: [invullen("[INVULLEN: naam afzender]", { size: 22 })] }),
-          new Paragraph({ spacing: { after: 0 }, children: [invullen("[INVULLEN: functie, bv. casemanager verzuim]", { size: 18 })] }),
-          // ---- BIJLAGE 1 — Opbouwadvies ----
-          new Paragraph({ children: [new PageBreak()] }),
-          h1("Opbouw- en re-integratieadvies"),
-          sub(`Concept op basis van de terugkoppeling bedrijfsarts d.d. ${reportDate} \u2014 ter controle en vaststelling.`),
-          h2("Uitgangspunten"),
-          kv("Contracturen", txt(fields, "uren")),
-          kv("Belastbaarheid", txt(fields, "belast")),
-          kv("Opbouwtempo", opbouwDisplay),
-          kv("Startdatum opbouw", startDisplay),
-          ...geenOpbouw ? [p(opbouwReden || "Een opbouwschema is op dit moment niet aan de orde.", { color: GREY })] : [
-            ...schemaZelfOpgesteld ? [p("De bedrijfsarts heeft geen concreet opbouwtempo gespecificeerd. Daarom is hieronder zelf een opbouwschema opgesteld: tweewekelijks \xE9\xE9n uur per werkdag erbij, oplopend naar de contracturen. Stem dit af met de werknemer en bedrijfsarts.", { color: GREY })] : [],
-            h2("Opbouwschema"),
-            schemaTable(schema),
-            p(`Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.`, { color: GREY })
-          ],
-          // ---- BIJLAGE 2 — Poortwachter-termijnen: afsluitend overzicht,
-          // direct vóór het Plan van aanpak (het UWV-formulier volgt als sectie 2). ----
+    const sections = [{
+      properties: {
+        titlePage: true,
+        // eerste pagina: volledige briefkop; vervolg: compacte kop
+        page: {
+          size: { width: 11906, height: 16838 },
+          margin: { top: 2100, bottom: 2300, left: 1247, right: 1247, header: 680, footer: 1e3 }
+        }
+      },
+      headers: { first: letterHeadFirst(), default: letterHeadCompact(naam) },
+      footers: { first: brandFooter(), default: brandFooter() },
+      children: [
+        // ---- PAGINA 1 — het begeleidend bericht als brief (ontwerp Briefpapier v2) ----
+        ...addresseeBlock(),
+        new Paragraph({ spacing: { before: 240, after: 0 }, children: [] }),
+        metaBlock(naam),
+        new Paragraph({
+          spacing: { before: 200, after: 120 },
+          children: [new TextRun({ text: "Beste werkgever,", color: "18202F", size: 22, font: FONT })]
+        }),
+        p(`Hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}. Dit document bevat het opbouwadvies en de poortwachter-termijnen ter ondersteuning. Het ingevulde Plan van aanpak (UWV-formulier AG140) ontvang je als apart document; dat hoort in het personeelsdossier.`),
+        ...kern.map((t) => p(t)),
+        new Paragraph({ spacing: { before: 60, after: 80 }, children: [
+          new TextRun({ text: "Een paar praktische aandachtspunten:", bold: true, color: "18202F", size: 22, font: FONT })
+        ] }),
+        ...bullets.map((t) => bullet(t)),
+        ...termijnRef ? [p(tijdlijnPng ? "De volledige tijdlijn met alle wettelijke mijlpalen staat op de laatste (liggende) pagina." : "De volledige wettelijke termijnen staan in de bijgevoegde tabel Poortwachter-termijnen.", { color: GREY })] : [],
+        ...taak ? [new Paragraph({ spacing: { after: 120 }, children: [
+          new TextRun({ text: "Suggestie voor aangepaste taken. ", bold: true, color: NAVY, size: 22, font: FONT }),
+          new TextRun({ text: `Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ${taak}. `, size: 22, font: FONT }),
+          new TextRun({ text: "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.", italics: true, size: 22, font: FONT })
+        ] })] : [],
+        p("Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."),
+        new Paragraph({ spacing: { after: 120 }, children: [new TextRun({
+          text: "Dit document is een concept, opgesteld op basis van de terugkoppeling van de bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je werknemer vast \u2014 het is een document van jullie beiden.",
+          italics: true,
+          color: GREY,
+          size: 22,
+          font: FONT
+        })] }),
+        new Paragraph({ spacing: { after: 120 }, children: [new TextRun({
+          text: "Ben je eigenrisicodrager voor de Ziektewet of de WGA? Dan gelden aanvullende of afwijkende regels en kun je niet afgaan op dit automatisch gegenereerde advies \u2014 raadpleeg dan je eigen verzuim- of arbospecialist.",
+          italics: true,
+          color: GREY,
+          size: 22,
+          font: FONT
+        })] }),
+        new Paragraph({
+          spacing: { before: 200, after: 700 },
+          children: [new TextRun({ text: "Met vriendelijke groet,", color: "3C465A", size: 22, font: FONT })]
+        }),
+        new Paragraph({ spacing: { after: 20 }, children: [invullen("[INVULLEN: naam afzender]", { size: 22 })] }),
+        new Paragraph({ spacing: { after: 0 }, children: [invullen("[INVULLEN: functie, bv. casemanager verzuim]", { size: 18 })] }),
+        // ---- BIJLAGE 1 — Opbouwadvies ----
+        new Paragraph({ children: [new PageBreak()] }),
+        h1("Opbouw- en re-integratieadvies"),
+        sub(`Concept op basis van de terugkoppeling bedrijfsarts d.d. ${reportDate} \u2014 ter controle en vaststelling.`),
+        h2("Uitgangspunten"),
+        kv("Contracturen", txt(fields, "uren")),
+        kv("Belastbaarheid", txt(fields, "belast")),
+        kv("Opbouwtempo", opbouwDisplay),
+        kv("Startdatum opbouw", startDisplay),
+        ...geenOpbouw ? [p(opbouwReden || "Een opbouwschema is op dit moment niet aan de orde.", { color: GREY })] : [
+          ...schemaZelfOpgesteld ? [p("De bedrijfsarts heeft geen concreet opbouwtempo gespecificeerd. Daarom is hieronder zelf een opbouwschema opgesteld: tweewekelijks \xE9\xE9n uur per werkdag erbij, oplopend naar de contracturen. Stem dit af met de werknemer en bedrijfsarts.", { color: GREY })] : [],
+          h2("Opbouwschema"),
+          schemaTable(schema),
+          p(`Volledige werkhervatting voorzien per ${hersteld}. Tussentijdse evaluatie aanbevolen; bij terugval wordt het schema in overleg bijgesteld.`, { color: GREY })
+        ],
+        // ---- BIJLAGE 2 — Poortwachter-termijnen (tabel). Alleen als er GÉÉN
+        // tijdlijn-afbeelding is; anders komt de tijdlijn op een liggende pagina. ----
+        ...tijdlijnPng ? [] : [
           new Paragraph({ children: [new PageBreak()] }),
           h1("Poortwachter-termijnen"),
           sub("Overzicht van de wettelijke mijlpalen, gerekend vanaf de eerste ziektedag."),
           table(["Termijn", "Mijlpaal", "Wat de werkgever doet"], termijnen.map((m) => [`wk ${m.week}${m.datum ? " \xB7 " + m.datum : ""}`, m.mijlpaal, m.actie])),
           p("Het ingevulde Plan van aanpak ontvang je als apart document (UWV-formulier AG140); dat hoort in het personeelsdossier. De adviezen in dit document zijn bedoeld als ondersteuning voor werkgever en werknemer en horen niet in het personeelsdossier.", { color: GREY })
         ]
-      }]
+      ]
+    }];
+    if (tijdlijnPng) {
+      const blankH = new Header({ children: [new Paragraph({ children: [] })] });
+      const blankF = new Footer2({ children: [new Paragraph({ children: [] })] });
+      sections.push({
+        properties: {
+          titlePage: false,
+          page: {
+            size: { orientation: PageOrientation.LANDSCAPE, width: 16838, height: 11906 },
+            margin: { top: 1e3, bottom: 1e3, left: 1e3, right: 1e3 }
+          }
+        },
+        headers: { default: blankH, first: blankH },
+        footers: { default: blankF, first: blankF },
+        children: [
+          h1("Tijdlijn van het verzuim"),
+          sub("Van de eerste ziektedag tot het einde van de wachttijd, met de wettelijke mijlpalen. Het ingevulde Plan van aanpak (UWV-formulier AG140) ontvang je als apart document."),
+          new Paragraph({ children: [new ImageRun({ type: "png", data: tijdlijnPng, transformation: { width: pngW, height: pngH } })] })
+        ]
+      });
+    }
+    const doc = new File({
+      creator: "planvanaanpakinvuller.nl",
+      title: `Plan van Aanpak \u2014 ${naam}`,
+      styles: { default: { document: { run: { font: "Calibri" } } } },
+      sections
     });
     return doc;
   }
@@ -23035,9 +23214,50 @@
     setTimeout(() => URL.revokeObjectURL(url), 4e3);
     return filename;
   }
-  async function downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden) {
+  function pngBytesFromDataUrl(dataUrl) {
+    const b64 = dataUrl.split(",")[1] || "";
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+  async function svgToPng(svg, w, h, scale = 2) {
+    const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
+    try {
+      const img = new Image();
+      await new Promise((res, rej) => {
+        img.onload = res;
+        img.onerror = () => rej(new Error("svg laden mislukt"));
+        img.src = url;
+      });
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(w * scale);
+      canvas.height = Math.round(h * scale);
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      ctx.drawImage(img, 0, 0, w, h);
+      return pngBytesFromDataUrl(canvas.toDataURL("image/png"));
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+  async function downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo) {
     const filename = `Begeleidend-bericht-${safeName(fields)}.docx`;
-    const blob = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden));
+    let opts = {};
+    try {
+      const tijdlijn = computeTijdlijn(fields, { wazo: wazo || null });
+      if (tijdlijn) {
+        const { svg, width, height } = renderTijdlijnSvg(tijdlijn);
+        const png = await svgToPng(svg, width, height);
+        const dispW = mmPx(255);
+        opts = { tijdlijnPng: png, pngW: dispW, pngH: Math.round(dispW * height / width) };
+      }
+    } catch (e) {
+      console.warn("Tijdlijn-afbeelding mislukt; val terug op de termijnen-tabel.", e && e.message);
+    }
+    const blob = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, opts));
     return triggerDownload(blob, filename);
   }
   async function downloadUwvPva(fields, schema, functieomschrijving, opbouwReden, signalen) {
@@ -23469,7 +23689,7 @@
         setBusyKey(null);
       }
     }
-    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 3 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Preview en download"), /* @__PURE__ */ React.createElement("p", null, "Bekijk de drie onderdelen. Stel het concept samen met de werknemer vast en download het als Word-document.")), /* @__PURE__ */ React.createElement("div", { className: "preview-tabs" }, tabs.map((tb, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: tab === i ? "active" : "", onClick: () => setTab(i) }, /* @__PURE__ */ React.createElement("span", { className: "tnum" }, i + 1), /* @__PURE__ */ React.createElement("span", { className: "txt" }, tb.t)))), tabs[tab].el, /* @__PURE__ */ React.createElement("div", { className: "download-bar" }, /* @__PURE__ */ React.createElement("div", { className: "dl-info" }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.download), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Twee aparte documenten"), /* @__PURE__ */ React.createElement("p", null, controleOk ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("span", { className: "review-confirm" }, I.checkSm, " Menselijke controle bevestigd in stap 2."), " Het Plan van aanpak hoort in het personeelsdossier; de adviezen niet \u2014 daarom apart.") : "Controle in stap 2 is vereist v\xF3\xF3r downloaden"))), /* @__PURE__ */ React.createElement("div", { className: "dl-buttons" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-accent btn-lg", disabled: !controleOk || busyKey, onClick: () => run("pva", () => downloadUwvPva(fields, schema, functieomschrijving, opbouwReden, signalen)) }, I.download, " ", busyKey === "pva" ? "Bezig\u2026" : "Plan van aanpak (UWV) \u2014 voor dossier"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !controleOk || busyKey, onClick: () => run("bericht", () => downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden)) }, I.download, " ", busyKey === "bericht" ? "Bezig\u2026" : "Begeleidend bericht & adviezen"))), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar controle"), /* @__PURE__ */ React.createElement("span", null)), downloaded && /* @__PURE__ */ React.createElement("div", { className: "toast", onClick: () => setDownloaded(null) }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.checkSm), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tt" }, downloaded, " gedownload"), /* @__PURE__ */ React.createElement("div", { className: "ts" }, "Concept \xB7 controleer en stel vast met de werknemer"))));
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 3 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Preview en download"), /* @__PURE__ */ React.createElement("p", null, "Bekijk de drie onderdelen. Stel het concept samen met de werknemer vast en download het als Word-document.")), /* @__PURE__ */ React.createElement("div", { className: "preview-tabs" }, tabs.map((tb, i) => /* @__PURE__ */ React.createElement("button", { key: i, className: tab === i ? "active" : "", onClick: () => setTab(i) }, /* @__PURE__ */ React.createElement("span", { className: "tnum" }, i + 1), /* @__PURE__ */ React.createElement("span", { className: "txt" }, tb.t)))), tabs[tab].el, /* @__PURE__ */ React.createElement("div", { className: "download-bar" }, /* @__PURE__ */ React.createElement("div", { className: "dl-info" }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.download), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h4", null, "Twee aparte documenten"), /* @__PURE__ */ React.createElement("p", null, controleOk ? /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("span", { className: "review-confirm" }, I.checkSm, " Menselijke controle bevestigd in stap 2."), " Het Plan van aanpak hoort in het personeelsdossier; de adviezen niet \u2014 daarom apart.") : "Controle in stap 2 is vereist v\xF3\xF3r downloaden"))), /* @__PURE__ */ React.createElement("div", { className: "dl-buttons" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-accent btn-lg", disabled: !controleOk || busyKey, onClick: () => run("pva", () => downloadUwvPva(fields, schema, functieomschrijving, opbouwReden, signalen)) }, I.download, " ", busyKey === "pva" ? "Bezig\u2026" : "Plan van aanpak (UWV) \u2014 voor dossier"), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !controleOk || busyKey, onClick: () => run("bericht", () => downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo)) }, I.download, " ", busyKey === "bericht" ? "Bezig\u2026" : "Begeleidend bericht & adviezen"))), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar controle"), /* @__PURE__ */ React.createElement("span", null)), downloaded && /* @__PURE__ */ React.createElement("div", { className: "toast", onClick: () => setDownloaded(null) }, /* @__PURE__ */ React.createElement("span", { className: "ico" }, I.checkSm), /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "tt" }, downloaded, " gedownload"), /* @__PURE__ */ React.createElement("div", { className: "ts" }, "Concept \xB7 controleer en stel vast met de werknemer"))));
   }
   function Tool({ onClose, session, onNeedLogin, credits, onNeedCredits, onCreditsChange }) {
     const [step, setStep] = React.useState(0);

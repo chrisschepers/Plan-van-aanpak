@@ -89,6 +89,15 @@ check(".docx bevat procesadvies (PvA uiterlijk week 8)", xml.includes("week 8"))
 check(".docx neemt vast contract aan bij ontbrekende einddatum (geen flag)", !xml.includes("Einddatum dienstverband ontbreekt"));
 check(".docx bevat geen letterlijke [INVULLEN]", !xml.includes("[INVULLEN]"));
 
+// ---- 1d. Tijdlijn-afbeelding (png) → liggende slotpagina i.p.v. termijnen-tabel ----
+const TINY_PNG = new Uint8Array(Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAen63NgAAAAASUVORK5CYII=", "base64"));
+const docImg = buildDocxDocument(INITIAL_FIELDS, schema, CASE.reportDate, "", {}, false, "", { tijdlijnPng: TINY_PNG, pngW: 900, pngH: 500 });
+const xmlImg = await (await JSZip.loadAsync(await Packer.toBuffer(docImg))).file("word/document.xml").async("string");
+check("met tijdlijn-png: liggende slotpagina (landscape)", xmlImg.includes('w:orient="landscape"'));
+check("met tijdlijn-png: titel 'Tijdlijn van het verzuim'", xmlImg.includes("Tijdlijn van het verzuim"));
+check("met tijdlijn-png: termijnen-tabel vervangen", !xmlImg.includes("Poortwachter-termijnen"));
+check("zonder png: termijnen-tabel blijft (fallback)", xml.includes("Poortwachter-termijnen"));
+
 // ---- 2. Met ingevulde einddatum tijdens ziekte -> ZUD-advies (verkort/volledig RIV) ----
 const adviesZud = computeAdvice(setField(INITIAL_FIELDS, "einddatum", "30-06-2025"), CASE.reportDate);
 const zud = adviesZud.find((a) => a.title.includes("Ziek uit dienst"));
