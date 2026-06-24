@@ -2,7 +2,10 @@
    als account.jsx. Alle data komt server-side achter de admin-gate vandaan. */
 
 import { I } from "./data.jsx";
-import { adminListUsers, adminStats, adminAdjust, adminUserTransactions } from "./adminapi.js";
+import {
+  adminListUsers, adminStats, adminAdjust, adminUserTransactions,
+  adminSystem, adminListPromos, adminCreatePromo, adminSetPromoActive, adminPromoRedemptions,
+} from "./adminapi.js";
 
 const { useState, useEffect } = React;
 
@@ -17,6 +20,132 @@ const KIND_LABEL = {
   signup_bonus: "Gratis proefcredit", purchase: "Aankoop", consume: "Verwerking",
   refund: "Terugboeking", admin: "Handmatig (admin)", bonus: "Bonus",
 };
+
+function SystemPanel({ token }) {
+  const [sys, setSys] = useState(null);
+  useEffect(() => { adminSystem(token).then(setSys).catch(() => {}); }, []);
+  if (!sys) return null;
+  const dot = (on) => <span className={"sys-dot" + (on ? " on" : " off")} />;
+  return (
+    <div className="account-card sys-card">
+      <h2>Systeemstatus</h2>
+      <div className="sys-grid">
+        <div>{dot(sys.aiKey)} AI-sleutel {sys.aiKey ? `(model ${sys.model})` : "ontbreekt"}</div>
+        <div>{dot(sys.auth)} Login {sys.auth ? "aan" : "uit"}</div>
+        <div>{dot(sys.credits)} Credits {sys.credits ? "actief" : "uit"}</div>
+        <div>{dot(sys.mollie)} Betalen (Mollie) {sys.mollie ? "geconfigureerd" : "nog niet"}</div>
+        <div>{dot(sys.allowedOrigin !== "*")} CORS {sys.allowedOrigin === "*" ? "open (*)" : "beperkt"}</div>
+        <div className="sys-muted">Rate-limit: {sys.rateMax} per {sys.rateWindowMin} min</div>
+      </div>
+    </div>
+  );
+}
+
+function fmtDateTime(iso) {
+  if (!iso) return "—";
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : "—";
+}
+
+function PromoSection({ token, usersMap }) {
+  const [promos, setPromos] = useState(null);
+  const [draft, setDraft] = useState({ code: "", credits: "1", maxRedemptions: "", expiresAt: "", note: "" });
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState(null);
+  const [openCode, setOpenCode] = useState(null);
+  const [reds, setReds] = useState({});
+
+  async function load() {
+    try { setPromos(await adminListPromos(token)); }
+    catch (e) { setErr(e && e.message ? e.message : "Kon de codes niet laden."); setPromos([]); }
+  }
+  useEffect(() => { load(); }, []);
+
+  async function create() {
+    setErr(null);
+    const credits = parseInt(draft.credits, 10);
+    if (!draft.code.trim() || !Number.isFinite(credits) || credits <= 0) { setErr("Geef een code en een positief aantal credits."); return; }
+    setBusy(true);
+    try {
+      await adminCreatePromo(token, {
+        code: draft.code,
+        credits,
+        maxRedemptions: draft.maxRedemptions,
+        expiresAt: draft.expiresAt ? new Date(draft.expiresAt + "T23:59:59").toISOString() : null,
+        note: draft.note,
+      });
+      setDraft({ code: "", credits: "1", maxRedemptions: "", expiresAt: "", note: "" });
+      load();
+    } catch (e) { setErr(e && e.message ? e.message : "Kon de code niet aanmaken."); }
+    finally { setBusy(false); }
+  }
+
+  async function toggle(p) {
+    setErr(null);
+    try { await adminSetPromoActive(token, p.code, !p.active); load(); }
+    catch (e) { setErr(e && e.message ? e.message : "Kon de status niet wijzigen."); }
+  }
+
+  async function showReds(code) {
+    if (openCode === code) { setOpenCode(null); return; }
+    setOpenCode(code);
+    if (!reds[code]) {
+      try { const list = await adminPromoRedemptions(token, code); setReds((m) => ({ ...m, [code]: list })); }
+      catch (e) { setErr(e && e.message ? e.message : "Kon de inwisselingen niet laden."); }
+    }
+  }
+
+  return (
+    <div className="account-card">
+      <h2>Actiecodes</h2>
+      <p className="acc-sub" style={{ marginTop: 0 }}>Maak een code voor bijv. de LinkedIn-actie. Eén code, meerdere mensen, 1× per account.</p>
+
+      <div className="promo-create">
+        <input placeholder="CODE (bijv. PVALAUNCH)" value={draft.code} onChange={(e) => setDraft({ ...draft, code: e.target.value.toUpperCase() })} />
+        <input type="number" min="1" step="1" placeholder="credits" value={draft.credits} onChange={(e) => setDraft({ ...draft, credits: e.target.value })} title="Aantal credits" />
+        <input type="number" min="1" step="1" placeholder="max (leeg = ∞)" value={draft.maxRedemptions} onChange={(e) => setDraft({ ...draft, maxRedemptions: e.target.value })} title="Max. aantal inwisselingen" />
+        <input type="date" value={draft.expiresAt} onChange={(e) => setDraft({ ...draft, expiresAt: e.target.value })} title="Verloopdatum (optioneel)" />
+        <input placeholder="notitie (optioneel)" value={draft.note} onChange={(e) => setDraft({ ...draft, note: e.target.value })} />
+        <button className="btn btn-primary btn-sm" disabled={busy} onClick={create}>{busy ? "…" : "Aanmaken"}</button>
+      </div>
+      {err && <div className="upload-error" style={{ marginBottom: 12 }}>{err}</div>}
+
+      {promos === null ? <p className="acc-sub">Laden…</p> : promos.length === 0 ? <p className="acc-sub">Nog geen codes.</p> : (
+        <div className="admin-table-wrap">
+          <table className="admin-table">
+            <thead><tr><th>Code</th><th className="num">Credits</th><th className="num">Ingewisseld</th><th>Verloopt</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              {promos.map((p) => (
+                <React.Fragment key={p.code}>
+                  <tr>
+                    <td className="email">{p.code}</td>
+                    <td className="num">{p.credits}</td>
+                    <td className="num">{p.redeemed_count}{p.max_redemptions ? ` / ${p.max_redemptions}` : ""}</td>
+                    <td>{p.expires_at ? fmtDateTime(p.expires_at) : "—"}</td>
+                    <td>{p.active ? <span className="pill-ok">actief</span> : <span className="pill-off">uit</span>}</td>
+                    <td>
+                      <div className="admin-adjust">
+                        <button className="btn btn-quiet btn-sm" onClick={() => toggle(p)}>{p.active ? "Deactiveren" : "Activeren"}</button>
+                        <button className="btn btn-quiet btn-sm" onClick={() => showReds(p.code)}>{openCode === p.code ? "Verberg" : "Wie"}</button>
+                      </div>
+                    </td>
+                  </tr>
+                  {openCode === p.code && (
+                    <tr className="admin-tx-row"><td colSpan={6}>
+                      {!reds[p.code] ? <span className="acc-sub">Laden…</span>
+                        : reds[p.code].length === 0 ? <span className="acc-sub">Nog niet ingewisseld.</span>
+                          : <ul className="promo-reds">{reds[p.code].map((r, i) => <li key={i}>{usersMap[r.user_id] || r.user_id} <span className="muted">· {fmtDateTime(r.created_at)}</span></li>)}</ul>}
+                    </td></tr>
+                  )}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function Admin({ onClose, session }) {
   const token = session && session.access_token;
@@ -78,6 +207,8 @@ export function Admin({ onClose, session }) {
 
   const q = query.trim().toLowerCase();
   const shown = (users || []).filter((u) => !q || (u.email || "").toLowerCase().includes(q));
+  const usersMap = {};
+  (users || []).forEach((u) => { usersMap[u.id] = u.email; });
 
   return (
     <div className="tool">
@@ -104,6 +235,8 @@ export function Admin({ onClose, session }) {
               <div className="admin-stat"><span className="n">{euro(stats.omzetCents)}</span><span className="l">Omzet (incl. btw)</span></div>
             </div>
           )}
+
+          <SystemPanel token={token} />
 
           {error && <div className="upload-error" style={{ marginBottom: 14 }}>{error}</div>}
 
@@ -175,6 +308,8 @@ export function Admin({ onClose, session }) {
                 </table>
               </div>
             )}
+
+          <PromoSection token={token} usersMap={usersMap} />
         </div>
       </div>
 

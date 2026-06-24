@@ -33,6 +33,19 @@ export async function startCheckout(accessToken, bundle) {
   return checkoutUrl;
 }
 
+// Actiecode inwisselen → { ok, balance, credits } of gooit een Error met bericht.
+export async function redeemCode(accessToken, code) {
+  if (!BACKEND_URL || !accessToken) throw new Error("Niet ingelogd.");
+  const r = await fetch(api("/api/redeem"), {
+    method: "POST",
+    headers: { "content-type": "application/json", Authorization: `Bearer ${accessToken}` },
+    body: JSON.stringify({ code }),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || `Serverfout (${r.status})`);
+  return j;
+}
+
 // Weergave-bundels (server is autoriteit op prijs).
 export const BUNDLES = [
   { key: "single",   credits: 1,  price: "€3,99" },

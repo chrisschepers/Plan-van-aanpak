@@ -14,8 +14,8 @@ import mammoth from "mammoth";
 import { extractFields } from "./extract.js";
 import { redactBSN } from "./redact.js";
 import { requireAuth, authConfigured } from "./auth.js";
-import { creditsConfigured, consumeCredit, refundCredit, addCredits, getBalance, BUNDLES } from "./credits.js";
-import { requireAdmin, isAdminEmail, adminUsers, adminAdjust, adminUserTransactions, adminStats } from "./admin.js";
+import { creditsConfigured, consumeCredit, refundCredit, addCredits, getBalance, BUNDLES, redeemPromo } from "./credits.js";
+import { requireAdmin, isAdminEmail, adminUsers, adminAdjust, adminUserTransactions, adminStats, adminListPromos, adminCreatePromo, adminSetPromoActive, adminPromoRedemptions } from "./admin.js";
 
 const app = express();
 app.set("trust proxy", 1); // achter de Railway-proxy: gebruik X-Forwarded-For voor req.ip
@@ -213,6 +213,65 @@ app.get("/api/admin/user/:id/transactions", requireAuth, requireAdmin, async (re
 app.get("/api/admin/stats", requireAuth, requireAdmin, async (_req, res) => {
   try { res.json(await adminStats()); }
   catch (e) { console.error("admin-stats-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Kon de cijfers niet laden." }); }
+});
+
+// ---- Actiecode inwisselen (ingelogde gebruiker) ----
+const REDEEM_MSG = {
+  onbekend: "Deze code bestaat niet.",
+  inactief: "Deze code is niet meer actief.",
+  verlopen: "Deze code is verlopen.",
+  uitgeput: "Deze code is al maximaal gebruikt.",
+  al_gebruikt: "Je hebt deze code al ingewisseld.",
+};
+app.post("/api/redeem", rateLimit, requireAuth, async (req, res) => {
+  if (!creditsConfigured()) return res.status(503).json({ error: "Actiecodes zijn nog niet beschikbaar." });
+  if (!req.user || !req.user.id) return res.status(401).json({ error: "Log in om een code in te wisselen." });
+  const code = (req.body && req.body.code ? String(req.body.code) : "").trim();
+  if (!code) return res.status(400).json({ error: "Geef een actiecode op." });
+  try {
+    const result = await redeemPromo(req.user.id, code);
+    if (result && result.ok) return res.json({ ok: true, balance: result.balance, credits: result.credits });
+    return res.status(409).json({ error: REDEEM_MSG[result && result.reason] || "Deze code kon niet worden ingewisseld." });
+  } catch (e) {
+    console.error("redeem-fout:", e && e.message ? e.message : e);
+    res.status(502).json({ error: "Inwisselen mislukt. Probeer het later opnieuw." });
+  }
+});
+
+// ---- Admin: actiecodes beheren ----
+app.get("/api/admin/promos", requireAuth, requireAdmin, async (_req, res) => {
+  try { res.json({ promos: await adminListPromos() }); }
+  catch (e) { console.error("promos-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Kon de codes niet laden." }); }
+});
+app.post("/api/admin/promos", requireAuth, requireAdmin, async (req, res) => {
+  const b = req.body || {};
+  const code = String(b.code || "").trim();
+  const credits = parseInt(b.credits, 10);
+  if (!code || !Number.isFinite(credits) || credits <= 0) return res.status(400).json({ error: "Geef een code en een positief aantal credits." });
+  try { res.json({ promo: await adminCreatePromo(b) }); }
+  catch (e) { console.error("promo-create-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Kon de code niet aanmaken (bestaat 'ie al?)." }); }
+});
+app.post("/api/admin/promos/:code/active", requireAuth, requireAdmin, async (req, res) => {
+  try { res.json({ promo: await adminSetPromoActive(req.params.code, !!(req.body && req.body.active)) }); }
+  catch (e) { console.error("promo-active-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Kon de status niet wijzigen." }); }
+});
+app.get("/api/admin/promos/:code/redemptions", requireAuth, requireAdmin, async (req, res) => {
+  try { res.json({ redemptions: await adminPromoRedemptions(req.params.code) }); }
+  catch (e) { console.error("promo-redemptions-fout:", e && e.message ? e.message : e); res.status(502).json({ error: "Kon de inwisselingen niet laden." }); }
+});
+
+// ---- Admin: systeemstatus ----
+app.get("/api/admin/system", requireAuth, requireAdmin, (_req, res) => {
+  res.json({
+    model: process.env.PVA_MODEL || "claude-opus-4-8",
+    aiKey: !!process.env.ANTHROPIC_API_KEY,
+    auth: authConfigured(),
+    credits: creditsConfigured(),
+    mollie: !!process.env.MOLLIE_API_KEY,
+    rateMax: parseInt(process.env.PVA_RATE_MAX || "20", 10),
+    rateWindowMin: Math.round(parseInt(process.env.PVA_RATE_WINDOW_MS || String(10 * 60 * 1000), 10) / 60000),
+    allowedOrigin: process.env.ALLOWED_ORIGIN || "*",
+  });
 });
 
 const port = process.env.PORT || 8080;

@@ -2,7 +2,7 @@
    Zelfde paginastructuur als src/privacy.jsx (.tool / .tool-bar / .tool-body). */
 
 import { I } from "./data.jsx";
-import { BUNDLES, startCheckout } from "./credits.js";
+import { BUNDLES, startCheckout, redeemCode } from "./credits.js";
 
 const { useState, useEffect } = React;
 
@@ -11,7 +11,24 @@ export function Account({ onClose, session, onLogout, credits, refreshCredits })
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
   const [justPaid, setJustPaid] = useState(false);
+  const [code, setCode] = useState("");
+  const [redeeming, setRedeeming] = useState(false);
+  const [redeemMsg, setRedeemMsg] = useState(null);
   const creditsActive = typeof credits === "number";
+
+  async function redeem() {
+    const c = code.trim();
+    if (!c) return;
+    setRedeeming(true); setRedeemMsg(null);
+    try {
+      const res = await redeemCode(session && session.access_token, c);
+      setRedeemMsg({ ok: true, text: `Gelukt! ${res.credits} credit${res.credits === 1 ? "" : "s"} bijgeschreven. Nieuw saldo: ${res.balance}.` });
+      setCode("");
+      if (refreshCredits) refreshCredits();
+    } catch (e) {
+      setRedeemMsg({ ok: false, text: e && e.message ? e.message : "Inwisselen mislukt." });
+    } finally { setRedeeming(false); }
+  }
 
   useEffect(() => {
     const body = document.querySelector(".tool-body");
@@ -89,6 +106,22 @@ export function Account({ onClose, session, onLogout, credits, refreshCredits })
             <p className="acc-fine">Prijzen incl. btw. Betaling via Mollie (iDEAL/creditcard).</p>
             {!creditsActive && <p className="acc-fine">Betalen wordt geactiveerd zodra het creditsysteem live staat.</p>}
             {error && <div className="upload-error" style={{ marginTop: 12 }}>{error}</div>}
+          </div>
+
+          <div className="account-card">
+            <h2>Actiecode</h2>
+            <p className="acc-sub">Heb je een actiecode? Wissel 'm hier in voor gratis credits.</p>
+            <div className="redeem-row">
+              <input className="redeem-input" placeholder="Bijv. PVALAUNCH" value={code}
+                onChange={(e) => setCode(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") redeem(); }} />
+              <button className="btn btn-primary" disabled={redeeming || !code.trim()} onClick={redeem}>
+                {redeeming ? "Bezig…" : "Inwisselen"}
+              </button>
+            </div>
+            {redeemMsg && (redeemMsg.ok
+              ? <p className="redeem-ok">{I.checkSm} {redeemMsg.text}</p>
+              : <div className="upload-error" style={{ marginTop: 10 }}>{redeemMsg.text}</div>)}
           </div>
         </div>
       </div>

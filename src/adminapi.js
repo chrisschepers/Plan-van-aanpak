@@ -43,3 +43,41 @@ export async function adminUserTransactions(token, userId) {
   if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Serverfout (${r.status})`);
   return (await r.json()).transactions || [];
 }
+
+export async function adminSystem(token) {
+  const r = await fetch(api("/api/admin/system"), { headers: auth(token) });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Serverfout (${r.status})`);
+  return r.json();
+}
+
+export async function adminListPromos(token) {
+  const r = await fetch(api("/api/admin/promos"), { headers: auth(token) });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Serverfout (${r.status})`);
+  return (await r.json()).promos || [];
+}
+
+export async function adminCreatePromo(token, promo) {
+  const r = await fetch(api("/api/admin/promos"), {
+    method: "POST",
+    headers: { ...auth(token), "content-type": "application/json" },
+    body: JSON.stringify(promo),
+  });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Serverfout (${r.status})`);
+  return (await r.json()).promo;
+}
+
+export async function adminSetPromoActive(token, code, active) {
+  const r = await fetch(api(`/api/admin/promos/${encodeURIComponent(code)}/active`), {
+    method: "POST",
+    headers: { ...auth(token), "content-type": "application/json" },
+    body: JSON.stringify({ active }),
+  });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Serverfout (${r.status})`);
+  return (await r.json()).promo;
+}
+
+export async function adminPromoRedemptions(token, code) {
+  const r = await fetch(api(`/api/admin/promos/${encodeURIComponent(code)}/redemptions`), { headers: auth(token) });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `Serverfout (${r.status})`);
+  return (await r.json()).redemptions || [];
+}

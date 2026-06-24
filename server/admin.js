@@ -90,3 +90,45 @@ export async function adminStats() {
     omzetCents,
   };
 }
+
+// ---- Actie-/promocodes ----
+export async function adminListPromos() {
+  const cols = "code,credits,max_redemptions,redeemed_count,expires_at,active,note,created_at";
+  const r = await fetch(`${SUPA_URL}/rest/v1/promo_codes?select=${cols}&order=created_at.desc`, { headers: svc() });
+  if (!r.ok) throw new Error(`promos (${r.status})`);
+  return r.json();
+}
+
+export async function adminCreatePromo(p) {
+  const body = {
+    code: String(p.code || "").trim().toUpperCase(),
+    credits: parseInt(p.credits, 10),
+    max_redemptions: (p.maxRedemptions === "" || p.maxRedemptions == null) ? null : parseInt(p.maxRedemptions, 10),
+    expires_at: p.expiresAt || null,
+    note: (p.note || "").slice(0, 200) || null,
+    active: true,
+  };
+  const r = await fetch(`${SUPA_URL}/rest/v1/promo_codes`, {
+    method: "POST",
+    headers: svc({ "content-type": "application/json", Prefer: "return=representation" }),
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(`promo-create (${r.status})`);
+  return (await r.json())[0];
+}
+
+export async function adminSetPromoActive(code, active) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/promo_codes?code=eq.${encodeURIComponent(code)}`, {
+    method: "PATCH",
+    headers: svc({ "content-type": "application/json", Prefer: "return=representation" }),
+    body: JSON.stringify({ active: !!active }),
+  });
+  if (!r.ok) throw new Error(`promo-active (${r.status})`);
+  return (await r.json())[0];
+}
+
+export async function adminPromoRedemptions(code) {
+  const r = await fetch(`${SUPA_URL}/rest/v1/promo_redemptions?code=eq.${encodeURIComponent(code)}&select=user_id,created_at&order=created_at.desc&limit=500`, { headers: svc() });
+  if (!r.ok) throw new Error(`promo-redemptions (${r.status})`);
+  return r.json();
+}

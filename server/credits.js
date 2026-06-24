@@ -28,6 +28,8 @@ async function rpc(fn, args) {
 
 export const consumeCredit = (userId) => rpc("rpc_consume_credit", { p_user: userId });
 export const refundCredit  = (userId) => rpc("rpc_refund_credit",  { p_user: userId });
+// Actiecode inwisselen → { ok, credits, balance } of { ok:false, reason }.
+export const redeemPromo   = (userId, code) => rpc("rpc_redeem_promo", { p_user: userId, p_code: code });
 export const addCredits = (userId, amount, paymentId, bundle, cents) =>
   rpc("rpc_add_credits", { p_user: userId, p_amount: amount, p_payment_id: paymentId, p_bundle: bundle, p_amount_cents: cents });
 
