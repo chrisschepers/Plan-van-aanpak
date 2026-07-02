@@ -20,6 +20,13 @@ Stand: `[INVULLEN: datum]`.
   verwerkingsregister, datalek-procedure, betrokkenenrechten-proces, DPIA-doorloop.
 
 ## ⏳ Actie van Chris (organisatorisch / config)
+0. **Twee snelle config-acties (audit 2 juli):**
+   - `supabase/bonusdedup.sql` draaien in de Supabase SQL-editor — dicht de
+     "account verwijderen → opnieuw inloggen → nieuw gratis credit"-lus.
+     Neem de e-mailhash-tabel op in het verwerkingsregister (grondslag:
+     gerechtvaardigd belang, misbruikpreventie; privacyverklaring is al aangepast).
+   - `PVA_REQUIRE_AUTH=1` zetten op Railway — dan weigert de API (503) wanneer de
+     Supabase-config ooit wegvalt, i.p.v. stilletjes gratis/anoniem door te draaien.
 1. **ZDR (Zero Data Retention) aanvragen bij Anthropic** — dan bewaart ook de AI-stap
    niets ná verwerking; maakt de "vluchtig"-belofte end-to-end waar.
 2. **Supabase-verwerkersovereenkomst** accepteren/downloaden (bewaren voor dossier).

@@ -131,7 +131,10 @@ export function PrivacyVerklaring({ onClose }) {
               wij ondersteunen de werkgever daarbij.</p>
             <p style={{ marginTop: 10 }}>Heb je zelf een account bij ons? Dan kun je dat op elk moment verwijderen via
               <strong> Mijn account → Account verwijderen</strong>; je account, saldo en historie worden dan permanent
-              gewist. Vragen? Neem contact op via het onderstaande adres.</p>
+              gewist. Na verwijdering bewaren we uitsluitend een <strong>onomkeerbare hash</strong> (versleutelde
+              afgeleide) van het e-mailadres, alleen om te voorkomen dat het gratis proefcredit meermaals wordt
+              opgehaald — daaruit is het e-mailadres zelf niet te herleiden. Vragen? Neem contact op via het
+              onderstaande adres.</p>
           </Sectie>
 
           <Sectie nr="9" titel="Contact">

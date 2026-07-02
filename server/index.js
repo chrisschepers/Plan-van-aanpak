@@ -7,13 +7,14 @@
    Vereist de omgevingsvariabele ANTHROPIC_API_KEY (zet die op Railway).
    Optioneel: ALLOWED_ORIGIN (komma-gescheiden) voor CORS, PVA_MODEL, PORT. */
 
+import crypto from "node:crypto";
 import express from "express";
 import cors from "cors";
 import multer from "multer";
 import mammoth from "mammoth";
 import { extractFields } from "./extract.js";
 import { redactBSN } from "./redact.js";
-import { requireAuth, authConfigured } from "./auth.js";
+import { requireAuth, authConfigured, authEnforced } from "./auth.js";
 import { creditsConfigured, consumeCredit, refundCredit, addCredits, getBalance, BUNDLES, redeemPromo } from "./credits.js";
 import { requireAdmin, isAdminEmail, adminUsers, adminAdjust, adminUserTransactions, adminStats, adminListPromos, adminCreatePromo, adminSetPromoActive, adminPromoRedemptions, isBlocked, adminSetBlocked, deleteUser } from "./admin.js";
 
@@ -52,7 +53,18 @@ function makeRateLimit(max, windowMs) {
 }
 const rateLimit = makeRateLimit(parseInt(process.env.PVA_RATE_MAX || "20", 10), parseInt(process.env.PVA_RATE_WINDOW_MS || String(10 * 60 * 1000), 10));
 const webhookLimit = makeRateLimit(120, 60 * 1000); // webhook: ruim, maar tegen misbruik/DoS
+// Eigen bucket voor checkout: elke call maakt een echt Mollie-payment aan, dus
+// begrensd — maar los van de extract-bucket zodat verwerken en kopen elkaar
+// niet in de weg zitten.
+const checkoutLimit = makeRateLimit(10, 10 * 60 * 1000);
 const WEBHOOK_SECRET = (process.env.PVA_WEBHOOK_SECRET || "").trim(); // optioneel geheim padsegment
+
+// Constant-time-vergelijking voor geheimen (voorkomt timing-lek op het webhook-pad).
+function safeEqual(a, b) {
+  const ba = Buffer.from(String(a));
+  const bb = Buffer.from(String(b));
+  return ba.length === bb.length && crypto.timingSafeEqual(ba, bb);
+}
 
 // Geblokkeerd account? Tegenhouden. Faalt veilig OPEN: een check-fout legt niet
 // de hele dienst plat. Draait na requireAuth (req.user gezet).
@@ -68,7 +80,7 @@ async function blockGuard(req, res, next) {
 const upload = multer({ limits: { fileSize: 20 * 1024 * 1024 } }); // 20 MB
 
 app.get("/health", (_req, res) => {
-  res.json({ ok: true, model: process.env.PVA_MODEL || "claude-opus-4-8", keyConfigured: !!process.env.ANTHROPIC_API_KEY, authRequired: authConfigured(), credits: creditsConfigured() });
+  res.json({ ok: true, model: process.env.PVA_MODEL || "claude-opus-4-8", keyConfigured: !!process.env.ANTHROPIC_API_KEY, authRequired: authConfigured(), authEnforced: authEnforced(), credits: creditsConfigured() });
 });
 
 app.post("/api/extract", rateLimit, requireAuth, blockGuard, upload.single("document"), async (req, res) => {
@@ -85,6 +97,12 @@ app.post("/api/extract", rateLimit, requireAuth, blockGuard, upload.single("docu
       const name = (file.originalname || "").toLowerCase();
       const isPdf = file.mimetype === "application/pdf" || name.endsWith(".pdf");
       const isDocx = name.endsWith(".docx") || file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      // Word 97-2003 (.doc) is een binair formaat dat we niet kunnen lezen; het
+      // zou als rommel-tekst naar het model gaan én de BSN-redactie omzeilen.
+      const isLegacyDoc = !isDocx && (name.endsWith(".doc") || file.mimetype === "application/msword");
+      if (isLegacyDoc) {
+        return res.status(400).json({ error: "Word 97-2003 (.doc) wordt niet ondersteund. Sla het bestand op als .docx of PDF en probeer het opnieuw." });
+      }
       if (isPdf) {
         // Claude leest PDF's native als document-block.
         blocks = [{
@@ -125,12 +143,17 @@ app.post("/api/extract", rateLimit, requireAuth, blockGuard, upload.single("docu
       const data = await extractFields(blocks, functieomschrijving);
       // Stap 0-weigering = geen bruikbaar PvA → credit terugboeken (kost niets).
       if (reserved && data && data.inputvalidatie && data.inputvalidatie.geschikt === false) {
-        try { balance = await refundCredit(req.user.id); } catch {}
+        try { balance = await refundCredit(req.user.id); }
+        catch (e) { console.error("refund-fout (stap 0) voor gebruiker", req.user.id, "-", e && e.message ? e.message : e); }
         reserved = false;
       }
       res.json({ ok: true, data, balance });
     } catch (aiErr) {
-      if (reserved) { try { await refundCredit(req.user.id); } catch {} reserved = false; }
+      if (reserved) {
+        try { await refundCredit(req.user.id); }
+        catch (e) { console.error("refund-fout (AI-fout) voor gebruiker", req.user.id, "-", e && e.message ? e.message : e); }
+        reserved = false;
+      }
       throw aiErr;
     }
   } catch (err) {
@@ -155,7 +178,7 @@ app.post("/api/account/delete", requireAuth, async (req, res) => {
 });
 
 // ---- Credits: Mollie-checkout starten ----
-app.post("/api/checkout", requireAuth, blockGuard, async (req, res) => {
+app.post("/api/checkout", checkoutLimit, requireAuth, blockGuard, async (req, res) => {
   if (!creditsConfigured() || !process.env.MOLLIE_API_KEY) {
     return res.status(503).json({ error: "Betalen is nog niet beschikbaar." });
   }
@@ -186,9 +209,11 @@ app.post("/api/checkout", requireAuth, blockGuard, async (req, res) => {
 
 // ---- Credits: Mollie-webhook (server-naar-server; status bij Mollie verifiëren) ----
 app.post("/api/mollie-webhook/:secret?", webhookLimit, express.urlencoded({ extended: false }), async (req, res) => {
-  if (WEBHOOK_SECRET && req.params.secret !== WEBHOOK_SECRET) return res.status(404).end();
+  if (WEBHOOK_SECRET && !safeEqual(req.params.secret || "", WEBHOOK_SECRET)) return res.status(404).end();
   const id = req.body && req.body.id;
-  if (!id) return res.status(400).end();
+  // Alleen een geldig Mollie-id in het API-pad toelaten (bv. "tr_abc123") —
+  // voorkomt pad-injectie richting api.mollie.com.
+  if (!id || !/^[a-z]+_[A-Za-z0-9]+$/.test(String(id))) return res.status(400).end();
   if (!process.env.MOLLIE_API_KEY || !creditsConfigured()) return res.status(200).end();
   try {
     const r = await fetch(`https://api.mollie.com/v2/payments/${id}`, {
@@ -304,8 +329,29 @@ app.get("/api/admin/system", requireAuth, requireAdmin, (_req, res) => {
     mollie: !!process.env.MOLLIE_API_KEY,
     rateMax: parseInt(process.env.PVA_RATE_MAX || "20", 10),
     rateWindowMin: Math.round(parseInt(process.env.PVA_RATE_WINDOW_MS || String(10 * 60 * 1000), 10) / 60000),
-    allowedOrigin: process.env.ALLOWED_ORIGIN || "*",
+    // De EFFECTIEVE CORS-config (zonder ALLOWED_ORIGIN geldt de fail-closed
+    // default, niet "*") — anders toont het paneel ten onrechte een open CORS.
+    allowedOrigin: openCors ? "*" : allowed.join(", "),
+    authEnforced: authEnforced(),
   });
+});
+
+// Afsluitende error-handler: middleware-fouten (multer, body-parser) komen hier
+// terecht i.p.v. bij Express' default HTML-handler — altijd nette JSON, nooit
+// een stacktrace naar de client.
+// eslint-disable-next-line no-unused-vars
+app.use((err, _req, res, _next) => {
+  if (err && err.name === "MulterError") {
+    const tooBig = err.code === "LIMIT_FILE_SIZE";
+    return res.status(tooBig ? 413 : 400).json({
+      error: tooBig ? "Het bestand is groter dan 20 MB." : "De upload is niet verwerkt. Controleer het bestand en probeer het opnieuw.",
+    });
+  }
+  if (err && err.type === "entity.too.large") {
+    return res.status(413).json({ error: "De aangeleverde tekst is te groot (max 2 MB)." });
+  }
+  console.error("onafgevangen fout:", err && err.message ? err.message : err);
+  res.status(500).json({ error: "Er ging iets mis. Probeer het later opnieuw." });
 });
 
 const port = process.env.PORT || 8080;

@@ -13,12 +13,15 @@ function fmtDate(d) {
  * @returns {Array<{date: string, hours: number, pct: number}>}
  */
 export function computeSchema({ contractHours, startHours, weeklyIncrease, startDate }) {
+  // Guard: zonder positieve contracturen is er geen schema (en geen deling door
+  // nul); zonder positieve wekelijkse uitbreiding zou de lus nooit eindigen.
+  if (!(contractHours > 0)) return [];
   const rows = [];
   const d = new Date(startDate + "T00:00:00");
   for (let h = startHours; ; h += weeklyIncrease) {
     const hours = Math.min(h, contractHours);
     rows.push({ date: fmtDate(d), hours, pct: Math.ceil((hours / contractHours) * 100) }); // % afronden naar boven (v2 Stap 2 regel 4)
-    if (hours >= contractHours) break;
+    if (hours >= contractHours || !(weeklyIncrease > 0)) break;
     d.setDate(d.getDate() + 7);
   }
   return rows;
@@ -45,6 +48,7 @@ export function werkdagen(contractHours) {
  * @returns {Array<{date, hours, pct}>}
  */
 export function computeDefaultSchema({ contractHours, startDate }) {
+  if (!(contractHours > 0)) return [];
   const dagen = werkdagen(contractHours);
   const rows = [];
   const d = new Date(startDate + "T00:00:00");
@@ -104,6 +108,9 @@ export function computeWazo({ uitgerekendeDatum, meerling = false, startWekenVoo
   if (!bevalling) throw new Error("Ongeldige werkelijke bevallingsdatum");
 
   const takenZwDagen = Math.round((bevalling - zwStart) / DAG_MS) + 1; // t/m de dag van de bevalling
+  // Plausibiliteit: een bevalling vóór de verlofstart geeft negatieve verlofdagen
+  // en dus een onzinnige tijdlijn — beter falen dan stil doorrekenen.
+  if (takenZwDagen < 1) throw new Error("De werkelijke bevallingsdatum ligt vóór de start van het zwangerschapsverlof — controleer de datums.");
   const bevDagen = Math.max(bevMinDagen, totaalMinDagen - takenZwDagen);
   const bevStart = addDagen(bevalling, 1);              // dag ná de geboorte
   const bevEind = addDagen(bevStart, bevDagen - 1);

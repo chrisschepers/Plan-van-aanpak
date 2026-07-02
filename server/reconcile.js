@@ -34,6 +34,12 @@ const TEXT_KEYS = [
   "prognose", "spreekuurdatum", "taaksuggestie",
 ];
 
+// Velden waarvoor het model een bron-citaat teruggeeft (zelfde sleutelnamen).
+const BRON_KEYS = [
+  "functie", "contracturen", "eersteZiektedag", "belastbaarheid",
+  "opbouwtempo", "startdatumOpbouw", "werkaanpassing", "prognose",
+];
+
 export function reconcile(samples) {
   const ok = (samples || []).filter(Boolean);
   if (!ok.length) throw new Error("Geen samples om te combineren");
@@ -49,6 +55,24 @@ export function reconcile(samples) {
     const cnt = vals.filter((v) => v === m).length;
     base[k] = cnt > N / 2 ? m : (ok[0][k] == null ? "" : ok[0][k]);
   }
+
+  // Bronnen: het citaat moet horen bij de GEKOZEN veldwaarde. base = sample[0],
+  // maar de meerderheidsstem hierboven kan een waarde uit een ánder sample
+  // kiezen — dan zou het citaat van sample[0] iets anders onderbouwen dan wat
+  // de gebruiker controleert. Kies daarom per veld het citaat uit een sample
+  // waarvan de waarde gelijk is aan de gekozen waarde; is dat er niet, laat leeg.
+  const bronnen = {};
+  for (const k of BRON_KEYS) {
+    const chosen = base[k] == null ? "" : base[k];
+    let cite = "";
+    for (const smp of ok) {
+      const v = smp[k] == null ? "" : smp[k];
+      const c = smp.bronnen && smp.bronnen[k] ? String(smp.bronnen[k]).trim() : "";
+      if (v === chosen && c) { cite = c; break; }
+    }
+    bronnen[k] = cite;
+  }
+  base.bronnen = bronnen;
 
   // Signalen: meerderheidsstem per sleutel (unie van alle voorkomende keys).
   const sigKeys = new Set();

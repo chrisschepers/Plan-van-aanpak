@@ -30,7 +30,7 @@ function useReveal() {
       window.removeEventListener("scroll", reveal, { capture: true });
       window.removeEventListener("resize", reveal);
     };
-  });
+  }, []); // eenmalig: de listeners hoeven niet elke render opnieuw geregistreerd
 }
 
 function App() {

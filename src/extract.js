@@ -134,6 +134,53 @@ export function normalizeExtraction(d) {
   return data;
 }
 
+/**
+ * Beslisboom voor het opbouwschema — één bron van waarheid, zowel bij de
+ * eerste extractie als bij HERBEREKENING na een handmatige correctie in stap 2
+ * (contracturen/startdatum aangevuld of gewijzigd).
+ * @returns {{schema: Array, schemaZelfOpgesteld: boolean, opbouwReden: string}}
+ */
+export function deriveSchema({ reken, signalen, startdatumOpbouwNL }) {
+  const r = reken || {};
+  const sig = signalen || {};
+  // Situaties waarin een opbouwschema inhoudelijk NIET aan de orde is:
+  const geenMogelijkheden = !!(sig.geenBenutbareMogelijkheden || sig.duurzaamGeenMogelijkheden);
+  const marginaal = !!sig.marginaleMogelijkheden;
+  const volledigInzetbaar = !!sig.volledigInzetbaar
+    || (r.contractHours > 0 && !(r.weeklyIncrease > 0) && r.startHours >= r.contractHours);
+
+  let schema = [];
+  let schemaZelfOpgesteld = false;
+  let opbouwReden = "";   // gevuld wanneer er bewust GEEN opbouwschema is
+
+  if (geenMogelijkheden) {
+    opbouwReden = "De bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn. Er is daarom (nog) geen opbouwschema; de bedrijfsarts houdt de vinger aan de pols en beoordeelt dit op het vervolgconsult.";
+  } else if (marginaal) {
+    opbouwReden = "De belastbaarheid is marginaal: zeer beperkt en zonder uitzicht op opbouw op korte termijn. Er is daarom (nog) geen oplopend opbouwschema; benut de geringe mogelijkheden binnen de eigen organisatie en herbeoordeel bij het vervolgconsult.";
+  } else if (volledigInzetbaar) {
+    opbouwReden = "De werknemer is volledig inzetbaar in de eigen uren; een opbouwschema is niet aan de orde.";
+  } else if (r.contractHours > 0 && r.startHours > 0 && r.weeklyIncrease > 0 && /^\d{4}-\d{2}-\d{2}$/.test(r.startDateISO || "")) {
+    // De bedrijfsarts noemt een concreet wekelijks ritme → dat volgen.
+    schema = computeSchema({
+      contractHours: r.contractHours, startHours: r.startHours,
+      weeklyIncrease: r.weeklyIncrease, startDate: r.startDateISO,
+    });
+  } else if (r.contractHours > 0) {
+    // Wél opbouwperspectief, maar geen concreet ritme doorgegeven → zelf een
+    // opbouwschema opstellen (tweewekelijks één uur per werkdag erbij). Dat mag;
+    // we melden het expliciet.
+    const startISO = /^\d{4}-\d{2}-\d{2}$/.test(r.startDateISO || "")
+      ? r.startDateISO
+      : nlToISO((startdatumOpbouwNL || "").trim()) || todayISO();
+    schema = computeDefaultSchema({ contractHours: r.contractHours, startDate: startISO });
+    schemaZelfOpgesteld = true;
+  } else {
+    // Zelfs de contracturen ontbreken: geen schema, wel een nette uitleg.
+    opbouwReden = "De uitgangspunten voor een opbouwschema (zoals de contracturen) ontbreken nog. Vul deze aan, dan berekent de tool het schema.";
+  }
+  return { schema, schemaZelfOpgesteld, opbouwReden };
+}
+
 function mapExtraction(d, functieomschrijving) {
   d = normalizeExtraction(reviewSignals(d));
   const sources = {};
@@ -169,41 +216,9 @@ function mapExtraction(d, functieomschrijving) {
 
   const r = d.reken || {};
   const sig = d.signalen || {};
-  // Situaties waarin een opbouwschema inhoudelijk NIET aan de orde is:
-  const geenMogelijkheden = !!(sig.geenBenutbareMogelijkheden || sig.duurzaamGeenMogelijkheden);
-  const marginaal = !!sig.marginaleMogelijkheden;
-  const volledigInzetbaar = !!sig.volledigInzetbaar
-    || (r.contractHours > 0 && !(r.weeklyIncrease > 0) && r.startHours >= r.contractHours);
-
-  let schema = [];
-  let schemaZelfOpgesteld = false;
-  let opbouwReden = "";   // gevuld wanneer er bewust GEEN opbouwschema is
-
-  if (geenMogelijkheden) {
-    opbouwReden = "De bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn. Er is daarom (nog) geen opbouwschema; de bedrijfsarts houdt de vinger aan de pols en beoordeelt dit op het vervolgconsult.";
-  } else if (marginaal) {
-    opbouwReden = "De belastbaarheid is marginaal: zeer beperkt en zonder uitzicht op opbouw op korte termijn. Er is daarom (nog) geen oplopend opbouwschema; benut de geringe mogelijkheden binnen de eigen organisatie en herbeoordeel bij het vervolgconsult.";
-  } else if (volledigInzetbaar) {
-    opbouwReden = "De werknemer is volledig inzetbaar in de eigen uren; een opbouwschema is niet aan de orde.";
-  } else if (r.contractHours > 0 && r.startHours > 0 && r.weeklyIncrease > 0 && /^\d{4}-\d{2}-\d{2}$/.test(r.startDateISO || "")) {
-    // De bedrijfsarts noemt een concreet wekelijks ritme → dat volgen.
-    schema = computeSchema({
-      contractHours: r.contractHours, startHours: r.startHours,
-      weeklyIncrease: r.weeklyIncrease, startDate: r.startDateISO,
-    });
-  } else if (r.contractHours > 0) {
-    // Wél opbouwperspectief, maar geen concreet ritme doorgegeven → zelf een
-    // opbouwschema opstellen (tweewekelijks één uur per werkdag erbij). Dat mag;
-    // we melden het expliciet.
-    const startISO = /^\d{4}-\d{2}-\d{2}$/.test(r.startDateISO || "")
-      ? r.startDateISO
-      : nlToISO((d.startdatumOpbouw || "").trim()) || todayISO();
-    schema = computeDefaultSchema({ contractHours: r.contractHours, startDate: startISO });
-    schemaZelfOpgesteld = true;
-  } else {
-    // Zelfs de contracturen ontbreken: geen schema, wel een nette uitleg.
-    opbouwReden = "De uitgangspunten voor een opbouwschema (zoals de contracturen) ontbreken nog. Vul deze aan, dan berekent de tool het schema.";
-  }
+  const { schema, schemaZelfOpgesteld, opbouwReden } = deriveSchema({
+    reken: r, signalen: sig, startdatumOpbouwNL: d.startdatumOpbouw,
+  });
 
   // Stap 0 — inputvalidatie. Ontbreekt het blok (oudere backend) → behandel als geschikt.
   const iv = d.inputvalidatie || {};
@@ -223,6 +238,9 @@ function mapExtraction(d, functieomschrijving) {
     schema,
     schemaZelfOpgesteld,
     opbouwReden,
+    // Reken-uitgangspunten bewaren zodat de tool het schema kan HERBEREKENEN
+    // wanneer de gebruiker in stap 2 contracturen/startdatum corrigeert.
+    reken: { ...r },
     reportDate: (d.spreekuurdatum || "").trim() || todayNL(),
     sources,
     functieomschrijving: functieomschrijving || "",

@@ -291,6 +291,8 @@
 .toast .ico svg { width: 17px; height: 17px; }
 .toast .tt { font-weight: 600; font-size: 15px; }
 .toast .ts { font-size: 13px; color: rgba(255,255,255,.7); }
+.toast.toast-err { background: #7a1f1f; }
+.toast.toast-err .ico { background: #b3261e; }
 @keyframes toastIn { from { transform: translateX(-50%) translateY(16px); } to { transform: translateX(-50%) translateY(0); } }
 
 .tool-actions { display: flex; justify-content: space-between; gap: 14px; margin-top: 30px; flex-wrap: wrap; }

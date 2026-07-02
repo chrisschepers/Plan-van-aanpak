@@ -57,5 +57,25 @@ let threw = false;
 try { reconcile([]); } catch { threw = true; }
 check("lege samples → fout", threw);
 
+// 7) bronnen horen bij de GEKOZEN waarde, niet blind bij sample[0]
+r = reconcile([
+  s({ belastbaarheid: "Zwaar werk", bronnen: { belastbaarheid: "citaat-zwaar" } }),
+  s({ belastbaarheid: "Licht werk", bronnen: { belastbaarheid: "citaat-licht" } }),
+  s({ belastbaarheid: "Licht werk", bronnen: { belastbaarheid: "citaat-licht-2" } }),
+]);
+check("bron volgt de meerderheidswaarde", r.belastbaarheid === "Licht werk" && r.bronnen.belastbaarheid === "citaat-licht");
+r = reconcile([
+  s({ belastbaarheid: "A", bronnen: { belastbaarheid: "citaat-A" } }),
+  s({ belastbaarheid: "B", bronnen: { belastbaarheid: "citaat-B" } }),
+  s({ belastbaarheid: "C", bronnen: { belastbaarheid: "citaat-C" } }),
+]);
+check("geen meerderheid → sample[0]-waarde mét bijpassend citaat", r.belastbaarheid === "A" && r.bronnen.belastbaarheid === "citaat-A");
+r = reconcile([
+  s({ opbouwtempo: "", bronnen: {} }),
+  s({ opbouwtempo: "4 uur per week erbij", bronnen: { opbouwtempo: "citaat-tempo" } }),
+  s({ opbouwtempo: "", bronnen: {} }),
+]);
+check("gekozen lege waarde → geen misleidend citaat", r.opbouwtempo === "" && r.bronnen.opbouwtempo === "");
+
 console.log(fail ? `\n${fail} reconcile-check(s) gefaald.` : "\nAlle reconcile-checks geslaagd.");
 process.exit(fail ? 1 : 0);

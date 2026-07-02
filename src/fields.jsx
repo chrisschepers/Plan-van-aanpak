@@ -165,7 +165,7 @@ export function FieldsPanel({ fields, selected, onSelect, onEdit }) {
 function DerivedGroup({ fields }) {
   const d = computeDerived(fields);
   const rows = [
-    { label: "AOW-gerechtigde leeftijd (datum)", value: d.aow, hint: "geboortedatum + 67 jaar · indicatief, controleer bij SVB" },
+    { label: "AOW-gerechtigde leeftijd (datum)", value: d.aow, hint: "geboortedatum + 67 jaar en 3 maanden · indicatief, controleer bij SVB" },
     { label: "Einde wachttijd", value: d.eindeWacht, hint: "eerste ziektedag + 104 weken" },
   ];
   return (

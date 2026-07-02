@@ -9,7 +9,7 @@ import { SourceDoc } from "./sourcedoc.jsx";
 import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
 import { downloadBericht, downloadUwvPva } from "./download.js";
 import { hasBackend } from "./config.js";
-import { extractCasus } from "./extract.js";
+import { extractCasus, deriveSchema } from "./extract.js";
 import { authConfigured } from "./supa.js";
 import { computeWazo } from "./engine.js";
 import { computeTijdlijn } from "./advice.js";
@@ -70,12 +70,15 @@ function UploadStep({ onResult, session, onNeedLogin, credits, onNeedCredits }) 
   const [functie, setFunctie] = React.useState("");   // optionele functieomschrijving
   const inputRef = React.useRef(null);
 
-  const ALLOWED = ["pdf", "doc", "docx", "txt"];
+  // Geen .doc (Word 97-2003): dat binaire formaat kan de backend niet lezen en
+  // zou als rommel-tekst naar het model gaan, buiten de BSN-redactie om.
+  const ALLOWED = ["pdf", "docx", "txt"];
 
   function acceptFile(f) {
     if (!f) return;
     const ext = extOf(f.name);
-    if (!ALLOWED.includes(ext)) { setError("Ondersteund: PDF, Word (.doc/.docx) of platte tekst (.txt)."); return; }
+    if (ext === "doc") { setError("Word 97-2003 (.doc) wordt niet ondersteund. Sla het bestand op als .docx of PDF."); return; }
+    if (!ALLOWED.includes(ext)) { setError("Ondersteund: PDF, Word (.docx) of platte tekst (.txt)."); return; }
     if (f.size > 20 * MB) { setError("Het bestand is groter dan 20 MB."); return; }
     setError(null);
     setFile({ name: f.name, size: fmtSize(f.size), type: ext === "pdf" ? "pdf" : "doc", real: true, file: f });
@@ -139,7 +142,7 @@ function UploadStep({ onResult, session, onNeedLogin, credits, onNeedCredits }) 
       </div>
 
       <input ref={inputRef} type="file"
-        accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+        accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
         style={{ display: "none" }}
         onChange={(e) => acceptFile(e.target.files && e.target.files[0])} />
 
@@ -284,6 +287,21 @@ function AiSourcePanel({ selected, sources }) {
   );
 }
 
+/* Plausibiliteitscheck op de zwangerschap-datums: een bevalling vóór de
+   vroegst mogelijke verlofstart of ver ná de uitgerekende datum wijst vrijwel
+   zeker op een tikfout — waarschuw i.p.v. stil een onzinnige tijdlijn tonen. */
+function wazoDatumWaarschuwing(v) {
+  if (!ISO.test(v.uitgerekendeDatum || "") || !ISO.test(v.werkelijkeBevalling || "")) return null;
+  const due = new Date(v.uitgerekendeDatum + "T00:00:00");
+  const act = new Date(v.werkelijkeBevalling + "T00:00:00");
+  const diffDagen = Math.round((act - due) / 86400000);
+  const maxWekenVoor = v.meerling ? 10 : 6;
+  if (diffDagen <= -maxWekenVoor * 7 || diffDagen > 28) {
+    return "De werkelijke bevallingsdatum ligt ver van de uitgerekende datum — controleer beide datums; de tijdlijn kan anders niet (goed) worden berekend.";
+  }
+  return null;
+}
+
 /* Handmatige gatingvraag zwangerschap → uitgerekende datum/meerling voor WAZO.
    Komt NIET uit de terugkoppeling; de gebruiker vult dit zelf in. */
 function ZwangerschapPanel({ value, onChange }) {
@@ -317,6 +335,9 @@ function ZwangerschapPanel({ value, onChange }) {
           </label>
           {!ISO.test(v.uitgerekendeDatum || "") && (
             <p className="wazo-hint">{I.info} Vul de uitgerekende datum in om het WAZO-verlof en de opgeschoven tijdlijn te berekenen.</p>
+          )}
+          {wazoDatumWaarschuwing(v) && (
+            <p className="wazo-hint">{I.info} {wazoDatumWaarschuwing(v)}</p>
           )}
         </div>
       )}
@@ -429,7 +450,7 @@ function PreviewStep({ onBack, controleOk, casus, zwangerschap }) {
   const { fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld, opbouwReden } = casus;
   const wazo = wazoFrom(zwangerschap);
   const [tab, setTab] = React.useState(0);
-  const [downloaded, setDownloaded] = React.useState(null);
+  const [toast, setToast] = React.useState(null); // { ok: boolean, title, sub }
   const [busyKey, setBusyKey] = React.useState(null);
   const tabs = [
     { t: "Opbouwadvies", el: <AdviesPreview fields={fields} schema={schema} reportDate={reportDate} schemaZelfOpgesteld={schemaZelfOpgesteld} opbouwReden={opbouwReden} wazo={wazo} /> },
@@ -439,9 +460,14 @@ function PreviewStep({ onBack, controleOk, casus, zwangerschap }) {
 
   async function run(key, fn) {
     setBusyKey(key);
-    try { setDownloaded(await fn()); }
-    catch (e) { setDownloaded("FOUT: " + (e && e.message ? e.message : "download mislukt")); }
-    finally { setBusyKey(null); }
+    try {
+      const naam = await fn();
+      setToast({ ok: true, title: `${naam} gedownload`, sub: "Concept · controleer en stel vast met de werknemer" });
+    } catch (e) {
+      setToast({ ok: false, title: "Download mislukt", sub: (e && e.message ? e.message : "Onbekende fout") + " — probeer het opnieuw." });
+    } finally {
+      setBusyKey(null);
+    }
   }
 
   return (
@@ -489,12 +515,12 @@ function PreviewStep({ onBack, controleOk, casus, zwangerschap }) {
         <span></span>
       </div>
 
-      {downloaded && (
-        <div className="toast" onClick={() => setDownloaded(null)}>
-          <span className="ico">{I.checkSm}</span>
+      {toast && (
+        <div className={"toast" + (toast.ok ? "" : " toast-err")} onClick={() => setToast(null)}>
+          <span className="ico">{toast.ok ? I.checkSm : I.x}</span>
           <div>
-            <div className="tt">{downloaded} gedownload</div>
-            <div className="ts">Concept · controleer en stel vast met de werknemer</div>
+            <div className="tt">{toast.title}</div>
+            <div className="ts">{toast.sub}</div>
           </div>
         </div>
       )}
@@ -515,14 +541,40 @@ export function Tool({ onClose, session, onNeedLogin, credits, onNeedCredits, on
   }
 
   function handleEdit(id, value) {
-    setCasus(prev => !prev ? prev : {
-      ...prev,
-      fields: prev.fields.map(g => ({
+    setCasus(prev => {
+      if (!prev) return prev;
+      const fields = prev.fields.map(g => ({
         ...g,
         items: g.items.map(it => it.id === id
           ? { ...it, value, status: value && value !== MISSING ? "ok" : "missing" }
           : it),
-      })),
+      }));
+      let next = { ...prev, fields };
+      // Herbereken het opbouwschema wanneer een reken-invoer wijzigt: de
+      // contracturen ("uren") of de startdatum van de opbouw ("start"). Zo
+      // blijven schema-tabel, percentages, hersteldatum en de downloads
+      // consistent met wat de gebruiker heeft gecorrigeerd. Het opbouwtempo is
+      // vrije tekst en is niet betrouwbaar te parsen — dat veld triggert
+      // bewust géén herberekening.
+      if (prev.reken && (id === "uren" || id === "start")) {
+        const clean = (s) => (s && s !== MISSING ? String(s).trim() : "");
+        const reken = { ...prev.reken };
+        if (id === "uren") {
+          const m = clean(value).match(/\d+/);
+          reken.contractHours = m ? parseInt(m[0], 10) : 0;
+        }
+        if (id === "start") {
+          const nl = clean(value);
+          reken.startDateISO = /^\d{2}-\d{2}-\d{4}$/.test(nl) ? nl.split("-").reverse().join("-") : "";
+        }
+        const startField = fields.flatMap(g => g.items).find(it => it.id === "start");
+        next = {
+          ...next,
+          reken,
+          ...deriveSchema({ reken, signalen: prev.signalen, startdatumOpbouwNL: clean(startField && startField.value) }),
+        };
+      }
+      return next;
     });
   }
 
