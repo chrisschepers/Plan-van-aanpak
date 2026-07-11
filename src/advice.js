@@ -44,7 +44,7 @@ export function computeDerived(fields) {
 // Adviestijdlijn (Agentprompt v2). weekTo: 999 = open einde.
 export const TIMELINE = [
   { from: 0,  to: 8,   title: "Plan van Aanpak op tijd",            body: "Stel het Plan van Aanpak uiterlijk in week 8 op (2 weken na de probleemanalyse)." },
-  { from: 40, to: 42,  title: "42e-weeksmelding bij UWV",           body: "Doe de 42e-weeksmelding bij UWV." },
+  { from: 40, to: 42,  title: "42e-weeksmelding bij UWV",           body: "Doe de 42e-weeksmelding bij UWV; te laat melden riskeert een boete tot € 515." },
   { from: 45, to: 999, title: "Inzetbaarheidsprofiel (IZP/LAB)",    body: "Laat de bedrijfsarts een Inzetbaarheidsprofiel (IZP/LAB) opstellen t.b.v. een arbeidsdeskundig onderzoek." },
   { from: 46, to: 52,  title: "Arbeidsdeskundig onderzoek & eerstejaarsevaluatie", body: "Plan het arbeidsdeskundig onderzoek en de eerstejaarsevaluatie (opschudmoment); beoordeel of spoor 2 tijdig moet starten." },
   { from: 52, to: 58,  title: "Spoor 2 tijdig starten",             body: "Spoor 2 moet uiterlijk 6 weken na de eerstejaarsevaluatie zijn gestart, tenzij er binnen 3 maanden concreet perspectief is op structurele werkhervatting binnen de eigen organisatie (Werkwijzer 4.3.1)." },
@@ -119,7 +119,7 @@ export function computeTijdlijn(fields, { wazo = null } = {}) {
       week: wkVan(wazoStart), datum: wazo.zwangerschapsverlof.start,
       totWeek: wkVan(eind), totDatum: wazo.bevallingsverlof.eind,
       titel: "WAZO-verlof (zwangerschap/bevalling)",
-      sub: `${wazo.totaalWeken} wk — wachttijd pauzeert`,
+      sub: `${wazo.totaalWeken} wk — wachttijd pauzeert (bij dezelfde ziekteoorzaak vóór en ná het verlof)`,
       split: { week: wkVan(parseNL(splitDatum)), datum: splitDatum, label: wazo.gepland ? "uitgerekend" : "bevallen" },
     });
   }
@@ -178,7 +178,7 @@ export const SIGNAAL_ADVIES = {
     body: "De bedrijfsarts geeft aan dat er op dit moment geen benutbare arbeidsmogelijkheden zijn. Forceer dan geen re-integratieactiviteiten: de bedrijfsarts houdt de vinger aan de pols — plan vervolgconsulten en leg elke terugkoppeling vast in het verzuimdossier. Duurt deze situatie de volle twee jaar, dan volstaat een beperkt re-integratieverslag (Werkwijzer 5.9, 3.1).",
     kort: "Geen benutbare mogelijkheden: forceer geen re-integratie, plan vervolgconsulten en leg elke terugkoppeling vast in het verzuimdossier (Werkwijzer 5.9)." },
   noRiskMogelijk: { level: "risk", title: "Mogelijk no-riskpolis — meld bij UWV (UWV beoordeelt)",
-    body: "De bedrijfsarts geeft aan dat mogelijk een no-riskpolis van toepassing is. Meld de werknemer in dat geval ziek bij UWV met de classificatie dat hij/zij onder de no-riskpolis van de Ziektewet valt; UWV beoordeelt vervolgens of er daadwerkelijk sprake is van een no-risksituatie. Bij no-risk vergoedt UWV via de Ziektewet (een deel van) je loonkosten tijdens de ziekte. Leg in je dossier alleen vast dát no-risk van toepassing is, nooit waarom (die reden is medisch of privé).",
+    body: "De bedrijfsarts geeft aan dat mogelijk een no-riskpolis van toepassing is. Meld de werknemer in dat geval ziek bij UWV met de classificatie dat hij/zij onder de no-riskpolis van de Ziektewet valt; UWV beoordeelt vervolgens of er daadwerkelijk sprake is van een no-risksituatie. Doe die ziekteaangifte uiterlijk binnen 6 weken; ontdek je pas later dat no-risk speelt, geef dat dan binnen 2 dagen door — de uitkering wordt dan met hooguit één jaar terugwerkende kracht toegekend. Bij no-risk vergoedt UWV via de Ziektewet (een deel van) je loonkosten tijdens de ziekte; in het eerste ziektejaar kun je UWV bovendien verzoeken de uitkering te verhogen van 70% tot maximaal het loon dat je moet doorbetalen. Leg in je dossier alleen vast dát no-risk van toepassing is, nooit waarom (die reden is medisch of privé).",
     kort: "Mogelijk no-risk: meld de werknemer ziek bij UWV met de classificatie 'valt onder de no-riskpolis van de Ziektewet' — UWV beoordeelt of no-risk geldt; bij no-risk vergoedt UWV een deel van je loonkosten." },
   // (Geen 'duurzaam geen mogelijkheden'-advies: een vervroegde IVA-aanvraag wordt
   //  bewust NIET geautomatiseerd geadviseerd — dat ethische oordeel hoort bij mens/
@@ -295,13 +295,15 @@ export function computeAdvice(fields, reportDate, signalen = {}, opts = {}) {
       const herstel3mnd = !!(signalen && signalen.herstelVerwachtBinnen3Maanden);
       let riv;
       if (ziekteWeken < 6) riv = "Geen re-integratieverslag nodig; doe alleen een ziek-uit-dienstmelding bij UWV, uiterlijk op de laatste werkdag.";
-      else if (ziekteWeken < 10) riv = "Verkort re-integratieverslag, uiterlijk op de laatste dag van het dienstverband.";
+      // Grens inclusief: UWV accepteert een verkort verslag tot en met 10 weken
+      // verzuim (Regeling procesgang; naslagwerk 2026: "6-10 weken → verkort").
+      else if (ziekteWeken <= 10) riv = "Verkort re-integratieverslag, uiterlijk op de laatste dag van het dienstverband.";
       else if (herstel3mnd) riv = "Verkort re-integratieverslag volstaat (de bedrijfsarts verwacht volledig herstel binnen 3 maanden), uiterlijk op de laatste dag van het dienstverband.";
       else riv = "Volledig re-integratieverslag (probleemanalyse, PvA + bijstellingen, evaluaties, actueel oordeel), uiterlijk op de laatste dag.";
       advies.push({
         level: "risk",
         title: "Ziek uit dienst — tijdelijk contract dat tijdens ziekte afloopt (Werkwijzer 5.5–5.7)",
-        body: `Het tijdelijke contract eindigt op ${fmtNL(einddienst)} (ziekteduur op die datum ± ${ziekteWeken} weken). Ga er niet automatisch van uit dat het contract niet wordt verlengd. Laat je het tijdelijke contract van rechtswege aflopen (dus niet verlengen), dan geldt het volgende: ${riv} Ben je voornemens niet te verlengen, meld de werknemer dan uiterlijk op de laatste dag van het dienstverband ziek uit dienst bij UWV (Ziektewet) en geef hem een kopie van het verslag. Lever tot de laatste dag dezelfde re-integratie-inspanningen; wordt herstel vóór de einddatum niet verwacht, richt je dan vooral op spoor 2 en overweeg een participatieverzoek bij UWV.`,
+        body: `Het tijdelijke contract eindigt op ${fmtNL(einddienst)} (ziekteduur op die datum ± ${ziekteWeken} weken). Ga er niet automatisch van uit dat het contract niet wordt verlengd. Laat je het tijdelijke contract van rechtswege aflopen (dus niet verlengen), dan geldt het volgende: ${riv} Ben je voornemens niet te verlengen, meld de werknemer dan óp de laatste dag van het dienstverband ziek uit dienst bij UWV (Ziektewet) — een veel eerdere aangifte is niet toegestaan en te laat melden riskeert een boete tot € 515 — en geef hem een kopie van het verslag. Lever tot de laatste dag dezelfde re-integratie-inspanningen; wordt herstel vóór de einddatum niet verwacht, richt je dan vooral op spoor 2 en overweeg een participatieverzoek bij UWV.`,
         kort: `Tijdelijk contract loopt tijdens ziekte af (${fmtNL(einddienst)}): bij niet-verlengen uiterlijk op de laatste dag ziek uit dienst melden bij UWV. ${riv}`,
       });
     } else {
@@ -322,8 +324,8 @@ export function computeAdvice(fields, reportDate, signalen = {}, opts = {}) {
     advies.push({
       level: "risk",
       title: "Zwangerschap — WAZO-verlof verschuift de wachttijd",
-      body: `Het zwangerschaps- en bevallingsverlof (WAZO, ${w.totaalWeken} weken) pauzeert de loondoorbetaling en de 104-wekentermijn; de einde-wachttijd schuift daardoor op naar ${eindeVerschoven}. Komt het verzuim voort uit de zwangerschap of bevalling, dan valt het onder de Ziektewet (vangnet, art. 29a ZW): meld dat bij UWV, dan vergoedt UWV (een deel van) je loonkosten via ziekengeld. Leg in je dossier alleen vast dát het zwangerschaps-/bevallingsgerelateerd is, nooit de medische details.`,
-      kort: `Zwangerschap: het WAZO-verlof (${w.totaalWeken} wk) pauzeert de wachttijd — einde wachttijd schuift op naar ${eindeVerschoven}. Is het verzuim zwangerschaps-/bevallingsgerelateerd, meld dat dan bij UWV (Ziektewet-vangnet, art. 29a ZW): UWV vergoedt dan een deel van je loonkosten.`,
+      body: `Het zwangerschaps- en bevallingsverlof (WAZO, ${w.totaalWeken} weken) pauzeert de loondoorbetaling en de 104-wekentermijn; de einde-wachttijd schuift daardoor op naar ${eindeVerschoven}. Let op: dit doortellen over het verlof heen geldt alleen als de ziekteoorzaak ná het bevallingsverlof dezelfde is als ervóór — is de oorzaak anders, dan start ná het verlof een nieuwe eerste ziektedag (en een nieuwe wachttijd). Komt het verzuim voort uit de zwangerschap of bevalling, dan valt het onder de Ziektewet (vangnet, art. 29a ZW): meld dat bij UWV, dan vergoedt UWV (een deel van) je loonkosten via ziekengeld. Leg in je dossier alleen vast dát het zwangerschaps-/bevallingsgerelateerd is, nooit de medische details.`,
+      kort: `Zwangerschap: het WAZO-verlof (${w.totaalWeken} wk) pauzeert de wachttijd — einde wachttijd schuift op naar ${eindeVerschoven} (alleen bij dezelfde ziekteoorzaak vóór en ná het verlof; anders start een nieuwe wachttijd). Is het verzuim zwangerschaps-/bevallingsgerelateerd, meld dat dan bij UWV (Ziektewet-vangnet, art. 29a ZW): UWV vergoedt dan een deel van je loonkosten.`,
     });
   }
 

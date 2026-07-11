@@ -78,10 +78,12 @@ function addDagen(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); ret
  * - zwangerschapsverlof start in de flexibiliseringsperiode: 6-4 wk vóór
  *   (meerling 10-8 wk); stopt op de dag van de bevalling;
  * - bevallingsverlof start de dag ná de geboorte, minimaal 10 wk;
- * - niet-opgenomen zwangerschapsverlofdagen schuiven naar het bevallingsverlof,
- *   zodat het totaal minimaal 16 wk is (meerling 20 wk);
- * - later bevallen dan gepland → zwangerschapsverlof langer, bevallingsverlof
- *   blijft ≥10 wk, dus totaal > 16 wk.
+ * - het bevallingsverlof wordt vermeerderd met de dagen dat het zwangerschaps-
+ *   verlof KORTER was dan 6 wk (meerling 10 wk), gemeten t/m de uitgerekende
+ *   datum — of t/m de werkelijke bevalling als die eerder was (art. 3:1 lid 3
+ *   WAZO). Later bevallen eet die vermeerdering dus niet op: wie 4 wk vóór
+ *   kiest en 2 wk te laat bevalt, houdt 12 wk bevallingsverlof (totaal 18 wk);
+ * - zo is het totaal minimaal 16 wk (meerling 20 wk).
  * Zonder werkelijke bevallingsdatum wordt met geboorte op de uitgerekende datum
  * gerekend (gepland=true). De flexibiliseringsperiode-ziektedagenregel wordt
  * NIET automatisch toegepast (randgeval).
@@ -95,9 +97,8 @@ export function computeWazo({ uitgerekendeDatum, meerling = false, startWekenVoo
   const due = parseDatum(uitgerekendeDatum);
   if (!due) throw new Error("Ongeldige uitgerekende datum");
   const dagNa = addDagen(due, 1);                       // terugtellen vanaf de dag ná de uitgerekende datum
-  const maxVoor = meerling ? 10 : 6;                    // vroegste start (weken vóór)
+  const maxVoor = meerling ? 10 : 6;                    // vroegste start (weken vóór) = tevens de vermeerderingsgrens
   const minVoor = meerling ? 8 : 4;                     // verplichte uiterste start
-  const totaalMinDagen = (meerling ? 20 : 16) * WEEK;
   const bevMinDagen = 10 * WEEK;
 
   let weken = startWekenVoor == null ? maxVoor : startWekenVoor;
@@ -111,7 +112,12 @@ export function computeWazo({ uitgerekendeDatum, meerling = false, startWekenVoo
   // Plausibiliteit: een bevalling vóór de verlofstart geeft negatieve verlofdagen
   // en dus een onzinnige tijdlijn — beter falen dan stil doorrekenen.
   if (takenZwDagen < 1) throw new Error("De werkelijke bevallingsdatum ligt vóór de start van het zwangerschapsverlof — controleer de datums.");
-  const bevDagen = Math.max(bevMinDagen, totaalMinDagen - takenZwDagen);
+  // Vermeerdering bevallingsverlof (art. 3:1 lid 3 WAZO): gemeten over het
+  // zwangerschapsverlof t/m de uitgerekende datum, of t/m de werkelijke
+  // bevalling als die eerder was. Bij te laat bevallen telt de periode ná de
+  // uitgerekende datum hier dus NIET mee (de vermeerdering blijft behouden).
+  const zwTotGrensDagen = Math.round((Math.min(+bevalling, +due) - zwStart) / DAG_MS) + 1;
+  const bevDagen = bevMinDagen + Math.max(0, maxVoor * WEEK - zwTotGrensDagen);
   const bevStart = addDagen(bevalling, 1);              // dag ná de geboorte
   const bevEind = addDagen(bevStart, bevDagen - 1);
   const totaalDagen = takenZwDagen + bevDagen;

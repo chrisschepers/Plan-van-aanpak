@@ -176,8 +176,12 @@ gebruiker vinkt "is uw medewerker zwanger?" aan en geeft de uitgerekende datum
 
 - **WAZO-verlof** uit de (vermoedelijke) bevallingsdatum: terugtellen vanaf de
   dag ná de uitgerekende datum; flexibiliseringsperiode 6–4 wk vóór (meerling
-  10–8 wk); bevallingsverlof min. 10 wk; niet-opgenomen dagen schuiven door →
-  totaal min. 16 wk (meerling 20 wk).
+  10–8 wk); bevallingsverlof min. 10 wk, **vermeerderd** met de dagen dat het
+  zwangerschapsverlof korter was dan 6 wk (meerling 10 wk), gemeten t/m de
+  uitgerekende datum — of t/m de werkelijke bevalling als die eerder was
+  (art. 3:1 lid 3 WAZO). Later bevallen eet die vermeerdering dus níet op
+  (4 wk vóór gekozen + 2 wk te laat = 12 wk bevallingsverlof, totaal 18 wk);
+  totaal is zo altijd min. 16 wk (meerling 20 wk).
 - Het WAZO-verlof **pauzeert de 104-wekentermijn** (art. 23 lid 5 Wet WIA) → de
   einde-wachttijd schuift op met de verlofduur. Dit is zichtbaar op de tijdlijn.
 

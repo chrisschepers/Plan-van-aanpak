@@ -68,7 +68,7 @@
    Stel het Plan van Aanpak uiterlijk in week 8 op (2 weken na de
    probleemanalyse).
  • [wk 40–42] 42e-weeksmelding bij UWV
-   Doe de 42e-weeksmelding bij UWV.
+   Doe de 42e-weeksmelding bij UWV; te laat melden riskeert een boete tot € 515.
  • [vanaf wk 45] Inzetbaarheidsprofiel (IZP/LAB)
    Laat de bedrijfsarts een Inzetbaarheidsprofiel (IZP/LAB) opstellen t.b.v. een
    arbeidsdeskundig onderzoek.
@@ -112,9 +112,10 @@
    Laat je het tijdelijke contract van rechtswege aflopen (dus niet verlengen),
    dan geldt het volgende: Geen re-integratieverslag nodig; doe alleen een
    ziek-uit-dienstmelding bij UWV, uiterlijk op de laatste werkdag. Ben je
-   voornemens niet te verlengen, meld de werknemer dan uiterlijk op de laatste
-   dag van het dienstverband ziek uit dienst bij UWV (Ziektewet) en geef hem een
-   kopie van het verslag. Lever tot de laatste dag dezelfde
+   voornemens niet te verlengen, meld de werknemer dan óp de laatste dag van het
+   dienstverband ziek uit dienst bij UWV (Ziektewet) — een veel eerdere aangifte
+   is niet toegestaan en te laat melden riskeert een boete tot € 515 — en geef
+   hem een kopie van het verslag. Lever tot de laatste dag dezelfde
    re-integratie-inspanningen; wordt herstel vóór de einddatum niet verwacht,
    richt je dan vooral op spoor 2 en overweeg een participatieverzoek bij UWV.
 
@@ -124,9 +125,10 @@
    Laat je het tijdelijke contract van rechtswege aflopen (dus niet verlengen),
    dan geldt het volgende: Verkort re-integratieverslag, uiterlijk op de laatste
    dag van het dienstverband. Ben je voornemens niet te verlengen, meld de
-   werknemer dan uiterlijk op de laatste dag van het dienstverband ziek uit
-   dienst bij UWV (Ziektewet) en geef hem een kopie van het verslag. Lever tot de
-   laatste dag dezelfde re-integratie-inspanningen; wordt herstel vóór de
+   werknemer dan óp de laatste dag van het dienstverband ziek uit dienst bij UWV
+   (Ziektewet) — een veel eerdere aangifte is niet toegestaan en te laat melden
+   riskeert een boete tot € 515 — en geef hem een kopie van het verslag. Lever
+   tot de laatste dag dezelfde re-integratie-inspanningen; wordt herstel vóór de
    einddatum niet verwacht, richt je dan vooral op spoor 2 en overweeg een
    participatieverzoek bij UWV.
 
@@ -136,9 +138,10 @@
    Laat je het tijdelijke contract van rechtswege aflopen (dus niet verlengen),
    dan geldt het volgende: Volledig re-integratieverslag (probleemanalyse, PvA +
    bijstellingen, evaluaties, actueel oordeel), uiterlijk op de laatste dag. Ben
-   je voornemens niet te verlengen, meld de werknemer dan uiterlijk op de laatste
-   dag van het dienstverband ziek uit dienst bij UWV (Ziektewet) en geef hem een
-   kopie van het verslag. Lever tot de laatste dag dezelfde
+   je voornemens niet te verlengen, meld de werknemer dan óp de laatste dag van
+   het dienstverband ziek uit dienst bij UWV (Ziektewet) — een veel eerdere
+   aangifte is niet toegestaan en te laat melden riskeert een boete tot € 515 —
+   en geef hem een kopie van het verslag. Lever tot de laatste dag dezelfde
    re-integratie-inspanningen; wordt herstel vóór de einddatum niet verwacht,
    richt je dan vooral op spoor 2 en overweeg een participatieverzoek bij UWV.
 
@@ -149,9 +152,10 @@
    dan geldt het volgende: Verkort re-integratieverslag volstaat (de bedrijfsarts
    verwacht volledig herstel binnen 3 maanden), uiterlijk op de laatste dag van
    het dienstverband. Ben je voornemens niet te verlengen, meld de werknemer dan
-   uiterlijk op de laatste dag van het dienstverband ziek uit dienst bij UWV
-   (Ziektewet) en geef hem een kopie van het verslag. Lever tot de laatste dag
-   dezelfde re-integratie-inspanningen; wordt herstel vóór de einddatum niet
+   óp de laatste dag van het dienstverband ziek uit dienst bij UWV (Ziektewet) —
+   een veel eerdere aangifte is niet toegestaan en te laat melden riskeert een
+   boete tot € 515 — en geef hem een kopie van het verslag. Lever tot de laatste
+   dag dezelfde re-integratie-inspanningen; wordt herstel vóór de einddatum niet
    verwacht, richt je dan vooral op spoor 2 en overweeg een participatieverzoek
    bij UWV.
 
@@ -186,10 +190,15 @@
       De bedrijfsarts geeft aan dat mogelijk een no-riskpolis van toepassing
       is. Meld de werknemer in dat geval ziek bij UWV met de classificatie dat
       hij/zij onder de no-riskpolis van de Ziektewet valt; UWV beoordeelt
-      vervolgens of er daadwerkelijk sprake is van een no-risksituatie. Bij
-      no-risk vergoedt UWV via de Ziektewet (een deel van) je loonkosten
-      tijdens de ziekte. Leg in je dossier alleen vast dát no-risk van
-      toepassing is, nooit waarom (die reden is medisch of privé).
+      vervolgens of er daadwerkelijk sprake is van een no-risksituatie. Doe
+      die ziekteaangifte uiterlijk binnen 6 weken; ontdek je pas later dat
+      no-risk speelt, geef dat dan binnen 2 dagen door — de uitkering wordt
+      dan met hooguit één jaar terugwerkende kracht toegekend. Bij no-risk
+      vergoedt UWV via de Ziektewet (een deel van) je loonkosten tijdens de
+      ziekte; in het eerste ziektejaar kun je UWV bovendien verzoeken de
+      uitkering te verhogen van 70% tot maximaal het loon dat je moet
+      doorbetalen. Leg in je dossier alleen vast dát no-risk van toepassing
+      is, nooit waarom (die reden is medisch of privé).
 
  6.3  Marginale mogelijkheden   [aandachtspunt]
       Gaat aan wanneer: Marginale belastbaarheid: maximaal circa 2 uur per dag
@@ -273,7 +282,10 @@
  • Zwangerschap — WAZO-verlof verschuift de wachttijd   [let op]
    Het zwangerschaps- en bevallingsverlof (WAZO, 16 weken) pauzeert de
    loondoorbetaling en de 104-wekentermijn; de einde-wachttijd schuift daardoor
-   op naar 24-05-2027. Komt het verzuim voort uit de zwangerschap of bevalling,
+   op naar 24-05-2027. Let op: dit doortellen over het verlof heen geldt alleen
+   als de ziekteoorzaak ná het bevallingsverlof dezelfde is als ervóór — is de
+   oorzaak anders, dan start ná het verlof een nieuwe eerste ziektedag (en een
+   nieuwe wachttijd). Komt het verzuim voort uit de zwangerschap of bevalling,
    dan valt het onder de Ziektewet (vangnet, art. 29a ZW): meld dat bij UWV, dan
    vergoedt UWV (een deel van) je loonkosten via ziekengeld. Leg in je dossier
    alleen vast dát het zwangerschaps-/bevallingsgerelateerd is, nooit de medische

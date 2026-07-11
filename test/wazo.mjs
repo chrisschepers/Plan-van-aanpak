@@ -49,5 +49,26 @@ const laat = computeWazo({ uitgerekendeDatum: "2026-07-01", werkelijkeBevalling:
 eq("laat bevallen → bevallingsverlof 10 wk", laat.bevallingsverlof.weken, 10);
 eq("laat bevallen → totaal 17 wk", laat.totaalWeken, 17);
 
+// 7. Vermeerdering gemeten t/m de uitgerekende datum (art. 3:1 lid 3 WAZO):
+//    korter gekozen verlof + later bevallen eet de vermeerdering NIET op.
+//    Naslagwerktabel: 4 wk ervoor + 2 wk te laat → bevallingsverlof 12 wk.
+const laatKort = computeWazo({ uitgerekendeDatum: "2026-07-01", startWekenVoor: 4, werkelijkeBevalling: "2026-07-15" });
+eq("4 wk vóór + 2 wk te laat → zwangerschap 6 wk", laatKort.zwangerschapsverlof.weken, 6);
+eq("4 wk vóór + 2 wk te laat → bevallingsverlof 12 wk", laatKort.bevallingsverlof.weken, 12);
+eq("4 wk vóór + 2 wk te laat → totaal 18 wk", laatKort.totaalWeken, 18);
+
+// 8. Naslagwerktabel, overige rijen (één kind): 4 wk ervoor + 2 wk te vroeg → 14 wk.
+const vroegKort = computeWazo({ uitgerekendeDatum: "2026-07-01", startWekenVoor: 4, werkelijkeBevalling: "2026-06-17" });
+eq("4 wk vóór + 2 wk te vroeg → bevallingsverlof 14 wk", vroegKort.bevallingsverlof.weken, 14);
+eq("4 wk vóór + 2 wk te vroeg → totaal 16 wk", vroegKort.totaalWeken, 16);
+
+// 9. Naslagwerktabel meerling: 8 wk ervoor → 12 wk; ook bij 2 wk te laat 12 wk.
+const m8 = computeWazo({ uitgerekendeDatum: "2026-07-01", meerling: true, startWekenVoor: 8 });
+eq("meerling 8 wk vóór → bevallingsverlof 12 wk", m8.bevallingsverlof.weken, 12);
+const m8laat = computeWazo({ uitgerekendeDatum: "2026-07-01", meerling: true, startWekenVoor: 8, werkelijkeBevalling: "2026-07-15" });
+eq("meerling 8 wk vóór + 2 wk te laat → bevallingsverlof 12 wk", m8laat.bevallingsverlof.weken, 12);
+const m8vroeg = computeWazo({ uitgerekendeDatum: "2026-07-01", meerling: true, startWekenVoor: 8, werkelijkeBevalling: "2026-06-17" });
+eq("meerling 8 wk vóór + 2 wk te vroeg → bevallingsverlof 14 wk", m8vroeg.bevallingsverlof.weken, 14);
+
 console.log(failures === 0 ? "\nAlle wazo-checks geslaagd." : `\n${failures} wazo-check(s) gefaald.`);
 process.exit(failures === 0 ? 0 : 1);
