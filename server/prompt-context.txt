@@ -74,6 +74,10 @@ VELDREGELS:
 - aanpassingWerktijden: een concreet genoemde aanpassing van werktijden of
   rooster (bv. flexibele begintijd, geen nachtdiensten, opbouw in de ochtend).
   Alleen overnemen als dit letterlijk wordt genoemd; anders "".
+- volgendSpreekuur: de datum van het volgende (vervolg)consult bij de
+  bedrijfsarts (DD-MM-JJJJ), alleen als de terugkoppeling die concreet als datum
+  noemt. Een vage aanduiding zonder datum ("over 6 weken", "op oproep") → leeg
+  laten ("").
 
 OPBOUW (reken): leid de uitgangspunten voor het opbouwschema af:
 - contractHours: contracturen per week (geheel getal).
@@ -139,6 +143,8 @@ Het bericht aan Claude bestaat uit, in deze volgorde:
 
   (a) De TERUGKOPPELING zelf:
       - PDF  → als document meegestuurd (Claude leest de PDF rechtstreeks), of
+      - foto('s) (JPG/PNG/WebP, max 8, één per pagina, in volgorde) → als
+        image-blocks (Claude leest de foto's rechtstreeks), of
       - Word/tekst → als platte tekst (na deterministische BSN-redactie,
         server/redact.js).
 
@@ -182,6 +188,9 @@ Leeg veld = "" (en bij de reken-getallen = 0). Toelichting staat tussen ( ).
   "aanpassingWerktijden": "",     (concreet genoemde werktijd-aanpassing → PvA 7C)
   "prognose": "",                 (alleen in werkhervattingstermen)
   "spreekuurdatum": "",           (DD-MM-JJJJ)
+  "volgendSpreekuur": "",         (DD-MM-JJJJ — alleen bij een concrete datum;
+                                   → PvA-planning vervolgconsult + houdbaarheids-
+                                   zin in het begeleidend bericht)
   "taaksuggestie": "",            (alleen bij een functieomschrijving; anders "")
 
   "reken": {                      (uitgangspunten; de site rekent het schema zelf uit)

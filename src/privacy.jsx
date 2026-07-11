@@ -78,8 +78,9 @@ export function PrivacyVerklaring({ onClose }) {
               van werknemer en bedrijfsarts.</p>
             <p style={{ marginTop: 10 }}><strong>Niet:</strong> medische gegevens (diagnose, klachten, behandeling, aard of
               oorzaak van het verzuim) en het BSN. Strikte AI-instructies houden deze uit het concept; bij geplakte tekst en
-              Word-bestanden wordt een herkende BSN bovendien al vóór de verwerking weggehaald. Een geüploade PDF wordt door
-              het model zelf gelezen — ook daar worden deze gegevens niet in het concept overgenomen. Controleer als
+              Word-bestanden wordt een herkende BSN bovendien al vóór de verwerking weggehaald. Een geüploade PDF of foto
+              wordt door het model zelf gelezen — ook daar worden deze gegevens niet in het concept overgenomen, maar de
+              voorafgaande BSN-verwijdering is op beeldmateriaal niet mogelijk. Controleer als
               mens-in-de-loop altijd het eindresultaat.</p>
           </Sectie>
 
@@ -119,10 +120,15 @@ export function PrivacyVerklaring({ onClose }) {
               AI-verwerking gebeurt.</p>
           </Sectie>
 
-          <Sectie nr="7" titel="Cookies">
+          <Sectie nr="7" titel="Cookies en lokale opslag">
             <p>De site gebruikt alleen <strong>functionele opslag</strong> om je ingelogd te houden (via de inlogdienst
               Supabase). Er worden <strong>geen tracking- of marketingcookies</strong> geplaatst en er draait geen
               analytics. Daarom is geen cookie-toestemming nodig.</p>
+            <p>Voor het gemak bewaart de tool daarnaast <strong>uitsluitend in je eigen browser</strong> (lokale opslag
+              op je apparaat): de lopende casus (zodat een verversing je controle-werk niet wist) en per afgeronde casus
+              een minimale set planningsgegevens (naam, geboortedatum, contracteinde, zwangerschap/WAZO) om een
+              vervolg-terugkoppeling voor te laden. Deze gegevens verlaten je apparaat <strong>niet</strong> en zijn in
+              de tool met één knop te wissen ("Wis opgeslagen casussen").</p>
           </Sectie>
 
           <Sectie nr="8" titel="Rechten van betrokkenen">

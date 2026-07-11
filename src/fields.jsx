@@ -76,7 +76,7 @@ export function SchemaTable({ schema, contractHours }) {
   );
 }
 
-function FieldRow({ f, selected, onSelect, onEdit }) {
+function FieldRow({ f, selected, onSelect, onEdit, manual }) {
   const [editing, setEditing] = React.useState(false);
   const [val, setVal] = React.useState(f.value);
   const isMissing = f.status === "missing";
@@ -118,7 +118,11 @@ function FieldRow({ f, selected, onSelect, onEdit }) {
       )}
       <div className="fstatus" style={{ opacity: 1 }}>
         {isMissing
-          ? <span className="pill pill-flag"><span className="pdot"></span>Ontbreekt</span>
+          ? (manual
+              ? <span className="pill pill-navy"><span className="pdot"></span>Zelf invullen</span>
+              : f.optional
+                ? <span className="pill pill-navy"><span className="pdot"></span>Optioneel</span>
+                : <span className="pill pill-flag"><span className="pdot"></span>Ontbreekt</span>)
           : <span className="pill pill-ok"><span className="pdot"></span>Ingevuld</span>}
       </div>
     </div>
@@ -127,7 +131,10 @@ function FieldRow({ f, selected, onSelect, onEdit }) {
 
 export function FieldsPanel({ fields, selected, onSelect, onEdit }) {
   const okCount = fields.flatMap(g => g.items).filter(i => i.status === "ok").length;
-  const missCount = fields.flatMap(g => g.items).filter(i => i.status === "missing").length;
+  // Werkgeversvelden (manual) tellen niet als "ontbreekt": dat zijn geen
+  // extractie-missers maar invoer die de werkgever zelf aanlevert.
+  const missCount = fields.filter(g => !g.manual).flatMap(g => g.items).filter(i => i.status === "missing" && !i.optional).length;
+  const zelfCount = fields.filter(g => g.manual).flatMap(g => g.items).filter(i => i.status === "missing").length;
   return (
     <div className="panel fields-panel">
       <div className="panel-head">
@@ -138,16 +145,19 @@ export function FieldsPanel({ fields, selected, onSelect, onEdit }) {
         <div className="summary-chips">
           <span className="pill pill-ok"><span className="pdot"></span>{okCount} ingevuld</span>
           {missCount > 0 && <span className="pill pill-flag"><span className="pdot"></span>{missCount} ontbreekt</span>}
+          {zelfCount > 0 && <span className="pill pill-navy"><span className="pdot"></span>{zelfCount} zelf in te vullen</span>}
         </div>
       </div>
       <div style={{ maxHeight: 560, overflowY: "auto" }}>
         {fields.map((g, gi) => (
           <div className="field-group" key={gi}>
             <div className="gh">{g.group}</div>
+            {g.sub && <div className="gh-sub" style={{ fontSize: 12.5, color: "var(--faint)", margin: "-4px 0 8px", fontWeight: 400 }}>{g.sub}</div>}
             {g.items.map((f) => (
               <FieldRow
                 key={f.id}
                 f={f}
+                manual={!!g.manual}
                 selected={selected && selected.id === f.id}
                 onSelect={onSelect}
                 onEdit={onEdit}

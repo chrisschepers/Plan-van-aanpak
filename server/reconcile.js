@@ -31,7 +31,7 @@ const TEXT_KEYS = [
   "naam", "naamBedrijfsarts", "functie", "contracturen", "eersteZiektedag",
   "geboortedatum", "einddatumDienstverband", "belastbaarheid", "opbouwtempo",
   "startdatumOpbouw", "werkaanpassing", "aanpassingWerkplek", "aanpassingWerktijden",
-  "prognose", "spreekuurdatum", "taaksuggestie",
+  "prognose", "spreekuurdatum", "volgendSpreekuur", "taaksuggestie",
 ];
 
 // Velden waarvoor het model een bron-citaat teruggeeft (zelfde sleutelnamen).

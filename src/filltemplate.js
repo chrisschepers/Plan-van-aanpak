@@ -109,7 +109,7 @@ export function buildUwvValues(fields, schema, functieomschrijving, opbouwReden 
     61: start ? `Per ${start}` : "In overleg",
     62: "Werknemer verschijnt op het vervolgconsult bij de bedrijfsarts.",
     63: "Werknemer",
-    64: "Conform oproep arbodienst",
+    64: v("volgendSpreekuur") ? `Op ${v("volgendSpreekuur")}` : "Conform oproep arbodienst",
     // 7F Overige — rij 1 (periodieke evaluatie / bijstelling)
     71: "Werkgever en werknemer evalueren de voortgang en stellen het Plan van aanpak bij wanneer de belastbaarheid wijzigt.",
     72: "Werkgever en werknemer",

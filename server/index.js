@@ -77,31 +77,62 @@ async function blockGuard(req, res, next) {
   next();
 }
 
-const upload = multer({ limits: { fileSize: 20 * 1024 * 1024 } }); // 20 MB
+const upload = multer({ limits: { fileSize: 20 * 1024 * 1024 } }); // 20 MB per bestand
+
+// Foto-ondersteuning: een terugkoppeling komt in de praktijk ook als foto('s)
+// binnen. Claude leest afbeeldingen native; de API accepteert JPEG/PNG/WebP/GIF
+// tot ~5 MB per afbeelding (na base64-decodering).
+const IMG_TYPES = { jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", gif: "image/gif" };
+const IMG_MAX = 4.5 * 1024 * 1024;
+function imgType(file) {
+  const name = (file.originalname || "").toLowerCase();
+  const m = /\.([a-z0-9]+)$/.exec(name);
+  const byExt = m ? IMG_TYPES[m[1]] : null;
+  const byMime = Object.values(IMG_TYPES).includes(file.mimetype) ? file.mimetype : null;
+  return byMime || byExt || null;
+}
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true, model: process.env.PVA_MODEL || "claude-opus-4-8", keyConfigured: !!process.env.ANTHROPIC_API_KEY, authRequired: authConfigured(), authEnforced: authEnforced(), credits: creditsConfigured() });
 });
 
-app.post("/api/extract", rateLimit, requireAuth, blockGuard, upload.single("document"), async (req, res) => {
+app.post("/api/extract", rateLimit, requireAuth, blockGuard, upload.array("document", 8), async (req, res) => {
   try {
     if (!process.env.ANTHROPIC_API_KEY) {
       return res.status(500).json({ error: "Server niet geconfigureerd: ANTHROPIC_API_KEY ontbreekt." });
     }
 
     let blocks;
-    const file = req.file;
+    const files = req.files || [];
     const pastedText = (req.body && req.body.text ? String(req.body.text) : "").trim();
 
-    if (file) {
+    if (files.length > 1) {
+      // Meerdere bestanden = meerdere foto's van pagina's, in volgorde.
+      const imgs = files.map(imgType);
+      if (imgs.some((t) => !t)) {
+        return res.status(400).json({ error: "Meerdere bestanden kan alleen met foto's (JPG/PNG/WebP) — één foto per pagina." });
+      }
+      if (files.some((f) => f.size > IMG_MAX)) {
+        return res.status(400).json({ error: "Eén of meer foto's zijn groter dan 4,5 MB. Verklein de foto's en probeer het opnieuw." });
+      }
+      blocks = files.map((f, i) => ({
+        type: "image",
+        source: { type: "base64", media_type: imgs[i], data: f.buffer.toString("base64") },
+      }));
+    } else if (files.length === 1) {
+      const file = files[0];
       const name = (file.originalname || "").toLowerCase();
       const isPdf = file.mimetype === "application/pdf" || name.endsWith(".pdf");
       const isDocx = name.endsWith(".docx") || file.mimetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      const img = imgType(file);
       // Word 97-2003 (.doc) is een binair formaat dat we niet kunnen lezen; het
       // zou als rommel-tekst naar het model gaan én de BSN-redactie omzeilen.
       const isLegacyDoc = !isDocx && (name.endsWith(".doc") || file.mimetype === "application/msword");
       if (isLegacyDoc) {
         return res.status(400).json({ error: "Word 97-2003 (.doc) wordt niet ondersteund. Sla het bestand op als .docx of PDF en probeer het opnieuw." });
+      }
+      if (/\.hei[cf]$/.test(name)) {
+        return res.status(400).json({ error: "HEIC-foto's (iPhone-standaard) worden niet ondersteund. Zet de foto om naar JPG (bv. via delen/mailen) en probeer het opnieuw." });
       }
       if (isPdf) {
         // Claude leest PDF's native als document-block.
@@ -109,6 +140,11 @@ app.post("/api/extract", rateLimit, requireAuth, blockGuard, upload.single("docu
           type: "document",
           source: { type: "base64", media_type: "application/pdf", data: file.buffer.toString("base64") },
         }];
+      } else if (img) {
+        if (file.size > IMG_MAX) {
+          return res.status(400).json({ error: "De foto is groter dan 4,5 MB. Verklein de foto en probeer het opnieuw." });
+        }
+        blocks = [{ type: "image", source: { type: "base64", media_type: img, data: file.buffer.toString("base64") } }];
       } else if (isDocx) {
         const { value } = await mammoth.extractRawText({ buffer: file.buffer });
         if (!value || !value.trim()) return res.status(400).json({ error: "Geen tekst gevonden in het Word-bestand." });
@@ -116,7 +152,7 @@ app.post("/api/extract", rateLimit, requireAuth, blockGuard, upload.single("docu
       } else {
         // probeer als platte tekst
         const text = file.buffer.toString("utf8");
-        if (!text.trim()) return res.status(400).json({ error: "Niet-ondersteund bestandstype. Gebruik PDF, .docx of platte tekst." });
+        if (!text.trim()) return res.status(400).json({ error: "Niet-ondersteund bestandstype. Gebruik PDF, .docx, platte tekst of foto's (JPG/PNG)." });
         blocks = [{ type: "text", text: redactBSN(text) }];
       }
     } else if (pastedText) {

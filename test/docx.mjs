@@ -5,7 +5,7 @@
 
 import { Packer } from "docx";
 import JSZip from "jszip";
-import { buildDocxDocument } from "../src/download.js";
+import { buildDocxDocument, buildWerknemerDocx } from "../src/download.js";
 import { computeAdvice } from "../src/advice.js";
 import { INITIAL_FIELDS, CASE, getVal } from "../src/casedata.js";
 import { computeSchema, computeWazo } from "../src/engine.js";
@@ -124,6 +124,22 @@ check("ZUD + herstel binnen 3 maanden => verkort RIV", !!zudHerstel && zudHerste
 const adviesOud = computeAdvice(setField(INITIAL_FIELDS, "geboortedatum", "01-01-1962"), CASE.reportDate);
 const leeftijd = adviesOud.find((a) => a.title.includes("AOW") || a.title.includes("60-plusser"));
 check("leeftijdsadvies verschijnt bij oudere werknemer", !!leeftijd);
+
+// ---- 4. Werknemersbrief (eenvoudige taal, B1) ----
+const docWn = buildWerknemerDocx(INITIAL_FIELDS, schema, CASE.reportDate, {}, "");
+const xmlWn = await (await JSZip.loadAsync(await Packer.toBuffer(docWn))).file("word/document.xml").async("string");
+check("werknemersbrief: aanhef", xmlWn.includes("Beste "));
+check("werknemersbrief: legt het Plan van Aanpak uit", xmlWn.includes("Wat is een Plan van Aanpak?"));
+check("werknemersbrief: privacy-uitleg (medisch blijft privé)", xmlWn.includes("blijft priv"));
+check("werknemersbrief: recht op deskundigenoordeel (UWV)", xmlWn.includes("deskundigenoordeel") && xmlWn.includes("uwv.nl"));
+check("werknemersbrief: opbouw in gewone taal", xmlWn.includes("stap voor stap"));
+check("werknemersbrief: samen ondertekenen", xmlWn.includes("allebei hebben ondertekend"));
+check("werknemersbrief: geen werkgeversjargon (RIV/spoor 2/loonsanctie)", !/\bRIV\b|spoor 2|loonsanctie|wachttijd/.test(xmlWn));
+
+// zonder opbouwschema (geen benutbare mogelijkheden) → rustgevende variant
+const docWnGeen = buildWerknemerDocx(INITIAL_FIELDS, [], CASE.reportDate, { geenBenutbareMogelijkheden: true }, "Geen benutbare mogelijkheden.");
+const xmlWnGeen = await (await JSZip.loadAsync(await Packer.toBuffer(docWnGeen))).file("word/document.xml").async("string");
+check("werknemersbrief zonder opbouw: 'niets forceren'-variant", xmlWnGeen.includes("hoeft nu dus niets te forceren"));
 
 console.log(failures === 0 ? "\nAlle docx-checks geslaagd." : `\n${failures} docx-check(s) gefaald.`);
 process.exit(failures === 0 ? 0 : 1);

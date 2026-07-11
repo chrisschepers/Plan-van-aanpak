@@ -12,7 +12,7 @@ import {
 } from "docx";
 import { getVal, isMissing } from "./casedata.js";
 import { fullRecoveryDate } from "./engine.js";
-import { adviceBullets, poortwachterTermijnen, berichtKern, splitLinks, computeTijdlijn } from "./advice.js";
+import { adviceBullets, poortwachterTermijnen, berichtKern, splitLinks, computeTijdlijn, werknemerBrief } from "./advice.js";
 import { fillTemplate, buildUwvValues } from "./filltemplate.js";
 import { BAND_PNG, DECO_PNG, MARK_PNG, pngBytes } from "./brandassets.js";
 import { renderTijdlijnSvg } from "./tijdlijnsvg.js";
@@ -443,6 +443,52 @@ export async function downloadBericht(fields, schema, reportDate, taaksuggestie,
   }
   const blob = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, opts));
   return triggerDownload(blob, filename);
+}
+
+// ---- Bericht voor de werknemer (eenvoudige taal, B1) ----
+// Het PvA is een document van werkgever én werknemer; deze brief legt de
+// werknemer in gewone taal uit wat het plan is en helpt bij het sámen
+// vaststellen. Apart document; hoort net als de adviezen NIET in het dossier.
+export function buildWerknemerDocx(fields, schema, reportDate, signalen, opbouwReden = "") {
+  const naam = getVal(fields, "naam");
+  const wie = isMissing(naam) ? "collega" : naam;
+  const blokken = werknemerBrief(fields, schema, reportDate, { signalen, opbouwReden });
+  const children = [
+    new Paragraph({ spacing: { before: 360, after: 60 }, children: [
+      new TextRun({ text: vandaagLang(), color: GREY, size: 20, font: FONT })] }),
+    new Paragraph({ spacing: { after: 200 }, children: [
+      new TextRun({ text: `Samen werken aan je terugkeer${isMissing(naam) ? "" : " — " + naam}`, bold: true, color: NAVY, size: 26, font: FONT })] }),
+    new Paragraph({ spacing: { after: 120 }, children: [
+      new TextRun({ text: `Beste ${wie},`, color: "18202F", size: 22, font: FONT })] }),
+    ...blokken.flatMap((b) => {
+      if (b.type === "h") return [h2(b.text)];
+      if (b.type === "bullets") return b.items.map((t) => bullet(t));
+      return [p(b.text)];
+    }),
+    new Paragraph({ spacing: { before: 200, after: 700 },
+      children: [new TextRun({ text: "Met vriendelijke groet,", color: "3C465A", size: 22, font: FONT })] }),
+    new Paragraph({ spacing: { after: 0 }, children: [invullen("[INVULLEN: naam werkgever/leidinggevende]", { size: 22 })] }),
+  ];
+  return new Document({
+    creator: "planvanaanpakinvuller.nl",
+    title: `Bericht werknemer — ${naam}`,
+    styles: { default: { document: { run: { font: "Calibri" } } } },
+    sections: [{
+      properties: {
+        titlePage: true,
+        page: { size: { width: 11906, height: 16838 },
+          margin: { top: 2100, bottom: 2300, left: 1247, right: 1247, header: 680, footer: 1000 } },
+      },
+      headers: { first: letterHeadFirst(), default: letterHeadCompact(naam) },
+      footers: { first: brandFooter(), default: brandFooter() },
+      children,
+    }],
+  });
+}
+
+export async function downloadWerknemerBericht(fields, schema, reportDate, signalen, opbouwReden) {
+  const blob = await Packer.toBlob(buildWerknemerDocx(fields, schema, reportDate, signalen, opbouwReden));
+  return triggerDownload(blob, `Bericht-werknemer-${safeName(fields)}.docx`);
 }
 
 // Het ingevulde Plan van aanpak in het échte UWV-formulier (AG140) — apart

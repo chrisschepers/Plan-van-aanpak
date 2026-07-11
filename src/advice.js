@@ -383,7 +383,66 @@ export function berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden = "
     }
   }
   if (!isMissing(beperking)) zinnen.push(ensureDot(`Houd rekening met de werkaanpassing: ${beperking}`));
+  // Houdbaarheid van dit advies: een terugkoppeling is een momentopname.
+  const volgend = getVal(fields, "volgendSpreekuur");
+  zinnen.push(isMissing(volgend)
+    ? "Dit advies is gebaseerd op de huidige terugkoppeling; stel het Plan van Aanpak bij na elk volgend spreekuur van de bedrijfsarts."
+    : `Het volgende spreekuur bij de bedrijfsarts staat gepland op ${volgend}; loop dit advies daarna opnieuw na en stel het Plan van Aanpak bij als de belastbaarheid is gewijzigd.`);
   return zinnen;
+}
+
+/**
+ * Werknemersversie van het begeleidend bericht — eenvoudige taal (taalniveau
+ * B1: korte zinnen, geen jargon). Het PvA is een document van werkgever én
+ * werknemer samen; deze brief legt de werknemer uit wat het plan is, wat er
+ * gaat gebeuren, wat er van hem/haar wordt verwacht en welke rechten er zijn.
+ * Deterministisch uit de gecontroleerde velden — geen AI.
+ * @returns {Array<{type:'h'|'p'|'bullets', text?:string, items?:string[]}>}
+ */
+export function werknemerBrief(fields, schema, reportDate, { signalen = {}, opbouwReden = "" } = {}) {
+  const geenOpbouw = !!opbouwReden || schema.length === 0;
+  const beperking = getVal(fields, "beperking");
+  const volgend = getVal(fields, "volgendSpreekuur");
+  const startD = schema[0] ? schema[0].date : "";
+  const eindD = schema.length ? schema[schema.length - 1].date : "";
+  const fromH = schema[0] ? schema[0].hours : 0;
+  const toH = schema.length ? schema[schema.length - 1].hours : 0;
+
+  const blokken = [];
+  blokken.push({ type: "p", text: `Je bent op dit moment ziekgemeld. Samen met jou willen we werken aan je herstel en aan je terugkeer naar het werk. In deze brief lees je wat er nu gaat gebeuren. Bij deze brief hoort een voorstel: het Plan van Aanpak, gemaakt na het advies van de bedrijfsarts van ${reportDate}.` });
+
+  blokken.push({ type: "h", text: "Wat is een Plan van Aanpak?" });
+  blokken.push({ type: "p", text: "De wet vraagt dat werkgever en werknemer sámen afspraken maken over de terugkeer naar werk. Die afspraken staan in het Plan van Aanpak. Dit plan is van jullie samen: het geldt pas als jullie het allebei hebben ondertekend. Je mag er ook je eigen mening in zetten." });
+  blokken.push({ type: "p", text: "In het plan staat géén medische informatie. Wat je precies hebt, blijft privé tussen jou en de bedrijfsarts. Je hoeft het je werkgever niet te vertellen." });
+
+  blokken.push({ type: "h", text: "Wat gaat er gebeuren?" });
+  if (!geenOpbouw && schema.length >= 2) {
+    blokken.push({ type: "p", text: `De bedrijfsarts heeft gekeken naar wat je nu al kunt. Het voorstel: je begint op ${startD} met ${fromH} uur per week. Daarna ga je stap voor stap meer uren werken. Als alles goed gaat, werk je rond ${eindD} weer je volledige ${toH} uur. Gaat het sneller of juist langzamer? Dan passen we het schema samen aan.` });
+  } else if (signalen && signalen.volledigInzetbaar) {
+    blokken.push({ type: "p", text: "De bedrijfsarts geeft aan dat je weer volledig aan het werk kunt in je eigen uren. In het plan leggen we vast hoe we dat samen goed laten verlopen." });
+  } else {
+    blokken.push({ type: "p", text: "Op dit moment is werken nog niet mogelijk, of maar heel beperkt. Er is daarom nog geen opbouwschema. De bedrijfsarts kijkt bij je volgende afspraak opnieuw wat er kan. Je hoeft nu dus niets te forceren." });
+  }
+  if (!isMissing(beperking)) {
+    blokken.push({ type: "p", text: `Er wordt rekening gehouden met: ${String(beperking).toLowerCase()}.` });
+  }
+  blokken.push({ type: "p", text: isMissing(volgend)
+    ? "De bedrijfsarts nodigt je uit voor een volgende afspraak. Ga daar altijd naartoe — ook als het goed gaat."
+    : `Je volgende afspraak bij de bedrijfsarts is op ${volgend}. Ga daar altijd naartoe — ook als het goed gaat.` });
+
+  blokken.push({ type: "h", text: "Wat verwachten we van jou?" });
+  blokken.push({ type: "bullets", items: [
+    "Werk mee aan de afspraken in het plan, zo goed als je kunt.",
+    "Ga naar de afspraken met de bedrijfsarts.",
+    "Gaat iets beter of juist slechter? Geef het snel door — dan passen we het plan samen aan.",
+    "Onderteken het plan pas als je het begrijpt en het ermee eens bent.",
+  ] });
+
+  blokken.push({ type: "h", text: "Ben je het ergens niet mee eens?" });
+  blokken.push({ type: "p", text: "Bespreek het eerst met je werkgever of leidinggevende. Komen jullie er samen niet uit? Dan kun je bij UWV een 'deskundigenoordeel' aanvragen: een onafhankelijke deskundige van UWV kijkt dan mee. Meer informatie vind je op https://www.uwv.nl." });
+
+  blokken.push({ type: "p", text: "Lees het plan rustig door. Heb je vragen? Stel ze gerust — we doen dit samen." });
+  return blokken;
 }
 
 function eersteZin(s) { return String(s || "").split(/(?<=[.!?])\s/)[0]; }

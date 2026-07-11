@@ -38,6 +38,12 @@ Stand: `[INVULLEN: datum]`.
 7. **Register & procedures onderhouden:** verwerkingsregister + datalek- en
    verzoekregister actueel houden (templates staan in `docs/`).
 8. *(Optioneel)* Google Fonts self-hosten om externe IP-requests te vermijden — lage prioriteit.
+9. **Jaarlijkse wetgevings-APK (elke januari):** controleer de stil-verouderende
+   ankers — de UWV-formulierversie van het AG140 (de invulling werkt op positie!),
+   bedragen (boete € 515, maximum dagloon), het 60-plus-venster (aanname: einde
+   wachttijd t/m 01-09-2027) en de datums/indexeringen in `docs/beleidsregels.md`
+   §9. Bron: de nieuwste editie van het naslagwerk arbeid & verzuim; pas code en
+   documentatie aan waar nodig.
 
 ## Tot bovenstaande rond is
 Gebruik de tool met **fictieve** terugkoppelingen (geen echte persoonsgegevens),

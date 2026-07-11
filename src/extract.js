@@ -11,14 +11,16 @@ function api(path) {
   return BACKEND_URL.replace(/\/$/, "") + path;
 }
 
-export async function extractCasus({ file, text, functieomschrijving, accessToken }) {
+export async function extractCasus({ file, files, text, functieomschrijving, accessToken }) {
   if (!BACKEND_URL) throw new Error("Geen backend ingesteld.");
   const fo = (functieomschrijving || "").trim();
   const authHeaders = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+  // Eén document óf meerdere foto's (één per pagina) — zelfde veldnaam.
+  const lijst = files && files.length ? files : file ? [file] : null;
   let resp;
-  if (file) {
+  if (lijst) {
     const fd = new FormData();
-    fd.append("document", file);
+    for (const f of lijst) fd.append("document", f);
     if (fo) fd.append("functieomschrijving", fo);
     resp = await fetch(api("/api/extract"), { method: "POST", body: fd, headers: authHeaders });
   } else {
@@ -184,10 +186,10 @@ export function deriveSchema({ reken, signalen, startdatumOpbouwNL }) {
 function mapExtraction(d, functieomschrijving) {
   d = normalizeExtraction(reviewSignals(d));
   const sources = {};
-  const mk = (id, label, value, bron) => {
+  const mk = (id, label, value, bron, extra) => {
     const v = (value || "").trim();
     if (bron && bron.trim()) sources[id] = bron.trim();
-    return { id, label, value: v || MISSING, status: v ? "ok" : "missing", src: bron && bron.trim() ? id : null };
+    return { id, label, value: v || MISSING, status: v ? "ok" : "missing", src: bron && bron.trim() ? id : null, ...(extra || {}) };
   };
   const b = d.bronnen || {};
 
@@ -198,8 +200,6 @@ function mapExtraction(d, functieomschrijving) {
       mk("functie", "Functie", d.functie, b.functie),
       mk("uren", "Contracturen", d.contracturen, b.contracturen),
       mk("eersteZ", "Eerste ziektedag", d.eersteZiektedag, b.eersteZiektedag),
-      mk("geboortedatum", "Geboortedatum", d.geboortedatum, null),
-      mk("einddatum", "Einddatum dienstverband", d.einddatumDienstverband, null),
     ]},
     { group: "Belastbaarheid & opbouw", items: [
       mk("belast", "Belastbaarheid", d.belastbaarheid, b.belastbaarheid),
@@ -211,6 +211,15 @@ function mapExtraction(d, functieomschrijving) {
     ]},
     { group: "Prognose", items: [
       mk("prognose", "Prognose herstel", d.prognose, b.prognose),
+      mk("volgendSpreekuur", "Volgend spreekuur bedrijfsarts", d.volgendSpreekuur, null, { optional: true }),
+    ]},
+    // Werkgeversgegevens staan zelden in een terugkoppeling; dit zijn géén
+    // extractie-missers maar invoer van de werkgever zelf. Eigen groep met
+    // eigen framing ("Zelf invullen" i.p.v. "Ontbreekt"), zie fields.jsx.
+    { group: "Gegevens van de werkgever", manual: true,
+      sub: "Staan meestal niet in de terugkoppeling — vul zelf aan voor de leeftijds- en contractadviezen", items: [
+      mk("geboortedatum", "Geboortedatum werknemer", d.geboortedatum, null),
+      mk("einddatum", "Einddatum tijdelijk contract (indien van toepassing)", d.einddatumDienstverband, null),
     ]},
   ];
 

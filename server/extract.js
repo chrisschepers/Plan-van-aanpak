@@ -33,6 +33,7 @@ VELDREGELS:
 - naamBedrijfsarts: de naam van de bedrijfsarts/arbo-arts die de terugkoppeling heeft opgesteld (bv. "drs. A. Heijmans"). Leeg laten ("") als die ontbreekt.
 - aanpassingWerkplek: een concreet genoemde aanpassing van de werkplek of werkomstandigheden (bv. ergonomische/aangepaste werkplek, thuiswerken, prikkelarme ruimte). Alleen overnemen als de terugkoppeling dit letterlijk noemt; anders "".
 - aanpassingWerktijden: een concreet genoemde aanpassing van werktijden of rooster (bv. flexibele begintijd, geen nachtdiensten, opbouw in de ochtend). Alleen overnemen als dit letterlijk wordt genoemd; anders "".
+- volgendSpreekuur: de datum van het volgende (vervolg)consult bij de bedrijfsarts (DD-MM-JJJJ), alleen als de terugkoppeling die concreet als datum noemt. Een vage aanduiding zonder datum ("over 6 weken", "op oproep") → leeg laten ("").
 
 OPBOUW (reken): leid de uitgangspunten voor het opbouwschema af:
 - contractHours: contracturen per week (geheel getal).
@@ -97,6 +98,7 @@ const SCHEMA = {
     aanpassingWerktijden: str,
     prognose: str,
     spreekuurdatum: str,
+    volgendSpreekuur: str,
     taaksuggestie: str,
     reken: {
       type: "object",
@@ -144,7 +146,7 @@ const SCHEMA = {
     "functie", "contracturen", "eersteZiektedag", "geboortedatum",
     "einddatumDienstverband", "belastbaarheid", "opbouwtempo",
     "startdatumOpbouw", "werkaanpassing", "aanpassingWerkplek", "aanpassingWerktijden", "prognose",
-    "spreekuurdatum", "taaksuggestie", "reken", "bronnen", "signalen",
+    "spreekuurdatum", "volgendSpreekuur", "taaksuggestie", "reken", "bronnen", "signalen",
   ],
 };
 

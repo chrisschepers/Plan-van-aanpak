@@ -7,7 +7,7 @@
 import { I, getVal, isMissing } from "./data.jsx";
 import { fullRecoveryDate } from "./engine.js";
 import { SchemaRows } from "./fields.jsx";
-import { adviceBullets, berichtKern, splitLinks, computeTijdlijn } from "./advice.js";
+import { adviceBullets, berichtKern, splitLinks, computeTijdlijn, werknemerBrief } from "./advice.js";
 import { PoortwachterTijdlijn } from "./tijdlijn.jsx";
 
 function DocPreviewHead({ title, icon }) {
@@ -195,7 +195,8 @@ export function PvaPreview({ fields, schema, functieomschrijving, opbouwReden, s
         <div className="uwv-cat">7E  Sociaal-medische zaken</div>
         <ActTable rows={[
           [opbouw, "Werknemer en werkgever", planning],
-          ["Werknemer verschijnt op het vervolgconsult bij de bedrijfsarts.", "Werknemer", "Conform oproep arbodienst"],
+          ["Werknemer verschijnt op het vervolgconsult bij de bedrijfsarts.", "Werknemer",
+            isMissing(getVal(fields, "volgendSpreekuur")) ? "Conform oproep arbodienst" : `Op ${getVal(fields, "volgendSpreekuur")}`],
         ]} />
         <div className="uwv-cat">7F  Overige activiteiten</div>
         <ActTable rows={[["Werkgever en werknemer evalueren de voortgang en stellen het Plan van aanpak bij wanneer de belastbaarheid wijzigt.", "Werkgever en werknemer", "Elke 6 weken"]]} />
@@ -224,6 +225,39 @@ function linkify(text) {
     const href = part.type === "email" ? `mailto:${part.value}` : part.value;
     return <a key={i} href={href} target={part.type === "url" ? "_blank" : undefined} rel="noopener noreferrer">{part.value}</a>;
   });
+}
+
+// 3b — Bericht voor de werknemer (eenvoudige taal, B1). Het PvA is een document
+// van werkgever én werknemer; deze brief helpt bij het sámen vaststellen.
+export function WerknemerBerichtPreview({ fields, schema, reportDate, signalen, opbouwReden }) {
+  const naam = getVal(fields, "naam");
+  const blokken = werknemerBrief(fields, schema, reportDate, { signalen, opbouwReden });
+  return (
+    <div className="doc-preview">
+      <DocPreviewHead title="Bericht voor je werknemer (eenvoudige taal)" icon={I.mail} />
+      <div className="doc-sheet msg-sheet">
+        <h2 style={{ fontSize: 19 }}>Voor je werknemer</h2>
+        <p className="wvp" style={{ marginBottom: 18 }}>
+          Onderwerp: Samen werken aan je terugkeer{isMissing(naam) ? "" : " — " + naam} ·
+          geschreven in eenvoudige taal, om samen het Plan van Aanpak vast te stellen
+        </p>
+        <p className="greeting">Beste {isMissing(naam) ? "collega" : naam},</p>
+        {blokken.map((b, i) => {
+          if (b.type === "h") return <p key={i} className="bullets-intro"><strong>{b.text}</strong></p>;
+          if (b.type === "bullets") return (
+            <ul key={i} className="msg-bullets">
+              {b.items.map((t, j) => <li key={j}>{linkify(t)}</li>)}
+            </ul>
+          );
+          return <p key={i}>{linkify(b.text)}</p>;
+        })}
+        <p className="sign">
+          Met vriendelijke groet,<br/>
+          <span style={{ color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 }}>[INVULLEN: naam werkgever/leidinggevende]</span>
+        </p>
+      </div>
+    </div>
+  );
 }
 
 // 3 — Begeleidend bericht aan werkgever (met de adviezen verweven)
