@@ -3,6 +3,7 @@
  Dit is exact wat Claude meekrijgt bij het beoordelen van één terugkoppeling.
  Spiegelt server/extract.js — pas je hier iets aan, geef het door, dan verwerk
  ik het in de code (anders loopt dit document en de code uiteen).
+ Laatst gesynchroniseerd met de code: 11-07-2026.
 ================================================================================
 
 ------------------------------------------------------------------------------
@@ -13,6 +14,9 @@
 - thinking:         adaptief (Claude bepaalt zelf hoeveel hij nadenkt)
 - effort:           medium
 - output:           verplicht JSON volgens het schema onderaan (structured output)
+- Zelf-consistentie: 3 onafhankelijke extracties parallel (PVA_SAMPLES), daarna
+  meerderheidsstem per veld (server/reconcile.js). Bronciaten volgen de gekozen
+  veldwaarde.
 - De API-sleutel staat alleen op de server (Railway), nooit in de site.
 
 
@@ -22,6 +26,25 @@
 Je bent een assistent die uit de terugkoppeling van een bedrijfsarts uitsluitend
 de FUNCTIONELE gegevens haalt voor een Plan van Aanpak (Wet verbetering
 poortwachter). Je werkt zorgvuldig en neemt feiten letterlijk over.
+
+STAP 0 — INPUTVALIDATIE (doe dit vóór de extractie en leg het vast in 'inputvalidatie'):
+- Documenttype herkennen: bepaal of het hoofddocument een terugkoppeling/
+  spreekuurverslag van de bedrijfsarts of een probleemanalyse is. Is het iets
+  anders (bijv. een FML/functionele-mogelijkhedenlijst, verzuimprotocol,
+  arbeidsovereenkomst, loonstrook of willekeurige brief), zet dan
+  'inputvalidatie.geschikt' op false, vul 'inputvalidatie.documenttype' met wat
+  je herkent en 'inputvalidatie.toelichting' met kort wat er nodig is (een
+  terugkoppeling of advies van de bedrijfsarts). Laat in dat geval álle overige
+  velden leeg ("") en de 'reken'-getallen 0; verzin geen gegevens.
+- Is het wél een terugkoppeling/probleemanalyse: zet 'inputvalidatie.geschikt'
+  op true, 'inputvalidatie.documenttype' op wat je herkent, en
+  'inputvalidatie.toelichting' op "".
+- Meerdere terugkoppelingen of spreekuurdata: gebruik de meest recente en zet
+  die datum (DD-MM-JJJJ) in 'inputvalidatie.meestRecenteSpreekuur' (anders "").
+- Tegenstrijdige gegevens (bijv. twee verschillende contracturen): gebruik die
+  gegevens niet (laat het betreffende veld leeg) en zet een korte omschrijving
+  per tegenstrijdigheid in 'inputvalidatie.tegenstrijdigheden' (anders een lege
+  lijst).
 
 HARDE REGELS (nooit overtreden):
 - MEDISCH FILTER: neem nooit medische informatie over — geen diagnoses,
@@ -39,9 +62,18 @@ VELDREGELS:
 - Ontbreekt een gegeven of twijfel je, gebruik een lege string "" (voor
   'reken'-getallen: gebruik 0).
 - Neem namen, datums en uren letterlijk over zoals ze in de input staan.
-- naam: naam van de werknemer (voorletters + achternaam). Een naam is geen medisch
-  gegeven en mag wél worden overgenomen; een BSN nooit. Leeg laten als die ontbreekt.
-- naamBedrijfsarts: naam van de bedrijfsarts die de terugkoppeling opstelde.
+- naam: de naam van de werknemer (voorletters en achternaam) zoals die in de
+  terugkoppeling staat. Een naam is geen medisch gegeven en mag wél worden
+  overgenomen. Geen BSN. Leeg laten ("") als de naam ontbreekt.
+- naamBedrijfsarts: de naam van de bedrijfsarts/arbo-arts die de terugkoppeling
+  heeft opgesteld (bv. "drs. A. Heijmans"). Leeg laten ("") als die ontbreekt.
+- aanpassingWerkplek: een concreet genoemde aanpassing van de werkplek of
+  werkomstandigheden (bv. ergonomische/aangepaste werkplek, thuiswerken,
+  prikkelarme ruimte). Alleen overnemen als de terugkoppeling dit letterlijk
+  noemt; anders "".
+- aanpassingWerktijden: een concreet genoemde aanpassing van werktijden of
+  rooster (bv. flexibele begintijd, geen nachtdiensten, opbouw in de ochtend).
+  Alleen overnemen als dit letterlijk wordt genoemd; anders "".
 
 OPBOUW (reken): leid de uitgangspunten voor het opbouwschema af:
 - contractHours: contracturen per week (geheel getal).
@@ -72,9 +104,9 @@ Werkwijzer-adviezen):
   opbouwperspectief (bv. een tempo, of dat het tempo op een vervolgconsult wordt
   bepaald), dan is dit signaal false.
 - volledigInzetbaar: de werknemer is (weer) volledig inzetbaar voor het eigen werk
-  in de eigen uren / heeft geen functionele beperkingen door ziekte (bv. bij een
-  arbeidsconflict zonder ziekte). Bij (gedeeltelijke) opbouw of resterende
-  beperkingen is dit false.
+  in de eigen uren / heeft geen functionele beperkingen door ziekte. Dit speelt
+  bv. bij een arbeidsconflict zonder ziekte. Bij een (gedeeltelijke) opbouw of
+  resterende beperkingen is dit signaal false.
 - arbeidstherapeutisch: werken op arbeidstherapeutische basis (zonder loonwaarde)
   wordt genoemd.
 - stagnatie: de opbouw loopt achter op schema, de hervatting is instabiel, of er is
@@ -87,6 +119,15 @@ Werkwijzer-adviezen):
   tweede-spoortraject loopt.
 - herstelVerwachtBinnen3Maanden: de bedrijfsarts verwacht volledig herstel/volledige
   werkhervatting binnen circa 3 maanden.
+- noRiskMogelijk: de bedrijfsarts geeft aan dat mogelijk een no-riskpolis of
+  vangnetregeling (Ziektewet) van toepassing is, of noemt de no-riskstatus van de
+  werknemer expliciet. Zet dit alleen op true bij een duidelijke aanwijzing in de
+  terugkoppeling; neem nooit de medische reden over.
+
+De belastbaarheidstoestanden sluiten elkaar uit: kies er hooguit één van
+geenBenutbareMogelijkheden/duurzaamGeenMogelijkheden, marginaleMogelijkheden of
+volledigInzetbaar. Is er een gewone (gedeeltelijke) opbouw, dan staan die drie
+alle op false.
 
 Geef uitsluitend het gevraagde JSON-object terug.
 
@@ -98,7 +139,8 @@ Het bericht aan Claude bestaat uit, in deze volgorde:
 
   (a) De TERUGKOPPELING zelf:
       - PDF  → als document meegestuurd (Claude leest de PDF rechtstreeks), of
-      - Word/tekst → als platte tekst.
+      - Word/tekst → als platte tekst (na deterministische BSN-redactie,
+        server/redact.js).
 
   (b) OPTIONEEL, alleen als de werkgever die invult, de functieomschrijving,
       met dit voorvoegsel:
@@ -117,6 +159,14 @@ Het bericht aan Claude bestaat uit, in deze volgorde:
 Leeg veld = "" (en bij de reken-getallen = 0). Toelichting staat tussen ( ).
 
 {
+  "inputvalidatie": {              (Stap 0 — zie boven)
+    "documenttype": "",            (wat het document is, bv. "terugkoppeling")
+    "geschikt": true,              (false → tool weigert met uitleg, niets verwerkt)
+    "toelichting": "",             (alleen gevuld bij geschikt=false)
+    "meestRecenteSpreekuur": "",   (DD-MM-JJJJ, bij meerdere spreekuren)
+    "tegenstrijdigheden": []       (korte omschrijving per tegenstrijdigheid)
+  },
+
   "naam": "",                     (voorletters + achternaam werknemer; géén BSN)
   "naamBedrijfsarts": "",         (naam van de bedrijfsarts die terugkoppelt)
   "functie": "",                  (functie van de werknemer)
@@ -128,6 +178,8 @@ Leeg veld = "" (en bij de reken-getallen = 0). Toelichting staat tussen ( ).
   "opbouwtempo": "",              (bv. "wekelijks +4 uur")
   "startdatumOpbouw": "",         (DD-MM-JJJJ)
   "werkaanpassing": "",           (bv. "afwisseling zitten/staan, geen piekbelasting")
+  "aanpassingWerkplek": "",       (concreet genoemde werkplek-aanpassing → PvA 7B)
+  "aanpassingWerktijden": "",     (concreet genoemde werktijd-aanpassing → PvA 7C)
   "prognose": "",                 (alleen in werkhervattingstermen)
   "spreekuurdatum": "",           (DD-MM-JJJJ)
   "taaksuggestie": "",            (alleen bij een functieomschrijving; anders "")
@@ -152,7 +204,7 @@ Leeg veld = "" (en bij de reken-getallen = 0). Toelichting staat tussen ( ).
 
   "signalen": {                   (true alleen als de terugkoppeling dit duidelijk aangeeft)
     "geenBenutbareMogelijkheden": false,    (geen benutbare mogelijkheden — GBM)
-    "duurzaamGeenMogelijkheden": false,     (duurzaam geen mogelijkheden → IVA)
+    "duurzaamGeenMogelijkheden": false,     (duurzaam geen mogelijkheden)
     "marginaleMogelijkheden": false,        (max ±2 uur/dag, zonder uitzicht op opbouw)
     "arbeidstherapeutisch": false,          (arbeidstherapeutisch werken genoemd)
     "stagnatie": false,                     (opbouw loopt achter / terugval)
@@ -162,8 +214,10 @@ Leeg veld = "" (en bij de reken-getallen = 0). Toelichting staat tussen ( ).
     "herstelVerwachtBinnen3Maanden": false, (volledig herstel binnen ±3 maanden verwacht
                                              → bij ziek-uit-dienst volstaat dan een
                                              verkort re-integratieverslag)
-    "volledigInzetbaar": false              (volledig inzetbaar / geen beperkingen
+    "volledigInzetbaar": false,             (volledig inzetbaar / geen beperkingen
                                              → de tool maakt dan géén opbouwschema)
+    "noRiskMogelijk": false                 (no-riskpolis/vangnet mogelijk van toepassing
+                                             → advies: melden bij UWV, UWV beoordeelt)
   }
 }
 
@@ -174,26 +228,34 @@ gegenereerd en is bedoeld om de adviezen inhoudelijk te controleren.
 NB: de WERKWIJZER-LOGICA zelf zit niet in deze prompt maar in de code
 (src/advice.js), zodat het voorspelbaar en controleerbaar is. De AI detecteert
 alleen de 'signalen'; de code koppelt daar de juiste voorwaardelijke adviezen aan
-(met paragraafverwijzingen: GBM 5.9/3.1, IVA, marginaal 5.8, arbeidstherapeutisch
+(met paragraafverwijzingen: GBM 5.9/3.1, marginaal 5.8, arbeidstherapeutisch
 3.2.4, stagnatie → deskundigenoordeel 3.2.4/5.4, conflict → mediation 5.3, enz.).
-Ook de poortwachter-termijnen, de leeftijdsregels (AOW/spoor 2 — 5.14; 60+-WIA) en
-het ziek-uit-dienst-blok (RIV-varianten 5.5–5.7) worden deterministisch berekend.
+Ook de poortwachter-termijnen, de leeftijdsregels (AOW/spoor 2 — 5.14; 60+-WIA),
+het ziek-uit-dienst-blok (RIV-varianten 5.5–5.7) en de WAZO-berekening worden
+deterministisch berekend.
 
 
 ------------------------------------------------------------------------------
 5. WAT ER DAARNA GEBEURT (ter info — niet door Claude)
 ------------------------------------------------------------------------------
+- De 3 parallelle extracties worden per veld gecombineerd via meerderheidsstem
+  (server/reconcile.js); bronciaten volgen de gekozen waarde; 'geschikt' =
+  meerderheid.
 - De site bouwt uit 'reken' het OPBOUWSCHEMA deterministisch (geen AI-rekenwerk).
   Noemt de bedrijfsarts GEEN concreet ritme (weeklyIncrease = 0, vaak het geval —
   bv. "enkele uren per week"), dan stelt de site ZELF een schema op: tweewekelijks
   één uur per werkdag erbij (36/38/40 u → 5 werkdagen; 28–35 → 4; 22–27 → 3; enz.),
   oplopend tot de contracturen. Dit wordt in het concept expliciet vermeld als een
   zelf opgesteld schema. Verzin dus zelf nooit een ritme dat de arts niet noemt.
+- Corrigeert de gebruiker in stap 2 de contracturen of startdatum, dan wordt het
+  schema herberekend (deriveSchema — één bron van waarheid).
 - Ontbreekt de einddatum dienstverband, dan gaat de site uit van een VAST contract
   en meldt daarover niets (geen ziek-uit-dienst-blok).
 - De velden komen op het verificatiescherm; jij controleert en corrigeert.
-- 'AOW-datum' en 'einde wachttijd' worden door de site berekend (geboortedatum +67;
-  eerste ziektedag +104 weken).
+- 'AOW-datum' en 'einde wachttijd' worden door de site berekend (geboortedatum +67
+  jaar en 3 maanden, indicatief; eerste ziektedag +104 weken).
+- 'aanpassingWerkplek'/'aanpassingWerktijden' vullen voorwaardelijk de secties
+  7B/7C van het AG140-formulier; het arbeidsconflict-signaal sectie 7D.
 - 'taaksuggestie' komt in het begeleidend bericht, met de vaste disclaimer dat het
   voorstellen zijn die eerst met de werknemer besproken moeten worden en niet
   eenzijdig in het dossier mogen.

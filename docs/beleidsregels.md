@@ -204,3 +204,75 @@ worden de periodes niet samengeteld en kan de wachttijd opnieuw beginnen.
   SVB/UWV.
 - De adviezen zijn een hulpmiddel; werkgever en werknemer blijven samen
   verantwoordelijk voor het Plan van Aanpak en de re-integratie.
+
+---
+
+## 9. Domeinfeiten (naslag, geverifieerd 11-07-2026)
+
+Feiten uit wet- en regelgeving die de adviezen en teksten onderbouwen — in eigen
+woorden vastgelegd, met de wetsbasis erbij. Bron: eigen toetsing aan een actueel
+naslagwerk arbeid & verzuim (editie 2026) + wetteksten.
+
+### Meldingen en boetes (ZW)
+- 42e-weeksmelding bij UWV verplicht; te laat = boete tot **€ 515** (art. 38 ZW).
+- Ziek-uit-dienstmelding: **op** de laatste dag van het dienstverband — een veel
+  eerdere aangifte is niet toegestaan; te laat = boete tot € 515.
+- Hersteld ná de 42e-weeksmelding? Ook dat doorgeven, anders stuurt UWV in week
+  87 automatisch een WIA-aanvraagformulier.
+
+### Loonsanctie (art. 25/65 WIA, Werkwijzer h. 8/10)
+- UWV-beschikking uiterlijk **6 weken vóór einde wachttijd**; loonsanctie duurt
+  tot herstel van de tekortkomingen, **max. 52 weken**.
+- Bekortingsverzoek: UWV beoordeelt het herstelplan in **3 weken**, daarna
+  **6 weken** voor de WIA-aanvraag (samen 9 weken).
+- Geen loonsanctie bij: samenloop met toegekende ZW-uitkering (behalve no-risk
+  tijdens dienstverband), meerdere werkgevers waarvan er één voldoende deed, of
+  niet-repareerbare tekortkomingen (≥ 3 mnd geen benutbare mogelijkheden met
+  onzeker perspectief). Financiële draagkracht is géén toetsingscriterium.
+- Toetsingsvolgorde arbeidsdeskundige (4 vragen): (1) bevredigend resultaat?
+  (2) zo nee: voldoende inspanningen? (3) zo nee: deugdelijke grond? (4) zo nee:
+  te repareren? Bevredigend = werkhervatting die structureel is en aansluit bij
+  de verdiencapaciteit, óf ≥ 65% van het oorspronkelijke loon.
+- Géén deugdelijke grond: inadequate bedrijfsarts-ondersteuning, geen
+  verzekeringsdekking, werkplek vergeven, krimp, arbeidsconflict, niet-meewerkende
+  werknemer zonder sancties. Wél: opgevolgd deskundigenoordeel dat achteraf
+  inadequaat bleek; geschikte functies structureel bezet.
+
+### No-riskpolis (art. 29a–29d ZW)
+- Doelgroep (hoofdlijn): WIA/WAO(-verleden), 0–35% bij einde wachttijd,
+  WSW-indicatie, Wajong (onbeperkt), Participatiewet-doelgroep — meestal geldig
+  **5 jaar** na indiensttreding (verlenging mogelijk; Wajong/WSW onbeperkt).
+- Werkgever mag er pas **2 maanden** na indiensttreding naar vragen; werknemer
+  moet het bij ziekte uiterlijk de 2e dag melden.
+- Ziekteaangifte binnen **6 weken**; latere ontdekking → binnen 2 dagen melden,
+  toekenning met **max. 1 jaar** terugwerkende kracht.
+- Uitkering 70%; op verzoek in het **1e ziektejaar tot 100%** (max. het door te
+  betalen loon / max. dagloon). Re-integratieplicht en -kosten blijven bij de
+  werkgever ("no-risk is niet gratis").
+
+### Ziek uit dienst / eerstejaarsbeoordeling ZW
+- Na einde dienstverband: ZW-uitkering voor de rest van de wachttijd; UWV (of de
+  eigenrisicodrager ZW als pseudo-werkgever) neemt de begeleiding over.
+- **Eerstejaarsbeoordeling ZW** (na 52 weken): toets op álle gangbare arbeid;
+  > 65% van het maatmanloon kunnen verdienen → uitkering stopt (uitloop 1 maand;
+  na recente werkhervatting minimaal 6 maanden na hervatting).
+- ZW-sanctie (i.p.v. loonsanctie) mogelijk bij inadequate re-integratie bij einde
+  dienstverband: de "verloren" periode, max. 52 weken.
+
+### Samentelling en wachttijd
+- Onderbrekingen **< 4 weken** tellen samen, ongeacht ziekteoorzaak (art. 19aa ZW).
+- Over zwangerschaps-/bevallingsverlof heen alleen samentellen bij **dezelfde**
+  ziekteoorzaak vóór en ná het verlof; de verlofperiode zelf telt nooit mee.
+- Wachttijd = 104 weken (spreektaal "2 jaar" scheelt 1 dag/jaar).
+
+### WAZO (aanvullend op §7b)
+- Spreiding: bevallingsverlof ná week 6 mag op verzoek (≤ 3 weken na bevalling)
+  gespreid over 30 weken worden opgenomen; afwijzing alleen bij zwaarwegend
+  bedrijfsbelang.
+- Ziekenhuisopname van het kind ≥ 8 dagen tijdens bevallingsverlof → verlenging
+  (vanaf dag 8 van de opname, max. 10 weken).
+- Uitkering aanvragen uiterlijk **2 weken vóór** de start van het
+  zwangerschapsverlof (werkgever doet dit bij een dienstverband); te laat →
+  terugwerkende kracht max. 1 jaar.
+- WAZO-uitkering = 100% (max.) dagloon; tijdens het verlof geen ZW-uitkering of
+  loon.
