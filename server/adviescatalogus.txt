@@ -1,0 +1,329 @@
+================================================================================
+ ADVIESCATALOGUS — planvanaanpakinvuller.nl
+================================================================================
+
+ Dit bestand bevat ALLE adviezen die de tool kan geven, letterlijk overgenomen
+ uit de echte adviesregels. Het wordt automatisch gegenereerd (npm run catalogus),
+ dus het kan niet afwijken van wat de tool werkelijk doet.
+
+ Zo lees je dit bestand:
+ - De AI leest alleen de terugkoppeling en zet 'signalen' aan/uit; de adviezen
+   hieronder staan vast in de tool (voorspelbaar en controleerbaar).
+ - Datums in de voorbeeldteksten zijn rekenvoorbeelden bij eerste ziektedag
+   03-02-2025; bij een echte casus rekent de tool met de echte datums.
+ - Klopt een tekst niet of mis je een advies? Noteer het nummer/de titel en
+   beschrijf in gewone taal wat het moet zijn.
+
+================================================================================
+ 1. ALTIJD-ADVIEZEN (in elk begeleidend bericht)
+================================================================================
+
+ • Altijd   [termijn]
+   Leg de terugkoppeling vast in het verzuimdossier; geef daadwerkelijk invulling
+   aan de afgegeven arbeidsmogelijkheden; en stel het Plan van Aanpak bij zodra
+   de belastbaarheid wijzigt.
+
+================================================================================
+ 2. POORTWACHTER-TERMIJNEN (volledig overzicht; staat in scherm én document)
+================================================================================
+
+ Berekend vanaf de eerste ziektedag. Kolommen: week — mijlpaal — actie werkgever.
+
+ wk   1  Ziekmelding
+         Meld de werknemer ziek bij de arbodienst/bedrijfsarts en leg de eerste
+         ziektedag vast.
+ wk   6  Probleemanalyse
+         De bedrijfsarts stelt de Probleemanalyse op (uiterlijk week 6).
+ wk   8  Plan van Aanpak
+         Stel samen met de werknemer het Plan van Aanpak op (binnen 2 weken na de
+         Probleemanalyse).
+ wk  42  42e-weeksmelding bij UWV
+         Meld het langdurig verzuim bij UWV (verplicht in week 42).
+ wk  52  Eerstejaarsevaluatie (opschudmoment)
+         Evalueer het eerste jaar met de werknemer; beoordeel of het tweede spoor
+         moet starten.
+ wk  58  Tweede spoor uiterlijk gestart
+         Start zo nodig het tweede spoor (uiterlijk 6 weken na de
+         eerstejaarsevaluatie), tenzij er concreet perspectief is op terugkeer in
+         de eigen organisatie.
+ wk  87  WIA-aanvraag mogelijk
+         Laat de bedrijfsarts een Actueel oordeel opstellen en maak het
+         re-integratieverslag (RIV) compleet.
+ wk  93  WIA uiterlijk aanvragen
+         De werknemer vraagt uiterlijk week 93 de WIA-uitkering aan; lever het
+         volledige RIV mee.
+ wk 104  Einde wachttijd
+         Einde van de 2 jaar loondoorbetaling; de WIA-beoordeling bepaalt het
+         vervolg.
+
+================================================================================
+ 3. PROCESADVIEZEN PER VERZUIMWEEK (in het begeleidend bericht)
+================================================================================
+
+ Regel: de tool berekent de verzuimweek (spreekuurdatum minus eerste ziektedag)
+ en neemt de adviezen op die NU spelen of binnen 8 weken gaan spelen.
+ Alle mogelijke vensters en teksten:
+
+ • [wk 0–8] Plan van Aanpak op tijd
+   Stel het Plan van Aanpak uiterlijk in week 8 op (2 weken na de
+   probleemanalyse).
+ • [wk 40–42] 42e-weeksmelding bij UWV
+   Doe de 42e-weeksmelding bij UWV; te laat melden riskeert een boete tot € 515.
+ • [vanaf wk 45] Inzetbaarheidsprofiel (IZP/LAB)
+   Laat de bedrijfsarts een Inzetbaarheidsprofiel (IZP/LAB) opstellen t.b.v. een
+   arbeidsdeskundig onderzoek.
+ • [wk 46–52] Arbeidsdeskundig onderzoek & eerstejaarsevaluatie
+   Plan het arbeidsdeskundig onderzoek en de eerstejaarsevaluatie
+   (opschudmoment); beoordeel of spoor 2 tijdig moet starten.
+ • [wk 52–58] Spoor 2 tijdig starten
+   Spoor 2 moet uiterlijk 6 weken na de eerstejaarsevaluatie zijn gestart, tenzij
+   er binnen 3 maanden concreet perspectief is op structurele werkhervatting
+   binnen de eigen organisatie (Werkwijzer 4.3.1).
+ • [vanaf wk 52] Bewaak spoor 2
+   Bewaak dat spoor 2 daadwerkelijk loopt naast spoor 1, zolang volledige
+   terugkeer niet zeker is.
+ • [wk 87–93] Eindevaluatie & WIA-aanvraag
+   Laat de bedrijfsarts een Actueel oordeel opstellen, vul samen de Eindevaluatie
+   in en maak het re-integratieverslag compleet; werknemer vraagt uiterlijk week
+   93 WIA aan.
+
+================================================================================
+ 4. LEEFTIJDSREGELS (op basis van geboortedatum — automatisch)
+================================================================================
+
+ • 60-plusser — vereenvoudigde WIA-beoordeling   [aandachtspunt]
+   De werknemer is bij het einde van de wachttijd (01-02-2027) 66 jaar. Meld bij
+   het WIA-venster (week 87–93): er bestaat een vereenvoudigde WIA-beoordeling
+   voor 60-plussers, zonder verzekeringsarts; beide partijen moeten ermee
+   instemmen. (Geldig voor einde wachttijd t/m 01-09-2027.)
+
+ NB: de AOW-datum wordt indicatief berekend als geboortedatum + 67 jaar en 3 maanden en is
+ ook zichtbaar onder 'Berekend (automatisch)' op het controlescherm.
+
+================================================================================
+ 5. ZIEK UIT DIENST (tijdelijk contract eindigt tijdens ziekte)
+================================================================================
+
+ De variant hangt af van de ziekteduur op de einddatum van het dienstverband:
+
+ 5a. Korter dan 6 weken ziek op de einddatum
+   Het tijdelijke contract eindigt op 10-03-2025 (ziekteduur op die datum ± 5
+   weken). Ga er niet automatisch van uit dat het contract niet wordt verlengd.
+   Laat je het tijdelijke contract van rechtswege aflopen (dus niet verlengen),
+   dan geldt het volgende: Geen re-integratieverslag nodig; doe alleen een
+   ziek-uit-dienstmelding bij UWV, uiterlijk op de laatste werkdag. Ben je
+   voornemens niet te verlengen, meld de werknemer dan óp de laatste dag van het
+   dienstverband ziek uit dienst bij UWV (Ziektewet) — een veel eerdere aangifte
+   is niet toegestaan en te laat melden riskeert een boete tot € 515 — en geef
+   hem een kopie van het verslag. Lever tot de laatste dag dezelfde
+   re-integratie-inspanningen; wordt herstel vóór de einddatum niet verwacht,
+   richt je dan vooral op spoor 2 en overweeg een participatieverzoek bij UWV.
+
+ 5b. 6 t/m 9 weken ziek op de einddatum
+   Het tijdelijke contract eindigt op 31-03-2025 (ziekteduur op die datum ± 7
+   weken). Ga er niet automatisch van uit dat het contract niet wordt verlengd.
+   Laat je het tijdelijke contract van rechtswege aflopen (dus niet verlengen),
+   dan geldt het volgende: Verkort re-integratieverslag, uiterlijk op de laatste
+   dag van het dienstverband. Ben je voornemens niet te verlengen, meld de
+   werknemer dan óp de laatste dag van het dienstverband ziek uit dienst bij UWV
+   (Ziektewet) — een veel eerdere aangifte is niet toegestaan en te laat melden
+   riskeert een boete tot € 515 — en geef hem een kopie van het verslag. Lever
+   tot de laatste dag dezelfde re-integratie-inspanningen; wordt herstel vóór de
+   einddatum niet verwacht, richt je dan vooral op spoor 2 en overweeg een
+   participatieverzoek bij UWV.
+
+ 5c. 10 weken of langer ziek op de einddatum
+   Het tijdelijke contract eindigt op 30-06-2025 (ziekteduur op die datum ± 20
+   weken). Ga er niet automatisch van uit dat het contract niet wordt verlengd.
+   Laat je het tijdelijke contract van rechtswege aflopen (dus niet verlengen),
+   dan geldt het volgende: Volledig re-integratieverslag (probleemanalyse, PvA +
+   bijstellingen, evaluaties, actueel oordeel), uiterlijk op de laatste dag. Ben
+   je voornemens niet te verlengen, meld de werknemer dan óp de laatste dag van
+   het dienstverband ziek uit dienst bij UWV (Ziektewet) — een veel eerdere
+   aangifte is niet toegestaan en te laat melden riskeert een boete tot € 515 —
+   en geef hem een kopie van het verslag. Lever tot de laatste dag dezelfde
+   re-integratie-inspanningen; wordt herstel vóór de einddatum niet verwacht,
+   richt je dan vooral op spoor 2 en overweeg een participatieverzoek bij UWV.
+
+ 5d. Langer dan 10 weken, maar volledig herstel binnen 3 maanden verwacht (signaal)
+   Het tijdelijke contract eindigt op 30-06-2025 (ziekteduur op die datum ± 20
+   weken). Ga er niet automatisch van uit dat het contract niet wordt verlengd.
+   Laat je het tijdelijke contract van rechtswege aflopen (dus niet verlengen),
+   dan geldt het volgende: Verkort re-integratieverslag volstaat (de bedrijfsarts
+   verwacht volledig herstel binnen 3 maanden), uiterlijk op de laatste dag van
+   het dienstverband. Ben je voornemens niet te verlengen, meld de werknemer dan
+   óp de laatste dag van het dienstverband ziek uit dienst bij UWV (Ziektewet) —
+   een veel eerdere aangifte is niet toegestaan en te laat melden riskeert een
+   boete tot € 515 — en geef hem een kopie van het verslag. Lever tot de laatste
+   dag dezelfde re-integratie-inspanningen; wordt herstel vóór de einddatum niet
+   verwacht, richt je dan vooral op spoor 2 en overweeg een participatieverzoek
+   bij UWV.
+
+ 5e. Einddatum ná het einde van de wachttijd
+   Het dienstverband eindigt op 30-06-2027, na het einde van de wachttijd. De
+   gebruikelijke re-integratieverplichtingen gedurende de eerste 104 weken
+   blijven van toepassing.
+
+================================================================================
+ 6. SIGNAAL-ADVIEZEN (de AI zet het signaal aan; de tool geeft dit vaste advies)
+================================================================================
+
+ De AI zet een signaal alléén op 'aan' als de terugkoppeling het duidelijk zegt.
+ Per signaal: wanneer het aangaat en welk advies er dan in het bericht komt.
+
+ 6.1  Geen benutbare mogelijkheden (GBM)   [let op]
+      Gaat aan wanneer: De bedrijfsarts geeft aan dat er op dit moment geen
+      benutbare arbeidsmogelijkheden zijn.
+      Advies dat dan in het bericht komt:
+      De bedrijfsarts geeft aan dat er op dit moment geen benutbare
+      arbeidsmogelijkheden zijn. Forceer dan geen re-integratieactiviteiten:
+      de bedrijfsarts houdt de vinger aan de pols — plan vervolgconsulten en
+      leg elke terugkoppeling vast in het verzuimdossier. Duurt deze situatie
+      de volle twee jaar, dan volstaat een beperkt re-integratieverslag
+      (Werkwijzer 5.9, 3.1).
+
+ 6.2  Mogelijk no-riskpolis — meld bij UWV (UWV beoordeelt)   [let op]
+      Gaat aan wanneer: De bedrijfsarts geeft aan dat mogelijk een
+      no-riskpolis of vangnetregeling (Ziektewet) van toepassing is, of noemt
+      de no-riskstatus expliciet.
+      Advies dat dan in het bericht komt:
+      De bedrijfsarts geeft aan dat mogelijk een no-riskpolis van toepassing
+      is. Meld de werknemer in dat geval ziek bij UWV met de classificatie dat
+      hij/zij onder de no-riskpolis van de Ziektewet valt; UWV beoordeelt
+      vervolgens of er daadwerkelijk sprake is van een no-risksituatie. Doe
+      die ziekteaangifte uiterlijk binnen 6 weken; ontdek je pas later dat
+      no-risk speelt, geef dat dan binnen 2 dagen door — de uitkering wordt
+      dan met hooguit één jaar terugwerkende kracht toegekend. Bij no-risk
+      vergoedt UWV via de Ziektewet (een deel van) je loonkosten tijdens de
+      ziekte; in het eerste ziektejaar kun je UWV bovendien verzoeken de
+      uitkering te verhogen van 70% tot maximaal het loon dat je moet
+      doorbetalen. Leg in je dossier alleen vast dát no-risk van toepassing
+      is, nooit waarom (die reden is medisch of privé).
+
+ 6.3  Marginale mogelijkheden   [aandachtspunt]
+      Gaat aan wanneer: Marginale belastbaarheid: maximaal circa 2 uur per dag
+      inzetbaar én zonder uitzicht op opbouw. Bij een opbouwperspectief (tempo
+      genoemd of volgt op het vervolgconsult) gaat dit signaal niet aan.
+      Advies dat dan in het bericht komt:
+      De belastbaarheid is op dit moment zeer beperkt (marginale
+      mogelijkheden). Lever extra inspanning om juist die geringe
+      mogelijkheden bij de eigen werkgever te benutten — in taken, uren en
+      begeleiding; het tweede spoor is hier niet snel aan de orde (Werkwijzer
+      5.8).
+
+ 6.4  Arbeidstherapeutisch werken — begrenzen   [aandachtspunt]
+      Gaat aan wanneer: Werken op arbeidstherapeutische basis (zonder
+      loonwaarde) wordt genoemd.
+      Advies dat dan in het bericht komt:
+      Er wordt (deels) op arbeidstherapeutische basis gewerkt. Begrens dit in
+      tijd en bouw door naar uren mét loonwaarde; te lang arbeidstherapeutisch
+      werken zonder loonwaarde is een grond om het Plan van Aanpak bij te
+      stellen (Werkwijzer 3.2.4).
+
+ 6.5  Stagnatie / hervatting instabiel   [aandachtspunt]
+      Gaat aan wanneer: De opbouw loopt achter op schema, de hervatting is
+      instabiel, of er is uitval/terugval.
+      Advies dat dan in het bericht komt:
+      De opbouw loopt achter op schema of de hervatting is instabiel. Stel het
+      Plan van Aanpak bij; komen werkgever en werknemer er samen niet uit,
+      vraag dan een deskundigenoordeel aan bij UWV (Werkwijzer 3.2.4, 5.4).
+
+ 6.6  Arbeidsconflict genoemd   [let op]
+      Gaat aan wanneer: Er is sprake van een arbeidsconflict of verstoorde
+      arbeidsverhouding.
+      Advies dat dan in het bericht komt:
+      Er speelt een arbeidsconflict of verstoorde arbeidsverhouding. Zet
+      mediation of een gesprek onder begeleiding in; een ziekmelding is geen
+      oplossing voor een conflict (Werkwijzer 5.3).
+
+ 6.7  Belastbaarheid ontstaat pas na de eerstejaarsevaluatie   [aandachtspunt]
+      Gaat aan wanneer: De belastbaarheid ontstaat pas (ruim) na ongeveer een
+      jaar verzuim.
+      Advies dat dan in het bericht komt:
+      De belastbaarheid ontstaat pas na de eerstejaarsevaluatie. Houd dan
+      maximaal 8 weken aan tussen het vaststellen van de belastbaarheid en de
+      start van de activiteiten: 2 weken voor bijstelling van het Plan van
+      Aanpak en 6 weken tot uitvoering (Werkwijzer 4.3.2).
+
+ 6.8  Gewijzigde belastbaarheid terwijl spoor 2 loopt   [aandachtspunt]
+      Gaat aan wanneer: De belastbaarheid is gewijzigd terwijl een
+      tweede-spoortraject loopt.
+      Advies dat dan in het bericht komt:
+      De belastbaarheid is gewijzigd terwijl het tweede-spoortraject loopt.
+      Informeer het re-integratiebureau hier direct over (Werkwijzer 4.3.4).
+
+ 6.9  Volledige werkhervatting — let op de 4-wekenregel   [aandachtspunt]
+      Gaat aan wanneer: De werknemer is (weer) volledig inzetbaar voor het
+      eigen werk in de eigen uren / heeft geen functionele beperkingen door
+      ziekte (bv. bij een herstelmelding of een arbeidsconflict zonder
+      ziekte).
+      Advies dat dan in het bericht komt:
+      De werknemer is (weer) volledig inzetbaar. Houd rekening met de
+      4-wekenregel: meldt de werknemer zich binnen vier weken na de
+      hersteldatum opnieuw ziek, dan worden de verzuimperioden als één
+      doorlopend verzuim gezien — de eerste ziektedag schuift niet op en de
+      wachttijd van 104 weken loopt door. Meld volledig herstel daarom pas als
+      de werkhervatting echt stabiel is.
+
+ 6.10  Herstel verwacht binnen 3 maanden   [geen eigen alinea]
+      Gaat aan wanneer: de bedrijfsarts verwacht volledig herstel/volledige
+      werkhervatting binnen circa 3 maanden.
+      Effect: geen losse advies-alinea, maar bij ziek-uit-dienst volstaat dan
+      een verkort re-integratieverslag (zie 5d).
+
+================================================================================
+ ZWANGERSCHAP / WAZO-VERLOF (handmatig: uitgerekende datum invoeren)
+================================================================================
+
+ Gaat aan wanneer: de gebruiker geeft in de tool aan dat de werknemer zwanger is
+ en vult de uitgerekende datum in. De tool berekent het zwangerschaps-/bevallings-
+ verlof (WAZO), verschuift de einde-wachttijd en zet dit advies in het bericht:
+
+ • Zwangerschap — WAZO-verlof verschuift de wachttijd   [let op]
+   Het zwangerschaps- en bevallingsverlof (WAZO, 16 weken) pauzeert de
+   loondoorbetaling en de 104-wekentermijn; de einde-wachttijd schuift daardoor
+   op naar 24-05-2027. Let op: dit doortellen over het verlof heen geldt alleen
+   als de ziekteoorzaak ná het bevallingsverlof dezelfde is als ervóór — is de
+   oorzaak anders, dan start ná het verlof een nieuwe eerste ziektedag (en een
+   nieuwe wachttijd). Komt het verzuim voort uit de zwangerschap of bevalling,
+   dan valt het onder de Ziektewet (vangnet, art. 29a ZW): meld dat bij UWV, dan
+   vergoedt UWV (een deel van) je loonkosten via ziekengeld. Leg in je dossier
+   alleen vast dát het zwangerschaps-/bevallingsgerelateerd is, nooit de medische
+   details.
+
+================================================================================
+ 7. MELDINGEN BIJ ONTBREKENDE GEGEVENS (aanvul-verzoeken in het bericht)
+================================================================================
+
+ • Eerste ziektedag ontbreekt   [aanvul-verzoek]
+   Geef de eerste ziektedag door, dan stem ik de procesadviezen af op de
+   verzuimduur.
+
+ • Geboortedatum ontbreekt   [aanvul-verzoek]
+   Geef de geboortedatum door; voor oudere werknemers gelden uitzonderingen rond
+   spoor 2 (AOW) en de WIA-beoordeling (60-plus).
+
+
+================================================================================
+ 8. TAAKSUGGESTIE (alleen als een functieomschrijving is meegegeven)
+================================================================================
+
+ De AI stelt 1–3 aangepaste taken voor die passen binnen de afgegeven
+ belastbaarheid en werkaanpassing. In het bericht komt dat er zo uit te zien:
+
+   "Suggestie voor aangepaste taken. Op basis van de functieomschrijving zou
+   je — binnen de afgegeven mogelijkheden — kunnen denken aan <taken van de AI>.
+   Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen
+   met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en
+   mogen niet eenzijdig in het dossier worden opgenomen."
+
+================================================================================
+ 9. RECENTE DOMEINBESLUITEN (19-06)
+================================================================================
+
+ - Ziek-uit-dienst bij precies 10 weken ziek -> VOLLEDIG re-integratieverslag.
+ - AOW-leeftijd indicatief op 67 jaar en 3 maanden (met SVB-disclaimer).
+ - Vervroegde-IVA-advies bewust verwijderd (ethisch oordeel hoort bij mens/arts).
+ - UWV-formulier sectie 7B/7C/7D wordt nu automatisch gevuld bij triggers
+   (werkplek-/werktijden-aanpassing of het arbeidsconflict-signaal).
+

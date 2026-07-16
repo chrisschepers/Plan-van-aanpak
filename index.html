@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>planvanaanpakinvuller.nl — concept Plan van Aanpak, automatisch ingevuld</title>
+<meta name="description" content="Upload de terugkoppeling van de bedrijfsarts en krijg een ingevuld concept Plan van Aanpak (Wet verbetering poortwachter), een opbouwadvies en een begeleidend bericht. Privacy by design, mens in de loop." />
+
+<!-- Social share (Open Graph + Twitter). Absolute URL = GitHub Pages-host;
+     pas aan zodra het eigen domein live staat. -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="planvanaanpakinvuller.nl" />
+<meta property="og:title" content="Concept Plan van Aanpak, automatisch ingevuld" />
+<meta property="og:description" content="Van terugkoppeling bedrijfsarts naar het ingevulde UWV-formulier (AG140), met opbouwadvies. Privacy by design, mens in de loop." />
+<meta property="og:url" content="https://chrisschepers.github.io/Plan-van-aanpak/" />
+<meta property="og:image" content="https://chrisschepers.github.io/Plan-van-aanpak/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:locale" content="nl_NL" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Concept Plan van Aanpak, automatisch ingevuld" />
+<meta name="twitter:description" content="Van terugkoppeling bedrijfsarts naar het ingevulde UWV-formulier (AG140). Privacy by design, mens in de loop." />
+<meta name="twitter:image" content="https://chrisschepers.github.io/Plan-van-aanpak/og.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="tool.css" />
+<link rel="stylesheet" href="auth.css" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<!-- CDN-scripts: versie-gepind mét Subresource Integrity, zodat een gewijzigd/
+     gecompromitteerd CDN-bestand door de browser wordt geweigerd i.p.v. gedraaid.
+     Bij een versie-upgrade: nieuwe sha384-hash berekenen (openssl dgst -sha384
+     -binary bestand | openssl base64 -A) en hier bijwerken. -->
+<script crossorigin="anonymous" src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
+  integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z"></script>
+<script crossorigin="anonymous" src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
+  integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"></script>
+<script crossorigin="anonymous" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0/dist/umd/supabase.min.js"
+  integrity="sha384-DjOvX/sJLsmbMrw4wTvf6l3kiGBjdxyOO6X2MTFwOOXGkjN/mE08BoDzrpaaIjil"></script>
+</head>
+<body>
+<div id="root"></div>
+<!-- AI-backend (Railway). Leeg = alleen demo. Vul je eigen URL in: -->
+<script>window.__PVA_BACKEND__ = "https://plan-van-aanpak-production.up.railway.app";</script>
+<!-- Supabase-login. Leeg = geen login (demo blijft werken). Vul Project URL + anon key in: -->
+<script>
+  window.__SUPABASE_URL__ = "https://oetlbnxpwthsuwrpwylq.supabase.co";
+  window.__SUPABASE_ANON_KEY__ = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9ldGxibnhwd3Roc3V3cnB3eWxxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NzU5OTgsImV4cCI6MjA5NzQ1MTk5OH0.u7Uu5QgZqoK6giv3p2v0Axu4uQaZb44-OHaMLD_Tl5Y";
+</script>
+<script src="app.js"></script>
+</body>
+</html>

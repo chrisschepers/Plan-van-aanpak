@@ -1,0 +1,22 @@
+{
+  "name": "planvanaanpakinvuller",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "planvanaanpakinvuller.nl — concept Plan van Aanpak (Wet verbetering poortwachter), automatisch ingevuld",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node test/template.mjs && node test/merge.mjs && node test/docx.mjs && node test/normalize.mjs && node test/review.mjs && node test/reconcile.mjs && node test/redact.mjs && node test/engine.mjs && node test/smoke.mjs && node test/wazo.mjs && node test/tijdlijn.mjs && node test/tijdlijnsvg.mjs && node test/admin.mjs",
+    "catalogus": "node server/genereer-adviescatalogus.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "jsdom": "^25.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "dependencies": {
+    "docx": "^9.7.1",
+    "jszip": "^3.10.1"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "planvanaanpak-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "AI-extractie backend voor planvanaanpakinvuller.nl (deploybaar op Railway)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.69.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mammoth": "^1.8.0",
+    "multer": "^2.0.2"
+  }
+}

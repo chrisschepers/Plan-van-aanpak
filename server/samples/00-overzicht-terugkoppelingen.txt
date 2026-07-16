@@ -1,0 +1,68 @@
+================================================================================
+ 10 FICTIEVE TERUGKOPPELINGEN — overzicht & verwacht gedrag
+================================================================================
+ Realistisch opgezet conform de regels voor de terugkoppeling van de
+ bedrijfsarts (AVG / Autoriteit Persoonsgegevens / NVAB):
+   - GEEN medische informatie (diagnose, klachten, behandeling, oorzaak)
+   - GEEN BSN
+   - wél: functionele mogelijkheden/beperkingen in werktermen, mate van
+     arbeidsongeschiktheid, opbouwadvies, prognose in werkhervattingstermen,
+     advies vervolgconsult, en de gebruikelijke privacy-zin
+   - terugkoppeling is gericht aan werkgever én werknemer (gelijkluidend)
+
+ Elk bestand: andere (fictieve) arbodienst, andere opzet, ander scenario.
+ Per stuk hieronder wat je van de tool mag verwachten. Wijkt het af?
+ Noteer het nummer + wat je zag.
+
+ Tip — lokaal draaien:  node server/try.mjs server/samples/terugkoppeling-03.txt
+ Of plak de tekst in de site en doorloop de stappen.
+
+--------------------------------------------------------------------------------
+ 01  ArboVitaal — formele brief — STANDAARD
+     Verwacht: vol opbouwschema (start 8 u, +4/week tot 36 u, vanaf 24-02-2026),
+     prognose ~7 weken. Geen bijzondere signalen.
+
+ 02  WerkGezond — formulier — GEEN CONCREET RITME
+     Verwacht: belastbaarheid ingevuld, maar geen opbouwschema (reken-waarden
+     leeg/0) — de arts bepaalt het tempo pas op het vervolgconsult.
+
+ 03  Arbo Unie-Noord — tabel — TIJDELIJK CONTRACT TIJDENS ZIEKTE
+     Verwacht: einddatum dienstverband 31-07-2026 herkend; opbouw vanaf
+     28-04-2026 (start 20 u, +4/week). Ziek-uit-dienst-advies met de juiste
+     re-integratieverslag-variant. Vermeldt ook ±50% arbeidsongeschikt.
+
+ 04  Praktijk Van Dijk — lopend verhaal — OUDERE WERKNEMER (geb. 03-01-1961)
+     Verwacht: leeftijdsregels (geen spoor 2 nodig: AOW binnen 1 jaar na de
+     WIA-poort; en/of vereenvoudigde 60+-WIA). Opbouw 2×4, +4/week vanaf 19-05.
+
+ 05  De Arbolijn — bullets — GEEN BENUTBARE MOGELIJKHEDEN (GBM)
+     Verwacht: signaal 'geenBenutbareMogelijkheden' aan; geen opbouwschema;
+     advies geen activiteiten forceren (Werkwijzer 5.9/3.1).
+
+ 06  Menswerk — e-mail — ARBEIDSCONFLICT (geen ziekte)
+     Verwacht: signaal 'arbeidsconflict' aan; advies gesprek/mediation (5.3).
+     Belastbaarheid: geen beperkingen door ziekte; volledig inzetbaar.
+
+ 07  ArboDuo — rubriekenlijst — ARBEIDSTHERAPEUTISCH
+     Verwacht: signaal 'arbeidstherapeutisch' aan; advies in tijd begrenzen en
+     doorbouwen naar uren mét loonwaarde (3.2.4). Geen concreet ritme.
+
+ 08  Bedrijfsartsen Online — genummerd — MARGINALE MOGELIJKHEDEN
+     Verwacht: signaal 'marginaleMogelijkheden' aan; advies de geringe
+     mogelijkheden bij de eigen werkgever benutten (5.8).
+
+ 09  ArboPlus — voortgangsrapport (vervolgconsult) — STAGNATIE / TERUGVAL
+     Verwacht: signaal 'stagnatie' aan; advies PvA bijstellen + eventueel
+     deskundigenoordeel (3.2.4/5.4). Eerste verzuimdag 06-10-2025 → verzuim is
+     al gevorderd, dus andere procesadviezen (o.a. richting 42e week).
+
+ 10  IZA-Arbo — formele brief — DUURZAAM GEEN MOGELIJKHEDEN → IVA
+     Verwacht: signaal 'duurzaamGeenMogelijkheden' aan; advies vervroegde
+     IVA-aanvraag. Eerste verzuimdag 11-03-2025 (ver gevorderd verzuim).
+
+--------------------------------------------------------------------------------
+ 99  FILTERTEST — bewust FOUT document (geen realistische terugkoppeling!)
+     Bevat expres een diagnose, behandeling en BSN, alsof iemand per ongeluk
+     een medisch stuk uploadt. Verwacht: de tool neemt daarvan NIETS over —
+     alleen de functionele gegevens komen terug.
+================================================================================
