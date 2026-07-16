@@ -206,8 +206,10 @@ function mapExtraction(d, functieomschrijving) {
       mk("opbouw", "Opbouwtempo", d.opbouwtempo, b.opbouwtempo),
       mk("start", "Startdatum opbouw", d.startdatumOpbouw, b.startdatumOpbouw),
       mk("beperking", "Werkaanpassing", d.werkaanpassing, b.werkaanpassing),
-      mk("werkplek", "Aanpassing werkplek (7B)", d.aanpassingWerkplek, null),
-      mk("werktijden", "Aanpassing werktijden (7C)", d.aanpassingWerktijden, null),
+      mk("werkplek", "Aanpassing werkplek", d.aanpassingWerkplek, null, { optional: true,
+        hint: "Alleen invullen als de bedrijfsarts een aanpassing van de werkplek of omstandigheden noemt (komt in blok 7B van het formulier)." }),
+      mk("werktijden", "Aanpassing werktijden", d.aanpassingWerktijden, null, { optional: true,
+        hint: "Alleen invullen als de bedrijfsarts een aanpassing van werktijden of rooster noemt (komt in blok 7C van het formulier)." }),
     ]},
     { group: "Prognose", items: [
       mk("prognose", "Prognose herstel", d.prognose, b.prognose),
@@ -218,8 +220,10 @@ function mapExtraction(d, functieomschrijving) {
     // eigen framing ("Zelf invullen" i.p.v. "Ontbreekt"), zie fields.jsx.
     { group: "Gegevens van de werkgever", manual: true,
       sub: "Staan meestal niet in de terugkoppeling — vul zelf aan voor de leeftijds- en contractadviezen", items: [
-      mk("geboortedatum", "Geboortedatum werknemer", d.geboortedatum, null),
-      mk("einddatum", "Einddatum tijdelijk contract (indien van toepassing)", d.einddatumDienstverband, null),
+      mk("geboortedatum", "Geboortedatum werknemer", d.geboortedatum, null,
+        { hint: "Nodig voor de leeftijdsadviezen (AOW, 60-plus)." }),
+      mk("einddatum", "Einddatum tijdelijk contract", d.einddatumDienstverband, null,
+        { optional: true, hint: "Alleen bij een tijdelijk contract dat binnenkort afloopt." }),
     ]},
   ];
 

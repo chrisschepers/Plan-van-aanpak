@@ -2997,18 +2997,23 @@
   function SchemaTable({ schema, contractHours }) {
     return /* @__PURE__ */ React.createElement("div", { className: "panel", style: { marginTop: 22 } }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Opbouwschema"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Berekend door de rekenmotor \xB7 ", contractHours, " contracturen")), /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Deterministisch")), /* @__PURE__ */ React.createElement("table", { className: "schema-table" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Per datum"), /* @__PURE__ */ React.createElement("th", null, "Uren per week"), /* @__PURE__ */ React.createElement("th", null, "Hersteld"))), /* @__PURE__ */ React.createElement(SchemaRows, { schema })));
   }
-  function FieldRow({ f, selected, onSelect, onEdit, manual }) {
-    const [editing, setEditing] = React.useState(false);
-    const [val, setVal] = React.useState(f.value);
+  function FieldRow({ f, selected, onSelect, onEdit, manual, editing, onStartEdit, onStopEdit, rowRef }) {
+    const [val, setVal] = React.useState("");
     const isMissing2 = f.status === "missing";
+    const hardMiss = isMissing2 && !f.optional && !manual;
+    React.useEffect(() => {
+      if (editing) setVal(f.value === MISSING ? "" : f.value);
+    }, [editing]);
     function commit() {
-      setEditing(false);
+      onStopEdit();
       onEdit(f.id, val);
     }
+    const emptyText = manual ? "Zelf invullen" : f.optional ? "Niet vermeld" : f.value;
     return /* @__PURE__ */ React.createElement(
       "div",
       {
-        className: "field-row" + (selected ? " sel" : "") + (isMissing2 ? " missing" : ""),
+        ref: rowRef,
+        className: "field-row" + (selected ? " sel" : "") + (hardMiss ? " missing" : "") + (isMissing2 && !hardMiss ? " soft" : ""),
         onClick: () => onSelect(f),
         tabIndex: 0,
         onKeyDown: (e) => {
@@ -3029,7 +3034,7 @@
             if (e.key === "Enter") commit();
           }
         }
-      ) : /* @__PURE__ */ React.createElement("div", { className: "fval" }, f.value),
+      ) : /* @__PURE__ */ React.createElement("div", { className: "fval" }, isMissing2 ? emptyText : f.value),
       !editing && /* @__PURE__ */ React.createElement(
         "button",
         {
@@ -3039,21 +3044,44 @@
           "aria-label": isMissing2 ? "Vul dit veld in" : "Bewerk dit veld",
           onClick: (e) => {
             e.stopPropagation();
-            setVal(f.value === "[INVULLEN]" ? "" : f.value);
-            setEditing(true);
+            onStartEdit(f.id);
           }
         },
         I.edit,
         /* @__PURE__ */ React.createElement("span", { className: "fedit-txt" }, isMissing2 ? "Invullen" : "Bewerk")
       ),
-      /* @__PURE__ */ React.createElement("div", { className: "fstatus", style: { opacity: 1 } }, isMissing2 ? manual ? /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Zelf invullen") : f.optional ? /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Optioneel") : /* @__PURE__ */ React.createElement("span", { className: "pill pill-flag" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Ontbreekt") : /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Ingevuld"))
+      /* @__PURE__ */ React.createElement("div", { className: "fstatus", style: { opacity: 1 } }, isMissing2 ? manual ? /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Zelf invullen") : f.optional ? /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Optioneel") : /* @__PURE__ */ React.createElement("span", { className: "pill pill-flag" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Ontbreekt") : /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Ingevuld")),
+      f.hint && !editing && /* @__PURE__ */ React.createElement("div", { className: "fhint", style: { gridColumn: 1, fontSize: 12, color: "var(--faint)", marginTop: 3 } }, f.hint)
     );
   }
+  function MissingSummary({ fields, onJump }) {
+    const nodig = [];
+    const zelf = [];
+    for (const g of fields) {
+      for (const it of g.items) {
+        if (it.status !== "missing" || it.optional) continue;
+        (g.manual ? zelf : nodig).push(it);
+      }
+    }
+    if (!nodig.length && !zelf.length) {
+      return /* @__PURE__ */ React.createElement("div", { className: "miss-summary ok" }, /* @__PURE__ */ React.createElement("span", { className: "miss-ico" }, I.checkSm), /* @__PURE__ */ React.createElement("span", null, "Alle benodigde velden zijn ingevuld. Loop ze na en bevestig onderaan."));
+    }
+    const item = (it, tone) => /* @__PURE__ */ React.createElement("li", { key: it.id }, /* @__PURE__ */ React.createElement("button", { type: "button", className: "miss-item", onClick: () => onJump(it.id) }, /* @__PURE__ */ React.createElement("span", { className: "miss-dot " + tone }), /* @__PURE__ */ React.createElement("span", { className: "miss-label" }, it.label), /* @__PURE__ */ React.createElement("span", { className: "miss-cta" }, "Invullen ", I.arrowRight)));
+    return /* @__PURE__ */ React.createElement("div", { className: "miss-summary" }, /* @__PURE__ */ React.createElement("div", { className: "miss-title" }, I.flag || I.info, " Nog aan te vullen"), nodig.length > 0 && /* @__PURE__ */ React.createElement("ul", { className: "miss-list" }, nodig.map((it) => item(it, "flag"))), zelf.length > 0 && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "miss-sub" }, "Zelf aanvullen \u2014 staan meestal niet in de terugkoppeling:"), /* @__PURE__ */ React.createElement("ul", { className: "miss-list" }, zelf.map((it) => item(it, "navy")))));
+  }
   function FieldsPanel({ fields, selected, onSelect, onEdit }) {
+    const [editingId, setEditingId] = React.useState(null);
+    const rowRefs = React.useRef({});
     const okCount = fields.flatMap((g) => g.items).filter((i) => i.status === "ok").length;
     const missCount = fields.filter((g) => !g.manual).flatMap((g) => g.items).filter((i) => i.status === "missing" && !i.optional).length;
-    const zelfCount = fields.filter((g) => g.manual).flatMap((g) => g.items).filter((i) => i.status === "missing").length;
-    return /* @__PURE__ */ React.createElement("div", { className: "panel fields-panel" }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Ge\xEBxtraheerde velden"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Klik een veld om de bron te zien")), /* @__PURE__ */ React.createElement("div", { className: "summary-chips" }, /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), okCount, " ingevuld"), missCount > 0 && /* @__PURE__ */ React.createElement("span", { className: "pill pill-flag" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), missCount, " ontbreekt"), zelfCount > 0 && /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), zelfCount, " zelf in te vullen"))), /* @__PURE__ */ React.createElement("div", { style: { maxHeight: 560, overflowY: "auto" } }, fields.map((g, gi) => /* @__PURE__ */ React.createElement("div", { className: "field-group", key: gi }, /* @__PURE__ */ React.createElement("div", { className: "gh" }, g.group), g.sub && /* @__PURE__ */ React.createElement("div", { className: "gh-sub", style: { fontSize: 12.5, color: "var(--faint)", margin: "-4px 0 8px", fontWeight: 400 } }, g.sub), g.items.map((f) => /* @__PURE__ */ React.createElement(
+    const zelfCount = fields.filter((g) => g.manual).flatMap((g) => g.items).filter((i) => i.status === "missing" && !i.optional).length;
+    const jump = (id) => {
+      onSelect({ id });
+      setEditingId(id);
+      const el = rowRefs.current[id];
+      if (el && el.scrollIntoView) el.scrollIntoView({ block: "center", behavior: "smooth" });
+    };
+    return /* @__PURE__ */ React.createElement("div", { className: "panel fields-panel" }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Ge\xEBxtraheerde velden"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Klik een veld om de bron te zien")), /* @__PURE__ */ React.createElement("div", { className: "summary-chips" }, /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), okCount, " ingevuld"), missCount > 0 && /* @__PURE__ */ React.createElement("span", { className: "pill pill-flag" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), missCount, " ontbreekt"), zelfCount > 0 && /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), zelfCount, " zelf in te vullen"))), /* @__PURE__ */ React.createElement(MissingSummary, { fields, onJump: jump }), /* @__PURE__ */ React.createElement("div", { style: { maxHeight: 560, overflowY: "auto" } }, fields.map((g, gi) => /* @__PURE__ */ React.createElement("div", { className: "field-group", key: gi }, /* @__PURE__ */ React.createElement("div", { className: "gh" }, g.group), g.sub && /* @__PURE__ */ React.createElement("div", { className: "gh-sub", style: { fontSize: 12.5, color: "var(--faint)", margin: "-4px 0 8px", fontWeight: 400 } }, g.sub), g.items.map((f) => /* @__PURE__ */ React.createElement(
       FieldRow,
       {
         key: f.id,
@@ -3061,7 +3089,13 @@
         manual: !!g.manual,
         selected: selected && selected.id === f.id,
         onSelect,
-        onEdit
+        onEdit,
+        editing: editingId === f.id,
+        onStartEdit: setEditingId,
+        onStopEdit: () => setEditingId(null),
+        rowRef: (el) => {
+          rowRefs.current[f.id] = el;
+        }
       }
     )))), /* @__PURE__ */ React.createElement(DerivedGroup, { fields })));
   }
@@ -23244,7 +23278,10 @@
         properties: {
           titlePage: false,
           page: {
-            size: { orientation: PageOrientation.LANDSCAPE, width: 16838, height: 11906 },
+            // De docx-lib wisselt breedte/hoogte zélf om bij LANDSCAPE (w:w=height,
+            // w:h=width). Geef de A4-maten dus in STAANDE volgorde (breedte 11906 =
+            // 210 mm, hoogte 16838 = 297 mm); na de swap wordt de pagina liggend.
+            size: { orientation: PageOrientation.LANDSCAPE, width: 11906, height: 16838 },
             margin: { top: 1e3, bottom: 1e3, left: 1e3, right: 1e3 }
           }
         },
@@ -23537,8 +23574,14 @@
         mk("opbouw", "Opbouwtempo", d.opbouwtempo, b.opbouwtempo),
         mk("start", "Startdatum opbouw", d.startdatumOpbouw, b.startdatumOpbouw),
         mk("beperking", "Werkaanpassing", d.werkaanpassing, b.werkaanpassing),
-        mk("werkplek", "Aanpassing werkplek (7B)", d.aanpassingWerkplek, null),
-        mk("werktijden", "Aanpassing werktijden (7C)", d.aanpassingWerktijden, null)
+        mk("werkplek", "Aanpassing werkplek", d.aanpassingWerkplek, null, {
+          optional: true,
+          hint: "Alleen invullen als de bedrijfsarts een aanpassing van de werkplek of omstandigheden noemt (komt in blok 7B van het formulier)."
+        }),
+        mk("werktijden", "Aanpassing werktijden", d.aanpassingWerktijden, null, {
+          optional: true,
+          hint: "Alleen invullen als de bedrijfsarts een aanpassing van werktijden of rooster noemt (komt in blok 7C van het formulier)."
+        })
       ] },
       { group: "Prognose", items: [
         mk("prognose", "Prognose herstel", d.prognose, b.prognose),
@@ -23552,8 +23595,20 @@
         manual: true,
         sub: "Staan meestal niet in de terugkoppeling \u2014 vul zelf aan voor de leeftijds- en contractadviezen",
         items: [
-          mk("geboortedatum", "Geboortedatum werknemer", d.geboortedatum, null),
-          mk("einddatum", "Einddatum tijdelijk contract (indien van toepassing)", d.einddatumDienstverband, null)
+          mk(
+            "geboortedatum",
+            "Geboortedatum werknemer",
+            d.geboortedatum,
+            null,
+            { hint: "Nodig voor de leeftijdsadviezen (AOW, 60-plus)." }
+          ),
+          mk(
+            "einddatum",
+            "Einddatum tijdelijk contract",
+            d.einddatumDienstverband,
+            null,
+            { optional: true, hint: "Alleen bij een tijdelijk contract dat binnenkort afloopt." }
+          )
         ]
       }
     ];

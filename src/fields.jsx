@@ -1,6 +1,6 @@
 /* Opbouwschema-tabel + bewerkbaar paneel met geëxtraheerde velden */
 
-import { I } from "./data.jsx";
+import { I, MISSING } from "./data.jsx";
 import { computeDerived, poortwachterTermijnen } from "./advice.js";
 
 // Volledig overzicht van de wettelijke poortwachter-termijnen + wat de werkgever doet.
@@ -76,19 +76,29 @@ export function SchemaTable({ schema, contractHours }) {
   );
 }
 
-function FieldRow({ f, selected, onSelect, onEdit, manual }) {
-  const [editing, setEditing] = React.useState(false);
-  const [val, setVal] = React.useState(f.value);
+function FieldRow({ f, selected, onSelect, onEdit, manual, editing, onStartEdit, onStopEdit, rowRef }) {
+  const [val, setVal] = React.useState("");
   const isMissing = f.status === "missing";
+  // Alleen een écht ontbrekend, verplicht veld krijgt de rode "Ontbreekt"-styling.
+  // Optionele of zelf-in-te-vullen velden zijn geen fout → zachtere weergave.
+  const hardMiss = isMissing && !f.optional && !manual;
+
+  // Vul het invoerveld met de huidige waarde zodra we in bewerk-modus gaan.
+  React.useEffect(() => {
+    if (editing) setVal(f.value === MISSING ? "" : f.value);
+  }, [editing]);
 
   function commit() {
-    setEditing(false);
+    onStopEdit();
     onEdit(f.id, val);
   }
 
+  const emptyText = manual ? "Zelf invullen" : f.optional ? "Niet vermeld" : f.value;
+
   return (
     <div
-      className={"field-row" + (selected ? " sel" : "") + (isMissing ? " missing" : "")}
+      ref={rowRef}
+      className={"field-row" + (selected ? " sel" : "") + (hardMiss ? " missing" : "") + (isMissing && !hardMiss ? " soft" : "")}
       onClick={() => onSelect(f)}
       tabIndex={0}
       onKeyDown={(e) => { if (e.key === "Enter") onSelect(f); }}
@@ -105,7 +115,7 @@ function FieldRow({ f, selected, onSelect, onEdit, manual }) {
           onKeyDown={(e) => { if (e.key === "Enter") commit(); }}
         />
       ) : (
-        <div className="fval">{f.value}</div>
+        <div className="fval">{isMissing ? emptyText : f.value}</div>
       )}
       {!editing && (
         <button
@@ -113,7 +123,7 @@ function FieldRow({ f, selected, onSelect, onEdit, manual }) {
           className="fedit"
           title={isMissing ? "Vul dit veld in" : "Bewerk dit veld"}
           aria-label={isMissing ? "Vul dit veld in" : "Bewerk dit veld"}
-          onClick={(e) => { e.stopPropagation(); setVal(f.value === "[INVULLEN]" ? "" : f.value); setEditing(true); }}
+          onClick={(e) => { e.stopPropagation(); onStartEdit(f.id); }}
         >{I.edit}<span className="fedit-txt">{isMissing ? "Invullen" : "Bewerk"}</span></button>
       )}
       <div className="fstatus" style={{ opacity: 1 }}>
@@ -125,16 +135,78 @@ function FieldRow({ f, selected, onSelect, onEdit, manual }) {
                 : <span className="pill pill-flag"><span className="pdot"></span>Ontbreekt</span>)
           : <span className="pill pill-ok"><span className="pdot"></span>Ingevuld</span>}
       </div>
+      {f.hint && !editing && (
+        <div className="fhint" style={{ gridColumn: 1, fontSize: 12, color: "var(--faint)", marginTop: 3 }}>{f.hint}</div>
+      )}
+    </div>
+  );
+}
+
+// Overzicht bovenaan: welke velden nog aandacht vragen, onder elkaar en klikbaar.
+// Klikken springt naar het veld en opent het meteen om in te vullen.
+function MissingSummary({ fields, onJump }) {
+  const nodig = [];  // echte extractie-missers (verplicht)
+  const zelf = [];   // werkgeversgegevens die je zelf aanlevert
+  for (const g of fields) {
+    for (const it of g.items) {
+      if (it.status !== "missing" || it.optional) continue;
+      (g.manual ? zelf : nodig).push(it);
+    }
+  }
+
+  if (!nodig.length && !zelf.length) {
+    return (
+      <div className="miss-summary ok">
+        <span className="miss-ico">{I.checkSm}</span>
+        <span>Alle benodigde velden zijn ingevuld. Loop ze na en bevestig onderaan.</span>
+      </div>
+    );
+  }
+
+  const item = (it, tone) => (
+    <li key={it.id}>
+      <button type="button" className="miss-item" onClick={() => onJump(it.id)}>
+        <span className={"miss-dot " + tone}></span>
+        <span className="miss-label">{it.label}</span>
+        <span className="miss-cta">Invullen {I.arrowRight}</span>
+      </button>
+    </li>
+  );
+
+  return (
+    <div className="miss-summary">
+      <div className="miss-title">{I.flag || I.info} Nog aan te vullen</div>
+      {nodig.length > 0 && (
+        <ul className="miss-list">{nodig.map((it) => item(it, "flag"))}</ul>
+      )}
+      {zelf.length > 0 && (
+        <>
+          <div className="miss-sub">Zelf aanvullen — staan meestal niet in de terugkoppeling:</div>
+          <ul className="miss-list">{zelf.map((it) => item(it, "navy"))}</ul>
+        </>
+      )}
     </div>
   );
 }
 
 export function FieldsPanel({ fields, selected, onSelect, onEdit }) {
+  const [editingId, setEditingId] = React.useState(null);
+  const rowRefs = React.useRef({});
   const okCount = fields.flatMap(g => g.items).filter(i => i.status === "ok").length;
   // Werkgeversvelden (manual) tellen niet als "ontbreekt": dat zijn geen
-  // extractie-missers maar invoer die de werkgever zelf aanlevert.
+  // extractie-missers maar invoer die de werkgever zelf aanlevert. Optionele
+  // velden (bv. werkplek/werktijden) tellen ook niet mee als "ontbreekt".
   const missCount = fields.filter(g => !g.manual).flatMap(g => g.items).filter(i => i.status === "missing" && !i.optional).length;
-  const zelfCount = fields.filter(g => g.manual).flatMap(g => g.items).filter(i => i.status === "missing").length;
+  const zelfCount = fields.filter(g => g.manual).flatMap(g => g.items).filter(i => i.status === "missing" && !i.optional).length;
+
+  // Spring naar een veld en open het meteen om in te vullen.
+  const jump = (id) => {
+    onSelect({ id });
+    setEditingId(id);
+    const el = rowRefs.current[id];
+    if (el && el.scrollIntoView) el.scrollIntoView({ block: "center", behavior: "smooth" });
+  };
+
   return (
     <div className="panel fields-panel">
       <div className="panel-head">
@@ -148,6 +220,7 @@ export function FieldsPanel({ fields, selected, onSelect, onEdit }) {
           {zelfCount > 0 && <span className="pill pill-navy"><span className="pdot"></span>{zelfCount} zelf in te vullen</span>}
         </div>
       </div>
+      <MissingSummary fields={fields} onJump={jump} />
       <div style={{ maxHeight: 560, overflowY: "auto" }}>
         {fields.map((g, gi) => (
           <div className="field-group" key={gi}>
@@ -161,6 +234,10 @@ export function FieldsPanel({ fields, selected, onSelect, onEdit }) {
                 selected={selected && selected.id === f.id}
                 onSelect={onSelect}
                 onEdit={onEdit}
+                editing={editingId === f.id}
+                onStartEdit={setEditingId}
+                onStopEdit={() => setEditingId(null)}
+                rowRef={(el) => { rowRefs.current[f.id] = el; }}
               />
             ))}
           </div>

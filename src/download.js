@@ -358,7 +358,10 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
       properties: {
         titlePage: false,
         page: {
-          size: { orientation: PageOrientation.LANDSCAPE, width: 16838, height: 11906 },
+          // De docx-lib wisselt breedte/hoogte zélf om bij LANDSCAPE (w:w=height,
+          // w:h=width). Geef de A4-maten dus in STAANDE volgorde (breedte 11906 =
+          // 210 mm, hoogte 16838 = 297 mm); na de swap wordt de pagina liggend.
+          size: { orientation: PageOrientation.LANDSCAPE, width: 11906, height: 16838 },
           margin: { top: 1000, bottom: 1000, left: 1000, right: 1000 },
         },
       },
