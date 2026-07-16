@@ -356,6 +356,32 @@
 .dl-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
 @media (max-width: 560px) { .dl-buttons { width: 100%; flex-direction: column; } .dl-buttons .btn { width: 100%; } }
 
+/* Inklapbare secties (native <details>) — houdt de hoofdschermen rustig */
+.tool-details { border: 1px solid var(--line); border-radius: 12px; margin-top: 14px; background: #fff; overflow: hidden; }
+.tool-details > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; font-weight: 600; font-size: 14.5px; color: var(--navy-900); }
+.tool-details > summary::-webkit-details-marker { display: none; }
+.tool-details > summary::marker { content: ""; }
+.tool-details > summary:hover { background: var(--navy-50); }
+.tool-details .det-chev { color: var(--navy-400); display: inline-flex; transition: transform .18s var(--ease); flex: none; }
+.tool-details .det-chev svg { width: 18px; height: 18px; }
+.tool-details[open] > summary { border-bottom: 1px solid var(--line-soft); }
+.tool-details[open] > summary .det-chev { transform: rotate(180deg); }
+.tool-details .det-body { padding: 14px 16px 16px; }
+.tool-details .det-body .func-omschrijving:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+.tool-details .det-body .preview-tabs { margin-bottom: 18px; }
+
+/* Download-hero (stap 3): één duidelijke primaire actie */
+.dl-hero { border: 1px solid var(--line); border-radius: 16px; padding: 22px; margin-top: 8px; background: linear-gradient(180deg, var(--navy-50), #fff); }
+.dl-hero-top { display: flex; gap: 14px; align-items: flex-start; }
+.dl-hero-top .ico { display: inline-flex; width: 44px; height: 44px; border-radius: 12px; align-items: center; justify-content: center; background: #fff; border: 1px solid var(--line); color: var(--navy); flex: none; }
+.dl-hero-top .ico svg { width: 22px; height: 22px; }
+.dl-hero-top h3 { font-size: 19px; color: var(--navy-900); margin: 2px 0 4px; }
+.dl-hero-top p { color: var(--muted); font-size: 14px; margin: 0; line-height: 1.5; }
+.dl-hero .btn-xl { margin-top: 18px; width: 100%; }
+.dl-lock { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 12px 0 0; font-size: 13px; color: var(--muted); }
+.dl-lock svg { width: 15px; height: 15px; }
+.btn-xl { font-size: 17px; padding: 16px 26px; border-radius: 13px; }
+
 /* ---- UWV-formulier (schermweergave 1-op-1) ---- */
 .uwvform { padding: 34px 38px; }
 .uwv-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }

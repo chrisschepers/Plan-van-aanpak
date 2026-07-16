@@ -8,7 +8,7 @@ import { getVal } from "./casedata.js";
 import { SchemaTable, FieldsPanel } from "./fields.jsx";
 import { SourceDoc } from "./sourcedoc.jsx";
 import { AdviesPreview, PvaPreview, BerichtPreview, WerknemerBerichtPreview } from "./previews.jsx";
-import { downloadBericht, downloadUwvPva, downloadWerknemerBericht } from "./download.js";
+import { downloadBericht, downloadUwvPva, downloadWerknemerBericht, downloadAlles } from "./download.js";
 import { hasBackend } from "./config.js";
 import { extractCasus, deriveSchema } from "./extract.js";
 import { authConfigured } from "./supa.js";
@@ -46,6 +46,18 @@ function Stepper({ step }) {
         </React.Fragment>
       ))}
     </div>
+  );
+}
+
+// Inklapbare sectie (native <details> → toegankelijk, geen extra state).
+// Voor alles wat optioneel of "voor wie het wil zien" is, zodat het hoofdscherm
+// rustig blijft.
+function Details({ summary, children, open }) {
+  return (
+    <details className="tool-details" open={open || undefined}>
+      <summary><span className="det-sum">{summary}</span><span className="det-chev">{I.chevDown}</span></summary>
+      <div className="det-body">{children}</div>
+    </details>
   );
 }
 
@@ -169,8 +181,8 @@ function UploadStep({ onResult, session, onNeedLogin, credits, onNeedCredits, on
     <div className="upload-wrap">
       <div className="step-kicker">Stap 1 van 3</div>
       <div className="tool-head">
-        <h1>Lever de terugkoppeling van de bedrijfsarts aan</h1>
-        <p>Upload het spreekuurverslag (PDF/Word) of plak de tekst. De AI leest de functionele gegevens uit — medische informatie en BSN blijven buiten het Plan van Aanpak.</p>
+        <h1>Upload de terugkoppeling van de bedrijfsarts</h1>
+        <p>Kies het spreekuurverslag (PDF, Word of foto) of plak de tekst. Wij lezen automatisch de gegevens uit die je nodig hebt — medische informatie en het BSN blijven eruit.</p>
       </div>
 
       <input ref={inputRef} type="file" multiple
@@ -241,43 +253,17 @@ function UploadStep({ onResult, session, onNeedLogin, credits, onNeedCredits, on
         </div>
       )}
 
-      {(eerdere || []).length > 0 && (
-        <div className="func-omschrijving">
-          <label htmlFor="vervolg-select"><strong>Vervolg op een eerdere casus</strong> <span className="optioneel">(optioneel)</span></label>
-          <p className="func-hint">
-            Afgeronde casussen worden alleen op dit apparaat bewaard (naam en planningsgegevens — nooit op onze servers).
-            Kies een casus om geboortedatum, contracteinde en zwangerschap voor te laden.{" "}
-            <button type="button" onClick={() => { onWisEerdere(); setVervolgId(""); }}>Wis opgeslagen casussen</button>
-          </p>
-          <select id="vervolg-select" value={vervolgId} onChange={(e) => setVervolgId(e.target.value)}
-            style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--line, #d8dce4)", font: "inherit", background: "#fff" }}>
-            <option value="">— Nieuwe casus (niets voorladen) —</option>
-            {(eerdere || []).map((e) => (
-              <option key={e.id} value={e.id}>{e.naam} · bewaard op {e.bewaardOp}</option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      <div className="func-omschrijving">
-        <label htmlFor="func-omschr"><strong>Functieomschrijving van de werknemer</strong> <span className="optioneel">(optioneel)</span></label>
-        <p className="func-hint">Plak de kerntaken. Dan stelt de tool in het begeleidend bericht passende aangepaste taken voor, binnen de afgegeven mogelijkheden — als gespreksopening met de werknemer.</p>
-        <textarea id="func-omschr" className="paste-area" rows={4} value={functie}
-          onChange={(e) => setFunctie(e.target.value)}
-          placeholder="Bijv. kerntaken, verantwoordelijkheden en typische werkzaamheden…" />
-      </div>
-
       <div className="privacy-note">
         {I.shield}
-        <p><strong>Privacy by design.</strong> Bijzondere persoonsgegevens (diagnose, behandeling, klachten) en het BSN worden <strong>niet</strong> overgenomen in het concept.</p>
+        <p><strong>Veilig.</strong> Diagnose, klachten, behandeling en het BSN worden nooit overgenomen in het concept.</p>
       </div>
 
       {hasInput && (
         <label className={"control-check confirm-medical" + (noMedical ? " on" : "")} onClick={() => setNoMedical(!noMedical)}>
           <span className="box">{I.checkSm}</span>
           <span className="ct">
-            <strong>Ik heb geen medische gegevens geüpload</strong>
-            Ik bevestig dat dit document uitsluitend functionele gegevens bevat (geen diagnose, klachten of behandeling) en dat ik een fictieve terugkoppeling gebruik.
+            <strong>Dit verslag bevat geen medische gegevens</strong>
+            Alleen functionele gegevens (geen diagnose of klachten). Gebruik in deze proeffase een fictief voorbeeld.
           </span>
         </label>
       )}
@@ -285,9 +271,37 @@ function UploadStep({ onResult, session, onNeedLogin, credits, onNeedCredits, on
       <div className="tool-actions">
         <span></span>
         <button className="btn btn-primary btn-lg" disabled={!canSubmit} onClick={process}>
-          Verwerk {I.arrowRight}
+          Uitlezen {I.arrowRight}
         </button>
       </div>
+
+      <Details summary="Meer opties (optioneel)">
+        <div className="func-omschrijving" style={{ marginTop: 0 }}>
+          <label htmlFor="func-omschr"><strong>Functieomschrijving van de werknemer</strong></label>
+          <p className="func-hint">Plak de kerntaken. Dan stelt de tool passende aangepaste taken voor als gespreksopening met de werknemer.</p>
+          <textarea id="func-omschr" className="paste-area" rows={4} value={functie}
+            onChange={(e) => setFunctie(e.target.value)}
+            placeholder="Bijv. kerntaken, verantwoordelijkheden en typische werkzaamheden…" />
+        </div>
+
+        {(eerdere || []).length > 0 && (
+          <div className="func-omschrijving">
+            <label htmlFor="vervolg-select"><strong>Vervolg op een eerdere casus</strong></label>
+            <p className="func-hint">
+              Afgeronde casussen worden alleen op dit apparaat bewaard (naam en planning — nooit op onze servers).
+              Kies een casus om geboortedatum, contracteinde en zwangerschap voor te laden.{" "}
+              <button type="button" onClick={() => { onWisEerdere(); setVervolgId(""); }}>Wis opgeslagen casussen</button>
+            </p>
+            <select id="vervolg-select" value={vervolgId} onChange={(e) => setVervolgId(e.target.value)}
+              style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--line, #d8dce4)", font: "inherit", background: "#fff" }}>
+              <option value="">— Nieuwe casus (niets voorladen) —</option>
+              {(eerdere || []).map((e) => (
+                <option key={e.id} value={e.id}>{e.naam} · bewaard op {e.bewaardOp}</option>
+              ))}
+            </select>
+          </div>
+        )}
+      </Details>
     </div>
   );
 }
@@ -439,13 +453,8 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit, zwange
     <div>
       <div className="step-kicker">Stap 2 van 3</div>
       <div className="tool-head">
-        <h1>Controleer de geëxtraheerde gegevens</h1>
-        <p>Links de ingevulde velden, rechts de bron. Klik een veld om de bijbehorende passage te zien. Corrigeer waar nodig en vul ontbrekende velden aan.</p>
-      </div>
-
-      <div className="gate-banner">
-        {I.hand}
-        <span><strong>Menselijke controle is verplicht.</strong> Niets wordt vastgesteld of gedownload zonder dat jij het hebt nagelopen en bevestigd.</span>
+        <h1>Controleer de gegevens</h1>
+        <p>Loop de gegevens na en vul aan wat nog mist. Klik een veld om te zien waar het vandaan komt.</p>
       </div>
 
       {waarschuwingen.length > 0 && (
@@ -460,36 +469,39 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit, zwange
         </div>
       )}
 
-      <div className="verify-grid">
-        <FieldsPanel fields={fields} selected={selected} onSelect={select} onEdit={onEdit} />
+      <FieldsPanel fields={fields} selected={selected} onSelect={select} onEdit={onEdit} />
+
+      <Details summary={selected ? `Waar komt "${selected.label}" vandaan?` : "Waar komen de gegevens vandaan?"}>
         {mode === "demo"
           ? <SourceDoc active={activeSrc} onSel={(id) => {
               const f = allItems.find(it => it.src === id);
               if (f) setSelectedId(f.id);
             }} />
           : <AiSourcePanel selected={selected} sources={sources} />}
-      </div>
-
-      {geenOpbouw
-        ? <div className="panel" style={{ marginTop: 22 }}>
-            <div className="panel-head"><div><h3>Opbouwschema</h3><div className="sub">Geen oplopend schema in deze situatie</div></div></div>
-            <p style={{ padding: "4px 2px", color: "var(--ink-soft)" }}>{casus.opbouwReden || "Een opbouwschema is op dit moment niet aan de orde."}</p>
-          </div>
-        : <SchemaTable schema={schema} contractHours={contractHours} />}
+      </Details>
 
       <ZwangerschapPanel value={zwangerschap} onChange={setZwangerschap} />
-      <TijdlijnPanel fields={fields} zwangerschap={zwangerschap} />
+
+      <Details summary="Opbouwschema en tijdlijn bekijken">
+        {geenOpbouw
+          ? <div className="panel" style={{ marginTop: 8 }}>
+              <div className="panel-head"><div><h3>Opbouwschema</h3><div className="sub">Geen oplopend schema in deze situatie</div></div></div>
+              <p style={{ padding: "4px 2px", color: "var(--ink-soft)" }}>{casus.opbouwReden || "Een opbouwschema is op dit moment niet aan de orde."}</p>
+            </div>
+          : <SchemaTable schema={schema} contractHours={contractHours} />}
+        <TijdlijnPanel fields={fields} zwangerschap={zwangerschap} />
+      </Details>
 
       <div className="verify-foot">
         <label className={"control-check" + (checked ? " on" : "")} onClick={() => setChecked(!checked)}>
           <span className="box">{I.checkSm}</span>
           <span className="ct">
             <strong>Ik heb de gegevens gecontroleerd</strong>
-            Ik bevestig dat ik de geëxtraheerde gegevens heb nagelopen en corrigeer ontbrekende velden vóór vaststelling.
+            Verplicht: jij bent verantwoordelijk voor het vaststellen. Vul ontbrekende velden aan vóór je doorgaat.
           </span>
         </label>
         <button className="btn btn-primary btn-lg" disabled={!checked} onClick={onNext}>
-          Naar preview {I.arrowRight}
+          Doorgaan {I.arrowRight}
         </button>
       </div>
 
@@ -531,44 +543,49 @@ function PreviewStep({ onBack, controleOk, casus, zwangerschap }) {
     <div>
       <div className="step-kicker">Stap 3 van 3</div>
       <div className="tool-head">
-        <h1>Preview en download</h1>
-        <p>Bekijk de drie onderdelen. Stel het concept samen met de werknemer vast en download het als Word-document.</p>
+        <h1>Download je documenten</h1>
+        <p>Klaar. Download alles in één keer en stel het concept samen met je werknemer vast.</p>
       </div>
 
-      <div className="preview-tabs">
-        {tabs.map((tb, i) => (
-          <button key={i} className={tab === i ? "active" : ""} onClick={() => setTab(i)}>
-            <span className="tnum">{i + 1}</span><span className="txt">{tb.t}</span>
-          </button>
-        ))}
-      </div>
-
-      {tabs[tab].el}
-
-      <div className="download-bar">
-        <div className="dl-info">
+      <div className="dl-hero">
+        <div className="dl-hero-top">
           <span className="ico">{I.download}</span>
           <div>
-            <h4>Aparte documenten</h4>
-            <p>
-              {controleOk
-                ? <><span className="review-confirm">{I.checkSm} Menselijke controle bevestigd in stap 2.</span> Het Plan van aanpak hoort in het personeelsdossier; de adviezen en berichten niet — daarom apart.</>
-                : "Controle in stap 2 is vereist vóór downloaden"}
-            </p>
+            <h3>Download alles</h3>
+            <p>Eén zip met drie Word-bestanden: het Plan van aanpak (UWV, voor het dossier), het begeleidend bericht met adviezen, en een bericht voor je werknemer in gewone taal.</p>
           </div>
         </div>
+        <button className="btn btn-accent btn-xl" disabled={!controleOk || busyKey}
+          onClick={() => run("alles", () => downloadAlles(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld, opbouwReden, wazo))}>
+          {I.download} {busyKey === "alles" ? "Bezig…" : "Download alles (zip)"}
+        </button>
+        {!controleOk && <p className="dl-lock">{I.lock} Bevestig eerst de controle in stap 2.</p>}
+      </div>
+
+      <Details summary="Bekijk de documenten eerst">
+        <div className="preview-tabs">
+          {tabs.map((tb, i) => (
+            <button key={i} className={tab === i ? "active" : ""} onClick={() => setTab(i)}>
+              <span className="tnum">{i + 1}</span><span className="txt">{tb.t}</span>
+            </button>
+          ))}
+        </div>
+        {tabs[tab].el}
+      </Details>
+
+      <Details summary="Of download een los document">
         <div className="dl-buttons">
-          <button className="btn btn-accent btn-lg" disabled={!controleOk || busyKey} onClick={() => run("pva", () => downloadUwvPva(fields, schema, functieomschrijving, opbouwReden, signalen))}>
+          <button className="btn btn-ghost" disabled={!controleOk || busyKey} onClick={() => run("pva", () => downloadUwvPva(fields, schema, functieomschrijving, opbouwReden, signalen))}>
             {I.download} {busyKey === "pva" ? "Bezig…" : "Plan van aanpak (UWV) — voor dossier"}
           </button>
-          <button className="btn btn-primary btn-lg" disabled={!controleOk || busyKey} onClick={() => run("bericht", () => downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo))}>
+          <button className="btn btn-ghost" disabled={!controleOk || busyKey} onClick={() => run("bericht", () => downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo))}>
             {I.download} {busyKey === "bericht" ? "Bezig…" : "Begeleidend bericht & adviezen"}
           </button>
-          <button className="btn btn-primary btn-lg" disabled={!controleOk || busyKey} onClick={() => run("werknemer", () => downloadWerknemerBericht(fields, schema, reportDate, signalen, opbouwReden))}>
-            {I.download} {busyKey === "werknemer" ? "Bezig…" : "Bericht voor je werknemer (B1)"}
+          <button className="btn btn-ghost" disabled={!controleOk || busyKey} onClick={() => run("werknemer", () => downloadWerknemerBericht(fields, schema, reportDate, signalen, opbouwReden))}>
+            {I.download} {busyKey === "werknemer" ? "Bezig…" : "Bericht voor je werknemer"}
           </button>
         </div>
-      </div>
+      </Details>
 
       <div className="tool-actions">
         <button className="btn btn-ghost" onClick={onBack}>{I.arrowLeft} Terug naar controle</button>

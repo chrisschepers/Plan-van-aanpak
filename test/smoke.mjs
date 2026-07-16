@@ -57,7 +57,7 @@ check("bericht-tab toont disclaimer-slotzin", !!byText(".showcase", "document va
 // Tool opent op de upload-stap; geen demo meer
 click(byText("button", "Probeer de PvA-invuller"));
 await wait(50);
-check("tool opent op stap 1 (upload)", !!byText("h1", "Lever de terugkoppeling"));
+check("tool opent op stap 1 (upload)", !!byText("h1", "Upload de terugkoppeling"));
 check("geen voorbeeldcasus-knop meer", !byText(".example-link", "voorbeeldcasus"));
 
 console.log(failures === 0 ? "\nAlle checks geslaagd." : `\n${failures} check(s) gefaald.`);

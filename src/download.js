@@ -16,6 +16,7 @@ import { adviceBullets, poortwachterTermijnen, berichtKern, splitLinks, computeT
 import { fillTemplate, buildUwvValues } from "./filltemplate.js";
 import { BAND_PNG, DECO_PNG, MARK_PNG, pngBytes } from "./brandassets.js";
 import { renderTijdlijnSvg } from "./tijdlijnsvg.js";
+import JSZip from "jszip";
 
 const NAVY = "1F3864";
 const NAVY_900 = "14264A";
@@ -430,8 +431,8 @@ async function svgToPng(svg, w, h, scale = 2) {
 // Begeleidend bericht op briefpapier: opbouwadvies + verweven adviezen + de
 // verzuim-tijdlijn (als afbeelding op een liggende slotpagina). Bewust LOS van
 // het Plan van aanpak, want dit hoort niet in het personeelsdossier.
-export async function downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo) {
-  const filename = `Begeleidend-bericht-${safeName(fields)}.docx`;
+async function berichtBlob(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo) {
+  const name = `Begeleidend-bericht-${safeName(fields)}.docx`;
   const opts = { wazo: wazo || null }; // wazo voedt het zwangerschapsadvies, ook als de afbeelding faalt
   try {
     const tijdlijn = computeTijdlijn(fields, { wazo: wazo || null });
@@ -445,7 +446,12 @@ export async function downloadBericht(fields, schema, reportDate, taaksuggestie,
     console.warn("Tijdlijn-afbeelding mislukt; val terug op de termijnen-tabel.", e && e.message);
   }
   const blob = await Packer.toBlob(buildDocxDocument(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, opts));
-  return triggerDownload(blob, filename);
+  return { name, blob };
+}
+
+export async function downloadBericht(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo) {
+  const { name, blob } = await berichtBlob(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo);
+  return triggerDownload(blob, name);
 }
 
 // ---- Bericht voor de werknemer (eenvoudige taal, B1) ----
@@ -489,17 +495,44 @@ export function buildWerknemerDocx(fields, schema, reportDate, signalen, opbouwR
   });
 }
 
-export async function downloadWerknemerBericht(fields, schema, reportDate, signalen, opbouwReden) {
+async function werknemerBlob(fields, schema, reportDate, signalen, opbouwReden) {
   const blob = await Packer.toBlob(buildWerknemerDocx(fields, schema, reportDate, signalen, opbouwReden));
-  return triggerDownload(blob, `Bericht-werknemer-${safeName(fields)}.docx`);
+  return { name: `Bericht-werknemer-${safeName(fields)}.docx`, blob };
+}
+
+export async function downloadWerknemerBericht(fields, schema, reportDate, signalen, opbouwReden) {
+  const { name, blob } = await werknemerBlob(fields, schema, reportDate, signalen, opbouwReden);
+  return triggerDownload(blob, name);
 }
 
 // Het ingevulde Plan van aanpak in het échte UWV-formulier (AG140) — apart
 // document dat in het personeelsdossier hoort.
-export async function downloadUwvPva(fields, schema, functieomschrijving, opbouwReden, signalen) {
+async function pvaBlob(fields, schema, functieomschrijving, opbouwReden, signalen) {
   const resp = await fetch(new URL("uwv-template.docx", document.baseURI));
   if (!resp.ok) throw new Error("UWV-sjabloon niet gevonden");
   const buf = await resp.arrayBuffer();
   const blob = await fillTemplate(buf, buildUwvValues(fields, schema, functieomschrijving, opbouwReden, signalen));
-  return triggerDownload(blob, `Plan-van-Aanpak-${safeName(fields)}.docx`);
+  return { name: `Plan-van-Aanpak-${safeName(fields)}.docx`, blob };
+}
+
+export async function downloadUwvPva(fields, schema, functieomschrijving, opbouwReden, signalen) {
+  const { name, blob } = await pvaBlob(fields, schema, functieomschrijving, opbouwReden, signalen);
+  return triggerDownload(blob, name);
+}
+
+// Alle drie de documenten in één keer, gebundeld als één zip — de eenvoudigste
+// weg voor wie de tool één keer gebruikt: één klik, één bestand. De losse
+// downloads blijven bestaan voor wie een specifiek document wil.
+export async function downloadAlles(fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld, opbouwReden, wazo) {
+  const items = await Promise.all([
+    pvaBlob(fields, schema, functieomschrijving, opbouwReden, signalen),
+    berichtBlob(fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo),
+    werknemerBlob(fields, schema, reportDate, signalen, opbouwReden),
+  ]);
+  const zip = new JSZip();
+  for (const it of items) zip.file(it.name, await it.blob.arrayBuffer());
+  const zipBlob = await zip.generateAsync({ type: "blob", compression: "DEFLATE" });
+  const naam = `Plan-van-Aanpak-pakket-${safeName(fields)}.zip`;
+  triggerDownload(zipBlob, naam);
+  return naam;
 }
