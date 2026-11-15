@@ -12,7 +12,7 @@ import { hasBackend } from "./config.js";
 import { extractCasus, deriveSchema } from "./extract.js";
 import { authConfigured } from "./supa.js";
 import { computeWazo } from "./engine.js";
-import { computeTijdlijn } from "./advice.js";
+import { computeTijdlijn, poortwachterTermijnen } from "./advice.js";
 import { PoortwachterTijdlijn } from "./tijdlijn.jsx";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -405,6 +405,14 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit, zwange
     if (iv.meestRecenteSpreekuur) waarschuwingen.push(`Er zijn meerdere spreekuurdata aangetroffen; de tool gebruikt de meest recente (${iv.meestRecenteSpreekuur}). Vermeld dit in het begeleidend bericht.`);
     (iv.tegenstrijdigheden || []).forEach((t) => waarschuwingen.push(`Tegenstrijdig gegeven — niet automatisch overgenomen, vul handmatig aan: ${t}`));
   }
+  // Week 8 voorbij? Dan vraagt het UWV-formulier bij een eerste plan om de reden.
+  const wk8 = poortwachterTermijnen(fields).find((r) => r.week === 8);
+  if (wk8 && wk8.datum && /^\d{2}-\d{2}-\d{4}$/.test(wk8.datum)) {
+    const [d, m, j] = wk8.datum.split("-").map(Number);
+    if (new Date(j, m - 1, d, 23, 59) < new Date()) {
+      waarschuwingen.push(`Is dit het eerste Plan van aanpak voor deze werknemer? Dan had het er uiterlijk ${wk8.datum} (week 8) moeten zijn. Vul in het formulier bij vraag 9 de reden in. Stel je een bestaand plan bij, dan hoeft dat niet.`);
+    }
+  }
   // Vervolg op een eerdere casus: laat zien wat er van dit apparaat is voorgeladen.
   const vi = casus.vervolgInfo;
   if (vi) {
@@ -612,6 +620,29 @@ function bewaarCasus(casus, zwangerschap) {
   try { localStorage.setItem(CASUSSEN_KEY, JSON.stringify(lijst)); } catch {}
   return lijst;
 }
+/* Bedrijfsnaam en eigen naam: één keer invullen, daarna onthouden op dit
+   apparaat (localStorage). Gaat nooit naar de server. */
+const WERKGEVER_KEY = "pva.werkgever.v1";
+const WERKGEVER_VELDEN = ["bedrijfsnaam", "contactpersoon"];
+function loadWerkgever() {
+  try { const w = JSON.parse(localStorage.getItem(WERKGEVER_KEY) || "{}"); return w && typeof w === "object" ? w : {}; }
+  catch { return {}; }
+}
+function bewaarWerkgever(casus) {
+  const w = {};
+  for (const id of WERKGEVER_VELDEN) {
+    const v = (getVal(casus.fields, id) || "").trim();
+    if (v && v !== MISSING) w[id] = v;
+  }
+  try { localStorage.setItem(WERKGEVER_KEY, JSON.stringify(w)); } catch {}
+}
+function vulWerkgever(c) {
+  const w = loadWerkgever();
+  return { ...c, fields: c.fields.map((g) => ({ ...g, items: g.items.map((it) =>
+    WERKGEVER_VELDEN.includes(it.id) && w[it.id] && (!it.value || it.value === MISSING)
+      ? { ...it, value: w[it.id], status: "ok" } : it) })) };
+}
+
 /* Vult lege werkgeversvelden in de nieuwe casus aan vanuit een eerdere casus en
    markeert wat er is overgenomen (voor de controle-waarschuwing in stap 2). */
 function mergeVervolg(c, vervolg) {
@@ -654,12 +685,12 @@ export function Tool({ onClose, session, onNeedLogin, credits, onNeedCredits, on
   // Bij het bereiken van stap 3 is de casus gecontroleerd → werkgeversgegevens
   // bewaren voor een volgende terugkoppeling over dezelfde werknemer.
   React.useEffect(() => {
-    if (step === 2 && casus) setEerdere(bewaarCasus(casus, zwangerschap));
+    if (step === 2 && casus) { setEerdere(bewaarCasus(casus, zwangerschap)); bewaarWerkgever(casus); }
   }, [step]); // bewust alleen op stapwissel
 
   function handleResult(c, vervolg) {
     if (c && typeof c.balance === "number" && onCreditsChange) onCreditsChange(c.balance);
-    let merged = mergeVervolg(c, vervolg);
+    let merged = mergeVervolg(vulWerkgever(c), vervolg);
     if (vervolg && vervolg.zwangerschap && vervolg.zwangerschap.actief) {
       setZwangerschap(vervolg.zwangerschap);
       if (merged.vervolgInfo) merged.vervolgInfo.aangevuld = [...merged.vervolgInfo.aangevuld, "Zwangerschap & WAZO"];

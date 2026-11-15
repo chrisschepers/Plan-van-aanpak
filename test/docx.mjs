@@ -58,7 +58,7 @@ check("briefhoofd heeft eerste + vervolgpagina-variant (afbeeldingen)", headers.
 // het ingevulde Plan van aanpak zelf zit in het echte UWV-sjabloon (zie template.mjs).
 check(".docx bevat opbouwadvies", xml.includes("Opbouw- en re-integratieadvies"));
 check(".docx verwijst naar UWV-formulier (AG140)", xml.includes("AG140"));
-check(".docx is een brief (meta-blok + ondertekening, ontwerp Briefpapier v2)", xml.includes("Ons kenmerk") && xml.includes("[INVULLEN: naam afzender]") && xml.includes("[INVULLEN: functie"));
+check(".docx is een brief (meta-blok + ondertekening, ontwerp Briefpapier v2)", xml.includes("Ons kenmerk") && xml.includes("Automatisch opgesteld concept") && !xml.includes("[INVULLEN: naam afzender]"));
 
 check(".docx bevat begeleidend bericht aan werkgever", xml.includes("Beste werkgever"));
 check(".docx bevat opbouwschema-datum 10-03-2025", xml.includes("10-03-2025"));
@@ -140,6 +140,20 @@ check("werknemersbrief: geen werkgeversjargon (RIV/spoor 2/loonsanctie)", !/\bRI
 const docWnGeen = buildWerknemerDocx(INITIAL_FIELDS, [], CASE.reportDate, { geenBenutbareMogelijkheden: true }, "Geen benutbare mogelijkheden.");
 const xmlWnGeen = await (await JSZip.loadAsync(await Packer.toBuffer(docWnGeen))).file("word/document.xml").async("string");
 check("werknemersbrief zonder opbouw: 'niets forceren'-variant", xmlWnGeen.includes("hoeft nu dus niets te forceren"));
+
+// ---- Werkgeversgegevens uit stap 2 landen in de brieven; datums voluit ----
+{
+  const metWg = [...INITIAL_FIELDS, { group: "Gegevens van de werkgever", manual: true, items: [
+    { id: "bedrijfsnaam", label: "Bedrijfsnaam", value: "Voorbeeld Transport B.V.", status: "ok" },
+    { id: "contactpersoon", label: "Jouw naam", value: "M. Jansen", status: "ok" },
+  ] }];
+  const brief = await docText(metWg);
+  check("brief: bedrijfsnaam en aanhef met naam werkgever", brief.includes("Voorbeeld Transport B.V.") && brief.includes("Beste M. Jansen,"));
+  const wn = await Packer.toBuffer(buildWerknemerDocx(metWg, schema, CASE.reportDate, {}));
+  const wnXml = await (await JSZip.loadAsync(wn)).file("word/document.xml").async("string");
+  check("werknemersbrief: ondertekend door de werkgever, geen invulregel", wnXml.includes("M. Jansen") && !wnXml.includes("[INVULLEN"));
+  check("werknemersbrief: datums voluit", wnXml.includes("10 maart 2025") && wnXml.includes("6 maart 2025"));
+}
 
 console.log(failures === 0 ? "\nAlle docx-checks geslaagd." : `\n${failures} docx-check(s) gefaald.`);
 process.exit(failures === 0 ? 0 : 1);

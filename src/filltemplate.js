@@ -88,6 +88,8 @@ export function buildUwvValues(fields, schema, functieomschrijving, opbouwReden 
 
   return {
     1: v("naam"),               // 1.1 Voorletters en achternaam
+    3: v("bedrijfsnaam"),       // 2.1 Bedrijfsnaam
+    4: v("contactpersoon"),     // 2.2 Naam contactpersoon
     5: v("naamBedrijfsarts"),   // 3.1 Naam bedrijfsarts
     6: v("functie"),            // 4.1 Functie
     7: fo,                      // 4.2 Omschrijving van de werkzaamheden (uit de functieomschrijving)

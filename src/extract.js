@@ -219,7 +219,11 @@ function mapExtraction(d, functieomschrijving) {
     // extractie-missers maar invoer van de werkgever zelf. Eigen groep met
     // eigen framing ("Zelf invullen" i.p.v. "Ontbreekt"), zie fields.jsx.
     { group: "Gegevens van de werkgever", manual: true,
-      sub: "Staan meestal niet in de terugkoppeling — vul zelf aan voor de leeftijds- en contractadviezen", items: [
+      sub: "Staat niet in het verslag van de bedrijfsarts. Vul dit zelf in.", items: [
+      mk("bedrijfsnaam", "Bedrijfsnaam", "", null,
+        { hint: "Komt op het UWV-formulier en in de brieven. Wordt op dit apparaat onthouden." }),
+      mk("contactpersoon", "Jouw naam", "", null,
+        { hint: "De contactpersoon bij de werkgever; ondertekent de brief aan de werknemer." }),
       mk("geboortedatum", "Geboortedatum werknemer", d.geboortedatum, null,
         { hint: "Nodig voor de leeftijdsadviezen (AOW, 60-plus)." }),
       mk("einddatum", "Einddatum tijdelijk contract", d.einddatumDienstverband, null,

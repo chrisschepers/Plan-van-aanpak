@@ -2915,12 +2915,32 @@
     zinnen.push(isMissing(volgend) ? "Dit advies is gebaseerd op de huidige terugkoppeling; stel het Plan van Aanpak bij na elk volgend spreekuur van de bedrijfsarts." : `Het volgende spreekuur bij de bedrijfsarts staat gepland op ${volgend}; loop dit advies daarna opnieuw na en stel het Plan van Aanpak bij als de belastbaarheid is gewijzigd.`);
     return zinnen;
   }
+  var MAAND_NAMEN = [
+    "januari",
+    "februari",
+    "maart",
+    "april",
+    "mei",
+    "juni",
+    "juli",
+    "augustus",
+    "september",
+    "oktober",
+    "november",
+    "december"
+  ];
+  function datumVoluit(nl) {
+    const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(String(nl || "").trim());
+    if (!m || +m[2] < 1 || +m[2] > 12) return nl;
+    return `${+m[1]} ${MAAND_NAMEN[+m[2] - 1]} ${m[3]}`;
+  }
   function werknemerBrief(fields, schema, reportDate, { signalen = {}, opbouwReden = "" } = {}) {
     const geenOpbouw = !!opbouwReden || schema.length === 0;
     const beperking = getVal(fields, "beperking");
-    const volgend = getVal(fields, "volgendSpreekuur");
-    const startD = schema[0] ? schema[0].date : "";
-    const eindD = schema.length ? schema[schema.length - 1].date : "";
+    const volgend = datumVoluit(getVal(fields, "volgendSpreekuur"));
+    reportDate = datumVoluit(reportDate);
+    const startD = schema[0] ? datumVoluit(schema[0].date) : "";
+    const eindD = schema.length ? datumVoluit(schema[schema.length - 1].date) : "";
     const fromH = schema[0] ? schema[0].hours : 0;
     const toH = schema.length ? schema[schema.length - 1].hours : 0;
     const blokken = [];
@@ -2939,7 +2959,7 @@
     if (!isMissing(beperking)) {
       blokken.push({ type: "p", text: `Er wordt rekening gehouden met: ${String(beperking).toLowerCase()}.` });
     }
-    blokken.push({ type: "p", text: isMissing(volgend) ? "De bedrijfsarts nodigt je uit voor een volgende afspraak. Ga daar altijd naartoe \u2014 ook als het goed gaat." : `Je volgende afspraak bij de bedrijfsarts is op ${volgend}. Ga daar altijd naartoe \u2014 ook als het goed gaat.` });
+    blokken.push({ type: "p", text: isMissing(getVal(fields, "volgendSpreekuur")) ? "De bedrijfsarts nodigt je uit voor een volgende afspraak. Ga daar altijd naartoe \u2014 ook als het goed gaat." : `Je volgende afspraak bij de bedrijfsarts is op ${volgend}. Ga daar altijd naartoe \u2014 ook als het goed gaat.` });
     blokken.push({ type: "h", text: "Wat verwachten we van jou?" });
     blokken.push({ type: "bullets", items: [
       "Werk mee aan de afspraken in het plan, zo goed als je kunt.",
@@ -3413,7 +3433,7 @@
       if (b.type === "h") return /* @__PURE__ */ React.createElement("p", { key: i, className: "bullets-intro" }, /* @__PURE__ */ React.createElement("strong", null, b.text));
       if (b.type === "bullets") return /* @__PURE__ */ React.createElement("ul", { key: i, className: "msg-bullets" }, b.items.map((t, j) => /* @__PURE__ */ React.createElement("li", { key: j }, linkify(t))));
       return /* @__PURE__ */ React.createElement("p", { key: i }, linkify(b.text));
-    }), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 } }, "[INVULLEN: naam werkgever/leidinggevende]"))));
+    }), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), isMissing(getVal(fields, "contactpersoon")) ? /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 } }, "[INVULLEN: naam werkgever/leidinggevende]") : /* @__PURE__ */ React.createElement(React.Fragment, null, getVal(fields, "contactpersoon"), !isMissing(getVal(fields, "bedrijfsnaam")) && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("br", null), getVal(fields, "bedrijfsnaam"))))));
   }
   function BerichtPreview({ fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo }) {
     const naam = getVal(fields, "naam");
@@ -3421,7 +3441,7 @@
     const kern = berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden);
     const { bullets, termijnRef } = adviceBullets(fields, reportDate, signalen, { wazo });
     const taak = (taaksuggestie || "").trim();
-    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), kern.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: "k" + i }, t)), /* @__PURE__ */ React.createElement("p", { className: "bullets-intro" }, /* @__PURE__ */ React.createElement("strong", null, "Een paar praktische aandachtspunten:")), /* @__PURE__ */ React.createElement("ul", { className: "msg-bullets" }, bullets.map((t, i) => /* @__PURE__ */ React.createElement("li", { key: i }, linkify(t)))), termijnRef && /* @__PURE__ */ React.createElement("p", { style: { color: "var(--muted)" } }, "De volledige wettelijke termijnen staan in de bijgevoegde tabel Poortwachter-termijnen."), taak && /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Suggestie voor aangepaste taken."), " Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ", taak, ".", " ", /* @__PURE__ */ React.createElement("em", null, "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.")), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Dit document is een concept, opgesteld op basis van de terugkoppeling van de bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je werknemer vast \u2014 het is een document van jullie beiden."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Ben je eigenrisicodrager voor de Ziektewet of de WGA? Dan gelden aanvullende of afwijkende regels en kun je niet afgaan op dit automatisch gegenereerde advies \u2014 raadpleeg dan je eigen verzuim- of arbospecialist."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 } }, "[INVULLEN: naam afzender]"), /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontSize: 13 } }, "[INVULLEN: functie, bv. casemanager verzuim]"))));
+    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste ", isMissing(getVal(fields, "contactpersoon")) ? "werkgever" : getVal(fields, "contactpersoon"), ", hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), kern.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: "k" + i }, t)), /* @__PURE__ */ React.createElement("p", { className: "bullets-intro" }, /* @__PURE__ */ React.createElement("strong", null, "Een paar praktische aandachtspunten:")), /* @__PURE__ */ React.createElement("ul", { className: "msg-bullets" }, bullets.map((t, i) => /* @__PURE__ */ React.createElement("li", { key: i }, linkify(t)))), termijnRef && /* @__PURE__ */ React.createElement("p", { style: { color: "var(--muted)" } }, "De volledige wettelijke termijnen staan in de bijgevoegde tabel Poortwachter-termijnen."), taak && /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Suggestie voor aangepaste taken."), " Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ", taak, ".", " ", /* @__PURE__ */ React.createElement("em", null, "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.")), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Dit document is een concept, opgesteld op basis van de terugkoppeling van de bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je werknemer vast \u2014 het is een document van jullie beiden."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Ben je eigenrisicodrager voor de Ziektewet of de WGA? Dan gelden aanvullende of afwijkende regels en kun je niet afgaan op dit automatisch gegenereerde advies \u2014 raadpleeg dan je eigen verzuim- of arbospecialist."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), "planvanaanpakinvuller.nl", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "var(--muted)" } }, "Automatisch opgesteld concept"))));
   }
 
   // src/landing.jsx
@@ -22613,6 +22633,10 @@
     return {
       1: v("naam"),
       // 1.1 Voorletters en achternaam
+      3: v("bedrijfsnaam"),
+      // 2.1 Bedrijfsnaam
+      4: v("contactpersoon"),
+      // 2.2 Naam contactpersoon
       5: v("naamBedrijfsarts"),
       // 3.1 Naam bedrijfsarts
       6: v("functie"),
@@ -22888,7 +22912,7 @@
         spacing: { after: 0 },
         border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: LINE } },
         children: [
-          new TextRun({ text: "	[INVULLEN: telefoon]", bold: true, italics: true, color: FLAG, size: 17, font: FONT })
+          new TextRun({ text: "", size: 17, font: FONT })
         ]
       })
     ] });
@@ -23047,14 +23071,17 @@
   function invullen(text, opts = {}) {
     return new TextRun({ text, bold: true, italics: true, color: FLAG, size: opts.size || 21, font: FONT });
   }
-  function addresseeBlock() {
-    const lijn = (children, opts = {}) => new Paragraph({ spacing: { after: 20, before: opts.before || 0 }, children });
-    return [
-      lijn([invullen("[INVULLEN: bedrijfsnaam werkgever]")], { before: 360 }),
-      lijn([new TextRun({ text: "T.a.v. ", color: "18202F", size: 21, font: FONT }), invullen("[INVULLEN: contactpersoon]")]),
-      lijn([invullen("[INVULLEN: adres]")]),
-      lijn([invullen("[INVULLEN: postcode en plaats]")])
-    ];
+  function addresseeBlock(fields) {
+    const bedrijf = getVal(fields, "bedrijfsnaam");
+    const wie = getVal(fields, "contactpersoon");
+    const lijn = (text, before) => new Paragraph({
+      spacing: { after: 20, before: before || 0 },
+      children: [new TextRun({ text, color: "18202F", size: 21, font: FONT })]
+    });
+    const out = [];
+    if (!isMissing(bedrijf)) out.push(lijn(bedrijf, 360));
+    if (!isMissing(wie)) out.push(lijn("T.a.v. " + wie, out.length ? 0 : 360));
+    return out;
   }
   function metaBlock(naam) {
     const wie = isMissing(naam) ? "" : ` \u2014 ${naam}`;
@@ -23117,12 +23144,12 @@
       footers: { first: brandFooter(), default: brandFooter() },
       children: [
         // ---- PAGINA 1 — het begeleidend bericht als brief (ontwerp Briefpapier v2) ----
-        ...addresseeBlock(),
+        ...addresseeBlock(fields),
         new Paragraph({ spacing: { before: 240, after: 0 }, children: [] }),
         metaBlock(naam),
         new Paragraph({
           spacing: { before: 200, after: 120 },
-          children: [new TextRun({ text: "Beste werkgever,", color: "18202F", size: 22, font: FONT })]
+          children: [new TextRun({ text: isMissing(getVal(fields, "contactpersoon")) ? "Beste werkgever," : `Beste ${getVal(fields, "contactpersoon")},`, color: "18202F", size: 22, font: FONT })]
         }),
         p(`Hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}. Dit document bevat het opbouwadvies en de poortwachter-termijnen ter ondersteuning. Het ingevulde Plan van aanpak (UWV-formulier AG140) ontvang je als apart document; dat hoort in het personeelsdossier.`),
         ...kern.map((t) => p(t)),
@@ -23155,8 +23182,8 @@
           spacing: { before: 200, after: 700 },
           children: [new TextRun({ text: "Met vriendelijke groet,", color: "3C465A", size: 22, font: FONT })]
         }),
-        new Paragraph({ spacing: { after: 20 }, children: [invullen("[INVULLEN: naam afzender]", { size: 22 })] }),
-        new Paragraph({ spacing: { after: 0 }, children: [invullen("[INVULLEN: functie, bv. casemanager verzuim]", { size: 18 })] }),
+        new Paragraph({ spacing: { after: 20 }, children: [new TextRun({ text: "planvanaanpakinvuller.nl", color: "18202F", size: 22, font: FONT })] }),
+        new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text: "Automatisch opgesteld concept", color: GREY, size: 18, font: FONT })] }),
         // ---- BIJLAGE 1 — Opbouwadvies ----
         new Paragraph({ children: [new PageBreak()] }),
         h1("Opbouw- en re-integratieadvies"),
@@ -23305,7 +23332,10 @@
         spacing: { before: 200, after: 700 },
         children: [new TextRun({ text: "Met vriendelijke groet,", color: "3C465A", size: 22, font: FONT })]
       }),
-      new Paragraph({ spacing: { after: 0 }, children: [invullen("[INVULLEN: naam werkgever/leidinggevende]", { size: 22 })] })
+      ...isMissing(getVal(fields, "contactpersoon")) ? [new Paragraph({ spacing: { after: 0 }, children: [invullen("[INVULLEN: naam werkgever/leidinggevende]", { size: 22 })] })] : [
+        new Paragraph({ spacing: { after: 20 }, children: [new TextRun({ text: getVal(fields, "contactpersoon"), color: "18202F", size: 22, font: FONT })] }),
+        ...isMissing(getVal(fields, "bedrijfsnaam")) ? [] : [new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text: getVal(fields, "bedrijfsnaam"), color: GREY, size: 18, font: FONT })] })]
+      ]
     ];
     return new File({
       creator: "planvanaanpakinvuller.nl",
@@ -23530,8 +23560,22 @@
       {
         group: "Gegevens van de werkgever",
         manual: true,
-        sub: "Staan meestal niet in de terugkoppeling \u2014 vul zelf aan voor de leeftijds- en contractadviezen",
+        sub: "Staat niet in het verslag van de bedrijfsarts. Vul dit zelf in.",
         items: [
+          mk(
+            "bedrijfsnaam",
+            "Bedrijfsnaam",
+            "",
+            null,
+            { hint: "Komt op het UWV-formulier en in de brieven. Wordt op dit apparaat onthouden." }
+          ),
+          mk(
+            "contactpersoon",
+            "Jouw naam",
+            "",
+            null,
+            { hint: "De contactpersoon bij de werkgever; ondertekent de brief aan de werknemer." }
+          ),
           mk(
             "geboortedatum",
             "Geboortedatum werknemer",
@@ -23857,6 +23901,13 @@
       if (iv.meestRecenteSpreekuur) waarschuwingen.push(`Er zijn meerdere spreekuurdata aangetroffen; de tool gebruikt de meest recente (${iv.meestRecenteSpreekuur}). Vermeld dit in het begeleidend bericht.`);
       (iv.tegenstrijdigheden || []).forEach((t) => waarschuwingen.push(`Tegenstrijdig gegeven \u2014 niet automatisch overgenomen, vul handmatig aan: ${t}`));
     }
+    const wk8 = poortwachterTermijnen(fields).find((r) => r.week === 8);
+    if (wk8 && wk8.datum && /^\d{2}-\d{2}-\d{4}$/.test(wk8.datum)) {
+      const [d, m, j] = wk8.datum.split("-").map(Number);
+      if (new Date(j, m - 1, d, 23, 59) < /* @__PURE__ */ new Date()) {
+        waarschuwingen.push(`Is dit het eerste Plan van aanpak voor deze werknemer? Dan had het er uiterlijk ${wk8.datum} (week 8) moeten zijn. Vul in het formulier bij vraag 9 de reden in. Stel je een bestaand plan bij, dan hoeft dat niet.`);
+      }
+    }
     const vi = casus.vervolgInfo;
     if (vi) {
       if (vi.aangevuld && vi.aangevuld.length) waarschuwingen.push(`Aangevuld uit de eerdere casus van ${vi.naam} (alleen op dit apparaat bewaard): ${vi.aangevuld.join(", ")}. Controleer of dit nog klopt.`);
@@ -23953,6 +24004,31 @@
     }
     return lijst;
   }
+  var WERKGEVER_KEY = "pva.werkgever.v1";
+  var WERKGEVER_VELDEN = ["bedrijfsnaam", "contactpersoon"];
+  function loadWerkgever() {
+    try {
+      const w = JSON.parse(localStorage.getItem(WERKGEVER_KEY) || "{}");
+      return w && typeof w === "object" ? w : {};
+    } catch {
+      return {};
+    }
+  }
+  function bewaarWerkgever(casus) {
+    const w = {};
+    for (const id of WERKGEVER_VELDEN) {
+      const v = (getVal(casus.fields, id) || "").trim();
+      if (v && v !== MISSING) w[id] = v;
+    }
+    try {
+      localStorage.setItem(WERKGEVER_KEY, JSON.stringify(w));
+    } catch {
+    }
+  }
+  function vulWerkgever(c) {
+    const w = loadWerkgever();
+    return { ...c, fields: c.fields.map((g) => ({ ...g, items: g.items.map((it) => WERKGEVER_VELDEN.includes(it.id) && w[it.id] && (!it.value || it.value === MISSING) ? { ...it, value: w[it.id], status: "ok" } : it) })) };
+  }
   function mergeVervolg(c, vervolg) {
     if (!vervolg) return c;
     const aangevuld = [];
@@ -23986,11 +24062,14 @@
       }
     }, [step, checked, casus, zwangerschap]);
     React.useEffect(() => {
-      if (step === 2 && casus) setEerdere(bewaarCasus(casus, zwangerschap));
+      if (step === 2 && casus) {
+        setEerdere(bewaarCasus(casus, zwangerschap));
+        bewaarWerkgever(casus);
+      }
     }, [step]);
     function handleResult(c, vervolg) {
       if (c && typeof c.balance === "number" && onCreditsChange) onCreditsChange(c.balance);
-      let merged = mergeVervolg(c, vervolg);
+      let merged = mergeVervolg(vulWerkgever(c), vervolg);
       if (vervolg && vervolg.zwangerschap && vervolg.zwangerschap.actief) {
         setZwangerschap(vervolg.zwangerschap);
         if (merged.vervolgInfo) merged.vervolgInfo.aangevuld = [...merged.vervolgInfo.aangevuld, "Zwangerschap & WAZO"];

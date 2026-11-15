@@ -253,7 +253,9 @@ export function WerknemerBerichtPreview({ fields, schema, reportDate, signalen, 
         })}
         <p className="sign">
           Met vriendelijke groet,<br/>
-          <span style={{ color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 }}>[INVULLEN: naam werkgever/leidinggevende]</span>
+          {isMissing(getVal(fields, "contactpersoon"))
+            ? <span style={{ color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 }}>[INVULLEN: naam werkgever/leidinggevende]</span>
+            : <>{getVal(fields, "contactpersoon")}{!isMissing(getVal(fields, "bedrijfsnaam")) && <><br/>{getVal(fields, "bedrijfsnaam")}</>}</>}
         </p>
       </div>
     </div>
@@ -275,7 +277,7 @@ export function BerichtPreview({ fields, schema, reportDate, taaksuggestie, sign
         <p className="wvp" style={{ marginBottom: 18 }}>Onderwerp: Concept Plan van aanpak{isMissing(naam) ? "" : " — " + naam}</p>
 
         <p className="greeting">
-          Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor {werknemer},
+          Beste {isMissing(getVal(fields, "contactpersoon")) ? "werkgever" : getVal(fields, "contactpersoon")}, hierbij ontvang je het concept-Plan van aanpak voor {werknemer},
           opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. {reportDate}.
         </p>
         {kern.map((t, i) => <p key={"k" + i}>{t}</p>)}
@@ -314,8 +316,8 @@ export function BerichtPreview({ fields, schema, reportDate, taaksuggestie, sign
         </p>
         <p className="sign">
           Met vriendelijke groet,<br/>
-          <span style={{ color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 }}>[INVULLEN: naam afzender]</span><br/>
-          <span style={{ color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontSize: 13 }}>[INVULLEN: functie, bv. casemanager verzuim]</span>
+          planvanaanpakinvuller.nl<br/>
+          <span style={{ fontSize: 13, color: "var(--muted)" }}>Automatisch opgesteld concept</span>
         </p>
       </div>
     </div>
