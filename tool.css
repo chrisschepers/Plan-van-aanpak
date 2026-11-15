@@ -430,3 +430,31 @@
 .advice-card p { font-size: 14.5px; color: var(--ink-soft); }
 .advice-card .deadline-table { margin-top: 12px; background: rgba(255,255,255,.6); border-radius: 8px; }
 .advice-card .deadline-table td { font-size: 13.5px; }
+
+/* ---- Stap 2: eenvoudig formulier (label + invoervak) ---- */
+.velden-panel { padding: 6px 22px 20px; }
+.velden-open { margin: 14px 0 4px; padding: 11px 14px; border-radius: 10px; font-size: 14px;
+  background: var(--flag-bg); border: 1px solid var(--flag-line); color: var(--flag-text); }
+.velden-open button { font: inherit; font-weight: 600; color: inherit; background: none; border: 0; padding: 0;
+  text-decoration: underline; cursor: pointer; }
+.velden-open.ok { display: flex; align-items: center; gap: 8px; background: #eaf6ef; border-color: #b6dcc4; color: #1f6b43; }
+.velden-open.ok svg { width: 16px; height: 16px; }
+.velden-groep { border: 0; padding: 0; margin: 22px 0 0; min-width: 0; }
+.velden-groep legend { font-size: 16px; font-weight: 700; color: var(--navy-900); padding: 0; margin-bottom: 4px; }
+.velden-sub { font-size: 13px; color: var(--muted); margin: 0 0 4px; }
+.velden-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; margin-top: 8px; }
+.veld { min-width: 0; }
+.veld.breed { grid-column: 1 / -1; }
+.veld label { display: block; font-size: 13px; font-weight: 600; color: var(--ink-soft, var(--muted)); margin-bottom: 5px; }
+.veld-opt { font-weight: 400; color: var(--faint); }
+.veld-input { display: block; width: 100%; box-sizing: border-box; font: inherit; font-size: 15px; color: var(--navy-900);
+  background: #fff; border: 1px solid var(--line); border-radius: 9px; padding: 9px 11px; resize: vertical; }
+.veld-input:focus { outline: none; border-color: var(--navy-400); box-shadow: 0 0 0 3px rgba(31,56,100,.12); }
+.veld-input.leeg { border-color: var(--flag-line); background: var(--flag-bg); }
+.veld-input::placeholder { color: var(--faint); }
+.veld-hint { font-size: 12px; color: var(--faint); margin-top: 4px; }
+.veld-bron { font-size: 12.5px; color: var(--muted); margin-top: 5px; font-style: italic; }
+.velden-berekend { display: flex; flex-wrap: wrap; gap: 6px 26px; margin-top: 20px; padding-top: 14px;
+  border-top: 1px solid var(--line); font-size: 13.5px; color: var(--muted); }
+.velden-berekend strong { color: var(--navy-900); }
+@media (max-width: 640px) { .velden-grid { grid-template-columns: 1fr; } .velden-panel { padding: 4px 14px 16px; } }

@@ -45,10 +45,11 @@ export function fillDocumentXml(xml, values) {
   let out = xml;
   for (const [s, e, t] of repls) out = out.slice(0, s) + t + out.slice(e);
 
-  // Einddoel: kruis altijd het eerste vakje aan — "Werkhervatting in de eigen
+  // Einddoel: kruis het eerste vakje aan — "Werkhervatting in de eigen
   // functie". Dat is in dit formulier de eerste FORMCHECKBOX, dus we zetten de
-  // default van de eerste checkbox op aangevinkt (1).
-  out = out.replace(
+  // default van de eerste checkbox op aangevinkt (1). Niet als de bedrijfsarts
+  // (nog) geen mogelijkheden ziet: dan kiezen werkgever en werknemer zelf.
+  if (values.einddoelEigenFunctie !== false) out = out.replace(
     '<w:checkBox><w:sizeAuto/><w:default w:val="0"/></w:checkBox>',
     '<w:checkBox><w:sizeAuto/><w:default w:val="1"/></w:checkBox>'
   );
@@ -86,8 +87,12 @@ export function buildUwvValues(fields, schema, functieomschrijving, opbouwReden 
   const werktijden = v("werktijden");
   const arbeidsconflict = !!(signalen && signalen.arbeidsconflict);
 
+  const sig = signalen || {};
   return {
+    einddoelEigenFunctie: !(sig.geenBenutbareMogelijkheden || sig.duurzaamGeenMogelijkheden || sig.marginaleMogelijkheden),
     1: v("naam"),               // 1.1 Voorletters en achternaam
+    3: v("bedrijfsnaam"),       // 2.1 Bedrijfsnaam
+    4: v("contactpersoon"),     // 2.2 Naam contactpersoon
     5: v("naamBedrijfsarts"),   // 3.1 Naam bedrijfsarts
     6: v("functie"),            // 4.1 Functie
     7: fo,                      // 4.2 Omschrijving van de werkzaamheden (uit de functieomschrijving)

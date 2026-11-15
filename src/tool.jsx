@@ -6,14 +6,13 @@
 import { I, MISSING } from "./data.jsx";
 import { getVal } from "./casedata.js";
 import { SchemaTable, FieldsPanel } from "./fields.jsx";
-import { SourceDoc } from "./sourcedoc.jsx";
 import { AdviesPreview, PvaPreview, BerichtPreview, WerknemerBerichtPreview } from "./previews.jsx";
 import { downloadBericht, downloadUwvPva, downloadWerknemerBericht, downloadAlles } from "./download.js";
 import { hasBackend } from "./config.js";
 import { extractCasus, deriveSchema } from "./extract.js";
 import { authConfigured } from "./supa.js";
 import { computeWazo } from "./engine.js";
-import { computeTijdlijn } from "./advice.js";
+import { computeTijdlijn, poortwachterTermijnen } from "./advice.js";
 import { PoortwachterTijdlijn } from "./tijdlijn.jsx";
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
@@ -316,41 +315,6 @@ function AiBusy() {
   );
 }
 
-/* Bronpaneel voor AI-modus: toont de bronpassage bij het geselecteerde veld. */
-function AiSourcePanel({ selected, sources }) {
-  const snippet = selected && sources ? sources[selected.id] : null;
-  return (
-    <div className="panel">
-      <div className="panel-head">
-        <div>
-          <h3>Bron · terugkoppeling bedrijfsarts</h3>
-          <div className="sub">Door de AI uitgelezen passages</div>
-        </div>
-        <span className="pill pill-navy"><span className="pdot"></span>AI-extractie</span>
-      </div>
-      <div className="doc-legend">
-        <span>{I.shield} Medische gegevens en BSN zijn gefilterd</span>
-      </div>
-      <div className="srcdoc" style={{ maxHeight: 560, overflowY: "auto" }}>
-        <p className="dh">Geselecteerd veld</p>
-        <p className="dtitle">{selected ? selected.label : "—"}</p>
-        {snippet ? (
-          <p style={{ marginTop: 14 }}>
-            <span className="hl active">{snippet}</span>
-          </p>
-        ) : (
-          <p className="dmeta" style={{ marginTop: 14 }}>
-            Geen bronpassage voor dit veld — dit gegeven komt niet uit de terugkoppeling (vul je zelf aan) of is door het medisch filter weggelaten.
-          </p>
-        )}
-        <p style={{ marginTop: 20, fontSize: 13, color: "var(--muted)" }}>
-          Klik links op een veld om de bijbehorende passage te tonen. Controleer elk veld vóór vaststelling.
-        </p>
-      </div>
-    </div>
-  );
-}
-
 /* Plausibiliteitscheck op de zwangerschap-datums: een bevalling vóór de
    vroegst mogelijke verlofstart of ver ná de uitgerekende datum wijst vrijwel
    zeker op een tikfout — waarschuw i.p.v. stil een onzinnige tijdlijn tonen. */
@@ -428,10 +392,9 @@ function TijdlijnPanel({ fields, zwangerschap }) {
 function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit, zwangerschap, setZwangerschap }) {
   const { fields, schema, mode, sources } = casus;
   const allItems = fields.flatMap((g) => g.items);
-  const [selectedId, setSelectedId] = React.useState(allItems[0] ? allItems[0].id : null);
-  const selected = allItems.find((it) => it.id === selectedId) || allItems[0] || null;
+  const [selectedId, setSelectedId] = React.useState(null);
+  const selected = allItems.find((it) => it.id === selectedId) || null;
   const select = (f) => setSelectedId(f.id);
-  const activeSrc = selected ? selected.src : null;
   const contractHours = schema[schema.length - 1] ? schema[schema.length - 1].hours : 0;
   const geenOpbouw = !!casus.opbouwReden || schema.length === 0;
 
@@ -441,6 +404,14 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit, zwange
   if (iv) {
     if (iv.meestRecenteSpreekuur) waarschuwingen.push(`Er zijn meerdere spreekuurdata aangetroffen; de tool gebruikt de meest recente (${iv.meestRecenteSpreekuur}). Vermeld dit in het begeleidend bericht.`);
     (iv.tegenstrijdigheden || []).forEach((t) => waarschuwingen.push(`Tegenstrijdig gegeven — niet automatisch overgenomen, vul handmatig aan: ${t}`));
+  }
+  // Week 8 voorbij? Dan vraagt het UWV-formulier bij een eerste plan om de reden.
+  const wk8 = poortwachterTermijnen(fields).find((r) => r.week === 8);
+  if (wk8 && wk8.datum && /^\d{2}-\d{2}-\d{4}$/.test(wk8.datum)) {
+    const [d, m, j] = wk8.datum.split("-").map(Number);
+    if (new Date(j, m - 1, d, 23, 59) < new Date()) {
+      waarschuwingen.push(`Is dit het eerste Plan van aanpak voor deze werknemer? Dan had het er uiterlijk ${wk8.datum} (week 8) moeten zijn. Vul in het formulier bij vraag 9 de reden in. Stel je een bestaand plan bij, dan hoeft dat niet.`);
+    }
   }
   // Vervolg op een eerdere casus: laat zien wat er van dit apparaat is voorgeladen.
   const vi = casus.vervolgInfo;
@@ -454,7 +425,7 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit, zwange
       <div className="step-kicker">Stap 2 van 3</div>
       <div className="tool-head">
         <h1>Controleer de gegevens</h1>
-        <p>Loop de gegevens na en vul aan wat nog mist. Klik een veld om te zien waar het vandaan komt.</p>
+        <p>Dit hebben we uit het verslag gehaald. Pas aan wat niet klopt en vul aan wat nog mist.</p>
       </div>
 
       {waarschuwingen.length > 0 && (
@@ -469,16 +440,7 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit, zwange
         </div>
       )}
 
-      <FieldsPanel fields={fields} selected={selected} onSelect={select} onEdit={onEdit} />
-
-      <Details summary={selected ? `Waar komt "${selected.label}" vandaan?` : "Waar komen de gegevens vandaan?"}>
-        {mode === "demo"
-          ? <SourceDoc active={activeSrc} onSel={(id) => {
-              const f = allItems.find(it => it.src === id);
-              if (f) setSelectedId(f.id);
-            }} />
-          : <AiSourcePanel selected={selected} sources={sources} />}
-      </Details>
+      <FieldsPanel fields={fields} selected={selected} onSelect={select} onEdit={onEdit} sources={sources} />
 
       <ZwangerschapPanel value={zwangerschap} onChange={setZwangerschap} />
 
@@ -658,6 +620,29 @@ function bewaarCasus(casus, zwangerschap) {
   try { localStorage.setItem(CASUSSEN_KEY, JSON.stringify(lijst)); } catch {}
   return lijst;
 }
+/* Bedrijfsnaam en eigen naam: één keer invullen, daarna onthouden op dit
+   apparaat (localStorage). Gaat nooit naar de server. */
+const WERKGEVER_KEY = "pva.werkgever.v1";
+const WERKGEVER_VELDEN = ["bedrijfsnaam", "contactpersoon"];
+function loadWerkgever() {
+  try { const w = JSON.parse(localStorage.getItem(WERKGEVER_KEY) || "{}"); return w && typeof w === "object" ? w : {}; }
+  catch { return {}; }
+}
+function bewaarWerkgever(casus) {
+  const w = {};
+  for (const id of WERKGEVER_VELDEN) {
+    const v = (getVal(casus.fields, id) || "").trim();
+    if (v && v !== MISSING) w[id] = v;
+  }
+  try { localStorage.setItem(WERKGEVER_KEY, JSON.stringify(w)); } catch {}
+}
+function vulWerkgever(c) {
+  const w = loadWerkgever();
+  return { ...c, fields: c.fields.map((g) => ({ ...g, items: g.items.map((it) =>
+    WERKGEVER_VELDEN.includes(it.id) && w[it.id] && (!it.value || it.value === MISSING)
+      ? { ...it, value: w[it.id], status: "ok" } : it) })) };
+}
+
 /* Vult lege werkgeversvelden in de nieuwe casus aan vanuit een eerdere casus en
    markeert wat er is overgenomen (voor de controle-waarschuwing in stap 2). */
 function mergeVervolg(c, vervolg) {
@@ -700,12 +685,12 @@ export function Tool({ onClose, session, onNeedLogin, credits, onNeedCredits, on
   // Bij het bereiken van stap 3 is de casus gecontroleerd → werkgeversgegevens
   // bewaren voor een volgende terugkoppeling over dezelfde werknemer.
   React.useEffect(() => {
-    if (step === 2 && casus) setEerdere(bewaarCasus(casus, zwangerschap));
+    if (step === 2 && casus) { setEerdere(bewaarCasus(casus, zwangerschap)); bewaarWerkgever(casus); }
   }, [step]); // bewust alleen op stapwissel
 
   function handleResult(c, vervolg) {
     if (c && typeof c.balance === "number" && onCreditsChange) onCreditsChange(c.balance);
-    let merged = mergeVervolg(c, vervolg);
+    let merged = mergeVervolg(vulWerkgever(c), vervolg);
     if (vervolg && vervolg.zwangerschap && vervolg.zwangerschap.actief) {
       setZwangerschap(vervolg.zwangerschap);
       if (merged.vervolgInfo) merged.vervolgInfo.aangevuld = [...merged.vervolgInfo.aangevuld, "Zwangerschap & WAZO"];

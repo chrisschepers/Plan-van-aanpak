@@ -84,5 +84,10 @@ const reload = await JSZip.loadAsync(out);
 check("docx blijft geldig (document.xml herlaadbaar)", !!reload.file("word/document.xml"));
 check("logo/fonts behouden", !!reload.file("word/media/image1.png") && !!reload.file("word/fontTable.xml"));
 
+// Einddoel: aangekruist bij gewone opbouw, leeg als er (nog) geen mogelijkheden zijn.
+check("einddoel aangekruist bij opbouw", filled.includes('<w:default w:val="1"/>'));
+const geen = fillDocumentXml(xml, buildUwvValues(fields, [], "", "geen mogelijkheden", { geenBenutbareMogelijkheden: true }));
+check("einddoel leeg zonder benutbare mogelijkheden", !geen.includes('<w:default w:val="1"/>'));
+
 console.log(failures === 0 ? "\nAlle template-checks geslaagd." : `\n${failures} template-check(s) gefaald.`);
 process.exit(failures === 0 ? 0 : 1);

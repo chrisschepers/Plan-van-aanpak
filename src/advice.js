@@ -399,12 +399,22 @@ export function berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden = "
  * Deterministisch uit de gecontroleerde velden — geen AI.
  * @returns {Array<{type:'h'|'p'|'bullets', text?:string, items?:string[]}>}
  */
+const MAAND_NAMEN = ["januari", "februari", "maart", "april", "mei", "juni",
+  "juli", "augustus", "september", "oktober", "november", "december"];
+// "24-02-2026" → "24 februari 2026"; alles wat geen DD-MM-JJJJ is blijft zoals het is.
+export function datumVoluit(nl) {
+  const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(String(nl || "").trim());
+  if (!m || +m[2] < 1 || +m[2] > 12) return nl;
+  return `${+m[1]} ${MAAND_NAMEN[+m[2] - 1]} ${m[3]}`;
+}
+
 export function werknemerBrief(fields, schema, reportDate, { signalen = {}, opbouwReden = "" } = {}) {
   const geenOpbouw = !!opbouwReden || schema.length === 0;
   const beperking = getVal(fields, "beperking");
-  const volgend = getVal(fields, "volgendSpreekuur");
-  const startD = schema[0] ? schema[0].date : "";
-  const eindD = schema.length ? schema[schema.length - 1].date : "";
+  const volgend = datumVoluit(getVal(fields, "volgendSpreekuur"));
+  reportDate = datumVoluit(reportDate);
+  const startD = schema[0] ? datumVoluit(schema[0].date) : "";
+  const eindD = schema.length ? datumVoluit(schema[schema.length - 1].date) : "";
   const fromH = schema[0] ? schema[0].hours : 0;
   const toH = schema.length ? schema[schema.length - 1].hours : 0;
 
@@ -426,7 +436,7 @@ export function werknemerBrief(fields, schema, reportDate, { signalen = {}, opbo
   if (!isMissing(beperking)) {
     blokken.push({ type: "p", text: `Er wordt rekening gehouden met: ${String(beperking).toLowerCase()}.` });
   }
-  blokken.push({ type: "p", text: isMissing(volgend)
+  blokken.push({ type: "p", text: isMissing(getVal(fields, "volgendSpreekuur"))
     ? "De bedrijfsarts nodigt je uit voor een volgende afspraak. Ga daar altijd naartoe — ook als het goed gaat."
     : `Je volgende afspraak bij de bedrijfsarts is op ${volgend}. Ga daar altijd naartoe — ook als het goed gaat.` });
 

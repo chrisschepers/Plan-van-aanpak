@@ -2915,12 +2915,32 @@
     zinnen.push(isMissing(volgend) ? "Dit advies is gebaseerd op de huidige terugkoppeling; stel het Plan van Aanpak bij na elk volgend spreekuur van de bedrijfsarts." : `Het volgende spreekuur bij de bedrijfsarts staat gepland op ${volgend}; loop dit advies daarna opnieuw na en stel het Plan van Aanpak bij als de belastbaarheid is gewijzigd.`);
     return zinnen;
   }
+  var MAAND_NAMEN = [
+    "januari",
+    "februari",
+    "maart",
+    "april",
+    "mei",
+    "juni",
+    "juli",
+    "augustus",
+    "september",
+    "oktober",
+    "november",
+    "december"
+  ];
+  function datumVoluit(nl) {
+    const m = /^(\d{2})-(\d{2})-(\d{4})$/.exec(String(nl || "").trim());
+    if (!m || +m[2] < 1 || +m[2] > 12) return nl;
+    return `${+m[1]} ${MAAND_NAMEN[+m[2] - 1]} ${m[3]}`;
+  }
   function werknemerBrief(fields, schema, reportDate, { signalen = {}, opbouwReden = "" } = {}) {
     const geenOpbouw = !!opbouwReden || schema.length === 0;
     const beperking = getVal(fields, "beperking");
-    const volgend = getVal(fields, "volgendSpreekuur");
-    const startD = schema[0] ? schema[0].date : "";
-    const eindD = schema.length ? schema[schema.length - 1].date : "";
+    const volgend = datumVoluit(getVal(fields, "volgendSpreekuur"));
+    reportDate = datumVoluit(reportDate);
+    const startD = schema[0] ? datumVoluit(schema[0].date) : "";
+    const eindD = schema.length ? datumVoluit(schema[schema.length - 1].date) : "";
     const fromH = schema[0] ? schema[0].hours : 0;
     const toH = schema.length ? schema[schema.length - 1].hours : 0;
     const blokken = [];
@@ -2939,7 +2959,7 @@
     if (!isMissing(beperking)) {
       blokken.push({ type: "p", text: `Er wordt rekening gehouden met: ${String(beperking).toLowerCase()}.` });
     }
-    blokken.push({ type: "p", text: isMissing(volgend) ? "De bedrijfsarts nodigt je uit voor een volgende afspraak. Ga daar altijd naartoe \u2014 ook als het goed gaat." : `Je volgende afspraak bij de bedrijfsarts is op ${volgend}. Ga daar altijd naartoe \u2014 ook als het goed gaat.` });
+    blokken.push({ type: "p", text: isMissing(getVal(fields, "volgendSpreekuur")) ? "De bedrijfsarts nodigt je uit voor een volgende afspraak. Ga daar altijd naartoe \u2014 ook als het goed gaat." : `Je volgende afspraak bij de bedrijfsarts is op ${volgend}. Ga daar altijd naartoe \u2014 ook als het goed gaat.` });
     blokken.push({ type: "h", text: "Wat verwachten we van jou?" });
     blokken.push({ type: "bullets", items: [
       "Werk mee aan de afspraken in het plan, zo goed als je kunt.",
@@ -2997,115 +3017,55 @@
   function SchemaTable({ schema, contractHours }) {
     return /* @__PURE__ */ React.createElement("div", { className: "panel", style: { marginTop: 22 } }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Opbouwschema"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Berekend door de rekenmotor \xB7 ", contractHours, " contracturen")), /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Deterministisch")), /* @__PURE__ */ React.createElement("table", { className: "schema-table" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Per datum"), /* @__PURE__ */ React.createElement("th", null, "Uren per week"), /* @__PURE__ */ React.createElement("th", null, "Hersteld"))), /* @__PURE__ */ React.createElement(SchemaRows, { schema })));
   }
-  function FieldRow({ f, selected, onSelect, onEdit, manual, editing, onStartEdit, onStopEdit, rowRef }) {
-    const [val, setVal] = React.useState("");
-    const isMissing2 = f.status === "missing";
-    const hardMiss = isMissing2 && !f.optional && !manual;
-    React.useEffect(() => {
-      if (editing) setVal(f.value === MISSING ? "" : f.value);
-    }, [editing]);
-    function commit() {
-      onStopEdit();
-      onEdit(f.id, val);
-    }
-    const emptyText = manual ? "Zelf invullen" : f.optional ? "Niet vermeld" : f.value;
-    return /* @__PURE__ */ React.createElement(
-      "div",
-      {
-        ref: rowRef,
-        className: "field-row" + (selected ? " sel" : "") + (hardMiss ? " missing" : "") + (isMissing2 && !hardMiss ? " soft" : ""),
-        onClick: () => onSelect(f),
-        tabIndex: 0,
-        onKeyDown: (e) => {
-          if (e.key === "Enter") onSelect(f);
-        }
-      },
-      /* @__PURE__ */ React.createElement("div", { className: "flabel" }, f.label),
-      editing ? /* @__PURE__ */ React.createElement(
-        "input",
-        {
-          className: "field-input",
-          value: val,
-          autoFocus: true,
-          onChange: (e) => setVal(e.target.value),
-          onBlur: commit,
-          onClick: (e) => e.stopPropagation(),
-          onKeyDown: (e) => {
-            if (e.key === "Enter") commit();
-          }
-        }
-      ) : /* @__PURE__ */ React.createElement("div", { className: "fval" }, isMissing2 ? emptyText : f.value),
-      !editing && /* @__PURE__ */ React.createElement(
-        "button",
-        {
-          type: "button",
-          className: "fedit",
-          title: isMissing2 ? "Vul dit veld in" : "Bewerk dit veld",
-          "aria-label": isMissing2 ? "Vul dit veld in" : "Bewerk dit veld",
-          onClick: (e) => {
-            e.stopPropagation();
-            onStartEdit(f.id);
-          }
-        },
-        I.edit,
-        /* @__PURE__ */ React.createElement("span", { className: "fedit-txt" }, isMissing2 ? "Invullen" : "Bewerk")
-      ),
-      /* @__PURE__ */ React.createElement("div", { className: "fstatus", style: { opacity: 1 } }, isMissing2 ? manual ? /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Zelf invullen") : f.optional ? /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Optioneel") : /* @__PURE__ */ React.createElement("span", { className: "pill pill-flag" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Ontbreekt") : /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Ingevuld")),
-      f.hint && !editing && /* @__PURE__ */ React.createElement("div", { className: "fhint", style: { gridColumn: 1, fontSize: 12, color: "var(--faint)", marginTop: 3 } }, f.hint)
-    );
-  }
-  function MissingSummary({ fields, onJump }) {
-    const nodig = [];
-    const zelf = [];
-    for (const g of fields) {
-      for (const it of g.items) {
-        if (it.status !== "missing" || it.optional) continue;
-        (g.manual ? zelf : nodig).push(it);
-      }
-    }
-    if (!nodig.length && !zelf.length) {
-      return /* @__PURE__ */ React.createElement("div", { className: "miss-summary ok" }, /* @__PURE__ */ React.createElement("span", { className: "miss-ico" }, I.checkSm), /* @__PURE__ */ React.createElement("span", null, "Alle benodigde velden zijn ingevuld. Loop ze na en bevestig onderaan."));
-    }
-    const item = (it, tone) => /* @__PURE__ */ React.createElement("li", { key: it.id }, /* @__PURE__ */ React.createElement("button", { type: "button", className: "miss-item", onClick: () => onJump(it.id) }, /* @__PURE__ */ React.createElement("span", { className: "miss-dot " + tone }), /* @__PURE__ */ React.createElement("span", { className: "miss-label" }, it.label), /* @__PURE__ */ React.createElement("span", { className: "miss-cta" }, "Invullen ", I.arrowRight)));
-    return /* @__PURE__ */ React.createElement("div", { className: "miss-summary" }, /* @__PURE__ */ React.createElement("div", { className: "miss-title" }, I.flag || I.info, " Nog aan te vullen"), nodig.length > 0 && /* @__PURE__ */ React.createElement("ul", { className: "miss-list" }, nodig.map((it) => item(it, "flag"))), zelf.length > 0 && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "miss-sub" }, "Zelf aanvullen \u2014 staan meestal niet in de terugkoppeling:"), /* @__PURE__ */ React.createElement("ul", { className: "miss-list" }, zelf.map((it) => item(it, "navy")))));
-  }
-  function FieldsPanel({ fields, selected, onSelect, onEdit }) {
-    const [editingId, setEditingId] = React.useState(null);
-    const rowRefs = React.useRef({});
-    const okCount = fields.flatMap((g) => g.items).filter((i) => i.status === "ok").length;
-    const missCount = fields.filter((g) => !g.manual).flatMap((g) => g.items).filter((i) => i.status === "missing" && !i.optional).length;
-    const zelfCount = fields.filter((g) => g.manual).flatMap((g) => g.items).filter((i) => i.status === "missing" && !i.optional).length;
-    const jump = (id) => {
-      onSelect({ id });
-      setEditingId(id);
-      const el = rowRefs.current[id];
-      if (el && el.scrollIntoView) el.scrollIntoView({ block: "center", behavior: "smooth" });
+  var LANG = /* @__PURE__ */ new Set(["belast", "opbouw", "beperking", "werkplek", "werktijden", "prognose"]);
+  var DATUM = /* @__PURE__ */ new Set(["eersteZ", "start", "volgendSpreekuur", "geboortedatum", "einddatum"]);
+  function Veld({ f, manual, bron, actief, onFocus, onEdit, inputRef }) {
+    const leeg = f.status === "missing";
+    const verplichtLeeg = leeg && !f.optional;
+    const waarde = leeg ? "" : f.value;
+    const lang = LANG.has(f.id);
+    const placeholder = DATUM.has(f.id) ? "dd-mm-jjjj" : f.optional ? "Niet vermeld (mag leeg blijven)" : manual ? "Zelf invullen" : "Nog invullen";
+    const props = {
+      id: "veld-" + f.id,
+      ref: inputRef,
+      className: "veld-input" + (verplichtLeeg ? " leeg" : ""),
+      value: waarde,
+      placeholder,
+      onFocus: () => onFocus(f),
+      onChange: (e) => onEdit(f.id, e.target.value)
     };
-    return /* @__PURE__ */ React.createElement("div", { className: "panel fields-panel" }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Ge\xEBxtraheerde velden"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Klik een veld om de bron te zien")), /* @__PURE__ */ React.createElement("div", { className: "summary-chips" }, /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), okCount, " ingevuld"), missCount > 0 && /* @__PURE__ */ React.createElement("span", { className: "pill pill-flag" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), missCount, " ontbreekt"), zelfCount > 0 && /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), zelfCount, " zelf in te vullen"))), /* @__PURE__ */ React.createElement(MissingSummary, { fields, onJump: jump }), /* @__PURE__ */ React.createElement("div", { style: { maxHeight: 560, overflowY: "auto" } }, fields.map((g, gi) => /* @__PURE__ */ React.createElement("div", { className: "field-group", key: gi }, /* @__PURE__ */ React.createElement("div", { className: "gh" }, g.group), g.sub && /* @__PURE__ */ React.createElement("div", { className: "gh-sub", style: { fontSize: 12.5, color: "var(--faint)", margin: "-4px 0 8px", fontWeight: 400 } }, g.sub), g.items.map((f) => /* @__PURE__ */ React.createElement(
-      FieldRow,
+    return /* @__PURE__ */ React.createElement("div", { className: "veld" + (lang ? " breed" : "") }, /* @__PURE__ */ React.createElement("label", { htmlFor: "veld-" + f.id }, f.label, f.optional && /* @__PURE__ */ React.createElement("span", { className: "veld-opt" }, " \xB7 optioneel")), lang ? /* @__PURE__ */ React.createElement("textarea", { rows: 2, ...props }) : /* @__PURE__ */ React.createElement("input", { type: "text", ...props }), f.hint && /* @__PURE__ */ React.createElement("div", { className: "veld-hint" }, f.hint), actief && bron && /* @__PURE__ */ React.createElement("div", { className: "veld-bron" }, "Uit het verslag: \u201C", bron, "\u201D"));
+  }
+  function FieldsPanel({ fields, selected, onSelect, onEdit, sources }) {
+    const refs = React.useRef({});
+    const open = fields.flatMap((g) => g.items).filter((it) => it.status === "missing" && !it.optional);
+    const spring = (id) => {
+      const el = refs.current[id];
+      if (el) {
+        el.focus();
+        if (el.scrollIntoView) el.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+    };
+    return /* @__PURE__ */ React.createElement("div", { className: "panel velden-panel" }, open.length > 0 ? /* @__PURE__ */ React.createElement("div", { className: "velden-open" }, /* @__PURE__ */ React.createElement("strong", null, "Nog invullen:"), " ", open.map((it, i) => /* @__PURE__ */ React.createElement(React.Fragment, { key: it.id }, i > 0 && ", ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => spring(it.id) }, it.label)))) : /* @__PURE__ */ React.createElement("div", { className: "velden-open ok" }, I.checkSm, /* @__PURE__ */ React.createElement("span", null, "Alles is ingevuld. Pas aan wat niet klopt.")), fields.map((g, gi) => /* @__PURE__ */ React.createElement("fieldset", { className: "velden-groep", key: gi }, /* @__PURE__ */ React.createElement("legend", null, g.group), g.sub && /* @__PURE__ */ React.createElement("p", { className: "velden-sub" }, g.sub), /* @__PURE__ */ React.createElement("div", { className: "velden-grid" }, g.items.map((f) => /* @__PURE__ */ React.createElement(
+      Veld,
       {
         key: f.id,
         f,
         manual: !!g.manual,
-        selected: selected && selected.id === f.id,
-        onSelect,
+        bron: sources ? sources[f.id] : null,
+        actief: !!selected && selected.id === f.id,
+        onFocus: onSelect,
         onEdit,
-        editing: editingId === f.id,
-        onStartEdit: setEditingId,
-        onStopEdit: () => setEditingId(null),
-        rowRef: (el) => {
-          rowRefs.current[f.id] = el;
+        inputRef: (el) => {
+          refs.current[f.id] = el;
         }
       }
-    )))), /* @__PURE__ */ React.createElement(DerivedGroup, { fields })));
+    ))))), /* @__PURE__ */ React.createElement(DerivedGroup, { fields }));
   }
   function DerivedGroup({ fields }) {
     const d = computeDerived(fields);
-    const rows = [
-      { label: "AOW-gerechtigde leeftijd (datum)", value: d.aow, hint: "geboortedatum + 67 jaar en 3 maanden \xB7 indicatief, controleer bij SVB" },
-      { label: "Einde wachttijd", value: d.eindeWacht, hint: "eerste ziektedag + 104 weken" }
-    ];
-    return /* @__PURE__ */ React.createElement("div", { className: "field-group" }, /* @__PURE__ */ React.createElement("div", { className: "gh" }, "Berekend (automatisch)"), rows.map((r) => /* @__PURE__ */ React.createElement("div", { className: "field-row computed", key: r.label }, /* @__PURE__ */ React.createElement("div", { className: "flabel" }, r.label), /* @__PURE__ */ React.createElement("div", { className: "fval" }, r.value || "\u2014"), /* @__PURE__ */ React.createElement("div", { className: "fstatus", style: { opacity: 1 } }, /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Berekend")), /* @__PURE__ */ React.createElement("div", { className: "fhint", style: { gridColumn: 1, fontSize: 12, color: "var(--faint)", marginTop: 2 } }, r.hint))));
+    if (!d.eindeWacht && !d.aow) return null;
+    return /* @__PURE__ */ React.createElement("div", { className: "velden-berekend" }, d.eindeWacht && /* @__PURE__ */ React.createElement("span", null, "Einde wachttijd (104 weken): ", /* @__PURE__ */ React.createElement("strong", null, d.eindeWacht)), d.aow && /* @__PURE__ */ React.createElement("span", null, "AOW-datum (indicatief): ", /* @__PURE__ */ React.createElement("strong", null, d.aow)));
   }
 
   // src/tijdlijn.jsx
@@ -3473,7 +3433,7 @@
       if (b.type === "h") return /* @__PURE__ */ React.createElement("p", { key: i, className: "bullets-intro" }, /* @__PURE__ */ React.createElement("strong", null, b.text));
       if (b.type === "bullets") return /* @__PURE__ */ React.createElement("ul", { key: i, className: "msg-bullets" }, b.items.map((t, j) => /* @__PURE__ */ React.createElement("li", { key: j }, linkify(t))));
       return /* @__PURE__ */ React.createElement("p", { key: i }, linkify(b.text));
-    }), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 } }, "[INVULLEN: naam werkgever/leidinggevende]"))));
+    }), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), isMissing(getVal(fields, "contactpersoon")) ? /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 } }, "[INVULLEN: naam werkgever/leidinggevende]") : /* @__PURE__ */ React.createElement(React.Fragment, null, getVal(fields, "contactpersoon"), !isMissing(getVal(fields, "bedrijfsnaam")) && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("br", null), getVal(fields, "bedrijfsnaam"))))));
   }
   function BerichtPreview({ fields, schema, reportDate, taaksuggestie, signalen, schemaZelfOpgesteld, opbouwReden, wazo }) {
     const naam = getVal(fields, "naam");
@@ -3481,7 +3441,7 @@
     const kern = berichtKern(fields, schema, schemaZelfOpgesteld, opbouwReden);
     const { bullets, termijnRef } = adviceBullets(fields, reportDate, signalen, { wazo });
     const taak = (taaksuggestie || "").trim();
-    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste werkgever, hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), kern.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: "k" + i }, t)), /* @__PURE__ */ React.createElement("p", { className: "bullets-intro" }, /* @__PURE__ */ React.createElement("strong", null, "Een paar praktische aandachtspunten:")), /* @__PURE__ */ React.createElement("ul", { className: "msg-bullets" }, bullets.map((t, i) => /* @__PURE__ */ React.createElement("li", { key: i }, linkify(t)))), termijnRef && /* @__PURE__ */ React.createElement("p", { style: { color: "var(--muted)" } }, "De volledige wettelijke termijnen staan in de bijgevoegde tabel Poortwachter-termijnen."), taak && /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Suggestie voor aangepaste taken."), " Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ", taak, ".", " ", /* @__PURE__ */ React.createElement("em", null, "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.")), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Dit document is een concept, opgesteld op basis van de terugkoppeling van de bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je werknemer vast \u2014 het is een document van jullie beiden."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Ben je eigenrisicodrager voor de Ziektewet of de WGA? Dan gelden aanvullende of afwijkende regels en kun je niet afgaan op dit automatisch gegenereerde advies \u2014 raadpleeg dan je eigen verzuim- of arbospecialist."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontWeight: 600 } }, "[INVULLEN: naam afzender]"), /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { color: "var(--flag-text, #9a3b2e)", fontStyle: "italic", fontSize: 13 } }, "[INVULLEN: functie, bv. casemanager verzuim]"))));
+    return /* @__PURE__ */ React.createElement("div", { className: "doc-preview" }, /* @__PURE__ */ React.createElement(DocPreviewHead, { title: "Begeleidend bericht aan werkgever", icon: I.mail }), /* @__PURE__ */ React.createElement("div", { className: "doc-sheet msg-sheet" }, /* @__PURE__ */ React.createElement("h2", { style: { fontSize: 19 } }, "Begeleidend bericht"), /* @__PURE__ */ React.createElement("p", { className: "wvp", style: { marginBottom: 18 } }, "Onderwerp: Concept Plan van aanpak", isMissing(naam) ? "" : " \u2014 " + naam), /* @__PURE__ */ React.createElement("p", { className: "greeting" }, "Beste ", isMissing(getVal(fields, "contactpersoon")) ? "werkgever" : getVal(fields, "contactpersoon"), ", hierbij ontvang je het concept-Plan van aanpak voor ", werknemer, ", opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ", reportDate, "."), kern.map((t, i) => /* @__PURE__ */ React.createElement("p", { key: "k" + i }, t)), /* @__PURE__ */ React.createElement("p", { className: "bullets-intro" }, /* @__PURE__ */ React.createElement("strong", null, "Een paar praktische aandachtspunten:")), /* @__PURE__ */ React.createElement("ul", { className: "msg-bullets" }, bullets.map((t, i) => /* @__PURE__ */ React.createElement("li", { key: i }, linkify(t)))), termijnRef && /* @__PURE__ */ React.createElement("p", { style: { color: "var(--muted)" } }, "De volledige wettelijke termijnen staan in de bijgevoegde tabel Poortwachter-termijnen."), taak && /* @__PURE__ */ React.createElement("p", null, /* @__PURE__ */ React.createElement("strong", null, "Suggestie voor aangepaste taken."), " Op basis van de functieomschrijving zou je \u2014 binnen de afgegeven mogelijkheden \u2014 kunnen denken aan ", taak, ".", " ", /* @__PURE__ */ React.createElement("em", null, "Let op: dit zijn voorstellen als gespreksopening. Bespreek ze eerst samen met de werknemer; ze maken geen onderdeel uit van het Plan van Aanpak en mogen niet eenzijdig in het dossier worden opgenomen.")), /* @__PURE__ */ React.createElement("p", null, "Bespreek het concept met je werknemer, vul de openstaande velden samen in, onderteken beiden en bewaar het in je verzuimdossier; leg ook de terugkoppeling van de bedrijfsarts vast. Medische gegevens zijn bewust niet opgenomen."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Dit document is een concept, opgesteld op basis van de terugkoppeling van de bedrijfsarts. Controleer de gegevens en stel het Plan van aanpak altijd samen met je werknemer vast \u2014 het is een document van jullie beiden."), /* @__PURE__ */ React.createElement("p", { style: { fontStyle: "italic", color: "var(--muted)" } }, "Ben je eigenrisicodrager voor de Ziektewet of de WGA? Dan gelden aanvullende of afwijkende regels en kun je niet afgaan op dit automatisch gegenereerde advies \u2014 raadpleeg dan je eigen verzuim- of arbospecialist."), /* @__PURE__ */ React.createElement("p", { className: "sign" }, "Met vriendelijke groet,", /* @__PURE__ */ React.createElement("br", null), "planvanaanpakinvuller.nl", /* @__PURE__ */ React.createElement("br", null), /* @__PURE__ */ React.createElement("span", { style: { fontSize: 13, color: "var(--muted)" } }, "Automatisch opgesteld concept"))));
   }
 
   // src/landing.jsx
@@ -3587,35 +3547,6 @@
   }
   function Landing({ onOpenTool, onOpenPrivacy, session, onOpenLogin, onLogout, onOpenAccount, isAdmin, onOpenAdmin }) {
     return /* @__PURE__ */ React.createElement("div", { className: "site" }, /* @__PURE__ */ React.createElement(Nav, { onOpenTool, session, onOpenLogin, onLogout, onOpenAccount, isAdmin, onOpenAdmin }), /* @__PURE__ */ React.createElement(Hero, { onOpenTool }), /* @__PURE__ */ React.createElement(HowItWorks, null), /* @__PURE__ */ React.createElement(Showcase, null), /* @__PURE__ */ React.createElement(USP, null), /* @__PURE__ */ React.createElement(Hybrid, null), /* @__PURE__ */ React.createElement(Compliance, { onOpenPrivacy }), /* @__PURE__ */ React.createElement(Faq, null), /* @__PURE__ */ React.createElement(CtaBand, { onOpenTool }), /* @__PURE__ */ React.createElement(Footer, { onOpenPrivacy }));
-  }
-
-  // src/sourcedoc.jsx
-  function HL({ id, active, onSel, children }) {
-    return /* @__PURE__ */ React.createElement(
-      "span",
-      {
-        className: "hl" + (active === id ? " active" : ""),
-        onClick: (e) => {
-          e.stopPropagation();
-          onSel(id);
-        },
-        "data-src": id
-      },
-      children
-    );
-  }
-  function SourceDoc({ active, onSel }) {
-    const ref = React.useRef(null);
-    React.useEffect(() => {
-      if (!active || !ref.current) return;
-      const el = ref.current.querySelector(`[data-src="${active}"]`);
-      if (el) {
-        const c = ref.current;
-        const top = el.offsetTop - c.offsetTop - c.clientHeight / 2 + el.clientHeight / 2;
-        c.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-      }
-    }, [active]);
-    return /* @__PURE__ */ React.createElement("div", { className: "panel" }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Bron \xB7 terugkoppeling bedrijfsarts"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "terugkoppeling-bedrijfsarts.pdf")), /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Origineel")), /* @__PURE__ */ React.createElement("div", { className: "doc-legend" }, /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("span", { className: "lg-sw amber" }), " Overgenomen (functioneel)")), /* @__PURE__ */ React.createElement("div", { className: "srcdoc", ref, style: { maxHeight: 560, overflowY: "auto" } }, /* @__PURE__ */ React.createElement("p", { className: "dh" }, "Arbodienst \xB7 Spreekuurverslag"), /* @__PURE__ */ React.createElement("p", { className: "dtitle" }, "Terugkoppeling spreekuur bedrijfsarts"), /* @__PURE__ */ React.createElement("p", { className: "dmeta" }, "Opgesteld door bedrijfsarts \xB7 Spreekuurdatum 06-03-2025"), /* @__PURE__ */ React.createElement("h5", null, "Werknemergegevens"), /* @__PURE__ */ React.createElement("p", null, "Betreft de heer J. de Vries, werkzaam als", " ", /* @__PURE__ */ React.createElement(HL, { id: "s-functie", active, onSel }, "administratief medewerker"), " voor", " ", /* @__PURE__ */ React.createElement(HL, { id: "s-uren", active, onSel }, "32 uur per week"), ". Werknemer is uitgevallen op ", /* @__PURE__ */ React.createElement(HL, { id: "s-eerste", active, onSel }, "3 februari 2025"), "."), /* @__PURE__ */ React.createElement("h5", null, "Functionele mogelijkheden (belastbaarheid)"), /* @__PURE__ */ React.createElement("p", null, "Werknemer is belastbaar voor ", /* @__PURE__ */ React.createElement(HL, { id: "s-belast", active, onSel }, "licht werk, met een opbouw vanaf twee dagdelen van 4 uur"), ". Geadviseerd wordt een", " ", /* @__PURE__ */ React.createElement(HL, { id: "s-opbouw", active, onSel }, "wekelijkse opbouw van 4 uur"), ", startend op ", /* @__PURE__ */ React.createElement(HL, { id: "s-start", active, onSel }, "10 maart 2025"), ". Aandachtspunt: ", /* @__PURE__ */ React.createElement(HL, { id: "s-aanpassing", active, onSel }, "afwisseling tussen zitten en staan, geen piekbelasting"), "."), /* @__PURE__ */ React.createElement("h5", null, "Prognose"), /* @__PURE__ */ React.createElement("p", null, "De verwachting is een ", /* @__PURE__ */ React.createElement(HL, { id: "s-prognose", active, onSel }, "volledige werkhervatting binnen circa 7 weken"), ", mits de opbouw zonder terugval verloopt. Een tussentijdse evaluatie wordt aanbevolen.")));
   }
 
   // node_modules/docx/dist/index.mjs
@@ -22674,7 +22605,7 @@
     repls.sort((a, b) => b[0] - a[0]);
     let out = xml;
     for (const [s, e, t] of repls) out = out.slice(0, s) + t + out.slice(e);
-    out = out.replace(
+    if (values.einddoelEigenFunctie !== false) out = out.replace(
       '<w:checkBox><w:sizeAuto/><w:default w:val="0"/></w:checkBox>',
       '<w:checkBox><w:sizeAuto/><w:default w:val="1"/></w:checkBox>'
     );
@@ -22699,9 +22630,15 @@
     const werkplek = v("werkplek");
     const werktijden = v("werktijden");
     const arbeidsconflict = !!(signalen && signalen.arbeidsconflict);
+    const sig = signalen || {};
     return {
+      einddoelEigenFunctie: !(sig.geenBenutbareMogelijkheden || sig.duurzaamGeenMogelijkheden || sig.marginaleMogelijkheden),
       1: v("naam"),
       // 1.1 Voorletters en achternaam
+      3: v("bedrijfsnaam"),
+      // 2.1 Bedrijfsnaam
+      4: v("contactpersoon"),
+      // 2.2 Naam contactpersoon
       5: v("naamBedrijfsarts"),
       // 3.1 Naam bedrijfsarts
       6: v("functie"),
@@ -22977,7 +22914,7 @@
         spacing: { after: 0 },
         border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: LINE } },
         children: [
-          new TextRun({ text: "	[INVULLEN: telefoon]", bold: true, italics: true, color: FLAG, size: 17, font: FONT })
+          new TextRun({ text: "", size: 17, font: FONT })
         ]
       })
     ] });
@@ -23136,14 +23073,17 @@
   function invullen(text, opts = {}) {
     return new TextRun({ text, bold: true, italics: true, color: FLAG, size: opts.size || 21, font: FONT });
   }
-  function addresseeBlock() {
-    const lijn = (children, opts = {}) => new Paragraph({ spacing: { after: 20, before: opts.before || 0 }, children });
-    return [
-      lijn([invullen("[INVULLEN: bedrijfsnaam werkgever]")], { before: 360 }),
-      lijn([new TextRun({ text: "T.a.v. ", color: "18202F", size: 21, font: FONT }), invullen("[INVULLEN: contactpersoon]")]),
-      lijn([invullen("[INVULLEN: adres]")]),
-      lijn([invullen("[INVULLEN: postcode en plaats]")])
-    ];
+  function addresseeBlock(fields) {
+    const bedrijf = getVal(fields, "bedrijfsnaam");
+    const wie = getVal(fields, "contactpersoon");
+    const lijn = (text, before) => new Paragraph({
+      spacing: { after: 20, before: before || 0 },
+      children: [new TextRun({ text, color: "18202F", size: 21, font: FONT })]
+    });
+    const out = [];
+    if (!isMissing(bedrijf)) out.push(lijn(bedrijf, 360));
+    if (!isMissing(wie)) out.push(lijn("T.a.v. " + wie, out.length ? 0 : 360));
+    return out;
   }
   function metaBlock(naam) {
     const wie = isMissing(naam) ? "" : ` \u2014 ${naam}`;
@@ -23206,12 +23146,12 @@
       footers: { first: brandFooter(), default: brandFooter() },
       children: [
         // ---- PAGINA 1 — het begeleidend bericht als brief (ontwerp Briefpapier v2) ----
-        ...addresseeBlock(),
+        ...addresseeBlock(fields),
         new Paragraph({ spacing: { before: 240, after: 0 }, children: [] }),
         metaBlock(naam),
         new Paragraph({
           spacing: { before: 200, after: 120 },
-          children: [new TextRun({ text: "Beste werkgever,", color: "18202F", size: 22, font: FONT })]
+          children: [new TextRun({ text: isMissing(getVal(fields, "contactpersoon")) ? "Beste werkgever," : `Beste ${getVal(fields, "contactpersoon")},`, color: "18202F", size: 22, font: FONT })]
         }),
         p(`Hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}. Dit document bevat het opbouwadvies en de poortwachter-termijnen ter ondersteuning. Het ingevulde Plan van aanpak (UWV-formulier AG140) ontvang je als apart document; dat hoort in het personeelsdossier.`),
         ...kern.map((t) => p(t)),
@@ -23244,8 +23184,8 @@
           spacing: { before: 200, after: 700 },
           children: [new TextRun({ text: "Met vriendelijke groet,", color: "3C465A", size: 22, font: FONT })]
         }),
-        new Paragraph({ spacing: { after: 20 }, children: [invullen("[INVULLEN: naam afzender]", { size: 22 })] }),
-        new Paragraph({ spacing: { after: 0 }, children: [invullen("[INVULLEN: functie, bv. casemanager verzuim]", { size: 18 })] }),
+        new Paragraph({ spacing: { after: 20 }, children: [new TextRun({ text: "planvanaanpakinvuller.nl", color: "18202F", size: 22, font: FONT })] }),
+        new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text: "Automatisch opgesteld concept", color: GREY, size: 18, font: FONT })] }),
         // ---- BIJLAGE 1 — Opbouwadvies ----
         new Paragraph({ children: [new PageBreak()] }),
         h1("Opbouw- en re-integratieadvies"),
@@ -23394,7 +23334,10 @@
         spacing: { before: 200, after: 700 },
         children: [new TextRun({ text: "Met vriendelijke groet,", color: "3C465A", size: 22, font: FONT })]
       }),
-      new Paragraph({ spacing: { after: 0 }, children: [invullen("[INVULLEN: naam werkgever/leidinggevende]", { size: 22 })] })
+      ...isMissing(getVal(fields, "contactpersoon")) ? [new Paragraph({ spacing: { after: 0 }, children: [invullen("[INVULLEN: naam werkgever/leidinggevende]", { size: 22 })] })] : [
+        new Paragraph({ spacing: { after: 20 }, children: [new TextRun({ text: getVal(fields, "contactpersoon"), color: "18202F", size: 22, font: FONT })] }),
+        ...isMissing(getVal(fields, "bedrijfsnaam")) ? [] : [new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text: getVal(fields, "bedrijfsnaam"), color: GREY, size: 18, font: FONT })] })]
+      ]
     ];
     return new File({
       creator: "planvanaanpakinvuller.nl",
@@ -23619,8 +23562,22 @@
       {
         group: "Gegevens van de werkgever",
         manual: true,
-        sub: "Staan meestal niet in de terugkoppeling \u2014 vul zelf aan voor de leeftijds- en contractadviezen",
+        sub: "Staat niet in het verslag van de bedrijfsarts. Vul dit zelf in.",
         items: [
+          mk(
+            "bedrijfsnaam",
+            "Bedrijfsnaam",
+            "",
+            null,
+            { hint: "Komt op het UWV-formulier en in de brieven. Wordt op dit apparaat onthouden." }
+          ),
+          mk(
+            "contactpersoon",
+            "Jouw naam",
+            "",
+            null,
+            { hint: "De contactpersoon bij de werkgever; ondertekent de brief aan de werknemer." }
+          ),
           mk(
             "geboortedatum",
             "Geboortedatum werknemer",
@@ -23912,10 +23869,6 @@
   function AiBusy() {
     return /* @__PURE__ */ React.createElement("div", { className: "processing" }, /* @__PURE__ */ React.createElement("div", { className: "proc-ring" }), /* @__PURE__ */ React.createElement("h3", { style: { fontSize: 21 } }, "De AI leest de terugkoppeling\u2026"), /* @__PURE__ */ React.createElement("p", { style: { color: "var(--muted)", marginTop: 8 } }, "Functionele gegevens worden uitgelezen; medische informatie wordt gefilterd. Dit duurt meestal 5\u201320 seconden."));
   }
-  function AiSourcePanel({ selected, sources }) {
-    const snippet = selected && sources ? sources[selected.id] : null;
-    return /* @__PURE__ */ React.createElement("div", { className: "panel" }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Bron \xB7 terugkoppeling bedrijfsarts"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Door de AI uitgelezen passages")), /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "AI-extractie")), /* @__PURE__ */ React.createElement("div", { className: "doc-legend" }, /* @__PURE__ */ React.createElement("span", null, I.shield, " Medische gegevens en BSN zijn gefilterd")), /* @__PURE__ */ React.createElement("div", { className: "srcdoc", style: { maxHeight: 560, overflowY: "auto" } }, /* @__PURE__ */ React.createElement("p", { className: "dh" }, "Geselecteerd veld"), /* @__PURE__ */ React.createElement("p", { className: "dtitle" }, selected ? selected.label : "\u2014"), snippet ? /* @__PURE__ */ React.createElement("p", { style: { marginTop: 14 } }, /* @__PURE__ */ React.createElement("span", { className: "hl active" }, snippet)) : /* @__PURE__ */ React.createElement("p", { className: "dmeta", style: { marginTop: 14 } }, "Geen bronpassage voor dit veld \u2014 dit gegeven komt niet uit de terugkoppeling (vul je zelf aan) of is door het medisch filter weggelaten."), /* @__PURE__ */ React.createElement("p", { style: { marginTop: 20, fontSize: 13, color: "var(--muted)" } }, "Klik links op een veld om de bijbehorende passage te tonen. Controleer elk veld v\xF3\xF3r vaststelling.")));
-  }
   function wazoDatumWaarschuwing(v) {
     if (!ISO.test(v.uitgerekendeDatum || "") || !ISO.test(v.werkelijkeBevalling || "")) return null;
     const due = /* @__PURE__ */ new Date(v.uitgerekendeDatum + "T00:00:00");
@@ -23939,10 +23892,9 @@
   function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit, zwangerschap, setZwangerschap }) {
     const { fields, schema, mode, sources } = casus;
     const allItems = fields.flatMap((g) => g.items);
-    const [selectedId, setSelectedId] = React.useState(allItems[0] ? allItems[0].id : null);
-    const selected = allItems.find((it) => it.id === selectedId) || allItems[0] || null;
+    const [selectedId, setSelectedId] = React.useState(null);
+    const selected = allItems.find((it) => it.id === selectedId) || null;
     const select = (f) => setSelectedId(f.id);
-    const activeSrc = selected ? selected.src : null;
     const contractHours = schema[schema.length - 1] ? schema[schema.length - 1].hours : 0;
     const geenOpbouw = !!casus.opbouwReden || schema.length === 0;
     const iv = casus.inputvalidatie;
@@ -23951,15 +23903,19 @@
       if (iv.meestRecenteSpreekuur) waarschuwingen.push(`Er zijn meerdere spreekuurdata aangetroffen; de tool gebruikt de meest recente (${iv.meestRecenteSpreekuur}). Vermeld dit in het begeleidend bericht.`);
       (iv.tegenstrijdigheden || []).forEach((t) => waarschuwingen.push(`Tegenstrijdig gegeven \u2014 niet automatisch overgenomen, vul handmatig aan: ${t}`));
     }
+    const wk8 = poortwachterTermijnen(fields).find((r) => r.week === 8);
+    if (wk8 && wk8.datum && /^\d{2}-\d{2}-\d{4}$/.test(wk8.datum)) {
+      const [d, m, j] = wk8.datum.split("-").map(Number);
+      if (new Date(j, m - 1, d, 23, 59) < /* @__PURE__ */ new Date()) {
+        waarschuwingen.push(`Is dit het eerste Plan van aanpak voor deze werknemer? Dan had het er uiterlijk ${wk8.datum} (week 8) moeten zijn. Vul in het formulier bij vraag 9 de reden in. Stel je een bestaand plan bij, dan hoeft dat niet.`);
+      }
+    }
     const vi = casus.vervolgInfo;
     if (vi) {
       if (vi.aangevuld && vi.aangevuld.length) waarschuwingen.push(`Aangevuld uit de eerdere casus van ${vi.naam} (alleen op dit apparaat bewaard): ${vi.aangevuld.join(", ")}. Controleer of dit nog klopt.`);
       if (vi.naamAnders) waarschuwingen.push(`De naam in deze terugkoppeling wijkt af van de gekozen eerdere casus (${vi.naam}) \u2014 controleer of je de juiste casus hebt gekozen.`);
     }
-    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 2 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Controleer de gegevens"), /* @__PURE__ */ React.createElement("p", null, "Loop de gegevens na en vul aan wat nog mist. Klik een veld om te zien waar het vandaan komt.")), waarschuwingen.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "demo-note", style: { marginBottom: 16 } }, I.info, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, "Let op bij de controle"), /* @__PURE__ */ React.createElement("ul", { style: { margin: "6px 0 0", paddingLeft: 18 } }, waarschuwingen.map((w, i) => /* @__PURE__ */ React.createElement("li", { key: i }, w))))), /* @__PURE__ */ React.createElement(FieldsPanel, { fields, selected, onSelect: select, onEdit }), /* @__PURE__ */ React.createElement(Details, { summary: selected ? `Waar komt "${selected.label}" vandaan?` : "Waar komen de gegevens vandaan?" }, mode === "demo" ? /* @__PURE__ */ React.createElement(SourceDoc, { active: activeSrc, onSel: (id) => {
-      const f = allItems.find((it) => it.src === id);
-      if (f) setSelectedId(f.id);
-    } }) : /* @__PURE__ */ React.createElement(AiSourcePanel, { selected, sources })), /* @__PURE__ */ React.createElement(ZwangerschapPanel, { value: zwangerschap, onChange: setZwangerschap }), /* @__PURE__ */ React.createElement(Details, { summary: "Opbouwschema en tijdlijn bekijken" }, geenOpbouw ? /* @__PURE__ */ React.createElement("div", { className: "panel", style: { marginTop: 8 } }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Opbouwschema"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Geen oplopend schema in deze situatie"))), /* @__PURE__ */ React.createElement("p", { style: { padding: "4px 2px", color: "var(--ink-soft)" } }, casus.opbouwReden || "Een opbouwschema is op dit moment niet aan de orde.")) : /* @__PURE__ */ React.createElement(SchemaTable, { schema, contractHours }), /* @__PURE__ */ React.createElement(TijdlijnPanel, { fields, zwangerschap })), /* @__PURE__ */ React.createElement("div", { className: "verify-foot" }, /* @__PURE__ */ React.createElement("label", { className: "control-check" + (checked ? " on" : ""), onClick: () => setChecked(!checked) }, /* @__PURE__ */ React.createElement("span", { className: "box" }, I.checkSm), /* @__PURE__ */ React.createElement("span", { className: "ct" }, /* @__PURE__ */ React.createElement("strong", null, "Ik heb de gegevens gecontroleerd"), "Verplicht: jij bent verantwoordelijk voor het vaststellen. Vul ontbrekende velden aan v\xF3\xF3r je doorgaat.")), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !checked, onClick: onNext }, "Doorgaan ", I.arrowRight)), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar upload"), /* @__PURE__ */ React.createElement("span", null)));
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 2 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Controleer de gegevens"), /* @__PURE__ */ React.createElement("p", null, "Dit hebben we uit het verslag gehaald. Pas aan wat niet klopt en vul aan wat nog mist.")), waarschuwingen.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "demo-note", style: { marginBottom: 16 } }, I.info, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, "Let op bij de controle"), /* @__PURE__ */ React.createElement("ul", { style: { margin: "6px 0 0", paddingLeft: 18 } }, waarschuwingen.map((w, i) => /* @__PURE__ */ React.createElement("li", { key: i }, w))))), /* @__PURE__ */ React.createElement(FieldsPanel, { fields, selected, onSelect: select, onEdit, sources }), /* @__PURE__ */ React.createElement(ZwangerschapPanel, { value: zwangerschap, onChange: setZwangerschap }), /* @__PURE__ */ React.createElement(Details, { summary: "Opbouwschema en tijdlijn bekijken" }, geenOpbouw ? /* @__PURE__ */ React.createElement("div", { className: "panel", style: { marginTop: 8 } }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Opbouwschema"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Geen oplopend schema in deze situatie"))), /* @__PURE__ */ React.createElement("p", { style: { padding: "4px 2px", color: "var(--ink-soft)" } }, casus.opbouwReden || "Een opbouwschema is op dit moment niet aan de orde.")) : /* @__PURE__ */ React.createElement(SchemaTable, { schema, contractHours }), /* @__PURE__ */ React.createElement(TijdlijnPanel, { fields, zwangerschap })), /* @__PURE__ */ React.createElement("div", { className: "verify-foot" }, /* @__PURE__ */ React.createElement("label", { className: "control-check" + (checked ? " on" : ""), onClick: () => setChecked(!checked) }, /* @__PURE__ */ React.createElement("span", { className: "box" }, I.checkSm), /* @__PURE__ */ React.createElement("span", { className: "ct" }, /* @__PURE__ */ React.createElement("strong", null, "Ik heb de gegevens gecontroleerd"), "Verplicht: jij bent verantwoordelijk voor het vaststellen. Vul ontbrekende velden aan v\xF3\xF3r je doorgaat.")), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !checked, onClick: onNext }, "Doorgaan ", I.arrowRight)), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar upload"), /* @__PURE__ */ React.createElement("span", null)));
   }
   function PreviewStep({ onBack, controleOk, casus, zwangerschap }) {
     const { fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld, opbouwReden } = casus;
@@ -24050,6 +24006,31 @@
     }
     return lijst;
   }
+  var WERKGEVER_KEY = "pva.werkgever.v1";
+  var WERKGEVER_VELDEN = ["bedrijfsnaam", "contactpersoon"];
+  function loadWerkgever() {
+    try {
+      const w = JSON.parse(localStorage.getItem(WERKGEVER_KEY) || "{}");
+      return w && typeof w === "object" ? w : {};
+    } catch {
+      return {};
+    }
+  }
+  function bewaarWerkgever(casus) {
+    const w = {};
+    for (const id of WERKGEVER_VELDEN) {
+      const v = (getVal(casus.fields, id) || "").trim();
+      if (v && v !== MISSING) w[id] = v;
+    }
+    try {
+      localStorage.setItem(WERKGEVER_KEY, JSON.stringify(w));
+    } catch {
+    }
+  }
+  function vulWerkgever(c) {
+    const w = loadWerkgever();
+    return { ...c, fields: c.fields.map((g) => ({ ...g, items: g.items.map((it) => WERKGEVER_VELDEN.includes(it.id) && w[it.id] && (!it.value || it.value === MISSING) ? { ...it, value: w[it.id], status: "ok" } : it) })) };
+  }
   function mergeVervolg(c, vervolg) {
     if (!vervolg) return c;
     const aangevuld = [];
@@ -24083,11 +24064,14 @@
       }
     }, [step, checked, casus, zwangerschap]);
     React.useEffect(() => {
-      if (step === 2 && casus) setEerdere(bewaarCasus(casus, zwangerschap));
+      if (step === 2 && casus) {
+        setEerdere(bewaarCasus(casus, zwangerschap));
+        bewaarWerkgever(casus);
+      }
     }, [step]);
     function handleResult(c, vervolg) {
       if (c && typeof c.balance === "number" && onCreditsChange) onCreditsChange(c.balance);
-      let merged = mergeVervolg(c, vervolg);
+      let merged = mergeVervolg(vulWerkgever(c), vervolg);
       if (vervolg && vervolg.zwangerschap && vervolg.zwangerschap.actief) {
         setZwangerschap(vervolg.zwangerschap);
         if (merged.vervolgInfo) merged.vervolgInfo.aangevuld = [...merged.vervolgInfo.aangevuld, "Zwangerschap & WAZO"];

@@ -89,7 +89,7 @@ function letterHeadFirst() {
     new Paragraph({ ...rightTab(IND_FULL), spacing: { after: 0 },
       border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: LINE } },
       children: [
-        new TextRun({ text: "\t[INVULLEN: telefoon]", bold: true, italics: true, color: FLAG, size: 17, font: FONT }),
+        new TextRun({ text: "", size: 17, font: FONT }),
       ] }),
   ] });
 }
@@ -226,15 +226,17 @@ function invullen(text, opts = {}) {
   return new TextRun({ text, bold: true, italics: true, color: FLAG, size: opts.size || 21, font: FONT });
 }
 
-// Geadresseerde op vensterenvelop-positie (placeholders zoals in het ontwerp).
-function addresseeBlock() {
-  const lijn = (children, opts = {}) => new Paragraph({ spacing: { after: 20, before: opts.before || 0 }, children });
-  return [
-    lijn([invullen("[INVULLEN: bedrijfsnaam werkgever]")], { before: 360 }),
-    lijn([new TextRun({ text: "T.a.v. ", color: "18202F", size: 21, font: FONT }), invullen("[INVULLEN: contactpersoon]")]),
-    lijn([invullen("[INVULLEN: adres]")]),
-    lijn([invullen("[INVULLEN: postcode en plaats]")]),
-  ];
+// Geadresseerde: de werkgever die de tool gebruikt (bedrijfsnaam + eigen naam
+// uit stap 2). Niet ingevuld → geen adresblok, in plaats van rode invulregels.
+function addresseeBlock(fields) {
+  const bedrijf = getVal(fields, "bedrijfsnaam");
+  const wie = getVal(fields, "contactpersoon");
+  const lijn = (text, before) => new Paragraph({ spacing: { after: 20, before: before || 0 },
+    children: [new TextRun({ text, color: "18202F", size: 21, font: FONT })] });
+  const out = [];
+  if (!isMissing(bedrijf)) out.push(lijn(bedrijf, 360));
+  if (!isMissing(wie)) out.push(lijn("T.a.v. " + wie, out.length ? 0 : 360));
+  return out;
 }
 
 // Meta-blok: navy-getint kader met Datum / Ons kenmerk / Onderwerp / Bijlagen.
@@ -292,11 +294,11 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
       footers: { first: brandFooter(), default: brandFooter() },
       children: [
         // ---- PAGINA 1 — het begeleidend bericht als brief (ontwerp Briefpapier v2) ----
-        ...addresseeBlock(),
+        ...addresseeBlock(fields),
         new Paragraph({ spacing: { before: 240, after: 0 }, children: [] }),
         metaBlock(naam),
         new Paragraph({ spacing: { before: 200, after: 120 },
-          children: [new TextRun({ text: "Beste werkgever,", color: "18202F", size: 22, font: FONT })] }),
+          children: [new TextRun({ text: isMissing(getVal(fields, "contactpersoon")) ? "Beste werkgever," : `Beste ${getVal(fields, "contactpersoon")},`, color: "18202F", size: 22, font: FONT })] }),
         p(`Hierbij ontvang je het concept-Plan van aanpak voor ${isMissing(naam) ? "je werknemer" : naam}, opgesteld naar aanleiding van de terugkoppeling van de bedrijfsarts d.d. ${reportDate}. Dit document bevat het opbouwadvies en de poortwachter-termijnen ter ondersteuning. Het ingevulde Plan van aanpak (UWV-formulier AG140) ontvang je als apart document; dat hoort in het personeelsdossier.`),
         ...kern.map((t) => p(t)),
         new Paragraph({ spacing: { before: 60, after: 80 }, children: [
@@ -317,8 +319,8 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
           italics: true, color: GREY, size: 22, font: FONT })] }),
         new Paragraph({ spacing: { before: 200, after: 700 },
           children: [new TextRun({ text: "Met vriendelijke groet,", color: "3C465A", size: 22, font: FONT })] }),
-        new Paragraph({ spacing: { after: 20 }, children: [invullen("[INVULLEN: naam afzender]", { size: 22 })] }),
-        new Paragraph({ spacing: { after: 0 }, children: [invullen("[INVULLEN: functie, bv. casemanager verzuim]", { size: 18 })] }),
+        new Paragraph({ spacing: { after: 20 }, children: [new TextRun({ text: "planvanaanpakinvuller.nl", color: "18202F", size: 22, font: FONT })] }),
+        new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text: "Automatisch opgesteld concept", color: GREY, size: 18, font: FONT })] }),
 
         // ---- BIJLAGE 1 — Opbouwadvies ----
         new Paragraph({ children: [new PageBreak()] }),
@@ -476,7 +478,10 @@ export function buildWerknemerDocx(fields, schema, reportDate, signalen, opbouwR
     }),
     new Paragraph({ spacing: { before: 200, after: 700 },
       children: [new TextRun({ text: "Met vriendelijke groet,", color: "3C465A", size: 22, font: FONT })] }),
-    new Paragraph({ spacing: { after: 0 }, children: [invullen("[INVULLEN: naam werkgever/leidinggevende]", { size: 22 })] }),
+    ...(isMissing(getVal(fields, "contactpersoon"))
+      ? [new Paragraph({ spacing: { after: 0 }, children: [invullen("[INVULLEN: naam werkgever/leidinggevende]", { size: 22 })] })]
+      : [new Paragraph({ spacing: { after: 20 }, children: [new TextRun({ text: getVal(fields, "contactpersoon"), color: "18202F", size: 22, font: FONT })] }),
+         ...(isMissing(getVal(fields, "bedrijfsnaam")) ? [] : [new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text: getVal(fields, "bedrijfsnaam"), color: GREY, size: 18, font: FONT })] })])]),
   ];
   return new Document({
     creator: "planvanaanpakinvuller.nl",
