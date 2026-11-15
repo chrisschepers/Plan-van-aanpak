@@ -22605,7 +22605,7 @@
     repls.sort((a, b) => b[0] - a[0]);
     let out = xml;
     for (const [s, e, t] of repls) out = out.slice(0, s) + t + out.slice(e);
-    out = out.replace(
+    if (values.einddoelEigenFunctie !== false) out = out.replace(
       '<w:checkBox><w:sizeAuto/><w:default w:val="0"/></w:checkBox>',
       '<w:checkBox><w:sizeAuto/><w:default w:val="1"/></w:checkBox>'
     );
@@ -22630,7 +22630,9 @@
     const werkplek = v("werkplek");
     const werktijden = v("werktijden");
     const arbeidsconflict = !!(signalen && signalen.arbeidsconflict);
+    const sig = signalen || {};
     return {
+      einddoelEigenFunctie: !(sig.geenBenutbareMogelijkheden || sig.duurzaamGeenMogelijkheden || sig.marginaleMogelijkheden),
       1: v("naam"),
       // 1.1 Voorletters en achternaam
       3: v("bedrijfsnaam"),
