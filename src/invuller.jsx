@@ -381,11 +381,13 @@ function Footer({ onOpenPrivacy }) {
           <div>
             <h4>Contact</h4>
             <a href="mailto:contact@planvanaanpakinvuller.nl">contact@planvanaanpakinvuller.nl</a>
-                        <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>KVK-nummer volgt</span>
+                        <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>Schepers Digital</span>
+            <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>KVK 42107874</span>
+            <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>Btw NL004512417B86</span>
           </div>
         </div>
         <div className="footer-bot">
-          <span>© 2026 Poortwachtercheck · KVK-nummer volgt</span>
+          <span>© 2026 Poortwachtercheck · onderdeel van Schepers Digital · KVK 42107874</span>
           <span>Hosting en opslag binnen de EER · Geen training op klantdata</span>
         </div>
       </div>

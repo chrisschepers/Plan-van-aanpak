@@ -463,11 +463,13 @@ function Footer({ onOpenPrivacy }) {
           <div>
             <h4>Contact</h4>
             <a href={"mailto:" + CONTACT_MAIL}>{CONTACT_MAIL}</a>
-            <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>KVK-nummer volgt</span>
+            <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>Schepers Digital</span>
+            <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>KVK 42107874</span>
+            <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>Btw NL004512417B86</span>
           </div>
         </div>
         <div className="footer-bot">
-          <span>© 2026 {MERK} · KVK-nummer volgt</span>
+          <span>© 2026 {MERK} · onderdeel van Schepers Digital · KVK 42107874</span>
           <span>Zelfstandige dienst, geen onderdeel van UWV · Geen garantie op de uitkomst van de toets</span>
         </div>
       </div>
