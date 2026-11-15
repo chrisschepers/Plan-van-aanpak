@@ -1,0 +1,38 @@
+# CI: draait de volledige testsuite en controleert dat het gecommitte app.js-
+# bundle overeenkomt met een verse build van src/ (GitHub Pages serveert app.js
+# rechtstreeks — een vergeten `npm run build` zou anders stille drift geven).
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-en-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Dependencies installeren
+        run: npm ci
+
+      - name: Testsuite
+        run: npm test
+
+      - name: Build-drift-check (app.js in sync met src/)
+        run: |
+          npm run build
+          git diff --exit-code app.js || {
+            echo "::error::app.js wijkt af van een verse build — draai 'npm run build' en commit het resultaat mee."
+            exit 1
+          }
+
+      - name: Backend syntax-check
+        run: |
+          cd server && npm install --no-audit --no-fund
+          for f in *.js; do node --check "$f"; done

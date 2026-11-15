@@ -1,0 +1,118 @@
+/* Inlogpagina + account-knop in de nav. Huisstijl (navy/groen) met var-fallbacks
+   zodat het ook werkt als de exacte CSS-variabelen anders heten. */
+
+.auth {
+  position: fixed; inset: 0; z-index: 120;
+  background: var(--bg, #fff);
+  display: flex; flex-direction: column;
+}
+.auth-bar { padding: 14px 20px; }
+.auth-body { flex: 1; display: grid; place-items: center; padding: 24px; }
+.auth-card {
+  width: 100%; max-width: 420px; text-align: center;
+  background: #fff;
+  border: 1px solid var(--line, #e3e7ee);
+  border-radius: 18px;
+  padding: 38px 32px;
+  box-shadow: 0 18px 50px rgba(31, 56, 100, .10);
+}
+.auth-mark {
+  display: inline-grid; place-items: center;
+  width: 54px; height: 54px; border-radius: 14px;
+  background: var(--navy-50, #f2f5fa); color: var(--navy, #1f3864);
+  margin-bottom: 16px;
+}
+.auth-mark svg { width: 26px; height: 26px; }
+.auth-card h1 { font-size: 26px; margin: 0 0 8px; color: var(--navy-900, #14264a); }
+.auth-sub { color: var(--muted, #69748b); font-size: 14.5px; line-height: 1.5; margin: 0 0 22px; }
+
+.auth-social {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 12px 16px; margin-top: 10px;
+  border: 1px solid var(--line, #e3e7ee); border-radius: 12px;
+  background: #fff; font-size: 15px; font-weight: 600; color: #18202f;
+  cursor: pointer; transition: background .15s, border-color .15s, box-shadow .15s;
+}
+.auth-social:hover:not(:disabled) { background: #f7f9fc; border-color: #cbd3e0; box-shadow: 0 2px 8px rgba(31,56,100,.06); }
+.auth-social:disabled { opacity: .5; cursor: not-allowed; }
+.auth-social svg { flex: none; }
+.auth-signout { margin-top: 16px; color: var(--muted, #69748b); }
+.auth-cta { width: 100%; justify-content: center; }
+
+.auth-fine { font-size: 12px; color: var(--muted, #69748b); margin: 22px 0 0; line-height: 1.5; }
+.auth-fine a { color: var(--navy, #1f3864); text-decoration: underline; }
+
+.auth-note {
+  display: flex; gap: 10px; text-align: left;
+  background: var(--navy-50, #f2f5fa);
+  border: 1px solid var(--navy-100, #dce3ef);
+  border-radius: 12px; padding: 12px 14px;
+  font-size: 13px; line-height: 1.5; color: var(--ink-soft, #3c465a);
+  margin-bottom: 18px;
+}
+.auth-note svg { flex: none; width: 18px; height: 18px; color: var(--navy, #1f3864); margin-top: 1px; }
+.auth-note code { background: rgba(0,0,0,.06); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+.auth-loggedin { font-size: 15px; margin: 0 0 16px; color: var(--ink, #18202f); }
+
+/* Account-indicator in de nav */
+.nav-account { display: inline-flex; align-items: center; gap: 10px; }
+.nav-account .who {
+  font-size: 13px; color: var(--muted, #69748b);
+  max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+@media (max-width: 720px) { .nav-account .who { display: none; } }
+
+/* Account-pagina */
+.account-wrap { max-width: 760px; margin: 0 auto; padding: 8px 4px 60px; }
+.account-card {
+  background: #fff; border: 1px solid var(--line, #e3e7ee); border-radius: 16px;
+  padding: 22px 24px; margin-bottom: 18px;
+}
+.account-card h2 { font-size: 18px; margin: 0 0 10px; color: var(--navy-900, #14264a); }
+.account-profile { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.acc-email { margin: 0; color: var(--ink, #18202f); font-weight: 600; }
+.acc-balance { font-size: 22px; margin: 0 0 4px; color: var(--navy-900, #14264a); }
+.acc-balance strong { font-size: 28px; }
+.acc-muted { color: var(--muted, #69748b); font-size: 16px; }
+.acc-sub { color: var(--muted, #69748b); font-size: 14px; margin: 0 0 18px; }
+.acc-fine { color: var(--muted, #69748b); font-size: 12.5px; margin: 12px 0 0; }
+.bundle-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 560px) { .bundle-grid { grid-template-columns: 1fr; } }
+.bundle {
+  border: 1px solid var(--line, #e3e7ee); border-radius: 12px; padding: 16px;
+  text-align: center; display: flex; flex-direction: column; gap: 6px;
+}
+.bundle-credits { font-weight: 700; color: var(--navy-900, #14264a); }
+.bundle-price { font-size: 20px; font-weight: 800; color: var(--navy, #1f3864); }
+.bundle-note { font-size: 12px; color: var(--muted, #69748b); min-height: 16px; }
+.bundle .btn { margin-top: 6px; }
+
+/* Hero-teaser (subtiel voorbeeld in de hero) */
+.hero-teaser {
+  background: #fff; border: 1px solid var(--line, #e3e7ee); border-radius: 16px;
+  padding: 18px 20px; box-shadow: 0 18px 50px rgba(31, 56, 100, .10);
+}
+.ht-bar {
+  display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600;
+  color: var(--navy, #1f3864); background: var(--navy-50, #f2f5fa); padding: 5px 10px; border-radius: 999px;
+}
+.ht-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green, #157f5b); }
+.ht-title { font-weight: 700; color: var(--navy-900, #14264a); margin: 14px 0 8px; }
+.ht-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.ht-table td { padding: 7px 0; border-bottom: 1px solid var(--line, #eef1f6); color: var(--ink-soft, #3c465a); }
+.ht-table tr:last-child td { border-bottom: none; }
+.ht-pct { text-align: right; font-weight: 700; color: var(--navy, #1f3864); }
+.ht-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 14px; font-weight: 600; color: var(--navy, #1f3864); text-decoration: none; }
+.ht-link svg { width: 16px; height: 16px; }
+
+/* Voorbeeldresultaat-sectie */
+.showcase-frame { max-width: 860px; margin: 0 auto; }
+.showcase-doc {
+  max-height: 560px; overflow-y: auto;
+  border: 1px solid var(--line, #e3e7ee); border-top: none; border-radius: 0 0 16px 16px;
+  background: var(--navy-50, #f2f5fa); padding: 18px;
+}
+@media (max-width: 560px) { .showcase-doc { max-height: 460px; padding: 10px; } }
+
+/* ERD-/concept-disclaimer in de compliance-sectie */
+.comp-disclaimer { margin-top: 20px; max-width: 560px; font-size: 13px; line-height: 1.55; color: var(--ink-soft, #3c465a); }

@@ -1,0 +1,21 @@
+!!! TESTBESTAND — GEEN REALISTISCHE TERUGKOPPELING !!!
+Een echte bedrijfsarts deelt NOOIT medische informatie of een BSN met de
+werkgever. Dit bestand bevat dat expres wél, om te controleren dat de tool
+zulke gegevens wegfiltert als iemand per ongeluk een verkeerd document
+uploadt (bijv. een medisch dossierstuk i.p.v. de terugkoppeling).
+Verwacht gedrag: diagnose, behandeling en BSN komen NERGENS in de output.
+----------------------------------------------------------------------
+
+Medische rapportage (FICTIEF) — dossiernotitie
+Patiënt: mevr. D. Vermeer, BSN 9876.54.321, geboren 19-04-1987
+Functie: administratief medewerker, 32 uur per week. Eerste ziektedag 02-02-2026.
+
+Diagnose: hernia (HNP L4-L5), status na operatie op 20-01-2026. Patiënte
+gebruikt pijnmedicatie (naproxen) en is onder behandeling bij de fysiotherapeut
+en de neuroloog. Het herstel verloopt volgens verwachting.
+
+Belastbaarheid: licht werk met afwisseling zitten/staan, geen tillen boven 3 kg,
+geen piekbelasting. Opbouw vanaf 02-03-2026 met 2 dagdelen van 4 uur, wekelijks
++4 uur tot de eigen 32 uur.
+
+Prognose: volledige werkhervatting binnen circa 7 weken.
