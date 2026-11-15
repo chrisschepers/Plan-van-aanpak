@@ -31,9 +31,9 @@
     mod
   ));
 
-  // ../planvanaanpak/node_modules/jszip/dist/jszip.min.js
+  // node_modules/jszip/dist/jszip.min.js
   var require_jszip_min2 = __commonJS({
-    "../planvanaanpak/node_modules/jszip/dist/jszip.min.js"(exports, module) {
+    "node_modules/jszip/dist/jszip.min.js"(exports, module) {
       !(function(e) {
         if ("object" == typeof exports && "undefined" != typeof module) module.exports = e();
         else if ("function" == typeof define && define.amd) define([], e);
@@ -3709,7 +3709,7 @@
     return /* @__PURE__ */ React.createElement("div", { className: "site" }, /* @__PURE__ */ React.createElement(Nav2, { onOpenTool, session, onOpenLogin, onLogout, onOpenAccount, isAdmin, onOpenAdmin }), /* @__PURE__ */ React.createElement(Hero2, { onOpenTool }), /* @__PURE__ */ React.createElement(HowItWorks, null), /* @__PURE__ */ React.createElement(Showcase, null), /* @__PURE__ */ React.createElement(USP, null), /* @__PURE__ */ React.createElement(Hybrid, null), /* @__PURE__ */ React.createElement(Compliance, { onOpenPrivacy }), /* @__PURE__ */ React.createElement(Faq2, null), /* @__PURE__ */ React.createElement(CtaBand, { onOpenTool }), /* @__PURE__ */ React.createElement(Footer2, { onOpenPrivacy }));
   }
 
-  // ../planvanaanpak/node_modules/docx/dist/index.mjs
+  // node_modules/docx/dist/index.mjs
   var __create2 = Object.create;
   var __defProp2 = Object.defineProperty;
   var __getOwnPropDesc2 = Object.getOwnPropertyDescriptor;
