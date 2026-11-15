@@ -1,6 +1,8 @@
-/* App-entry — landing en tool in één flow. React/ReactDOM als UMD-globals. */
+/* App-entry — startpagina (dossiercheck) of invuller-pagina, plus de tool. React/ReactDOM als UMD-globals. */
 
 import { Landing } from "./landing.jsx";
+import { InvullerPagina } from "./invuller.jsx";
+import { opInvuller, naarInvuller } from "./merk.jsx";
 import { Tool } from "./tool.jsx";
 import { PrivacyVerklaring } from "./privacy.jsx";
 import { Login } from "./login.jsx";
@@ -33,6 +35,12 @@ function useReveal() {
   }, []); // eenmalig: de listeners hoeven niet elke render opnieuw geregistreerd
 }
 
+// Inloggen en betalen horen bij de invuller. Komt iemand daarvan terug op de
+// startpagina (het oude terugkeeradres), stuur hem dan door naar de invuller.
+const HIER = typeof window !== "undefined" ? window.location.hash + window.location.search : "";
+const TERUG_VAN_LOGIN = /access_token=|[?&]code=/.test(HIER);
+const TERUG_VAN_BETALEN = /[?&]betaling=terug/.test(HIER);
+
 function App() {
   const [view, setView] = useState("landing"); // landing | tool | privacy | login | account | admin
   const [session, setSession] = useState(null);
@@ -44,6 +52,12 @@ function App() {
     currentSession().then(setSession);
     return onAuthChange(setSession);
   }, []);
+
+  useEffect(() => {
+    if (opInvuller()) return;
+    if (TERUG_VAN_BETALEN) window.location.replace(naarInvuller() + "?betaling=terug");
+    else if (TERUG_VAN_LOGIN && session) window.location.replace(naarInvuller());
+  }, [session]);
 
   useEffect(() => {
     if (!session) { setCredits(null); return; }
@@ -63,23 +77,25 @@ function App() {
 
   // Terug van Mollie → direct naar de account-pagina.
   useEffect(() => {
-    if (typeof window !== "undefined" && /[?&]betaling=terug/.test(window.location.search)) setView("account");
+    if (opInvuller() && TERUG_VAN_BETALEN) setView("account");
   }, []);
 
   const logout = async () => { await signOut(); setSession(null); setView("landing"); };
 
   return (
     <React.Fragment>
-      <Landing
-        onOpenTool={() => setView("tool")}
-        onOpenPrivacy={() => setView("privacy")}
-        session={session}
-        onOpenLogin={() => setView("login")}
-        onLogout={logout}
-        onOpenAccount={() => setView("account")}
-        isAdmin={isAdmin}
-        onOpenAdmin={() => setView("admin")}
-      />
+      {opInvuller()
+        ? <InvullerPagina
+            onOpenTool={() => setView("tool")}
+            onOpenPrivacy={() => setView("privacy")}
+            session={session}
+            onOpenLogin={() => setView("login")}
+            onLogout={logout}
+            onOpenAccount={() => setView("account")}
+            isAdmin={isAdmin}
+            onOpenAdmin={() => setView("admin")}
+          />
+        : <Landing onOpenPrivacy={() => setView("privacy")} />}
       {view === "tool" && <Tool onClose={() => setView("landing")} session={session} onNeedLogin={() => setView("login")} credits={credits} onNeedCredits={() => setView("account")} onCreditsChange={setCredits} />}
       {view === "privacy" && <PrivacyVerklaring onClose={() => setView("landing")} />}
       {view === "login" && <Login onClose={() => setView("landing")} onOpenPrivacy={() => setView("privacy")} session={session} />}

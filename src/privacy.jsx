@@ -49,7 +49,7 @@ export function PrivacyVerklaring({ onClose }) {
             Privacyverklaring &amp; AI-transparantie
           </h1>
           <p style={{ color: "var(--muted)", fontSize: 15, marginTop: 8 }}>
-            planvanaanpakinvuller.nl · concept d.d. 15 juni 2026 · KVK-nummer volgt
+            planvanaanpakinvuller.nl · concept d.d. 15 juni 2026 · Schepers Digital · KVK 42107874
           </p>
 
           <div style={{ marginTop: 20, padding: "16px 18px", background: "var(--navy-50)",
@@ -146,7 +146,7 @@ export function PrivacyVerklaring({ onClose }) {
           <Sectie nr="9" titel="Contact">
             <p>
               <a href="mailto:contact@planvanaanpakinvuller.nl" style={{ color: NAVY, fontWeight: 600 }}>contact@planvanaanpakinvuller.nl</a><br />
-              planvanaanpakinvuller.nl · KVK-nummer volgt
+              planvanaanpakinvuller.nl · Schepers Digital · KVK 42107874
             </p>
           </Sectie>
 
