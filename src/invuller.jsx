@@ -2,6 +2,7 @@
 
 import { I, CASE, INITIAL_FIELDS } from "./data.jsx";
 import { Merk, thuis } from "./merk.jsx";
+import { Melding } from "./landing.jsx";
 import { computeSchema } from "./engine.js";
 import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
 
@@ -26,6 +27,7 @@ function Nav({ onOpenTool, session, onOpenLogin, onLogout, onOpenAccount, isAdmi
           <button className="btn btn-primary" onClick={onOpenTool}>Probeer de invuller</button>
         </div>
       </div>
+      <Melding />
     </header>
   );
 }
@@ -35,13 +37,14 @@ function Hero({ onOpenTool }) {
     <section className="hero" id="top">
       <div className="wrap hero-grid">
         <div className="reveal">
-          <span className="eyebrow"><span className="dot"></span>Plan van aanpak invullen</span>
-          <h1>Het concept Plan van Aanpak, automatisch ingevuld.</h1>
-          <p className="lead">
-            Upload de terugkoppeling van de bedrijfsarts. Je krijgt een ingevuld
-            concept-PvA, een opbouwadvies en een begeleidend bericht terug — jij
-            controleert en stelt vast. Geen overtypen meer.
-          </p>
+          <div className="kop-balk">
+            <h1>Het concept Plan van Aanpak, automatisch ingevuld</h1>
+            <p className="lead lead-breed">
+              Upload de terugkoppeling van de bedrijfsarts. Je krijgt een ingevuld
+              concept, een opbouwadvies en een begeleidend bericht terug. Jij
+              controleert en stelt vast.
+            </p>
+          </div>
           <div className="hero-cta">
             <button className="btn btn-primary btn-lg" onClick={onOpenTool}>
               Probeer de PvA-invuller {I.arrowRight}

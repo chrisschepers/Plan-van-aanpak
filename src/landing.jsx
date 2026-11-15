@@ -7,21 +7,49 @@ const { useState } = React;
 
 function Nav() {
   return (
-    <header className="nav nav-start">
+    <header className="nav">
       <div className="wrap nav-inner">
         <Merk />
         <nav className="nav-links">
-          <a href="#checklist">Checklist</a>
-          <a href="#werkwijze">Werkwijze</a>
-          <a href="#tarieven">Tarieven</a>
-          <a href="#faq">Vragen</a>
-          <a href={naarInvuller()}>Plan van aanpak invullen</a>
+          <a href={naarInvuller()}>{I.doc} Plan van aanpak invullen</a>
+          <a href="#contact">{I.mail} Contact</a>
         </nav>
-        <div className="nav-cta">
-          <a className="btn btn-primary" href="#contact">Dossier laten nakijken</a>
+      </div>
+      <Melding />
+    </header>
+  );
+}
+
+// Smalle balk onder de kop: de opbouw lijkt op die van een overheidssite, dus
+// moet meteen duidelijk zijn dat dit een zelfstandige dienst is.
+export function Melding() {
+  return (
+    <div className="melding">
+      <div className="wrap">{I.info}<span><strong>Zelfstandige dienst.</strong> Poortwachtercheck is geen onderdeel van UWV.</span></div>
+    </div>
+  );
+}
+
+const DIRECT = [
+  { t: "Dossier laten nakijken", h: "#contact" },
+  { t: "Zelf de snelle check doen", h: "#checklist" },
+  { t: "Data berekenen vanaf de eerste ziektedag", h: "#data" },
+  { t: "Werkwijze", h: "#werkwijze" },
+  { t: "Tarieven", h: "#tarieven" },
+  { t: "Veelgestelde vragen", h: "#faq" },
+];
+
+function DirectNaar() {
+  return (
+    <section className="section smal" id="direct">
+      <div className="wrap">
+        <h2 className="kop">Direct naar</h2>
+        <div className="direct">
+          {DIRECT.map((d, i) => <a key={i} href={d.h}><span>{d.t}</span>{I.arrowRight}</a>)}
+          <a href={naarInvuller()}><span>Plan van aanpak invullen</span>{I.arrowRight}</a>
         </div>
       </div>
-    </header>
+    </section>
   );
 }
 
@@ -39,15 +67,15 @@ function Hero() {
     <section className="hero" id="top">
       <div className="wrap hero-grid">
         <div className="reveal">
-          <span className="eyebrow"><span className="dot"></span>Re-integratieverslag · Wet verbetering poortwachter</span>
-          <h1>Je re-integratieverslag compleet naar UWV.</h1>
-          <p className="lead lead-breed">
-            Is je werknemer bijna twee jaar ziek? Ik kom langs, loop het verzuimdossier na
-            en zorg dat het verslag volledig en ondertekend klaarligt. Dan beoordeelt UWV
-            het op de inhoud en niet op een stuk dat ontbreekt.
-          </p>
+          <div className="kop-balk">
+            <h1>Je re-integratieverslag compleet naar UWV</h1>
+            <p className="lead lead-breed">
+              Is je werknemer bijna twee jaar ziek? Ik kom langs, loop het verzuimdossier na
+              en zorg dat het verslag volledig en ondertekend klaarligt.
+            </p>
+          </div>
           <div className="hero-cta">
-            <a className="btn btn-primary btn-lg" href="#contact">Dossier laten nakijken {I.arrowRight}</a>
+            <a className="btn btn-primary btn-lg" href="#contact">Dossier laten nakijken</a>
             <a className="btn btn-ghost btn-lg" href="#checklist">Doe zelf de snelle check</a>
           </div>
           <div className="hero-trust">
@@ -197,7 +225,7 @@ function Checklist() {
               <a className="btn btn-primary" href={mailto("Dossiercheck aanvragen", tekst)}>Stuur dit en vraag een dossiercheck aan</a>
               <p className="check-klein">Opent je mailprogramma met deze lijst erin. Zet er geen medische gegevens bij.</p>
             </div>
-            <div className="check-data card reveal">
+            <div className="check-data card reveal" id="data">
               <label htmlFor="eerste-dag">Eerste ziektedag</label>
               <input id="eerste-dag" type="date" value={dag} onChange={(e) => setDag(e.target.value)} />
               {data.length > 0
@@ -440,7 +468,7 @@ function Footer({ onOpenPrivacy }) {
         </div>
         <div className="footer-bot">
           <span>© 2026 {MERK} · KVK-nummer volgt</span>
-          <span>Geen onderdeel van UWV · Geen garantie op de uitkomst van de toets</span>
+          <span>Zelfstandige dienst, geen onderdeel van UWV · Geen garantie op de uitkomst van de toets</span>
         </div>
       </div>
     </footer>
@@ -452,6 +480,7 @@ export function Landing({ onOpenPrivacy }) {
     <div className="site">
       <Nav />
       <Hero />
+      <DirectNaar />
       <Probleem />
       <Checklist />
       <Werkwijze />
