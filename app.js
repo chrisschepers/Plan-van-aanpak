@@ -2997,115 +2997,55 @@
   function SchemaTable({ schema, contractHours }) {
     return /* @__PURE__ */ React.createElement("div", { className: "panel", style: { marginTop: 22 } }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Opbouwschema"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Berekend door de rekenmotor \xB7 ", contractHours, " contracturen")), /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Deterministisch")), /* @__PURE__ */ React.createElement("table", { className: "schema-table" }, /* @__PURE__ */ React.createElement("thead", null, /* @__PURE__ */ React.createElement("tr", null, /* @__PURE__ */ React.createElement("th", null, "Per datum"), /* @__PURE__ */ React.createElement("th", null, "Uren per week"), /* @__PURE__ */ React.createElement("th", null, "Hersteld"))), /* @__PURE__ */ React.createElement(SchemaRows, { schema })));
   }
-  function FieldRow({ f, selected, onSelect, onEdit, manual, editing, onStartEdit, onStopEdit, rowRef }) {
-    const [val, setVal] = React.useState("");
-    const isMissing2 = f.status === "missing";
-    const hardMiss = isMissing2 && !f.optional && !manual;
-    React.useEffect(() => {
-      if (editing) setVal(f.value === MISSING ? "" : f.value);
-    }, [editing]);
-    function commit() {
-      onStopEdit();
-      onEdit(f.id, val);
-    }
-    const emptyText = manual ? "Zelf invullen" : f.optional ? "Niet vermeld" : f.value;
-    return /* @__PURE__ */ React.createElement(
-      "div",
-      {
-        ref: rowRef,
-        className: "field-row" + (selected ? " sel" : "") + (hardMiss ? " missing" : "") + (isMissing2 && !hardMiss ? " soft" : ""),
-        onClick: () => onSelect(f),
-        tabIndex: 0,
-        onKeyDown: (e) => {
-          if (e.key === "Enter") onSelect(f);
-        }
-      },
-      /* @__PURE__ */ React.createElement("div", { className: "flabel" }, f.label),
-      editing ? /* @__PURE__ */ React.createElement(
-        "input",
-        {
-          className: "field-input",
-          value: val,
-          autoFocus: true,
-          onChange: (e) => setVal(e.target.value),
-          onBlur: commit,
-          onClick: (e) => e.stopPropagation(),
-          onKeyDown: (e) => {
-            if (e.key === "Enter") commit();
-          }
-        }
-      ) : /* @__PURE__ */ React.createElement("div", { className: "fval" }, isMissing2 ? emptyText : f.value),
-      !editing && /* @__PURE__ */ React.createElement(
-        "button",
-        {
-          type: "button",
-          className: "fedit",
-          title: isMissing2 ? "Vul dit veld in" : "Bewerk dit veld",
-          "aria-label": isMissing2 ? "Vul dit veld in" : "Bewerk dit veld",
-          onClick: (e) => {
-            e.stopPropagation();
-            onStartEdit(f.id);
-          }
-        },
-        I.edit,
-        /* @__PURE__ */ React.createElement("span", { className: "fedit-txt" }, isMissing2 ? "Invullen" : "Bewerk")
-      ),
-      /* @__PURE__ */ React.createElement("div", { className: "fstatus", style: { opacity: 1 } }, isMissing2 ? manual ? /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Zelf invullen") : f.optional ? /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Optioneel") : /* @__PURE__ */ React.createElement("span", { className: "pill pill-flag" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Ontbreekt") : /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Ingevuld")),
-      f.hint && !editing && /* @__PURE__ */ React.createElement("div", { className: "fhint", style: { gridColumn: 1, fontSize: 12, color: "var(--faint)", marginTop: 3 } }, f.hint)
-    );
-  }
-  function MissingSummary({ fields, onJump }) {
-    const nodig = [];
-    const zelf = [];
-    for (const g of fields) {
-      for (const it of g.items) {
-        if (it.status !== "missing" || it.optional) continue;
-        (g.manual ? zelf : nodig).push(it);
-      }
-    }
-    if (!nodig.length && !zelf.length) {
-      return /* @__PURE__ */ React.createElement("div", { className: "miss-summary ok" }, /* @__PURE__ */ React.createElement("span", { className: "miss-ico" }, I.checkSm), /* @__PURE__ */ React.createElement("span", null, "Alle benodigde velden zijn ingevuld. Loop ze na en bevestig onderaan."));
-    }
-    const item = (it, tone) => /* @__PURE__ */ React.createElement("li", { key: it.id }, /* @__PURE__ */ React.createElement("button", { type: "button", className: "miss-item", onClick: () => onJump(it.id) }, /* @__PURE__ */ React.createElement("span", { className: "miss-dot " + tone }), /* @__PURE__ */ React.createElement("span", { className: "miss-label" }, it.label), /* @__PURE__ */ React.createElement("span", { className: "miss-cta" }, "Invullen ", I.arrowRight)));
-    return /* @__PURE__ */ React.createElement("div", { className: "miss-summary" }, /* @__PURE__ */ React.createElement("div", { className: "miss-title" }, I.flag || I.info, " Nog aan te vullen"), nodig.length > 0 && /* @__PURE__ */ React.createElement("ul", { className: "miss-list" }, nodig.map((it) => item(it, "flag"))), zelf.length > 0 && /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement("div", { className: "miss-sub" }, "Zelf aanvullen \u2014 staan meestal niet in de terugkoppeling:"), /* @__PURE__ */ React.createElement("ul", { className: "miss-list" }, zelf.map((it) => item(it, "navy")))));
-  }
-  function FieldsPanel({ fields, selected, onSelect, onEdit }) {
-    const [editingId, setEditingId] = React.useState(null);
-    const rowRefs = React.useRef({});
-    const okCount = fields.flatMap((g) => g.items).filter((i) => i.status === "ok").length;
-    const missCount = fields.filter((g) => !g.manual).flatMap((g) => g.items).filter((i) => i.status === "missing" && !i.optional).length;
-    const zelfCount = fields.filter((g) => g.manual).flatMap((g) => g.items).filter((i) => i.status === "missing" && !i.optional).length;
-    const jump = (id) => {
-      onSelect({ id });
-      setEditingId(id);
-      const el = rowRefs.current[id];
-      if (el && el.scrollIntoView) el.scrollIntoView({ block: "center", behavior: "smooth" });
+  var LANG = /* @__PURE__ */ new Set(["belast", "opbouw", "beperking", "werkplek", "werktijden", "prognose"]);
+  var DATUM = /* @__PURE__ */ new Set(["eersteZ", "start", "volgendSpreekuur", "geboortedatum", "einddatum"]);
+  function Veld({ f, manual, bron, actief, onFocus, onEdit, inputRef }) {
+    const leeg = f.status === "missing";
+    const verplichtLeeg = leeg && !f.optional;
+    const waarde = leeg ? "" : f.value;
+    const lang = LANG.has(f.id);
+    const placeholder = DATUM.has(f.id) ? "dd-mm-jjjj" : f.optional ? "Niet vermeld (mag leeg blijven)" : manual ? "Zelf invullen" : "Nog invullen";
+    const props = {
+      id: "veld-" + f.id,
+      ref: inputRef,
+      className: "veld-input" + (verplichtLeeg ? " leeg" : ""),
+      value: waarde,
+      placeholder,
+      onFocus: () => onFocus(f),
+      onChange: (e) => onEdit(f.id, e.target.value)
     };
-    return /* @__PURE__ */ React.createElement("div", { className: "panel fields-panel" }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Ge\xEBxtraheerde velden"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Klik een veld om de bron te zien")), /* @__PURE__ */ React.createElement("div", { className: "summary-chips" }, /* @__PURE__ */ React.createElement("span", { className: "pill pill-ok" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), okCount, " ingevuld"), missCount > 0 && /* @__PURE__ */ React.createElement("span", { className: "pill pill-flag" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), missCount, " ontbreekt"), zelfCount > 0 && /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), zelfCount, " zelf in te vullen"))), /* @__PURE__ */ React.createElement(MissingSummary, { fields, onJump: jump }), /* @__PURE__ */ React.createElement("div", { style: { maxHeight: 560, overflowY: "auto" } }, fields.map((g, gi) => /* @__PURE__ */ React.createElement("div", { className: "field-group", key: gi }, /* @__PURE__ */ React.createElement("div", { className: "gh" }, g.group), g.sub && /* @__PURE__ */ React.createElement("div", { className: "gh-sub", style: { fontSize: 12.5, color: "var(--faint)", margin: "-4px 0 8px", fontWeight: 400 } }, g.sub), g.items.map((f) => /* @__PURE__ */ React.createElement(
-      FieldRow,
+    return /* @__PURE__ */ React.createElement("div", { className: "veld" + (lang ? " breed" : "") }, /* @__PURE__ */ React.createElement("label", { htmlFor: "veld-" + f.id }, f.label, f.optional && /* @__PURE__ */ React.createElement("span", { className: "veld-opt" }, " \xB7 optioneel")), lang ? /* @__PURE__ */ React.createElement("textarea", { rows: 2, ...props }) : /* @__PURE__ */ React.createElement("input", { type: "text", ...props }), f.hint && /* @__PURE__ */ React.createElement("div", { className: "veld-hint" }, f.hint), actief && bron && /* @__PURE__ */ React.createElement("div", { className: "veld-bron" }, "Uit het verslag: \u201C", bron, "\u201D"));
+  }
+  function FieldsPanel({ fields, selected, onSelect, onEdit, sources }) {
+    const refs = React.useRef({});
+    const open = fields.flatMap((g) => g.items).filter((it) => it.status === "missing" && !it.optional);
+    const spring = (id) => {
+      const el = refs.current[id];
+      if (el) {
+        el.focus();
+        if (el.scrollIntoView) el.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+    };
+    return /* @__PURE__ */ React.createElement("div", { className: "panel velden-panel" }, open.length > 0 ? /* @__PURE__ */ React.createElement("div", { className: "velden-open" }, /* @__PURE__ */ React.createElement("strong", null, "Nog invullen:"), " ", open.map((it, i) => /* @__PURE__ */ React.createElement(React.Fragment, { key: it.id }, i > 0 && ", ", /* @__PURE__ */ React.createElement("button", { type: "button", onClick: () => spring(it.id) }, it.label)))) : /* @__PURE__ */ React.createElement("div", { className: "velden-open ok" }, I.checkSm, /* @__PURE__ */ React.createElement("span", null, "Alles is ingevuld. Pas aan wat niet klopt.")), fields.map((g, gi) => /* @__PURE__ */ React.createElement("fieldset", { className: "velden-groep", key: gi }, /* @__PURE__ */ React.createElement("legend", null, g.group), g.sub && /* @__PURE__ */ React.createElement("p", { className: "velden-sub" }, g.sub), /* @__PURE__ */ React.createElement("div", { className: "velden-grid" }, g.items.map((f) => /* @__PURE__ */ React.createElement(
+      Veld,
       {
         key: f.id,
         f,
         manual: !!g.manual,
-        selected: selected && selected.id === f.id,
-        onSelect,
+        bron: sources ? sources[f.id] : null,
+        actief: !!selected && selected.id === f.id,
+        onFocus: onSelect,
         onEdit,
-        editing: editingId === f.id,
-        onStartEdit: setEditingId,
-        onStopEdit: () => setEditingId(null),
-        rowRef: (el) => {
-          rowRefs.current[f.id] = el;
+        inputRef: (el) => {
+          refs.current[f.id] = el;
         }
       }
-    )))), /* @__PURE__ */ React.createElement(DerivedGroup, { fields })));
+    ))))), /* @__PURE__ */ React.createElement(DerivedGroup, { fields }));
   }
   function DerivedGroup({ fields }) {
     const d = computeDerived(fields);
-    const rows = [
-      { label: "AOW-gerechtigde leeftijd (datum)", value: d.aow, hint: "geboortedatum + 67 jaar en 3 maanden \xB7 indicatief, controleer bij SVB" },
-      { label: "Einde wachttijd", value: d.eindeWacht, hint: "eerste ziektedag + 104 weken" }
-    ];
-    return /* @__PURE__ */ React.createElement("div", { className: "field-group" }, /* @__PURE__ */ React.createElement("div", { className: "gh" }, "Berekend (automatisch)"), rows.map((r) => /* @__PURE__ */ React.createElement("div", { className: "field-row computed", key: r.label }, /* @__PURE__ */ React.createElement("div", { className: "flabel" }, r.label), /* @__PURE__ */ React.createElement("div", { className: "fval" }, r.value || "\u2014"), /* @__PURE__ */ React.createElement("div", { className: "fstatus", style: { opacity: 1 } }, /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Berekend")), /* @__PURE__ */ React.createElement("div", { className: "fhint", style: { gridColumn: 1, fontSize: 12, color: "var(--faint)", marginTop: 2 } }, r.hint))));
+    if (!d.eindeWacht && !d.aow) return null;
+    return /* @__PURE__ */ React.createElement("div", { className: "velden-berekend" }, d.eindeWacht && /* @__PURE__ */ React.createElement("span", null, "Einde wachttijd (104 weken): ", /* @__PURE__ */ React.createElement("strong", null, d.eindeWacht)), d.aow && /* @__PURE__ */ React.createElement("span", null, "AOW-datum (indicatief): ", /* @__PURE__ */ React.createElement("strong", null, d.aow)));
   }
 
   // src/tijdlijn.jsx
@@ -3587,35 +3527,6 @@
   }
   function Landing({ onOpenTool, onOpenPrivacy, session, onOpenLogin, onLogout, onOpenAccount, isAdmin, onOpenAdmin }) {
     return /* @__PURE__ */ React.createElement("div", { className: "site" }, /* @__PURE__ */ React.createElement(Nav, { onOpenTool, session, onOpenLogin, onLogout, onOpenAccount, isAdmin, onOpenAdmin }), /* @__PURE__ */ React.createElement(Hero, { onOpenTool }), /* @__PURE__ */ React.createElement(HowItWorks, null), /* @__PURE__ */ React.createElement(Showcase, null), /* @__PURE__ */ React.createElement(USP, null), /* @__PURE__ */ React.createElement(Hybrid, null), /* @__PURE__ */ React.createElement(Compliance, { onOpenPrivacy }), /* @__PURE__ */ React.createElement(Faq, null), /* @__PURE__ */ React.createElement(CtaBand, { onOpenTool }), /* @__PURE__ */ React.createElement(Footer, { onOpenPrivacy }));
-  }
-
-  // src/sourcedoc.jsx
-  function HL({ id, active, onSel, children }) {
-    return /* @__PURE__ */ React.createElement(
-      "span",
-      {
-        className: "hl" + (active === id ? " active" : ""),
-        onClick: (e) => {
-          e.stopPropagation();
-          onSel(id);
-        },
-        "data-src": id
-      },
-      children
-    );
-  }
-  function SourceDoc({ active, onSel }) {
-    const ref = React.useRef(null);
-    React.useEffect(() => {
-      if (!active || !ref.current) return;
-      const el = ref.current.querySelector(`[data-src="${active}"]`);
-      if (el) {
-        const c = ref.current;
-        const top = el.offsetTop - c.offsetTop - c.clientHeight / 2 + el.clientHeight / 2;
-        c.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-      }
-    }, [active]);
-    return /* @__PURE__ */ React.createElement("div", { className: "panel" }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Bron \xB7 terugkoppeling bedrijfsarts"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "terugkoppeling-bedrijfsarts.pdf")), /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "Origineel")), /* @__PURE__ */ React.createElement("div", { className: "doc-legend" }, /* @__PURE__ */ React.createElement("span", null, /* @__PURE__ */ React.createElement("span", { className: "lg-sw amber" }), " Overgenomen (functioneel)")), /* @__PURE__ */ React.createElement("div", { className: "srcdoc", ref, style: { maxHeight: 560, overflowY: "auto" } }, /* @__PURE__ */ React.createElement("p", { className: "dh" }, "Arbodienst \xB7 Spreekuurverslag"), /* @__PURE__ */ React.createElement("p", { className: "dtitle" }, "Terugkoppeling spreekuur bedrijfsarts"), /* @__PURE__ */ React.createElement("p", { className: "dmeta" }, "Opgesteld door bedrijfsarts \xB7 Spreekuurdatum 06-03-2025"), /* @__PURE__ */ React.createElement("h5", null, "Werknemergegevens"), /* @__PURE__ */ React.createElement("p", null, "Betreft de heer J. de Vries, werkzaam als", " ", /* @__PURE__ */ React.createElement(HL, { id: "s-functie", active, onSel }, "administratief medewerker"), " voor", " ", /* @__PURE__ */ React.createElement(HL, { id: "s-uren", active, onSel }, "32 uur per week"), ". Werknemer is uitgevallen op ", /* @__PURE__ */ React.createElement(HL, { id: "s-eerste", active, onSel }, "3 februari 2025"), "."), /* @__PURE__ */ React.createElement("h5", null, "Functionele mogelijkheden (belastbaarheid)"), /* @__PURE__ */ React.createElement("p", null, "Werknemer is belastbaar voor ", /* @__PURE__ */ React.createElement(HL, { id: "s-belast", active, onSel }, "licht werk, met een opbouw vanaf twee dagdelen van 4 uur"), ". Geadviseerd wordt een", " ", /* @__PURE__ */ React.createElement(HL, { id: "s-opbouw", active, onSel }, "wekelijkse opbouw van 4 uur"), ", startend op ", /* @__PURE__ */ React.createElement(HL, { id: "s-start", active, onSel }, "10 maart 2025"), ". Aandachtspunt: ", /* @__PURE__ */ React.createElement(HL, { id: "s-aanpassing", active, onSel }, "afwisseling tussen zitten en staan, geen piekbelasting"), "."), /* @__PURE__ */ React.createElement("h5", null, "Prognose"), /* @__PURE__ */ React.createElement("p", null, "De verwachting is een ", /* @__PURE__ */ React.createElement(HL, { id: "s-prognose", active, onSel }, "volledige werkhervatting binnen circa 7 weken"), ", mits de opbouw zonder terugval verloopt. Een tussentijdse evaluatie wordt aanbevolen.")));
   }
 
   // node_modules/docx/dist/index.mjs
@@ -23912,10 +23823,6 @@
   function AiBusy() {
     return /* @__PURE__ */ React.createElement("div", { className: "processing" }, /* @__PURE__ */ React.createElement("div", { className: "proc-ring" }), /* @__PURE__ */ React.createElement("h3", { style: { fontSize: 21 } }, "De AI leest de terugkoppeling\u2026"), /* @__PURE__ */ React.createElement("p", { style: { color: "var(--muted)", marginTop: 8 } }, "Functionele gegevens worden uitgelezen; medische informatie wordt gefilterd. Dit duurt meestal 5\u201320 seconden."));
   }
-  function AiSourcePanel({ selected, sources }) {
-    const snippet = selected && sources ? sources[selected.id] : null;
-    return /* @__PURE__ */ React.createElement("div", { className: "panel" }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Bron \xB7 terugkoppeling bedrijfsarts"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Door de AI uitgelezen passages")), /* @__PURE__ */ React.createElement("span", { className: "pill pill-navy" }, /* @__PURE__ */ React.createElement("span", { className: "pdot" }), "AI-extractie")), /* @__PURE__ */ React.createElement("div", { className: "doc-legend" }, /* @__PURE__ */ React.createElement("span", null, I.shield, " Medische gegevens en BSN zijn gefilterd")), /* @__PURE__ */ React.createElement("div", { className: "srcdoc", style: { maxHeight: 560, overflowY: "auto" } }, /* @__PURE__ */ React.createElement("p", { className: "dh" }, "Geselecteerd veld"), /* @__PURE__ */ React.createElement("p", { className: "dtitle" }, selected ? selected.label : "\u2014"), snippet ? /* @__PURE__ */ React.createElement("p", { style: { marginTop: 14 } }, /* @__PURE__ */ React.createElement("span", { className: "hl active" }, snippet)) : /* @__PURE__ */ React.createElement("p", { className: "dmeta", style: { marginTop: 14 } }, "Geen bronpassage voor dit veld \u2014 dit gegeven komt niet uit de terugkoppeling (vul je zelf aan) of is door het medisch filter weggelaten."), /* @__PURE__ */ React.createElement("p", { style: { marginTop: 20, fontSize: 13, color: "var(--muted)" } }, "Klik links op een veld om de bijbehorende passage te tonen. Controleer elk veld v\xF3\xF3r vaststelling.")));
-  }
   function wazoDatumWaarschuwing(v) {
     if (!ISO.test(v.uitgerekendeDatum || "") || !ISO.test(v.werkelijkeBevalling || "")) return null;
     const due = /* @__PURE__ */ new Date(v.uitgerekendeDatum + "T00:00:00");
@@ -23939,10 +23846,9 @@
   function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit, zwangerschap, setZwangerschap }) {
     const { fields, schema, mode, sources } = casus;
     const allItems = fields.flatMap((g) => g.items);
-    const [selectedId, setSelectedId] = React.useState(allItems[0] ? allItems[0].id : null);
-    const selected = allItems.find((it) => it.id === selectedId) || allItems[0] || null;
+    const [selectedId, setSelectedId] = React.useState(null);
+    const selected = allItems.find((it) => it.id === selectedId) || null;
     const select = (f) => setSelectedId(f.id);
-    const activeSrc = selected ? selected.src : null;
     const contractHours = schema[schema.length - 1] ? schema[schema.length - 1].hours : 0;
     const geenOpbouw = !!casus.opbouwReden || schema.length === 0;
     const iv = casus.inputvalidatie;
@@ -23956,10 +23862,7 @@
       if (vi.aangevuld && vi.aangevuld.length) waarschuwingen.push(`Aangevuld uit de eerdere casus van ${vi.naam} (alleen op dit apparaat bewaard): ${vi.aangevuld.join(", ")}. Controleer of dit nog klopt.`);
       if (vi.naamAnders) waarschuwingen.push(`De naam in deze terugkoppeling wijkt af van de gekozen eerdere casus (${vi.naam}) \u2014 controleer of je de juiste casus hebt gekozen.`);
     }
-    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 2 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Controleer de gegevens"), /* @__PURE__ */ React.createElement("p", null, "Loop de gegevens na en vul aan wat nog mist. Klik een veld om te zien waar het vandaan komt.")), waarschuwingen.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "demo-note", style: { marginBottom: 16 } }, I.info, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, "Let op bij de controle"), /* @__PURE__ */ React.createElement("ul", { style: { margin: "6px 0 0", paddingLeft: 18 } }, waarschuwingen.map((w, i) => /* @__PURE__ */ React.createElement("li", { key: i }, w))))), /* @__PURE__ */ React.createElement(FieldsPanel, { fields, selected, onSelect: select, onEdit }), /* @__PURE__ */ React.createElement(Details, { summary: selected ? `Waar komt "${selected.label}" vandaan?` : "Waar komen de gegevens vandaan?" }, mode === "demo" ? /* @__PURE__ */ React.createElement(SourceDoc, { active: activeSrc, onSel: (id) => {
-      const f = allItems.find((it) => it.src === id);
-      if (f) setSelectedId(f.id);
-    } }) : /* @__PURE__ */ React.createElement(AiSourcePanel, { selected, sources })), /* @__PURE__ */ React.createElement(ZwangerschapPanel, { value: zwangerschap, onChange: setZwangerschap }), /* @__PURE__ */ React.createElement(Details, { summary: "Opbouwschema en tijdlijn bekijken" }, geenOpbouw ? /* @__PURE__ */ React.createElement("div", { className: "panel", style: { marginTop: 8 } }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Opbouwschema"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Geen oplopend schema in deze situatie"))), /* @__PURE__ */ React.createElement("p", { style: { padding: "4px 2px", color: "var(--ink-soft)" } }, casus.opbouwReden || "Een opbouwschema is op dit moment niet aan de orde.")) : /* @__PURE__ */ React.createElement(SchemaTable, { schema, contractHours }), /* @__PURE__ */ React.createElement(TijdlijnPanel, { fields, zwangerschap })), /* @__PURE__ */ React.createElement("div", { className: "verify-foot" }, /* @__PURE__ */ React.createElement("label", { className: "control-check" + (checked ? " on" : ""), onClick: () => setChecked(!checked) }, /* @__PURE__ */ React.createElement("span", { className: "box" }, I.checkSm), /* @__PURE__ */ React.createElement("span", { className: "ct" }, /* @__PURE__ */ React.createElement("strong", null, "Ik heb de gegevens gecontroleerd"), "Verplicht: jij bent verantwoordelijk voor het vaststellen. Vul ontbrekende velden aan v\xF3\xF3r je doorgaat.")), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !checked, onClick: onNext }, "Doorgaan ", I.arrowRight)), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar upload"), /* @__PURE__ */ React.createElement("span", null)));
+    return /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("div", { className: "step-kicker" }, "Stap 2 van 3"), /* @__PURE__ */ React.createElement("div", { className: "tool-head" }, /* @__PURE__ */ React.createElement("h1", null, "Controleer de gegevens"), /* @__PURE__ */ React.createElement("p", null, "Dit hebben we uit het verslag gehaald. Pas aan wat niet klopt en vul aan wat nog mist.")), waarschuwingen.length > 0 && /* @__PURE__ */ React.createElement("div", { className: "demo-note", style: { marginBottom: 16 } }, I.info, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("strong", null, "Let op bij de controle"), /* @__PURE__ */ React.createElement("ul", { style: { margin: "6px 0 0", paddingLeft: 18 } }, waarschuwingen.map((w, i) => /* @__PURE__ */ React.createElement("li", { key: i }, w))))), /* @__PURE__ */ React.createElement(FieldsPanel, { fields, selected, onSelect: select, onEdit, sources }), /* @__PURE__ */ React.createElement(ZwangerschapPanel, { value: zwangerschap, onChange: setZwangerschap }), /* @__PURE__ */ React.createElement(Details, { summary: "Opbouwschema en tijdlijn bekijken" }, geenOpbouw ? /* @__PURE__ */ React.createElement("div", { className: "panel", style: { marginTop: 8 } }, /* @__PURE__ */ React.createElement("div", { className: "panel-head" }, /* @__PURE__ */ React.createElement("div", null, /* @__PURE__ */ React.createElement("h3", null, "Opbouwschema"), /* @__PURE__ */ React.createElement("div", { className: "sub" }, "Geen oplopend schema in deze situatie"))), /* @__PURE__ */ React.createElement("p", { style: { padding: "4px 2px", color: "var(--ink-soft)" } }, casus.opbouwReden || "Een opbouwschema is op dit moment niet aan de orde.")) : /* @__PURE__ */ React.createElement(SchemaTable, { schema, contractHours }), /* @__PURE__ */ React.createElement(TijdlijnPanel, { fields, zwangerschap })), /* @__PURE__ */ React.createElement("div", { className: "verify-foot" }, /* @__PURE__ */ React.createElement("label", { className: "control-check" + (checked ? " on" : ""), onClick: () => setChecked(!checked) }, /* @__PURE__ */ React.createElement("span", { className: "box" }, I.checkSm), /* @__PURE__ */ React.createElement("span", { className: "ct" }, /* @__PURE__ */ React.createElement("strong", null, "Ik heb de gegevens gecontroleerd"), "Verplicht: jij bent verantwoordelijk voor het vaststellen. Vul ontbrekende velden aan v\xF3\xF3r je doorgaat.")), /* @__PURE__ */ React.createElement("button", { className: "btn btn-primary btn-lg", disabled: !checked, onClick: onNext }, "Doorgaan ", I.arrowRight)), /* @__PURE__ */ React.createElement("div", { className: "tool-actions" }, /* @__PURE__ */ React.createElement("button", { className: "btn btn-ghost", onClick: onBack }, I.arrowLeft, " Terug naar upload"), /* @__PURE__ */ React.createElement("span", null)));
   }
   function PreviewStep({ onBack, controleOk, casus, zwangerschap }) {
     const { fields, schema, reportDate, taaksuggestie, functieomschrijving, signalen, schemaZelfOpgesteld, opbouwReden } = casus;

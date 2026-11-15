@@ -6,7 +6,6 @@
 import { I, MISSING } from "./data.jsx";
 import { getVal } from "./casedata.js";
 import { SchemaTable, FieldsPanel } from "./fields.jsx";
-import { SourceDoc } from "./sourcedoc.jsx";
 import { AdviesPreview, PvaPreview, BerichtPreview, WerknemerBerichtPreview } from "./previews.jsx";
 import { downloadBericht, downloadUwvPva, downloadWerknemerBericht, downloadAlles } from "./download.js";
 import { hasBackend } from "./config.js";
@@ -316,41 +315,6 @@ function AiBusy() {
   );
 }
 
-/* Bronpaneel voor AI-modus: toont de bronpassage bij het geselecteerde veld. */
-function AiSourcePanel({ selected, sources }) {
-  const snippet = selected && sources ? sources[selected.id] : null;
-  return (
-    <div className="panel">
-      <div className="panel-head">
-        <div>
-          <h3>Bron · terugkoppeling bedrijfsarts</h3>
-          <div className="sub">Door de AI uitgelezen passages</div>
-        </div>
-        <span className="pill pill-navy"><span className="pdot"></span>AI-extractie</span>
-      </div>
-      <div className="doc-legend">
-        <span>{I.shield} Medische gegevens en BSN zijn gefilterd</span>
-      </div>
-      <div className="srcdoc" style={{ maxHeight: 560, overflowY: "auto" }}>
-        <p className="dh">Geselecteerd veld</p>
-        <p className="dtitle">{selected ? selected.label : "—"}</p>
-        {snippet ? (
-          <p style={{ marginTop: 14 }}>
-            <span className="hl active">{snippet}</span>
-          </p>
-        ) : (
-          <p className="dmeta" style={{ marginTop: 14 }}>
-            Geen bronpassage voor dit veld — dit gegeven komt niet uit de terugkoppeling (vul je zelf aan) of is door het medisch filter weggelaten.
-          </p>
-        )}
-        <p style={{ marginTop: 20, fontSize: 13, color: "var(--muted)" }}>
-          Klik links op een veld om de bijbehorende passage te tonen. Controleer elk veld vóór vaststelling.
-        </p>
-      </div>
-    </div>
-  );
-}
-
 /* Plausibiliteitscheck op de zwangerschap-datums: een bevalling vóór de
    vroegst mogelijke verlofstart of ver ná de uitgerekende datum wijst vrijwel
    zeker op een tikfout — waarschuw i.p.v. stil een onzinnige tijdlijn tonen. */
@@ -428,10 +392,9 @@ function TijdlijnPanel({ fields, zwangerschap }) {
 function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit, zwangerschap, setZwangerschap }) {
   const { fields, schema, mode, sources } = casus;
   const allItems = fields.flatMap((g) => g.items);
-  const [selectedId, setSelectedId] = React.useState(allItems[0] ? allItems[0].id : null);
-  const selected = allItems.find((it) => it.id === selectedId) || allItems[0] || null;
+  const [selectedId, setSelectedId] = React.useState(null);
+  const selected = allItems.find((it) => it.id === selectedId) || null;
   const select = (f) => setSelectedId(f.id);
-  const activeSrc = selected ? selected.src : null;
   const contractHours = schema[schema.length - 1] ? schema[schema.length - 1].hours : 0;
   const geenOpbouw = !!casus.opbouwReden || schema.length === 0;
 
@@ -454,7 +417,7 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit, zwange
       <div className="step-kicker">Stap 2 van 3</div>
       <div className="tool-head">
         <h1>Controleer de gegevens</h1>
-        <p>Loop de gegevens na en vul aan wat nog mist. Klik een veld om te zien waar het vandaan komt.</p>
+        <p>Dit hebben we uit het verslag gehaald. Pas aan wat niet klopt en vul aan wat nog mist.</p>
       </div>
 
       {waarschuwingen.length > 0 && (
@@ -469,16 +432,7 @@ function VerifyStep({ onBack, onNext, checked, setChecked, casus, onEdit, zwange
         </div>
       )}
 
-      <FieldsPanel fields={fields} selected={selected} onSelect={select} onEdit={onEdit} />
-
-      <Details summary={selected ? `Waar komt "${selected.label}" vandaan?` : "Waar komen de gegevens vandaan?"}>
-        {mode === "demo"
-          ? <SourceDoc active={activeSrc} onSel={(id) => {
-              const f = allItems.find(it => it.src === id);
-              if (f) setSelectedId(f.id);
-            }} />
-          : <AiSourcePanel selected={selected} sources={sources} />}
-      </Details>
+      <FieldsPanel fields={fields} selected={selected} onSelect={select} onEdit={onEdit} sources={sources} />
 
       <ZwangerschapPanel value={zwangerschap} onChange={setZwangerschap} />
 
