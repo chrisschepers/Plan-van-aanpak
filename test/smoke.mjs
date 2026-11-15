@@ -7,27 +7,31 @@ import { JSDOM } from "jsdom";
 import { readFileSync } from "fs";
 import { setTimeout as wait } from "timers/promises";
 
-const dom = new JSDOM(`<!DOCTYPE html><html lang="nl"><body><div id="root"></div></body></html>`, {
-  url: "https://planvanaanpakinvuller.nl/",
-  pretendToBeVisual: true,
-  runScripts: "outside-only",
-});
-const { window } = dom;
+// Laadt de site in een verse jsdom; pagina = "" (startpagina) of "invuller".
+function laad(pagina) {
+  const dom = new JSDOM(`<!DOCTYPE html><html lang="nl"><body><div id="root"></div></body></html>`, {
+    url: "https://planvanaanpakinvuller.nl/" + (pagina ? "plan-van-aanpak-invullen/" : ""),
+    pretendToBeVisual: true,
+    runScripts: "outside-only",
+  });
+  const { window } = dom;
+  window.scrollTo = () => {};
+  window.Element.prototype.scrollTo = () => {};
+  window.URL.createObjectURL = () => "blob:test";
+  window.URL.revokeObjectURL = () => {};
+  window.HTMLAnchorElement.prototype.click = () => {};
+  window.TextEncoder = TextEncoder;
+  window.TextDecoder = TextDecoder;
+  window.Blob = window.Blob || Blob;
+  if (pagina) window.__PVA_PAGINA__ = pagina;
+  const run = (file) => window.eval(readFileSync(file, "utf8"));
+  run("node_modules/react/umd/react.development.js");
+  run("node_modules/react-dom/umd/react-dom.development.js");
+  run("app.js");
+  return window;
+}
 
-window.scrollTo = () => {};
-window.Element.prototype.scrollTo = () => {};
-window.URL.createObjectURL = () => "blob:test";
-window.URL.revokeObjectURL = () => {};
-window.HTMLAnchorElement.prototype.click = () => {};
-window.TextEncoder = TextEncoder;
-window.TextDecoder = TextDecoder;
-window.Blob = window.Blob || Blob;
-
-const run = (file) => window.eval(readFileSync(file, "utf8"));
-run("node_modules/react/umd/react.development.js");
-run("node_modules/react-dom/umd/react-dom.development.js");
-run("app.js");
-
+let window = laad("");
 const $$ = (sel) => [...window.document.querySelectorAll(sel)];
 const byText = (sel, txt) => $$(sel).find((el) => el.textContent.includes(txt));
 const click = (el) => el.dispatchEvent(new window.MouseEvent("click", { bubbles: true, cancelable: true }));
@@ -37,10 +41,24 @@ function check(name, cond) { console.log(`${cond ? "✓" : "✗"} ${name}`); if 
 
 await wait(100);
 
-// Landing
-check("landing rendert hero", !!byText("h1", "automatisch ingevuld"));
-check("landing heeft FAQ", !!byText("h2", "privacy en verantwoordelijkheid"));
-check("landing heeft 4 stappen", $$(".step").length === 4);
+// Startpagina (dossiercheck)
+check("startpagina rendert hero", !!byText("h1", "compleet naar UWV"));
+check("startpagina heeft FAQ", !!byText("h2", "Goed om te weten"));
+check("startpagina heeft 4 stappen", $$(".step").length === 4);
+check("startpagina heeft 3 pakketten", $$(".pakket").length === 3);
+check("checklist begint leeg", !!byText(".check-uitkomst h3", "Nog niets aangevinkt"));
+click($$(".check-rij input")[0]);
+await wait(40);
+check("checklist telt wat ontbreekt", !!byText(".check-uitkomst h3", "Nog 8 onderdelen"));
+check("aanvraag gaat per mail met de lijst", decodeURIComponent($$(".check-uitkomst a")[0].getAttribute("href")).includes("Eerstejaarsevaluatie"));
+check("link naar de invuller", $$('a[href="plan-van-aanpak-invullen/"]').length >= 2);
+check("startpagina toont de invuller-hero niet", !byText("h1", "automatisch ingevuld"));
+
+// Pagina van de invuller
+window = laad("invuller");
+await wait(100);
+check("invuller-pagina rendert hero", !!byText("h1", "automatisch ingevuld"));
+check("invuller-pagina linkt terug naar de startpagina", $$('a.brand[href="../"]').length >= 1);
 check("hero-teaser toont opbouwadvies", !!byText(".hero-teaser", "Opbouwadvies"));
 
 // Voorbeeldresultaat (statisch — geen backend, geen credits)

@@ -51,7 +51,9 @@ npm test        # smoke-test: klikt de hele flow door in jsdom
 | Bestand | Wat het doet |
 |---|---|
 | `index.html` + `styles.css` / `tool.css` | Pagina en visuele stijl (navy `#1F3864`, groen accent) |
-| `src/landing.jsx` | Landingspagina (hero, hoe het werkt, USP's, compliance, FAQ) |
+| `src/landing.jsx` | Startpagina Poortwachtercheck: dossiercheck van het re-integratieverslag (checklist, werkwijze, tarieven) |
+| `src/invuller.jsx` | Pagina van de invuller, bereikbaar via `plan-van-aanpak-invullen/` |
+| `src/merk.jsx` | Merknaam, contactadres en paden die beide pagina's delen |
 | `src/tool.jsx` | De invuller: upload → verificatie → preview/download |
 | `src/sourcedoc.jsx` | Brondocument met highlights (functioneel) en redacties (medisch) |
 | `src/fields.jsx` | Bewerkbare geëxtraheerde velden + opbouwschema-tabel |

@@ -1,151 +1,243 @@
-/* Landing page sections */
+/* Startpagina: de dossiercheck van het re-integratieverslag (Poortwachtercheck). */
 
-import { I, CASE, INITIAL_FIELDS } from "./data.jsx";
-import { computeSchema } from "./engine.js";
-import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
+import { I } from "./data.jsx";
+import { Merk, MERK, CONTACT_MAIL, mailto, naarInvuller } from "./merk.jsx";
 
 const { useState } = React;
 
-function Nav({ onOpenTool, session, onOpenLogin, onLogout, onOpenAccount, isAdmin, onOpenAdmin }) {
-  const email = session && session.user ? session.user.email : "";
+function Nav() {
   return (
-    <header className="nav">
+    <header className="nav nav-start">
       <div className="wrap nav-inner">
-        <a className="brand" href="#top">
-          <span className="mark">{I.doc}</span>
-          <span>planvanaanpak<span className="tld">invuller.nl</span></span>
-        </a>
+        <Merk />
         <nav className="nav-links">
-          <a href="#hoe">Hoe het werkt</a>
-          <a href="#aanpak">Aanpak</a>
-          <a href="#privacy">Privacy</a>
-          <a href="#faq">Veelgestelde vragen</a>
+          <a href="#checklist">Checklist</a>
+          <a href="#werkwijze">Werkwijze</a>
+          <a href="#tarieven">Tarieven</a>
+          <a href="#faq">Vragen</a>
+          <a href={naarInvuller()}>Plan van aanpak invullen</a>
         </nav>
         <div className="nav-cta">
-          {session
-            ? <span className="nav-account">{isAdmin && <button className="btn btn-quiet" onClick={onOpenAdmin}>Beheer</button>}<button className="btn btn-quiet" onClick={onOpenAccount} title={email}>Mijn account</button><button className="btn btn-quiet" onClick={onLogout}>Uitloggen</button></span>
-            : <button className="btn btn-quiet" onClick={onOpenLogin}>Inloggen</button>}
-          <button className="btn btn-primary" onClick={onOpenTool}>Probeer de invuller</button>
+          <a className="btn btn-primary" href="#contact">Dossier laten nakijken</a>
         </div>
       </div>
     </header>
   );
 }
 
-function Hero({ onOpenTool }) {
+// Voorbeeld van wat een dossiercheck oplevert: één blik op wat er is en wat mist.
+const VOORBEELD = [
+  { t: "Probleemanalyse", ok: true },
+  { t: "Plan van aanpak, ondertekend", ok: true },
+  { t: "Eerstejaarsevaluatie", ok: false, n: "ontbreekt" },
+  { t: "Actueel oordeel bedrijfsarts", ok: true },
+  { t: "Eindevaluatie", ok: false, n: "handtekening werknemer mist" },
+];
+
+function Hero() {
   return (
     <section className="hero" id="top">
       <div className="wrap hero-grid">
         <div className="reveal">
-          <span className="eyebrow"><span className="dot"></span>Wet verbetering poortwachter</span>
-          <h1>Het concept Plan van Aanpak, automatisch ingevuld.</h1>
-          <p className="lead">
-            Upload de terugkoppeling van de bedrijfsarts. Je krijgt een ingevuld
-            concept-PvA, een opbouwadvies en een begeleidend bericht terug — jij
-            controleert en stelt vast. Geen overtypen meer.
+          <span className="eyebrow"><span className="dot"></span>Re-integratieverslag · Wet verbetering poortwachter</span>
+          <h1>Je re-integratieverslag compleet naar UWV.</h1>
+          <p className="lead lead-breed">
+            Is je werknemer bijna twee jaar ziek? Ik kom langs, loop het verzuimdossier na
+            en zorg dat het verslag volledig en ondertekend klaarligt. Dan beoordeelt UWV
+            het op de inhoud en niet op een stuk dat ontbreekt.
           </p>
           <div className="hero-cta">
-            <button className="btn btn-primary btn-lg" onClick={onOpenTool}>
-              Probeer de PvA-invuller {I.arrowRight}
-            </button>
-            <a className="btn btn-ghost btn-lg" href="#demo">Demo aanvragen</a>
+            <a className="btn btn-primary btn-lg" href="#contact">Dossier laten nakijken {I.arrowRight}</a>
+            <a className="btn btn-ghost btn-lg" href="#checklist">Doe zelf de snelle check</a>
           </div>
           <div className="hero-trust">
-            <span>{I.shield} AVG / DPIA-proof</span>
-            <span>{I.server} EER-hosting</span>
-            <span>{I.lock} Geen training op klantdata</span>
+            <span>{I.checkSm} Vaste prijs per dossier</span>
+            <span>{I.building} Bij jou op locatie</span>
+            <span>{I.lock} Medische stukken blijven bij de bedrijfsarts</span>
           </div>
         </div>
         <div className="hero-visual reveal">
-          <HeroTeaser />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// Subtiele hero-teaser: een echt-ogend stukje resultaat (opbouwadvies) i.p.v. een
-// schematisch plaatje. Puur client-side, geen backend.
-function HeroTeaser() {
-  const schema = computeSchema(CASE);
-  return (
-    <div className="hero-teaser">
-      <div className="ht-bar"><span className="ht-dot"></span>Concept · automatisch ingevuld</div>
-      <div className="ht-title">Opbouwadvies — J. de Vries</div>
-      <table className="ht-table"><tbody>
-        {schema.slice(0, 5).map((r, i) => (
-          <tr key={i}><td>{r.date}</td><td>{r.hours} uur/week</td><td className="ht-pct">{r.pct}%</td></tr>
-        ))}
-      </tbody></table>
-      <a className="ht-link" href="#voorbeeld">Bekijk het volledige voorbeeld {I.arrowRight}</a>
-    </div>
-  );
-}
-
-// Statische voorbeeldcasus (J. de Vries) voor het showcase-blok — rendert de
-// bestaande preview-componenten client-side; geen backend en geen credits.
-const VOORBEELD_FUNCTIE = "Administratief medewerker: postverwerking, gegevensinvoer, factuurcontrole, archiefbeheer en telefonische klantvragen.";
-const VOORBEELD_TAAK = "lichte administratieve taken zoals gegevensinvoer en het ordenen van dossiers, in blokken van beperkte duur met afwisseling tussen zitten en staan, en zonder taken met piekbelasting of strakke deadlines";
-function voorbeeldCasus() {
-  return {
-    fields: INITIAL_FIELDS, schema: computeSchema(CASE), reportDate: CASE.reportDate,
-    functieomschrijving: VOORBEELD_FUNCTIE, taaksuggestie: VOORBEELD_TAAK,
-    signalen: {}, schemaZelfOpgesteld: false, opbouwReden: "",
-  };
-}
-
-function Showcase() {
-  const [tab, setTab] = useState(0);
-  const c = voorbeeldCasus();
-  const tabs = [
-    { t: "Opbouwadvies", el: <AdviesPreview fields={c.fields} schema={c.schema} reportDate={c.reportDate} schemaZelfOpgesteld={c.schemaZelfOpgesteld} opbouwReden={c.opbouwReden} /> },
-    { t: "Plan van Aanpak", el: <PvaPreview fields={c.fields} schema={c.schema} functieomschrijving={c.functieomschrijving} opbouwReden={c.opbouwReden} signalen={c.signalen} /> },
-    { t: "Begeleidend bericht", el: <BerichtPreview fields={c.fields} schema={c.schema} reportDate={c.reportDate} taaksuggestie={c.taaksuggestie} signalen={c.signalen} schemaZelfOpgesteld={c.schemaZelfOpgesteld} opbouwReden={c.opbouwReden} /> },
-  ];
-  return (
-    <section className="section showcase" id="voorbeeld">
-      <div className="wrap">
-        <div className="sec-head reveal">
-          <span className="eyebrow"><span className="dot"></span>Voorbeeldresultaat</span>
-          <h2>Zo ziet het ingevulde concept eruit</h2>
-          <p>Automatisch gegenereerd uit een fictieve terugkoppeling — geen echte gegevens.</p>
-        </div>
-        <div className="showcase-frame reveal">
-          <div className="preview-tabs">
-            {tabs.map((tb, i) => (
-              <button key={i} className={tab === i ? "active" : ""} onClick={() => setTab(i)}>
-                <span className="tnum">{i + 1}</span><span className="txt">{tb.t}</span>
-              </button>
-            ))}
+          <div className="dossier-kaart">
+            <div className="dk-kop"><span className="ht-dot"></span>Voorbeeld van een dossiercheck</div>
+            <ul>
+              {VOORBEELD.map((v, i) => (
+                <li key={i} className={v.ok ? "ok" : "mis"}>
+                  <span className="dk-ico">{v.ok ? I.checkSm : I.x}</span>
+                  <span className="dk-t">{v.t}</span>
+                  {!v.ok && <span className="pill pill-flag">{v.n}</span>}
+                </li>
+              ))}
+            </ul>
+            <div className="dk-voet">2 punten om te herstellen vóór de WIA-aanvraag</div>
           </div>
-          <div className="showcase-doc">{tabs[tab].el}</div>
         </div>
       </div>
     </section>
   );
 }
 
-const STEPS = [
-  { n: 1, icon: I.upload, t: "Upload", d: "Sleep de terugkoppeling van de bedrijfsarts erin — PDF of Word." },
-  { n: 2, icon: I.sparkles, t: "Automatisch invullen", d: "De tool leest de functionele gegevens uit en bouwt het concept op." },
-  { n: 3, icon: I.eye, t: "Controleren", d: "Per veld zie je de bronpassage. Jij corrigeert en vult ontbrekende velden aan." },
-  { n: 4, icon: I.download, t: "Downloaden", d: "Stel vast en download het resultaat als Word-document." },
+const CIJFERS = [
+  { g: "ruim 4.000", t: "loonsancties legde UWV op in 2024" },
+  { g: "± 45%", t: "daarvan was administratief: het verslag was niet compleet" },
+  { g: "3 + 6 weken", t: "kost herstel al snel: 3 weken beoordeling door UWV, daarna loopt het loon nog 6 weken door" },
 ];
 
-function HowItWorks() {
+function Probleem() {
   return (
-    <section className="section" id="hoe">
+    <section className="section tint" id="waarom">
       <div className="wrap">
         <div className="sec-head reveal">
-          <span className="eyebrow"><span className="dot"></span>Hoe het werkt</span>
-          <h2>Van terugkoppeling naar concept in vier stappen</h2>
-          <p>Eén document erin, een gecontroleerd concept eruit. Jij houdt de regie.</p>
+          <span className="eyebrow"><span className="dot"></span>Waarom dit ertoe doet</span>
+          <h2>Een ontbrekend stuk kan maanden loon kosten</h2>
+          <p>
+            UWV kijkt eerst of het re-integratieverslag compleet is, en pas daarna naar de
+            inhoud. Mist er een onderdeel of een handtekening, dan volgt een administratieve
+            loonsanctie: je betaalt het loon langer door, tot het verslag in orde is.
+          </p>
+        </div>
+        <div className="cijfers">
+          {CIJFERS.map((c, i) => (
+            <div className="cijfer card reveal" key={i}>
+              <div className="cijfer-g">{c.g}</div>
+              <p>{c.t}</p>
+            </div>
+          ))}
+        </div>
+        <p className="bron reveal">
+          Cijfers: <a href="https://uwvjaarverslag.nl/external/asset/download/project/f9b7da0a-03ec-0000-58b5-7efa5990235f/name/uwv-kwantitatieve-Informatie-2025T3%202.0.pdf" target="_blank" rel="noopener">UWV, kwantitatieve informatie</a>.
+          Herstel en doorlooptijd: <a href="https://www.rijksoverheid.nl/documenten/publicaties/2024/09/30/werkproces-uwv-toetsen-riv-en-opleggen-loonsanctie" target="_blank" rel="noopener">werkproces UWV toetsen re-integratieverslag</a>.
+          Dit soort sanctie is te voorkomen, omdat het om volledigheid gaat en niet om een oordeel over de re-integratie.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// Onderdelen van het re-integratieverslag. Aanvinken = aanwezig (of niet van toepassing).
+const ONDERDELEN = [
+  { id: "pa", t: "Probleemanalyse van de bedrijfsarts", s: "Rond week 6, plus latere bijstellingen" },
+  { id: "pva", t: "Plan van aanpak", s: "Rond week 8, door jou en je werknemer ondertekend" },
+  { id: "bij", t: "Bijstellingen en evaluaties van het plan van aanpak", s: "Elke keer dat de situatie veranderde" },
+  { id: "ej", t: "Eerstejaarsevaluatie", s: "Rond week 52" },
+  { id: "ad", t: "Arbeidsdeskundig onderzoek en verslagen tweede spoor", s: "Als die er zijn geweest" },
+  { id: "ao", t: "Actueel oordeel van de bedrijfsarts", s: "Opgesteld voor de eindevaluatie" },
+  { id: "ee", t: "Eindevaluatie", s: "Door jou en je werknemer ingevuld en ondertekend" },
+  { id: "wn", t: "Oordeel van je werknemer", s: "Zijn of haar eigen kijk op de re-integratie" },
+  { id: "med", t: "Medische informatie is door de bedrijfsarts verstuurd", s: "Rechtstreeks naar UWV of je werknemer; jij krijgt die niet te zien" },
+];
+
+function fmt(d) {
+  return d.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
+}
+function plusWeken(iso, w) {
+  const d = new Date(iso + "T12:00:00");
+  if (isNaN(d)) return null;
+  d.setDate(d.getDate() + w * 7);
+  return d;
+}
+
+const MOMENTEN = [
+  { w: 87, t: "UWV stuurt je werknemer de WIA-brief", s: "Het moment om de eindevaluatie te starten" },
+  { w: 91, t: "Verslag klaar en bij je werknemer", s: "Eindevaluatie gedaan, alles ondertekend" },
+  { w: 93, t: "Uiterste datum WIA-aanvraag", s: "Je werknemer dient de aanvraag met het verslag in" },
+  { w: 104, t: "Einde van de twee jaar", s: "De loondoorbetaling stopt, tenzij UWV een sanctie oplegt" },
+];
+
+function Checklist() {
+  const [aan, setAan] = useState({});
+  const [dag, setDag] = useState("");
+  const wissel = (id) => setAan((a) => ({ ...a, [id]: !a[id] }));
+  const mist = ONDERDELEN.filter((o) => !aan[o.id]);
+  const begonnen = mist.length < ONDERDELEN.length;
+  const data = dag ? MOMENTEN.map((m) => ({ ...m, d: plusWeken(dag, m.w) })).filter((m) => m.d) : [];
+
+  const tekst = [
+    "Ik wil graag mijn verzuimdossier laten nakijken.",
+    "",
+    dag ? "Eerste ziektedag: " + fmt(new Date(dag + "T12:00:00")) : "Eerste ziektedag:",
+    "",
+    "Dit ontbreekt volgens de snelle check:",
+    ...(mist.length ? mist.map((o) => "- " + o.t) : ["- niets, ik wil een controle voor de zekerheid"]),
+    "",
+    "Bedrijfsnaam en plaats:",
+    "Telefoonnummer:",
+  ].join("\n");
+
+  return (
+    <section className="section" id="checklist">
+      <div className="wrap">
+        <div className="sec-head reveal">
+          <span className="eyebrow"><span className="dot"></span>Snelle check</span>
+          <h2>Wat hoort er in het re-integratieverslag?</h2>
+          <p>Vink aan wat je al hebt, of wat in jouw situatie niet speelt. Je ziet meteen wat er nog mist. Er wordt niets opgeslagen of verstuurd.</p>
+        </div>
+        <div className="check-grid">
+          <div className="check-lijst card reveal">
+            {ONDERDELEN.map((o) => (
+              <label className={"check-rij" + (aan[o.id] ? " aan" : "")} key={o.id}>
+                <input type="checkbox" checked={!!aan[o.id]} onChange={() => wissel(o.id)} />
+                <span className="check-vak">{I.checkSm}</span>
+                <span>
+                  <span className="check-t">{o.t}</span>
+                  <span className="check-s">{o.s}</span>
+                </span>
+              </label>
+            ))}
+          </div>
+          <div className="check-zij">
+            <div className={"check-uitkomst card reveal" + (begonnen && !mist.length ? " goed" : "")}>
+              {!begonnen && <React.Fragment><h3>Nog niets aangevinkt</h3><p>Loop de lijst door met het dossier erbij.</p></React.Fragment>}
+              {begonnen && mist.length > 0 && (
+                <React.Fragment>
+                  <h3>Nog {mist.length} {mist.length === 1 ? "onderdeel" : "onderdelen"} te regelen</h3>
+                  <ul>{mist.map((o) => <li key={o.id}>{o.t}</li>)}</ul>
+                </React.Fragment>
+              )}
+              {begonnen && !mist.length && <React.Fragment><h3>De lijst is compleet</h3><p>Controleer nog of elke handtekening en datum erop staat. Dat is waar het vaak misgaat.</p></React.Fragment>}
+              <a className="btn btn-primary" href={mailto("Dossiercheck aanvragen", tekst)}>Stuur dit en vraag een dossiercheck aan</a>
+              <p className="check-klein">Opent je mailprogramma met deze lijst erin. Zet er geen medische gegevens bij.</p>
+            </div>
+            <div className="check-data card reveal">
+              <label htmlFor="eerste-dag">Eerste ziektedag</label>
+              <input id="eerste-dag" type="date" value={dag} onChange={(e) => setDag(e.target.value)} />
+              {data.length > 0
+                ? <ul>{data.map((m) => (
+                    <li key={m.w}><span className="cd-d">{fmt(m.d)}</span><span className="cd-t">Week {m.w}: {m.t}</span><span className="cd-s">{m.s}</span></li>
+                  ))}</ul>
+                : <p className="check-klein">Vul de datum in en je ziet wanneer het verslag klaar moet zijn.</p>}
+            </div>
+          </div>
+        </div>
+        <p className="bron reveal">
+          Deze lijst is een hulpmiddel en geen volledige toets. Welke stukken precies nodig zijn,
+          hangt af van het verloop van het verzuim. De data schuiven op als de wachttijd is verlengd.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+const STAPPEN = [
+  { t: "Kennismaken", d: "We bellen kort. Je hoort wat ik nodig heb en wat het kost. De prijs staat vooraf vast." },
+  { t: "Dossier nalopen", d: "Ik kom langs en loop het dossier na aan de hand van een vaste lijst: elk onderdeel, elke datum en elke handtekening." },
+  { t: "Aanvullen", d: "Je krijgt een lijst met wat ontbreekt. Als je dat wilt, help ik met de eindevaluatie en met het bijwerken van de stukken." },
+  { t: "Verzendklaar", d: "Het verslag ligt compleet en ondertekend klaar voor je werknemer, op tijd voor de WIA-aanvraag." },
+];
+
+function Werkwijze() {
+  return (
+    <section className="section tint" id="werkwijze">
+      <div className="wrap">
+        <div className="sec-head reveal">
+          <span className="eyebrow"><span className="dot"></span>Werkwijze</span>
+          <h2>Van losse stukken naar een compleet verslag</h2>
+          <p>Het beste moment is ruim vóór week 87. Dan is er nog tijd om iets te herstellen.</p>
         </div>
         <div className="steps">
-          {STEPS.map((s) => (
-            <div className="step reveal" key={s.n}>
+          {STAPPEN.map((s, i) => (
+            <div className="step reveal" key={i}>
               <div className="line"></div>
-              <div className="num">{s.n}</div>
+              <div className="num">{i + 1}</div>
               <h3>{s.t}</h3>
               <p>{s.d}</p>
             </div>
@@ -156,29 +248,43 @@ function HowItWorks() {
   );
 }
 
-const USPS = [
-  { icon: I.clock, accent: false, t: "Je hoeft niks meer over te tikken", d: "Het overtypen van de terugkoppeling kost je zo een halfuur. Hier staat het concept-Plan van Aanpak, inclusief opbouwschema, er in een paar minuten. Jij hoeft het alleen nog na te lopen." },
-  { icon: I.filter, accent: true, t: "Medische details blijven eruit", d: "Een diagnose of klacht hoort niet in een Plan van Aanpak. De tool herkent die en laat ze er bewust uit. Alleen wat functioneel telt komt erin: wat iemand aankan, hoeveel uur en de verwachting." },
-  { icon: I.eye, accent: false, t: "Jij houdt de regie", d: "Bij elk veld zie je de zin uit de terugkoppeling waar het vandaan komt. Zo controleer je in één oogopslag of het klopt, voordat je het samen met je werknemer vaststelt." },
-  { icon: I.shield, accent: true, t: "Zorgvuldig met privacy", d: "Je werkt met gevoelige gegevens, dus daar gaan we netjes mee om. De verwerking blijft binnen Europa, een verwerkersovereenkomst en DPIA zijn beschikbaar, en je documenten worden nooit gebruikt om AI te trainen." },
+const PAKKETTEN = [
+  {
+    naam: "Dossiercheck", prijs: "vanaf € 450", sub: "per dossier, excl. btw",
+    d: "Je wilt weten of het verslag compleet is.",
+    punten: ["Bezoek op locatie", "Controle van elk onderdeel, elke datum en handtekening", "Heldere lijst met wat ontbreekt en wat je moet doen"],
+  },
+  {
+    naam: "Compleet verzorgd", prijs: "vanaf € 950", sub: "per dossier, excl. btw", uitgelicht: true,
+    d: "Je wilt dat het geregeld wordt.",
+    punten: ["Alles uit de dossiercheck", "Hulp bij de eindevaluatie en het bijwerken van de stukken", "Bewaken dat de bedrijfsarts de medische informatie verstuurt", "Het verslag verzendklaar voor je werknemer"],
+  },
+  {
+    naam: "Contact met UWV", prijs: "in overleg", sub: "als aanvulling",
+    d: "Je wilt een vast aanspreekpunt als UWV vragen heeft.",
+    punten: ["Met een machtiging van jou als werkgever", "Ik beantwoord aanvullende vragen over het dossier", "Jij blijft op de hoogte van elk contact"],
+  },
 ];
 
-function USP() {
+function Tarieven() {
   return (
-    <section className="section tint">
+    <section className="section" id="tarieven">
       <div className="wrap">
         <div className="sec-head reveal">
-          <span className="eyebrow"><span className="dot"></span>Waarom deze tool</span>
-          <h2>Sneller klaar, en zorgvuldig met wat gevoelig is</h2>
+          <span className="eyebrow"><span className="dot"></span>Tarieven</span>
+          <h2>Een vaste prijs per dossier</h2>
+          <p>Geen uurtje-factuurtje. Je weet vooraf wat het kost, en dat is een fractie van één maand doorbetaald loon.</p>
         </div>
-        <div className="usp">
-          {USPS.map((u, i) => (
-            <div className={"usp-card card reveal" + (u.accent ? " accent" : "")} key={i}>
-              <span className="ico">{u.icon}</span>
-              <div>
-                <h3>{u.t}</h3>
-                <p>{u.d}</p>
-              </div>
+        <div className="pakketten">
+          {PAKKETTEN.map((p, i) => (
+            <div className={"pakket card reveal" + (p.uitgelicht ? " uitgelicht" : "")} key={i}>
+              {p.uitgelicht && <span className="pill pill-ok">Alles geregeld</span>}
+              <h3>{p.naam}</h3>
+              <p className="pakket-d">{p.d}</p>
+              <div className="pakket-prijs">{p.prijs}</div>
+              <div className="pakket-sub">{p.sub}</div>
+              <ul>{p.punten.map((x, j) => <li key={j}>{I.checkSm}<span>{x}</span></li>)}</ul>
+              <a className={"btn " + (p.uitgelicht ? "btn-primary" : "btn-ghost")} href={mailto(p.naam + " aanvragen")}>Aanvragen</a>
             </div>
           ))}
         </div>
@@ -187,112 +293,61 @@ function USP() {
   );
 }
 
-function Hybrid() {
+const AFSPRAKEN = [
+  { icon: I.lock, t: "Ik zie geen medische stukken", d: "Die horen bij de bedrijfsarts. Ik bewaak alleen dat hij ze op tijd naar UWV of je werknemer stuurt." },
+  { icon: I.scale, t: "Ik beloof geen uitkomst", d: "Ik zorg dat het verslag compleet is. Of de re-integratie inhoudelijk voldoende was, beoordeelt UWV." },
+  { icon: I.doc, t: "Afspraken staan op papier", d: "Je krijgt een verwerkersovereenkomst. Voor contact met UWV teken je een machtiging." },
+  { icon: I.shield, t: "Zorgvuldig met het dossier", d: "Ik gebruik de gegevens alleen voor deze opdracht en bewaar ze niet langer dan nodig." },
+];
+
+function Afspraken() {
   return (
-    <section className="section" id="aanpak">
-      <div className="wrap">
-        <div className="sec-head reveal" style={{ maxWidth: 720 }}>
-          <span className="eyebrow"><span className="dot"></span>Wat je krijgt</span>
-          <h2>Eén document erin — praktisch advies en het invulwerk eruit</h2>
+    <section className="section tint" id="afspraken">
+      <div className="wrap compliance">
+        <div className="reveal">
+          <span className="eyebrow"><span className="dot"></span>Wat je van mij mag verwachten</span>
+          <h2 style={{ fontSize: "clamp(27px,3.2vw,38px)", marginTop: 14 }}>Duidelijk over wat ik wel en niet doe</h2>
+          <div className="comp-list">
+            {AFSPRAKEN.map((c, i) => (
+              <div className="comp-item" key={i}>
+                <span className="ico">{c.icon}</span>
+                <div><h4>{c.t}</h4><p>{c.d}</p></div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="over-mij reveal">
+          <span className="tag">Wie er langskomt</span>
+          <h3>Casemanager verzuim, in opleiding tot arbeidsdeskundige</h3>
           <p>
-            Je uploadt de terugkoppeling van de bedrijfsarts. Daaruit krijg je praktische
-            adviezen over de volgende stappen, én het administratieve werk al ingevuld:
-            een concept-Plan van Aanpak, een opbouwschema en een begeleidend bericht.
+            Ik werk als casemanager met werkgevers en werknemers bij langdurig verzuim. Ik
+            weet waar een dossier op vastloopt en waar UWV op let.
           </p>
+          <p>
+            Je schakelt mij in voor het laatste stuk: de eindevaluatie en het verslag. Dat
+            kan ook als je al een arbodienst hebt.
+          </p>
+          <a className="btn btn-accent" href="#contact">Plan een kennismaking</a>
         </div>
-        <div className="hybrid reveal">
-          <div className="hybrid-col ai">
-            <span className="tag">Praktische adviezen</span>
-            <h3>Weten wat je nu moet doen</h3>
-            <p>Concrete adviezen die passen bij deze situatie: welke stappen en termijnen eraan komen en waar je op moet letten — zoals de no-riskpolis of een ziekmelding uit dienst.</p>
-            <ul>
-              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--navy)" } })}<span>Wat er nu speelt en wanneer</span></li>
-              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--navy)" } })}<span>Aandachtspunten die vaak gemist worden</span></li>
-              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--navy)" } })}<span>Afgestemd op deze terugkoppeling</span></li>
-            </ul>
-          </div>
-          <div className="hybrid-col engine">
-            <span className="tag">Administratieve ondersteuning</span>
-            <h3>Het invulwerk is al gedaan</h3>
-            <p>Je hoeft niets meer over te typen. Je krijgt een ingevuld concept-Plan van Aanpak (het UWV-formulier), een opbouwschema met datums en uren, een begeleidend bericht en een tijdlijn van het hele verzuim — klaar om samen met je werknemer vast te stellen.</p>
-            <ul>
-              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--accent-700)" } })}<span>Ingevuld concept-Plan van Aanpak (UWV-formulier)</span></li>
-              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--accent-700)" } })}<span>Opbouwschema met datums en uren</span></li>
-              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--accent-700)" } })}<span>Begeleidend bericht, klaar om te delen</span></li>
-              <li>{React.cloneElement(I.checkSm, { style: { color: "var(--accent-700)" } })}<span>Tijdlijn van het verzuim — alle mijlpalen tot einde wachttijd</span></li>
-            </ul>
-          </div>
-        </div>
-        <p className="reveal" style={{ marginTop: 20, textAlign: "center", color: "var(--muted)", fontSize: 14 }}>
-          Medische gegevens blijven er bewust buiten en cijfers worden niet verzonnen, maar volgens vaste regels berekend.
-        </p>
       </div>
     </section>
   );
 }
 
-const COMP = [
-  { icon: I.scale, t: "Wet verbetering poortwachter", d: "Het concept volgt de structuur van het wettelijke Plan van Aanpak." },
-  { icon: I.filter, t: "Privacy by design", d: "Bijzondere persoonsgegevens worden niet overgenomen in het PvA." },
-  { icon: I.doc, t: "Verwerkersovereenkomst", d: "Standaard verwerkersovereenkomst beschikbaar voor je organisatie." },
-  { icon: I.shield, t: "DPIA beschikbaar", d: "Data protection impact assessment op te vragen voor je inkoop." },
-];
-
-function Compliance({ onOpenPrivacy }) {
+function InvullerBand() {
   return (
-    <section className="section tint" id="privacy">
-      <div className="wrap compliance">
-        <div className="reveal">
-          <span className="eyebrow"><span className="dot"></span>Vertrouwen & compliance</span>
-          <h2 style={{ fontSize: "clamp(27px,3.2vw,38px)", marginTop: 14 }}>Gebouwd voor gevoelige gegevens</h2>
-          <p style={{ color: "var(--ink-soft)", fontSize: 18, marginTop: 14 }}>
-            Werken met verzuim betekent werken met bijzondere persoonsgegevens. Daarom
-            is privacy hier geen sluitstuk, maar het uitgangspunt.
-          </p>
-          <div className="comp-list">
-            {COMP.map((c, i) => (
-              <div className="comp-item" key={i}>
-                <span className="ico">{c.icon}</span>
-                <div>
-                  <h4>{c.t}</h4>
-                  <p>{c.d}</p>
-                </div>
-              </div>
-            ))}
+    <section className="section" id="invuller">
+      <div className="wrap">
+        <div className="invuller-band reveal">
+          <div>
+            <span className="eyebrow"><span className="dot"></span>Staat je werknemer pas kort ziek?</span>
+            <h2>Begin het dossier goed: laat het plan van aanpak invullen</h2>
+            <p>
+              Upload de terugkoppeling van de bedrijfsarts. Je krijgt een ingevuld concept
+              van het UWV-formulier, een opbouwschema en een tijdlijn met alle termijnen.
+            </p>
           </div>
-          <button className="btn btn-quiet" style={{ marginTop: 22 }}
-            onClick={(e) => { e.preventDefault(); onOpenPrivacy && onOpenPrivacy(); }}>
-            Lees de privacyverklaring & AI-transparantie {I.arrowRight}
-          </button>
-          <p className="comp-disclaimer">
-            De tool levert een <strong>concept</strong>; jij stelt het samen met je werknemer vast.
-            Ben je <strong>eigenrisicodrager</strong> voor de Ziektewet of de WGA, dan gelden
-            aanvullende of afwijkende regels — ga in dat geval niet af op de gegenereerde adviezen
-            en raadpleeg je eigen verzuim- of arbospecialist.
-          </p>
-        </div>
-        <div className="badge-stack reveal">
-          <div className="badge">
-            <span className="ico" style={{ width: 46, height: 46, borderRadius: 12, background: "rgba(255,255,255,.12)", display: "grid", placeItems: "center" }}>{I.server}</span>
-            <div>
-              <div className="big">EER-hosting</div>
-              <div className="sub">Hosting en opslag van je gegevens binnen de Europese Economische Ruimte.</div>
-            </div>
-          </div>
-          <div className="badge alt">
-            <span className="ico" style={{ width: 46, height: 46, borderRadius: 12, background: "var(--accent-50)", color: "var(--accent-700)", display: "grid", placeItems: "center" }}>{I.lock}</span>
-            <div>
-              <div className="big" style={{ color: "var(--navy-900)" }}>Geen modeltraining</div>
-              <div className="sub">Je documenten worden nooit gebruikt om modellen te trainen.</div>
-            </div>
-          </div>
-          <div className="badge alt">
-            <span className="ico" style={{ width: 46, height: 46, borderRadius: 12, background: "var(--navy-50)", color: "var(--navy)", display: "grid", placeItems: "center" }}>{I.clock}</span>
-            <div>
-              <div className="big" style={{ color: "var(--navy-900)" }}>Korte bewaartermijn</div>
-              <div className="sub">Bestanden worden na verwerking automatisch verwijderd.</div>
-            </div>
-          </div>
+          <a className="btn btn-primary btn-lg" href={naarInvuller()}>Plan van aanpak invullen {I.arrowRight}</a>
         </div>
       </div>
     </section>
@@ -300,22 +355,23 @@ function Compliance({ onOpenPrivacy }) {
 }
 
 const FAQS = [
-  { q: "Welke gegevens komen wél en niet in het Plan van Aanpak?", a: "Alleen functionele gegevens: belastbaarheid, inzetbare uren, werkaanpassingen en prognose. Medische informatie zoals diagnose, klachten of behandeling wordt herkend en juist niet overgenomen — die hoort niet thuis in een Plan van Aanpak." },
-  { q: "Wie is verwerkingsverantwoordelijke?", a: "Jij, als werkgever, blijft verwerkingsverantwoordelijke voor de re-integratiegegevens. Wij zijn verwerker en handelen uitsluitend in jouw opdracht, vastgelegd in een verwerkersovereenkomst." },
-  { q: "Hoe lang worden mijn documenten bewaard?", a: "Het geüploade bestand en de tussenresultaten worden uitsluitend bewaard zolang nodig om jouw concept te genereren, en daarna automatisch verwijderd. Het eindresultaat beheer je zelf in je eigen systemen." },
-  { q: "Wordt er met mijn data een model getraind?", a: "Nee. Je documenten en gegevens worden nooit gebruikt om AI-modellen te trainen of te verbeteren. Hosting en opslag blijven binnen de EER; in de privacyverklaring lees je welke subverwerkers we gebruiken en onder welke waarborgen." },
-  { q: "Wat doet de tool nadrukkelijk níet?", a: "De tool stelt geen Plan van Aanpak vast en neemt geen beslissingen. Het levert een concept dat je verplicht zelf controleert, corrigeert en vaststelt. Het vervangt geen bedrijfsarts, casemanager of arbeidsdeskundige." },
-  { q: "Kan ik de gegenereerde tekst aanpassen?", a: "Ja. Elk veld is bewerkbaar en ontbrekende velden markeren we duidelijk als [INVULLEN]. Pas aan wat nodig is en download daarna het definitieve Word-document." },
+  { q: "Wat is een administratieve loonsanctie?", a: "UWV toetst eerst of het re-integratieverslag compleet is. Ontbreekt er een verplicht onderdeel, dan kan UWV de re-integratie niet beoordelen en moet je het loon langer doorbetalen. Die verlenging stopt pas nadat je het ontbrekende hebt aangeleverd en UWV dat heeft beoordeeld." },
+  { q: "Wanneer schakel ik je in?", a: "Het liefst rond week 80 tot 87 van het verzuim. Dan is er nog tijd om iets te herstellen voordat je werknemer de WIA aanvraagt. Later kan ook, maar dan is de ruimte kleiner. Eerder mag altijd, bijvoorbeeld bij de eerstejaarsevaluatie." },
+  { q: "Ik heb al een arbodienst. Heeft dit dan zin?", a: "Ja. De arbodienst levert de bedrijfsarts en vaak een deel van de begeleiding, maar de werkgever blijft verantwoordelijk voor een compleet verslag. Ik kijk als tweede paar ogen of alles er is." },
+  { q: "Zie je medische gegevens?", a: "Nee. Het medische deel gaat van de bedrijfsarts rechtstreeks naar UWV of naar je werknemer. Ik controleer alleen of dat is gebeurd." },
+  { q: "Garandeer je dat er geen loonsanctie komt?", a: "Nee, en dat kan niemand eerlijk beloven. Ik zorg dat het verslag compleet is, zodat een sanctie om een ontbrekend stuk niet nodig is. Of de re-integratie zelf voldoende was, is een inhoudelijk oordeel van UWV over twee jaar verzuim." },
+  { q: "Ik ben werknemer. Kan ik je ook inschakelen?", a: "Ja. Als werknemer heb je hetzelfde belang: met een compleet verslag kan UWV je WIA-aanvraag zonder vertraging behandelen. Ik loop met je na wat je van je werkgever moet krijgen." },
+  { q: "In welke regio werk je?", a: "Dat hoor je bij de kennismaking. Is een bezoek niet praktisch, dan kan de controle ook op afstand, met stukken zonder medische informatie." },
 ];
 
 function Faq() {
-  const [open, setOpen] = React.useState(0);
+  const [open, setOpen] = useState(0);
   return (
-    <section className="section" id="faq">
+    <section className="section tint" id="faq">
       <div className="wrap">
         <div className="sec-head center reveal">
           <span className="eyebrow"><span className="dot"></span>Veelgestelde vragen</span>
-          <h2>Helder over privacy en verantwoordelijkheid</h2>
+          <h2>Goed om te weten</h2>
         </div>
         <div className="faq">
           {FAQS.map((f, i) => (
@@ -323,7 +379,7 @@ function Faq() {
               <button className="faq-q" onClick={() => setOpen(open === i ? -1 : i)} aria-expanded={open === i}>
                 {f.q}<span className="chev">{I.chevDown}</span>
               </button>
-              <div className="faq-a" style={{ maxHeight: open === i ? 240 : 0 }}>
+              <div className="faq-a" style={{ maxHeight: open === i ? 320 : 0 }}>
                 <div className="faq-a-inner">{f.a}</div>
               </div>
             </div>
@@ -334,16 +390,17 @@ function Faq() {
   );
 }
 
-function CtaBand({ onOpenTool }) {
+function Contact() {
+  const tekst = "Ik wil graag een kennismaking over mijn verzuimdossier.\n\nEerste ziektedag:\nBedrijfsnaam en plaats:\nTelefoonnummer:";
   return (
-    <section className="section" id="demo">
+    <section className="section" id="contact">
       <div className="wrap">
         <div className="cta-band reveal">
-          <h2>Probeer de PvA-invuller met een voorbeeldcasus</h2>
-          <p>Bekijk in een paar minuten hoe upload, controle en download werken — met de voorbeeldcasus J. de Vries. Geen account nodig.</p>
+          <h2>Laat je dossier nakijken voordat UWV het doet</h2>
+          <p>Stuur een bericht met de eerste ziektedag en je telefoonnummer. Ik bel je terug voor een korte kennismaking. Zet geen medische gegevens in je bericht.</p>
           <div className="hero-cta">
-            <button className="btn btn-accent btn-lg" onClick={onOpenTool}>Start de demo {I.arrowRight}</button>
-            <a className="btn btn-ghost btn-lg" href="mailto:demo@planvanaanpakinvuller.nl">Plan een demo met ons</a>
+            <a className="btn btn-accent btn-lg" href={mailto("Kennismaking dossiercheck", tekst)}>{I.mail} Stuur een bericht</a>
+            <a className="btn btn-ghost btn-lg" href="#checklist">Eerst zelf de check doen</a>
           </div>
         </div>
       </div>
@@ -358,58 +415,52 @@ function Footer({ onOpenPrivacy }) {
       <div className="wrap">
         <div className="footer-grid">
           <div>
-            <a className="brand" href="#top" style={{ marginBottom: 14 }}>
-              <span className="mark">{I.doc}</span>
-              <span>planvanaanpak<span className="tld">invuller.nl</span></span>
-            </a>
+            <Merk style={{ marginBottom: 14 }} />
             <p style={{ fontSize: 14.5, maxWidth: "34ch", color: "rgba(255,255,255,.6)" }}>
-              Concept Plannen van Aanpak invullen volgens de Wet verbetering
-              poortwachter — privacy by design, mens in de loop.
+              Controle en begeleiding van het re-integratieverslag, zodat het compleet naar UWV gaat.
             </p>
           </div>
           <div>
-            <h4>Product</h4>
-            <a href="#hoe">Hoe het werkt</a>
-            <a href="#aanpak">Hybride aanpak</a>
-            <a href="#demo">Demo aanvragen</a>
+            <h4>Dienst</h4>
+            <a href="#checklist">Snelle check</a>
+            <a href="#werkwijze">Werkwijze</a>
+            <a href="#tarieven">Tarieven</a>
           </div>
           <div>
-            <h4>Vertrouwen</h4>
-            <a href="#privacy">Privacy & AVG</a>
-            <a href="#privacyverklaring" onClick={openPrivacy}>Privacyverklaring &amp; AI</a>
-            <a href="mailto:contact@planvanaanpakinvuller.nl?subject=Verwerkersovereenkomst">Verwerkersovereenkomst</a>
-            <a href="mailto:contact@planvanaanpakinvuller.nl?subject=DPIA%20opvragen">DPIA opvragen</a>
+            <h4>Hulpmiddelen</h4>
+            <a href={naarInvuller()}>Plan van aanpak invullen</a>
+            <a href="#privacyverklaring" onClick={openPrivacy}>Privacyverklaring</a>
+            <a href={mailto("Verwerkersovereenkomst")}>Verwerkersovereenkomst</a>
           </div>
           <div>
             <h4>Contact</h4>
-            <a href="mailto:contact@planvanaanpakinvuller.nl">contact@planvanaanpakinvuller.nl</a>
-            <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>planvanaanpakinvuller.nl</span>
+            <a href={"mailto:" + CONTACT_MAIL}>{CONTACT_MAIL}</a>
             <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>KVK-nummer volgt</span>
           </div>
         </div>
         <div className="footer-bot">
-          <span>© 2026 planvanaanpakinvuller.nl · KVK-nummer volgt</span>
-          <span>Hosting en opslag binnen de EER · Geen training op klantdata</span>
+          <span>© 2026 {MERK} · KVK-nummer volgt</span>
+          <span>Geen onderdeel van UWV · Geen garantie op de uitkomst van de toets</span>
         </div>
       </div>
     </footer>
   );
 }
 
-export function Landing({ onOpenTool, onOpenPrivacy, session, onOpenLogin, onLogout, onOpenAccount, isAdmin, onOpenAdmin }) {
+export function Landing({ onOpenPrivacy }) {
   return (
     <div className="site">
-      <Nav onOpenTool={onOpenTool} session={session} onOpenLogin={onOpenLogin} onLogout={onLogout} onOpenAccount={onOpenAccount} isAdmin={isAdmin} onOpenAdmin={onOpenAdmin} />
-      <Hero onOpenTool={onOpenTool} />
-      <HowItWorks />
-      <Showcase />
-      <USP />
-      <Hybrid />
-      <Compliance onOpenPrivacy={onOpenPrivacy} />
+      <Nav />
+      <Hero />
+      <Probleem />
+      <Checklist />
+      <Werkwijze />
+      <Tarieven />
+      <Afspraken />
+      <InvullerBand />
       <Faq />
-      <CtaBand onOpenTool={onOpenTool} />
+      <Contact />
       <Footer onOpenPrivacy={onOpenPrivacy} />
     </div>
   );
 }
-
