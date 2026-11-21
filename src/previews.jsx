@@ -316,7 +316,7 @@ export function BerichtPreview({ fields, schema, reportDate, taaksuggestie, sign
         </p>
         <p className="sign">
           Met vriendelijke groet,<br/>
-          planvanaanpakinvuller.nl<br/>
+          Poortwachtercheck<br/>
           <span style={{ fontSize: 13, color: "var(--muted)" }}>Automatisch opgesteld concept</span>
         </p>
       </div>

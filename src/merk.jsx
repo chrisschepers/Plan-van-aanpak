@@ -3,7 +3,7 @@
 import { I } from "./data.jsx";
 
 export const MERK = "Poortwachtercheck";
-export const CONTACT_MAIL = "contact@planvanaanpakinvuller.nl";
+export const CONTACT_MAIL = "contact@poortwachtercheck.nl";
 
 // De site heeft twee pagina's: de startpagina (dossiercheck) en de invuller in
 // een submap. Relatieve paden, zodat het op elk adres en in elke map werkt.

@@ -1,7 +1,7 @@
 /* Pagina van de plan-van-aanpak-invuller (was de startpagina). */
 
 import { I, CASE, INITIAL_FIELDS } from "./data.jsx";
-import { Merk, thuis } from "./merk.jsx";
+import { Merk, thuis, mailto, CONTACT_MAIL } from "./merk.jsx";
 import { Melding } from "./landing.jsx";
 import { computeSchema } from "./engine.js";
 import { AdviesPreview, PvaPreview, BerichtPreview } from "./previews.jsx";
@@ -344,7 +344,7 @@ function CtaBand({ onOpenTool }) {
           <p>Bekijk in een paar minuten hoe upload, controle en download werken — met de voorbeeldcasus J. de Vries. Geen account nodig.</p>
           <div className="hero-cta">
             <button className="btn btn-accent btn-lg" onClick={onOpenTool}>Start de demo {I.arrowRight}</button>
-            <a className="btn btn-ghost btn-lg" href="mailto:demo@planvanaanpakinvuller.nl">Plan een demo met ons</a>
+            <a className="btn btn-ghost btn-lg" href={mailto("Demo plannen")}>Plan een demo met ons</a>
           </div>
         </div>
       </div>
@@ -375,12 +375,12 @@ function Footer({ onOpenPrivacy }) {
             <h4>Vertrouwen</h4>
             <a href="#privacy">Privacy & AVG</a>
             <a href="#privacyverklaring" onClick={openPrivacy}>Privacyverklaring &amp; AI</a>
-            <a href="mailto:contact@planvanaanpakinvuller.nl?subject=Verwerkersovereenkomst">Verwerkersovereenkomst</a>
-            <a href="mailto:contact@planvanaanpakinvuller.nl?subject=DPIA%20opvragen">DPIA opvragen</a>
+            <a href={mailto("Verwerkersovereenkomst")}>Verwerkersovereenkomst</a>
+            <a href={mailto("DPIA opvragen")}>DPIA opvragen</a>
           </div>
           <div>
             <h4>Contact</h4>
-            <a href="mailto:contact@planvanaanpakinvuller.nl">contact@planvanaanpakinvuller.nl</a>
+            <a href={"mailto:" + CONTACT_MAIL}>{CONTACT_MAIL}</a>
                         <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>Schepers Digital</span>
             <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>KVK 42107874</span>
             <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>Btw NL004512417B86</span>

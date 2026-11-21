@@ -49,9 +49,9 @@ let xml = await zip0.file("word/document.xml").async("string");
 // briefpapier in huisstijl: kop met merknaam + voet met EER/privacy-regel
 const headers = await allText(zip0, "word/header");
 const footers = await allText(zip0, "word/footer");
-check("briefhoofd bevat merknaam", headers.includes("planvanaanpak") && headers.includes("invuller.nl"));
+check("briefhoofd bevat merknaam", headers.includes("Poortwachter") && headers.includes("poortwachtercheck.nl"));
 check("briefvoet bevat EER/privacy-regel", footers.includes("EER") && footers.includes("Privacy by design"));
-check("briefvoet: website + privacyregel + paginanummers", footers.includes("planvanaanpakinvuller.nl") && footers.includes("Privacy by design") && footers.includes("PAGE") && footers.includes("NUMPAGES"));
+check("briefvoet: website + privacyregel + paginanummers", footers.includes("poortwachtercheck.nl") && footers.includes("Privacy by design") && footers.includes("PAGE") && footers.includes("NUMPAGES"));
 check("briefhoofd heeft eerste + vervolgpagina-variant (afbeeldingen)", headers.includes("Vervolg") && Object.keys(zip0.files).some((n) => n.startsWith("word/media/")));
 
 // Dit document is het begeleidend bericht (met opbouwadvies + verweven adviezen);

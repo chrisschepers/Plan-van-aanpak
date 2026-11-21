@@ -17,17 +17,17 @@
     <circle cx="62" cy="60" r="14" fill="#157f5b"/>
     <path d="M55 60l5 5 9-10" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
   </g>
-  <text x="210" y="150" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="40" font-weight="700" fill="#ffffff">planvanaanpak<tspan fill="#8fa6d6">invuller.nl</tspan></text>
+  <text x="210" y="150" font-family="Liberation Sans, Arial, DejaVu Sans, sans-serif" font-size="40" font-weight="700" fill="#ffffff">poortwachter<tspan fill="#8fa6d6">check.nl</tspan></text>
 
   <!-- hoofdtitel -->
-  <text x="96" y="300" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="76" font-weight="800" fill="#ffffff">Concept Plan van Aanpak,</text>
-  <text x="96" y="392" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="76" font-weight="800" fill="#ffffff">automatisch ingevuld</text>
+  <text x="96" y="300" font-family="Liberation Sans, Arial, DejaVu Sans, sans-serif" font-size="76" font-weight="800" fill="#ffffff">Concept Plan van Aanpak,</text>
+  <text x="96" y="392" font-family="Liberation Sans, Arial, DejaVu Sans, sans-serif" font-size="76" font-weight="800" fill="#ffffff">automatisch ingevuld</text>
 
   <!-- ondertitel -->
-  <text x="96" y="452" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="30" font-weight="500" fill="#c4d0e8">Van terugkoppeling bedrijfsarts naar het UWV-formulier (AG140).</text>
+  <text x="96" y="452" font-family="Liberation Sans, Arial, DejaVu Sans, sans-serif" font-size="30" font-weight="500" fill="#c4d0e8">Van terugkoppeling bedrijfsarts naar het UWV-formulier (AG140).</text>
 
   <!-- trust chips -->
-  <g font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="26" font-weight="600" fill="#dbe4f5">
+  <g font-family="Liberation Sans, Arial, DejaVu Sans, sans-serif" font-size="26" font-weight="600" fill="#dbe4f5">
     <rect x="96" y="512" width="252" height="58" rx="29" fill="#ffffff" fill-opacity="0.10"/>
     <text x="124" y="550">Privacy by design</text>
     <rect x="368" y="512" width="232" height="58" rx="29" fill="#ffffff" fill-opacity="0.10"/>

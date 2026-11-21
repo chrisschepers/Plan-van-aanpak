@@ -59,7 +59,7 @@ const letterFooters = Object.keys(M.files).filter((n) => /^word\/footerLetter\d+
 check("briefhoofd-parts toegevoegd (eerste + vervolgpagina)", letterHeaders.length === 2);
 check("briefvoet-parts toegevoegd (eerste + vervolgpagina)", letterFooters.length === 2);
 const headerXmls = await Promise.all(letterHeaders.map((n) => M.file(n).async("string")));
-check("briefhoofd bevat merknaam", headerXmls.some((x) => x.includes("planvanaanpak")));
+check("briefhoofd bevat merknaam", headerXmls.some((x) => x.includes("Poortwachter")));
 
 // 2b) Briefpapier-afbeeldingen (merkband/golven/logo) zijn meegekomen
 const letterMedia = Object.keys(M.files).filter((n) => /^word\/media\/letter-/.test(n));

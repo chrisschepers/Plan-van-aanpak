@@ -49,7 +49,7 @@ export function PrivacyVerklaring({ onClose }) {
             Privacyverklaring &amp; AI-transparantie
           </h1>
           <p style={{ color: "var(--muted)", fontSize: 15, marginTop: 8 }}>
-            planvanaanpakinvuller.nl · concept d.d. 15 juni 2026 · Schepers Digital · KVK 42107874
+            Poortwachtercheck (poortwachtercheck.nl) · concept d.d. 15 juni 2026 · Schepers Digital · KVK 42107874
           </p>
 
           <div style={{ marginTop: 20, padding: "16px 18px", background: "var(--navy-50)",
@@ -61,9 +61,9 @@ export function PrivacyVerklaring({ onClose }) {
 
           <Sectie nr="1" titel="Wie verwerkt de gegevens, en in welke rol?">
             <p>
-              planvanaanpakinvuller.nl is een hulpmiddel voor werkgevers en casemanagers. De <strong>werkgever</strong> die
+              Poortwachtercheck is een hulpmiddel voor werkgevers en casemanagers. De <strong>werkgever</strong> die
               de tool gebruikt is de <strong>verwerkingsverantwoordelijke</strong>: die bepaalt het doel (het opstellen van
-              zíjn Plan van aanpak) en levert de gegevens aan. planvanaanpakinvuller.nl treedt op als <strong>verwerker</strong>
+              zíjn Plan van aanpak) en levert de gegevens aan. Poortwachtercheck treedt op als <strong>verwerker</strong>
               en verwerkt uitsluitend in opdracht van de werkgever. Het AI-model (Anthropic) is <strong>subverwerker</strong>.
             </p>
             <p style={{ marginTop: 10 }}>
@@ -145,8 +145,8 @@ export function PrivacyVerklaring({ onClose }) {
 
           <Sectie nr="9" titel="Contact">
             <p>
-              <a href="mailto:contact@planvanaanpakinvuller.nl" style={{ color: NAVY, fontWeight: 600 }}>contact@planvanaanpakinvuller.nl</a><br />
-              planvanaanpakinvuller.nl · Schepers Digital · KVK 42107874
+              <a href="mailto:contact@poortwachtercheck.nl" style={{ color: NAVY, fontWeight: 600 }}>contact@poortwachtercheck.nl</a><br />
+              poortwachtercheck.nl · Schepers Digital · KVK 42107874
             </p>
           </Sectie>
 

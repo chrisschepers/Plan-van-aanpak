@@ -10,7 +10,7 @@ import { setTimeout as wait } from "timers/promises";
 // Laadt de site in een verse jsdom; pagina = "" (startpagina) of "invuller".
 function laad(pagina) {
   const dom = new JSDOM(`<!DOCTYPE html><html lang="nl"><body><div id="root"></div></body></html>`, {
-    url: "https://planvanaanpakinvuller.nl/" + (pagina ? "plan-van-aanpak-invullen/" : ""),
+    url: "https://poortwachtercheck.nl/" + (pagina ? "plan-van-aanpak-invullen/" : ""),
     pretendToBeVisual: true,
     runScripts: "outside-only",
   });
