@@ -11,16 +11,18 @@ function Nav() {
       <div className="wrap nav-inner">
         <Merk />
         <nav className="nav-links">
-          <a href="#contact">{I.mail} Contact</a>
+          <a href="#werkwijze">Werkwijze</a>
+          <a href="#tarieven">Tarieven</a>
+          <a href="#faq">Vragen</a>
+          <a href="#contact">Contact</a>
         </nav>
       </div>
-      <Melding />
     </header>
   );
 }
 
-// Smalle balk onder de kop: de opbouw lijkt op die van een overheidssite, dus
-// moet meteen duidelijk zijn dat dit een zelfstandige dienst is.
+// Smalle balk "geen onderdeel van UWV". Niet meer op de startpagina (wens Chris
+// 21-11); de voet noemt het nog wel. Blijft bestaan voor invuller.jsx.
 export function Melding() {
   return (
     <div className="melding">
@@ -29,29 +31,6 @@ export function Melding() {
   );
 }
 
-const DIRECT = [
-  { t: "Dossier laten nakijken", h: "#contact" },
-  { t: "Zelf de snelle check doen", h: "#checklist" },
-  { t: "Data berekenen vanaf de eerste ziektedag", h: "#data" },
-  { t: "Werkwijze", h: "#werkwijze" },
-  { t: "Tarieven", h: "#tarieven" },
-  { t: "Veelgestelde vragen", h: "#faq" },
-];
-
-function DirectNaar() {
-  return (
-    <section className="section smal" id="direct">
-      <div className="wrap">
-        <h2 className="kop">Direct naar</h2>
-        <div className="direct">
-          {DIRECT.map((d, i) => <a key={i} href={d.h}><span>{d.t}</span>{I.arrowRight}</a>)}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// Voorbeeld van wat een dossiercheck oplevert: één blik op wat er is en wat mist.
 function Hero() {
   return (
     <section className="hero" id="top">
@@ -307,7 +286,8 @@ function Afspraken() {
           </div>
         </div>
         <div className="over-mij reveal">
-          <h3>Casemanager verzuim, in opleiding tot arbeidsdeskundige</h3>
+          <h3>Chris Schepers</h3>
+          <p className="over-rol">Casemanager verzuim, in opleiding tot arbeidsdeskundige</p>
           <p>
             Ik werk als casemanager met werkgevers en werknemers bij langdurig verzuim. Ik
             weet waar een dossier op vastloopt en waar UWV op let.
@@ -423,7 +403,6 @@ export function Landing({ onOpenPrivacy }) {
     <div className="site">
       <Nav />
       <Hero />
-      <DirectNaar />
       <Probleem />
       <Checklist />
       <Werkwijze />
