@@ -290,7 +290,7 @@ function Afspraken() {
             <img src="img/chris-schepers.jpg" alt="Chris Schepers" width="96" height="96" loading="lazy" />
             <div>
               <h3>Chris Schepers</h3>
-              <p className="over-rol">Casemanager verzuim, in opleiding tot arbeidsdeskundige</p>
+              <p className="over-rol">Arbeidsdeskundige i.o.</p>
             </div>
           </div>
           <p>
