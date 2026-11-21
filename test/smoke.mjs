@@ -50,7 +50,8 @@ check("checklist telt wat ontbreekt", !!byText(".check-uitkomst h3", "Nog 8 onde
 check("aanvraag gaat per mail met de lijst", decodeURIComponent($$(".check-uitkomst a")[0].getAttribute("href")).includes("Eerstejaarsevaluatie"));
 check("geen link meer naar de invuller", $$('a[href*="plan-van-aanpak-invullen"]').length === 0 && !byText("a", "Plan van aanpak invullen"));
 check("WIA-brief op week 88, niet 87", window.document.body.textContent.includes("week 88") && !window.document.body.textContent.includes("week 87"));
-check("balk 'geen onderdeel van UWV' staat er", !!byText(".melding", "geen onderdeel van UWV"));
+check("geen UWV-balk en geen 'Direct naar' meer", !$$(".melding").length && !byText("h2", "Direct naar"));
+check("foto van Chris bij 'over mij'", $$('.over-mij img[src="img/chris-schepers.jpg"]').length === 1);
 
 // Privacyverklaring opent als overlay
 click(byText("a", "Privacyverklaring"));

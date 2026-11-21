@@ -1,6 +1,5 @@
 /* Merknaam, contactadres en paden die beide pagina's delen. */
 
-import { I } from "./data.jsx";
 
 export const MERK = "Poortwachtercheck";
 export const CONTACT_MAIL = "contact@poortwachtercheck.nl";
@@ -20,8 +19,7 @@ export function mailto(onderwerp, tekst) {
 export function Merk({ href, style }) {
   return (
     <a className="brand" href={href || "#top"} style={style}>
-      <span className="mark">{I.shield}</span>
-      <span>Poortwachter<span className="tld">check</span></span>
+      <span>Poortwachtercheck</span>
     </a>
   );
 }
