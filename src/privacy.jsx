@@ -113,6 +113,9 @@ export function PrivacyVerklaring({ onClose }) {
 
           <Sectie nr="6" titel="Beveiliging">
             <p>Alleen ik heb toegang tot de kopieën. Ik bewaar en verstuur ze niet op een plek waar anderen erbij kunnen.
+              Stukken die je per e-mail stuurt naar {CONTACT_MAIL}, worden doorgestuurd naar mijn mailbox bij Google
+              (Gmail). Google kan die gegevens ook buiten de EU opslaan en valt daarvoor onder het EU-VS Data Privacy
+              Framework.
               Gaat er toch iets mis met de gegevens van een werknemer, dan meld ik dat meteen aan de werkgever, zodat die
               kan beoordelen of het een datalek is dat gemeld moet worden.</p>
           </Sectie>
