@@ -1,8 +1,8 @@
 /* Privacyverklaring van de dossiercheck (Poortwachtercheck).
    Client-side overlay in de huisstijl. Ik-vorm, net als de startpagina. */
 
-import { I } from "./data.jsx";
-import { CONTACT_MAIL } from "./merk.jsx";
+import { I } from "./iconen.jsx";
+import { CONTACT_MAIL, Merk } from "./merk.jsx";
 
 const NAVY = "var(--navy)";
 
@@ -31,11 +31,8 @@ export function PrivacyVerklaring({ onClose }) {
     <div className="tool">
       <div className="tool-bar">
         <div className="tool-bar-inner">
-          <button className="tool-back" onClick={onClose}>{I.arrowLeft} Terug naar site</button>
-          <span style={{ fontWeight: 700, color: "var(--navy-900)" }}>Privacyverklaring</span>
-          <a className="brand" href="#" onClick={(e) => { e.preventDefault(); onClose(); }} style={{ fontSize: 15 }}>
-            <span className="mark" style={{ width: 28, height: 28 }}>{I.shield}</span>
-          </a>
+          <Merk href="#top" onClick={(e) => { e.preventDefault(); onClose(); }} />
+          <button className="tool-back" onClick={onClose} style={{ marginLeft: "auto" }}>{I.arrowLeft} Terug naar site</button>
         </div>
       </div>
 

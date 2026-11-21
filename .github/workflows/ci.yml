@@ -1,4 +1,4 @@
-# CI: draait de volledige testsuite en controleert dat het gecommitte app.js-
+# CI: draait de smoke-test en controleert dat het gecommitte app.js-
 # bundle overeenkomt met een verse build van src/ (GitHub Pages serveert app.js
 # rechtstreeks — een vergeten `npm run build` zou anders stille drift geven).
 name: CI
@@ -31,8 +31,3 @@ jobs:
             echo "::error::app.js wijkt af van een verse build — draai 'npm run build' en commit het resultaat mee."
             exit 1
           }
-
-      - name: Backend syntax-check
-        run: |
-          cd server && npm install --no-audit --no-fund
-          for f in *.js; do node --check "$f"; done

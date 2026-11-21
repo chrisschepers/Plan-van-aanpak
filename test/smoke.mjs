@@ -1,5 +1,5 @@
 /* Smoke-test: rendert de startpagina in jsdom en controleert de belangrijkste
-   onderdelen. De PvA-invuller staat niet meer op de site. */
+   onderdelen. */
 
 import { JSDOM } from "jsdom";
 import { readFileSync } from "fs";
@@ -57,6 +57,7 @@ check("foto van Chris bij 'over mij'", $$('.over-mij img[src="img/chris-schepers
 click(byText("a", "Privacyverklaring"));
 await wait(40);
 check("privacyverklaring opent", !!byText("h1", "Privacyverklaring"));
+check("privacybalk toont het woordmerk, geen schild-icoon", !!byText(".tool-bar .brand", "Poortwachtercheck") && !$$(".tool-bar .mark").length);
 
 console.log(failures === 0 ? "\nAlle checks geslaagd." : `\n${failures} check(s) gefaald.`);
 process.exit(failures === 0 ? 0 : 1);

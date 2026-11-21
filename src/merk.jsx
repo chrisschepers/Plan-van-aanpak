@@ -1,14 +1,7 @@
-/* Merknaam, contactadres en paden die beide pagina's delen. */
-
+/* Merknaam, contactadres en het woordmerk. */
 
 export const MERK = "Poortwachtercheck";
 export const CONTACT_MAIL = "contact@poortwachtercheck.nl";
-
-// De site heeft twee pagina's: de startpagina (dossiercheck) en de invuller in
-// een submap. Relatieve paden, zodat het op elk adres en in elke map werkt.
-export const opInvuller = () => typeof window !== "undefined" && window.__PVA_PAGINA__ === "invuller";
-export const thuis = () => (opInvuller() ? "../" : "#top");
-export const naarInvuller = () => (opInvuller() ? "#top" : "plan-van-aanpak-invullen/");
 
 export function mailto(onderwerp, tekst) {
   let url = "mailto:" + CONTACT_MAIL + "?subject=" + encodeURIComponent(onderwerp);
@@ -16,10 +9,10 @@ export function mailto(onderwerp, tekst) {
   return url;
 }
 
-export function Merk({ href, style }) {
+export function Merk({ href, style, onClick }) {
   return (
-    <a className="brand" href={href || "#top"} style={style}>
-      <span>Poortwachtercheck</span>
+    <a className="brand" href={href || "#top"} style={style} onClick={onClick}>
+      <span>{MERK}</span>
     </a>
   );
 }

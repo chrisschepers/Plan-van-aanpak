@@ -1,6 +1,6 @@
 /* Startpagina: de dossiercheck van het re-integratieverslag (Poortwachtercheck). */
 
-import { I } from "./data.jsx";
+import { I } from "./iconen.jsx";
 import { Merk, MERK, CONTACT_MAIL, mailto } from "./merk.jsx";
 
 const { useState } = React;
@@ -18,16 +18,6 @@ function Nav() {
         </nav>
       </div>
     </header>
-  );
-}
-
-// Smalle balk "geen onderdeel van UWV". Niet meer op de startpagina (wens Chris
-// 21-11); de voet noemt het nog wel. Blijft bestaan voor invuller.jsx.
-export function Melding() {
-  return (
-    <div className="melding">
-      <div className="wrap">{I.info}<span><strong>Zelfstandige dienst.</strong> Poortwachtercheck is geen onderdeel van UWV.</span></div>
-    </div>
   );
 }
 
