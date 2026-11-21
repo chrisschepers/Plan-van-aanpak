@@ -24,7 +24,7 @@ app.use(express.json({ limit: "2mb" }));
 
 // CORS: fail-closed. Zonder ALLOWED_ORIGIN geldt de productie-origin (GitHub
 // Pages), NIET "*". Zet ALLOWED_ORIGIN (komma-gescheiden) voor een eigen domein.
-const DEFAULT_ORIGINS = ["https://chrisschepers.github.io"];
+const DEFAULT_ORIGINS = ["https://poortwachtercheck.nl", "https://www.poortwachtercheck.nl", "https://chrisschepers.github.io"];
 const allowedRaw = (process.env.ALLOWED_ORIGIN || "").split(",").map((s) => s.trim()).filter(Boolean);
 const allowed = allowedRaw.length ? allowedRaw : DEFAULT_ORIGINS;
 const openCors = allowed.includes("*");
@@ -71,7 +71,7 @@ function safeEqual(a, b) {
 async function blockGuard(req, res, next) {
   try {
     if (req.user && req.user.id && await isBlocked(req.user.id)) {
-      return res.status(403).json({ error: "Je account is geblokkeerd. Neem contact op via planvanaanpakinvuller@gmail.com." });
+      return res.status(403).json({ error: "Je account is geblokkeerd. Neem contact op via contact@poortwachtercheck.nl." });
     }
   } catch { /* bij twijfel doorlaten */ }
   next();
@@ -220,7 +220,7 @@ app.post("/api/checkout", checkoutLimit, requireAuth, blockGuard, async (req, re
   }
   const bundle = BUNDLES[req.body && req.body.bundle];
   if (!bundle) return res.status(400).json({ error: "Onbekende bundel." });
-  const siteUrl = process.env.PVA_SITE_URL || "https://chrisschepers.github.io/Plan-van-aanpak/";
+  const siteUrl = process.env.PVA_SITE_URL || "https://poortwachtercheck.nl/plan-van-aanpak-invullen/";
   const backend = (process.env.PVA_PUBLIC_BACKEND || "").replace(/\/$/, "");
   try {
     const r = await fetch("https://api.mollie.com/v2/payments", {
@@ -228,7 +228,7 @@ app.post("/api/checkout", checkoutLimit, requireAuth, blockGuard, async (req, re
       headers: { Authorization: `Bearer ${process.env.MOLLIE_API_KEY}`, "content-type": "application/json" },
       body: JSON.stringify({
         amount: { currency: "EUR", value: (bundle.cents / 100).toFixed(2) },
-        description: `planvanaanpakinvuller.nl — ${bundle.label}`,
+        description: `Poortwachtercheck — ${bundle.label}`,
         redirectUrl: `${siteUrl}?betaling=terug`,
         webhookUrl: backend ? `${backend}/api/mollie-webhook${WEBHOOK_SECRET ? "/" + encodeURIComponent(WEBHOOK_SECRET) : ""}` : undefined,
         metadata: { userId: req.user.id, credits: bundle.credits, bundle: req.body.bundle, cents: bundle.cents },

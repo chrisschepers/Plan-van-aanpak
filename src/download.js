@@ -78,13 +78,13 @@ function letterHeadFirst() {
     new Paragraph({ ...rightTab(IND_FULL), spacing: { after: 30 }, children: [
       ...decoRuns(),
       markImg(12, 12.5),
-      new TextRun({ text: "planvanaanpak", bold: true, color: NAVY_900, size: 30, font: FONT }),
-      new TextRun({ text: "invuller.nl", bold: true, color: NAVY_400, size: 30, font: FONT }),
-      new TextRun({ text: "\tplanvanaanpakinvuller.nl", bold: true, color: NAVY, size: 17, font: FONT }),
+      new TextRun({ text: "Poortwachter", bold: true, color: NAVY_900, size: 30, font: FONT }),
+      new TextRun({ text: "check", bold: true, color: NAVY_400, size: 30, font: FONT }),
+      new TextRun({ text: "\tpoortwachtercheck.nl", bold: true, color: NAVY, size: 17, font: FONT }),
     ] }),
     new Paragraph({ ...rightTab(IND_FULL), spacing: { after: 0 }, children: [
       new TextRun({ text: "Concept Plan van Aanpak — Wet verbetering poortwachter", color: GREY, size: 16, font: FONT }),
-      new TextRun({ text: "\tcontact@planvanaanpakinvuller.nl", color: GREY, size: 17, font: FONT }),
+      new TextRun({ text: "\tcontact@poortwachtercheck.nl", color: GREY, size: 17, font: FONT }),
     ] }),
     new Paragraph({ ...rightTab(IND_FULL), spacing: { after: 0 },
       border: { bottom: { style: BorderStyle.SINGLE, size: 8, color: LINE } },
@@ -103,8 +103,8 @@ function letterHeadCompact(naam) {
       children: [
         ...decoRuns(),
         markImg(8.5, 10.8),
-        new TextRun({ text: "planvanaanpak", bold: true, color: NAVY_900, size: 23, font: FONT }),
-        new TextRun({ text: "invuller.nl", bold: true, color: NAVY_400, size: 23, font: FONT }),
+        new TextRun({ text: "Poortwachter", bold: true, color: NAVY_900, size: 23, font: FONT }),
+        new TextRun({ text: "check", bold: true, color: NAVY_400, size: 23, font: FONT }),
         new TextRun({ text: "\tVervolg — ", color: GREY, size: 17, font: FONT }),
         new TextRun({ text: `Concept Plan van Aanpak${wie}`, bold: true, color: NAVY_600, size: 17, font: FONT }),
       ] }),
@@ -118,7 +118,7 @@ function brandFooter() {
       border: { top: { style: BorderStyle.SINGLE, size: 8, color: "E6EBF4" } },
       children: [
         new TextRun({ text: "● ", color: GREEN, size: 17, font: FONT }),
-        new TextRun({ text: "planvanaanpakinvuller.nl", bold: true, color: NAVY, size: 17, font: FONT }),
+        new TextRun({ text: "poortwachtercheck.nl", bold: true, color: NAVY, size: 17, font: FONT }),
         new TextRun({ text: "\tPrivacy by design · hosting en opslag binnen de EER", color: GREY, size: 16, font: FONT }),
       ] }),
     new Paragraph({ ...RIGHT_TAB, spacing: { after: 0 }, children: [
@@ -319,7 +319,7 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
           italics: true, color: GREY, size: 22, font: FONT })] }),
         new Paragraph({ spacing: { before: 200, after: 700 },
           children: [new TextRun({ text: "Met vriendelijke groet,", color: "3C465A", size: 22, font: FONT })] }),
-        new Paragraph({ spacing: { after: 20 }, children: [new TextRun({ text: "planvanaanpakinvuller.nl", color: "18202F", size: 22, font: FONT })] }),
+        new Paragraph({ spacing: { after: 20 }, children: [new TextRun({ text: "Poortwachtercheck", color: "18202F", size: 22, font: FONT })] }),
         new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text: "Automatisch opgesteld concept", color: GREY, size: 18, font: FONT })] }),
 
         // ---- BIJLAGE 1 — Opbouwadvies ----
@@ -379,7 +379,7 @@ export function buildDocxDocument(fields, schema, reportDate, taaksuggestie, sig
   }
 
   const doc = new Document({
-    creator: "planvanaanpakinvuller.nl",
+    creator: "Poortwachtercheck",
     title: `Plan van Aanpak — ${naam}`,
     styles: { default: { document: { run: { font: "Calibri" } } } },
     sections,
@@ -484,7 +484,7 @@ export function buildWerknemerDocx(fields, schema, reportDate, signalen, opbouwR
          ...(isMissing(getVal(fields, "bedrijfsnaam")) ? [] : [new Paragraph({ spacing: { after: 0 }, children: [new TextRun({ text: getVal(fields, "bedrijfsnaam"), color: GREY, size: 18, font: FONT })] })])]),
   ];
   return new Document({
-    creator: "planvanaanpakinvuller.nl",
+    creator: "Poortwachtercheck",
     title: `Bericht werknemer — ${naam}`,
     styles: { default: { document: { run: { font: "Calibri" } } } },
     sections: [{

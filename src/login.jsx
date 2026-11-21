@@ -32,7 +32,7 @@ export function Login({ onClose, onOpenPrivacy, session }) {
           <span className="auth-mark">{I.doc}</span>
           <h1>Inloggen</h1>
           <p className="auth-sub">
-            Log in bij planvanaanpakinvuller.nl om echte terugkoppelingen te verwerken.
+            Log in bij Poortwachtercheck om echte terugkoppelingen te verwerken.
             Je accountgegevens blijven binnen de EER.
           </p>
 

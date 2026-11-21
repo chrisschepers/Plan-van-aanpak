@@ -47,7 +47,7 @@ node try.mjs samples/terugkoppeling-03.txt mijn-functieomschrijving.txt
    Railway detecteert Node en draait automatisch `npm install` + `npm start`.
 3. **Variables** toevoegen:
    - `ANTHROPIC_API_KEY` = jouw Claude API-sleutel  *(verplicht; staat alleen hier)*
-   - `ALLOWED_ORIGIN` = `https://chrisschepers.github.io`  *(CORS; aanbevolen)*
+   - `ALLOWED_ORIGIN` = `https://poortwachtercheck.nl,https://www.poortwachtercheck.nl,https://chrisschepers.github.io`  *(CORS; aanbevolen)*
    - optioneel `PVA_MODEL` = `claude-sonnet-4-6`  *(goedkoper dan de standaard `claude-opus-4-8`)*
 4. **Region**: kies een **EU-regio** (EER) — belangrijk zodra je richting echte
    gegevens gaat.
