@@ -499,3 +499,16 @@ html.js-reveal .reveal.in { animation: revUp .6s var(--ease) both; }
 .site .nav-inner { gap: 18px; }
 @media (max-width: 1040px) { .site .nav-links a:not(:first-child) { display: none; } }
 @media (max-width: 560px) { .site .nav-cta .btn-primary { display: none; } }
+
+/* ---- Minder opmaak (21-11): woordmerk zonder icoon, geen kaartjes/iconen/labels ---- */
+.site .brand { gap: 0; font-size: 21px; font-weight: 700; letter-spacing: -.01em; color: var(--navy-900); }
+.site .footer .brand { color: #fff; }
+.site .hero-enkel > div { padding: 56px 0; max-width: 760px; }
+.site .hero-noot { color: rgba(255,255,255,.8); font-size: 15.5px; margin-top: 22px; }
+.cijfers-tekst { margin-top: 22px; max-width: 68ch; font-size: 17.5px; color: var(--ink); }
+.site .step .num { display: block; width: auto; height: auto; background: none; color: var(--navy); border-radius: 0; font-size: 22px; font-weight: 700; }
+.site .step h3 { margin-top: 6px; }
+.site .pakket ul { list-style: disc; padding-left: 20px; gap: 6px; }
+.site .pakket li { display: list-item; }
+.site .comp-item { padding-left: 0; }
+@media (max-width: 900px) { .site .hero-enkel > div { padding: 36px 0; } }

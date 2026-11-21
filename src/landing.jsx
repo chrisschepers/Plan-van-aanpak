@@ -52,18 +52,10 @@ function DirectNaar() {
 }
 
 // Voorbeeld van wat een dossiercheck oplevert: één blik op wat er is en wat mist.
-const VOORBEELD = [
-  { t: "Probleemanalyse", ok: true },
-  { t: "Plan van aanpak, ondertekend", ok: true },
-  { t: "Eerstejaarsevaluatie", ok: false, n: "ontbreekt" },
-  { t: "Actueel oordeel bedrijfsarts", ok: true },
-  { t: "Eindevaluatie", ok: false, n: "handtekening werknemer mist" },
-];
-
 function Hero() {
   return (
     <section className="hero" id="top">
-      <div className="wrap hero-grid">
+      <div className="wrap hero-enkel">
         <div className="reveal">
           <div className="kop-balk">
             <h1>Je re-integratieverslag compleet naar UWV</h1>
@@ -76,37 +68,14 @@ function Hero() {
             <a className="btn btn-primary btn-lg" href="#contact">Dossier laten nakijken</a>
             <a className="btn btn-ghost btn-lg" href="#checklist">Doe zelf de snelle check</a>
           </div>
-          <div className="hero-trust">
-            <span>{I.checkSm} Vaste prijs per dossier</span>
-            <span>{I.building} Bij jou op locatie</span>
-            <span>{I.lock} Medische stukken blijven bij de bedrijfsarts</span>
-          </div>
-        </div>
-        <div className="hero-visual reveal">
-          <div className="dossier-kaart">
-            <div className="dk-kop"><span className="ht-dot"></span>Voorbeeld van een dossiercheck</div>
-            <ul>
-              {VOORBEELD.map((v, i) => (
-                <li key={i} className={v.ok ? "ok" : "mis"}>
-                  <span className="dk-ico">{v.ok ? I.checkSm : I.x}</span>
-                  <span className="dk-t">{v.t}</span>
-                  {!v.ok && <span className="pill pill-flag">{v.n}</span>}
-                </li>
-              ))}
-            </ul>
-            <div className="dk-voet">2 punten om te herstellen vóór de WIA-aanvraag</div>
-          </div>
+          <p className="hero-noot">
+            Vaste prijs per dossier. Ik kom bij je op locatie. Medische stukken blijven bij de bedrijfsarts.
+          </p>
         </div>
       </div>
     </section>
   );
 }
-
-const CIJFERS = [
-  { g: "ruim 4.000", t: "loonsancties legde UWV op in 2024" },
-  { g: "± 45%", t: "daarvan was administratief: het verslag was niet compleet" },
-  { g: "3 + 6 weken", t: "kost herstel al snel: 3 weken beoordeling door UWV, daarna loopt het loon nog 6 weken door" },
-];
 
 function Probleem() {
   return (
@@ -121,14 +90,11 @@ function Probleem() {
             loonsanctie: je betaalt het loon langer door, tot het verslag in orde is.
           </p>
         </div>
-        <div className="cijfers">
-          {CIJFERS.map((c, i) => (
-            <div className="cijfer card reveal" key={i}>
-              <div className="cijfer-g">{c.g}</div>
-              <p>{c.t}</p>
-            </div>
-          ))}
-        </div>
+        <p className="cijfers-tekst reveal">
+          In 2024 legde UWV ruim 4.000 loonsancties op. Bij ongeveer 45% daarvan was het verslag
+          gewoon niet compleet. Herstellen kost al snel drie weken beoordeling door UWV, en daarna
+          loopt het loon nog zes weken door.
+        </p>
         <p className="bron reveal">
           Cijfers: <a href="https://uwvjaarverslag.nl/external/asset/download/project/f9b7da0a-03ec-0000-58b5-7efa5990235f/name/uwv-kwantitatieve-Informatie-2025T3%202.0.pdf" target="_blank" rel="noopener">UWV, kwantitatieve informatie</a>.
           Herstel en doorlooptijd: <a href="https://www.rijksoverheid.nl/documenten/publicaties/2024/09/30/werkproces-uwv-toetsen-riv-en-opleggen-loonsanctie" target="_blank" rel="noopener">werkproces UWV toetsen re-integratieverslag</a>.
@@ -281,7 +247,7 @@ const PAKKETTEN = [
     punten: ["Bezoek op locatie", "Controle van elk onderdeel, elke datum en handtekening", "Heldere lijst met wat ontbreekt en wat je moet doen"],
   },
   {
-    naam: "Compleet verzorgd", prijs: "vanaf € 950", sub: "per dossier, excl. btw", uitgelicht: true,
+    naam: "Compleet verzorgd", prijs: "vanaf € 950", sub: "per dossier, excl. btw",
     d: "Je wilt dat het geregeld wordt.",
     punten: ["Alles uit de dossiercheck", "Hulp bij de eindevaluatie en het bijwerken van de stukken", "Bewaken dat de bedrijfsarts de medische informatie verstuurt", "Het verslag verzendklaar voor je werknemer"],
   },
@@ -303,14 +269,13 @@ function Tarieven() {
         </div>
         <div className="pakketten">
           {PAKKETTEN.map((p, i) => (
-            <div className={"pakket card reveal" + (p.uitgelicht ? " uitgelicht" : "")} key={i}>
-              {p.uitgelicht && <span className="pill pill-ok">Alles geregeld</span>}
+            <div className="pakket card reveal" key={i}>
               <h3>{p.naam}</h3>
               <p className="pakket-d">{p.d}</p>
               <div className="pakket-prijs">{p.prijs}</div>
               <div className="pakket-sub">{p.sub}</div>
-              <ul>{p.punten.map((x, j) => <li key={j}>{I.checkSm}<span>{x}</span></li>)}</ul>
-              <a className={"btn " + (p.uitgelicht ? "btn-primary" : "btn-ghost")} href={mailto(p.naam + " aanvragen")}>Aanvragen</a>
+              <ul>{p.punten.map((x, j) => <li key={j}>{x}</li>)}</ul>
+              <a className="btn btn-ghost" href={mailto(p.naam + " aanvragen")}>Aanvragen</a>
             </div>
           ))}
         </div>
@@ -320,10 +285,10 @@ function Tarieven() {
 }
 
 const AFSPRAKEN = [
-  { icon: I.lock, t: "Ik zie geen medische stukken", d: "Die horen bij de bedrijfsarts. Ik bewaak alleen dat hij ze op tijd naar UWV of je werknemer stuurt." },
-  { icon: I.scale, t: "Ik beloof geen uitkomst", d: "Ik zorg dat het verslag compleet is. Of de re-integratie inhoudelijk voldoende was, beoordeelt UWV." },
-  { icon: I.doc, t: "Afspraken staan op papier", d: "Je krijgt een verwerkersovereenkomst. Voor contact met UWV teken je een machtiging." },
-  { icon: I.shield, t: "Zorgvuldig met het dossier", d: "Ik gebruik de gegevens alleen voor deze opdracht. Kopieën bewaar ik tot UWV over de WIA-aanvraag heeft beslist." },
+  { t: "Ik zie geen medische stukken", d: "Die horen bij de bedrijfsarts. Ik bewaak alleen dat hij ze op tijd naar UWV of je werknemer stuurt." },
+  { t: "Ik beloof geen uitkomst", d: "Ik zorg dat het verslag compleet is. Of de re-integratie inhoudelijk voldoende was, beoordeelt UWV." },
+  { t: "Afspraken staan op papier", d: "Je krijgt een verwerkersovereenkomst. Voor contact met UWV teken je een machtiging." },
+  { t: "Zorgvuldig met het dossier", d: "Ik gebruik de gegevens alleen voor deze opdracht. Kopieën bewaar ik tot UWV over de WIA-aanvraag heeft beslist." },
 ];
 
 function Afspraken() {
@@ -336,14 +301,12 @@ function Afspraken() {
           <div className="comp-list">
             {AFSPRAKEN.map((c, i) => (
               <div className="comp-item" key={i}>
-                <span className="ico">{c.icon}</span>
                 <div><h4>{c.t}</h4><p>{c.d}</p></div>
               </div>
             ))}
           </div>
         </div>
         <div className="over-mij reveal">
-          <span className="tag">Wie er langskomt</span>
           <h3>Casemanager verzuim, in opleiding tot arbeidsdeskundige</h3>
           <p>
             Ik werk als casemanager met werkgevers en werknemers bij langdurig verzuim. Ik
@@ -405,7 +368,7 @@ function Contact() {
           <h2>Laat je dossier nakijken voordat UWV het doet</h2>
           <p>Stuur een bericht met de eerste ziektedag en je telefoonnummer. Ik bel je terug voor een korte kennismaking. Zet geen medische gegevens in je bericht.</p>
           <div className="hero-cta">
-            <a className="btn btn-accent btn-lg" href={mailto("Kennismaking dossiercheck", tekst)}>{I.mail} Stuur een bericht</a>
+            <a className="btn btn-accent btn-lg" href={mailto("Kennismaking dossiercheck", tekst)}>Stuur een bericht</a>
             <a className="btn btn-ghost btn-lg" href="#checklist">Eerst zelf de check doen</a>
           </div>
         </div>
