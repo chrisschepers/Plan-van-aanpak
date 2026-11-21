@@ -286,8 +286,13 @@ function Afspraken() {
           </div>
         </div>
         <div className="over-mij reveal">
-          <h3>Chris Schepers</h3>
-          <p className="over-rol">Casemanager verzuim, in opleiding tot arbeidsdeskundige</p>
+          <div className="over-kop">
+            <img src="img/chris-schepers.jpg" alt="Chris Schepers" width="96" height="96" loading="lazy" />
+            <div>
+              <h3>Chris Schepers</h3>
+              <p className="over-rol">Casemanager verzuim, in opleiding tot arbeidsdeskundige</p>
+            </div>
+          </div>
           <p>
             Ik werk als casemanager met werkgevers en werknemers bij langdurig verzuim. Ik
             weet waar een dossier op vastloopt en waar UWV op let.
@@ -391,7 +396,7 @@ function Footer({ onOpenPrivacy }) {
         </div>
         <div className="footer-bot">
           <span>© 2026 {MERK} · onderdeel van Schepers Digital · KVK 42107874</span>
-          <span>Zelfstandige dienst, geen onderdeel van UWV · Geen garantie op de uitkomst van de toets</span>
+          <span>Geen garantie op de uitkomst van de toets</span>
         </div>
       </div>
     </footer>

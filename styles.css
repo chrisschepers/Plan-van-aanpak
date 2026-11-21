@@ -534,3 +534,6 @@ body { background: var(--paper); }
 .site .hero-enkel > div { padding: 72px 0 64px; }
 .site .over-mij .over-rol { color: rgba(255,255,255,.75); font-size: 15.5px; margin-top: 2px; }
 .site .over-mij h3 { font-size: 28px; }
+.site .over-kop { display: flex; gap: 18px; align-items: center; }
+.site .over-kop img { width: 96px; height: 96px; object-fit: cover; flex: none; display: block; }
+.site .over-kop h3 { margin: 0; }
