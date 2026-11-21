@@ -113,7 +113,6 @@ export function PrivacyVerklaring({ onClose }) {
 
           <Sectie nr="6" titel="Beveiliging">
             <p>Alleen ik heb toegang tot de kopieën. Ik bewaar en verstuur ze niet op een plek waar anderen erbij kunnen.
-              Toegestuurde stukken komen binnen in een zakelijke mailbox bij TransIP, met opslag in datacenters in Nederland.
               Gaat er toch iets mis met de gegevens van een werknemer, dan meld ik dat meteen aan de werkgever, zodat die
               kan beoordelen of het een datalek is dat gemeld moet worden.</p>
           </Sectie>
