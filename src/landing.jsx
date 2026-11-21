@@ -441,6 +441,7 @@ function Footer({ onOpenPrivacy }) {
             <h4>Contact</h4>
             <a href={"mailto:" + CONTACT_MAIL}>{CONTACT_MAIL}</a>
             <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>Schepers Digital</span>
+            <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>De Vaandeldrager 13, 6921 TK Duiven</span>
             <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>KVK 42107874</span>
             <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>Btw NL004512417B86</span>
           </div>
