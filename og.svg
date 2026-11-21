@@ -20,19 +20,19 @@
   <text x="210" y="150" font-family="Liberation Sans, Arial, DejaVu Sans, sans-serif" font-size="40" font-weight="700" fill="#ffffff">poortwachter<tspan fill="#8fa6d6">check.nl</tspan></text>
 
   <!-- hoofdtitel -->
-  <text x="96" y="300" font-family="Liberation Sans, Arial, DejaVu Sans, sans-serif" font-size="76" font-weight="800" fill="#ffffff">Concept Plan van Aanpak,</text>
-  <text x="96" y="392" font-family="Liberation Sans, Arial, DejaVu Sans, sans-serif" font-size="76" font-weight="800" fill="#ffffff">automatisch ingevuld</text>
+  <text x="96" y="300" font-family="Liberation Sans, Arial, DejaVu Sans, sans-serif" font-size="76" font-weight="800" fill="#ffffff">Je re-integratieverslag</text>
+  <text x="96" y="392" font-family="Liberation Sans, Arial, DejaVu Sans, sans-serif" font-size="76" font-weight="800" fill="#ffffff">compleet naar UWV</text>
 
   <!-- ondertitel -->
-  <text x="96" y="452" font-family="Liberation Sans, Arial, DejaVu Sans, sans-serif" font-size="30" font-weight="500" fill="#c4d0e8">Van terugkoppeling bedrijfsarts naar het UWV-formulier (AG140).</text>
+  <text x="96" y="452" font-family="Liberation Sans, Arial, DejaVu Sans, sans-serif" font-size="30" font-weight="500" fill="#c4d0e8">Dossiercheck vóór de WIA-aanvraag van je werknemer.</text>
 
-  <!-- trust chips -->
-  <g font-family="Liberation Sans, Arial, DejaVu Sans, sans-serif" font-size="26" font-weight="600" fill="#dbe4f5">
-    <rect x="96" y="512" width="252" height="58" rx="29" fill="#ffffff" fill-opacity="0.10"/>
-    <text x="124" y="550">Privacy by design</text>
-    <rect x="368" y="512" width="232" height="58" rx="29" fill="#ffffff" fill-opacity="0.10"/>
-    <text x="396" y="550">Mens in de loop</text>
-    <rect x="620" y="512" width="300" height="58" rx="29" fill="#ffffff" fill-opacity="0.10"/>
-    <text x="648" y="550">Geen medische data</text>
+  <!-- chips -->
+  <g font-family="Liberation Sans, Arial, DejaVu Sans, sans-serif" font-size="24" font-weight="600" fill="#dbe4f5">
+    <rect x="96" y="514" width="308" height="54" rx="27" fill="#ffffff" fill-opacity="0.10"/>
+    <text x="121" y="549">Vaste prijs per dossier</text>
+    <rect x="422" y="514" width="348" height="54" rx="27" fill="#ffffff" fill-opacity="0.10"/>
+    <text x="447" y="549">Geen medische gegevens</text>
+    <rect x="788" y="514" width="346" height="54" rx="27" fill="#ffffff" fill-opacity="0.10"/>
+    <text x="813" y="549">Geen onderdeel van UWV</text>
   </g>
 </svg>

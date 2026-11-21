@@ -1,7 +1,7 @@
 /* Startpagina: de dossiercheck van het re-integratieverslag (Poortwachtercheck). */
 
 import { I } from "./data.jsx";
-import { Merk, MERK, CONTACT_MAIL, mailto, naarInvuller } from "./merk.jsx";
+import { Merk, MERK, CONTACT_MAIL, mailto } from "./merk.jsx";
 
 const { useState } = React;
 
@@ -11,7 +11,6 @@ function Nav() {
       <div className="wrap nav-inner">
         <Merk />
         <nav className="nav-links">
-          <a href={naarInvuller()}>{I.doc} Plan van aanpak invullen</a>
           <a href="#contact">{I.mail} Contact</a>
         </nav>
       </div>
@@ -46,7 +45,6 @@ function DirectNaar() {
         <h2 className="kop">Direct naar</h2>
         <div className="direct">
           {DIRECT.map((d, i) => <a key={i} href={d.h}><span>{d.t}</span>{I.arrowRight}</a>)}
-          <a href={naarInvuller()}><span>Plan van aanpak invullen</span>{I.arrowRight}</a>
         </div>
       </div>
     </section>
@@ -362,26 +360,6 @@ function Afspraken() {
   );
 }
 
-function InvullerBand() {
-  return (
-    <section className="section" id="invuller">
-      <div className="wrap">
-        <div className="invuller-band reveal">
-          <div>
-            <span className="eyebrow"><span className="dot"></span>Staat je werknemer pas kort ziek?</span>
-            <h2>Begin het dossier goed: laat het plan van aanpak invullen</h2>
-            <p>
-              Upload de terugkoppeling van de bedrijfsarts. Je krijgt een ingevuld concept
-              van het UWV-formulier, een opbouwschema en een tijdlijn met alle termijnen.
-            </p>
-          </div>
-          <a className="btn btn-primary btn-lg" href={naarInvuller()}>Plan van aanpak invullen {I.arrowRight}</a>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 const FAQS = [
   { q: "Wat is een administratieve loonsanctie?", a: "UWV toetst eerst of het re-integratieverslag compleet is. Ontbreekt er een verplicht onderdeel, dan kan UWV de re-integratie niet beoordelen en moet je het loon langer doorbetalen. Die verlenging stopt pas nadat je het ontbrekende hebt aangeleverd en UWV dat heeft beoordeeld." },
   { q: "Wanneer schakel ik je in?", a: "Het liefst rond week 80 tot 88 van het verzuim. Dan is er nog tijd om iets te herstellen voordat je werknemer de WIA aanvraagt. Later kan ook, maar dan is de ruimte kleiner. Eerder mag altijd, bijvoorbeeld bij de eerstejaarsevaluatie." },
@@ -455,8 +433,7 @@ function Footer({ onOpenPrivacy }) {
             <a href="#tarieven">Tarieven</a>
           </div>
           <div>
-            <h4>Hulpmiddelen</h4>
-            <a href={naarInvuller()}>Plan van aanpak invullen</a>
+            <h4>Privacy</h4>
             <a href="#privacyverklaring" onClick={openPrivacy}>Privacyverklaring</a>
             <a href={mailto("Verwerkersovereenkomst")}>Verwerkersovereenkomst</a>
           </div>
@@ -488,7 +465,6 @@ export function Landing({ onOpenPrivacy }) {
       <Werkwijze />
       <Tarieven />
       <Afspraken />
-      <InvullerBand />
       <Faq />
       <Contact />
       <Footer onOpenPrivacy={onOpenPrivacy} />

@@ -1,16 +1,14 @@
-/* Smoke-test: rendert de site in jsdom en controleert de landing, het statische
-   voorbeeldresultaat (geen backend/credits) en dat de tool opent op de upload-stap.
-   De interactieve demo-flow is verwijderd; verify/preview/download worden direct
-   getest in docx.mjs / merge.mjs / template.mjs. */
+/* Smoke-test: rendert de startpagina in jsdom en controleert de belangrijkste
+   onderdelen. De PvA-invuller staat niet meer op de site. */
 
 import { JSDOM } from "jsdom";
 import { readFileSync } from "fs";
 import { setTimeout as wait } from "timers/promises";
 
-// Laadt de site in een verse jsdom; pagina = "" (startpagina) of "invuller".
-function laad(pagina) {
+// Laadt de site in een verse jsdom.
+function laad() {
   const dom = new JSDOM(`<!DOCTYPE html><html lang="nl"><body><div id="root"></div></body></html>`, {
-    url: "https://poortwachtercheck.nl/" + (pagina ? "plan-van-aanpak-invullen/" : ""),
+    url: "https://poortwachtercheck.nl/",
     pretendToBeVisual: true,
     runScripts: "outside-only",
   });
@@ -23,7 +21,6 @@ function laad(pagina) {
   window.TextEncoder = TextEncoder;
   window.TextDecoder = TextDecoder;
   window.Blob = window.Blob || Blob;
-  if (pagina) window.__PVA_PAGINA__ = pagina;
   const run = (file) => window.eval(readFileSync(file, "utf8"));
   run("node_modules/react/umd/react.development.js");
   run("node_modules/react-dom/umd/react-dom.development.js");
@@ -31,7 +28,7 @@ function laad(pagina) {
   return window;
 }
 
-let window = laad("");
+const window = laad();
 const $$ = (sel) => [...window.document.querySelectorAll(sel)];
 const byText = (sel, txt) => $$(sel).find((el) => el.textContent.includes(txt));
 const click = (el) => el.dispatchEvent(new window.MouseEvent("click", { bubbles: true, cancelable: true }));
@@ -51,32 +48,14 @@ click($$(".check-rij input")[0]);
 await wait(40);
 check("checklist telt wat ontbreekt", !!byText(".check-uitkomst h3", "Nog 8 onderdelen"));
 check("aanvraag gaat per mail met de lijst", decodeURIComponent($$(".check-uitkomst a")[0].getAttribute("href")).includes("Eerstejaarsevaluatie"));
-check("link naar de invuller", $$('a[href="plan-van-aanpak-invullen/"]').length >= 2);
-check("startpagina toont de invuller-hero niet", !byText("h1", "automatisch ingevuld"));
+check("geen link meer naar de invuller", $$('a[href*="plan-van-aanpak-invullen"]').length === 0 && !byText("a", "Plan van aanpak invullen"));
+check("WIA-brief op week 88, niet 87", window.document.body.textContent.includes("week 88") && !window.document.body.textContent.includes("week 87"));
+check("balk 'geen onderdeel van UWV' staat er", !!byText(".melding", "geen onderdeel van UWV"));
 
-// Pagina van de invuller
-window = laad("invuller");
-await wait(100);
-check("invuller-pagina rendert hero", !!byText("h1", "automatisch ingevuld"));
-check("invuller-pagina linkt terug naar de startpagina", $$('a.brand[href="../"]').length >= 1);
-check("hero-teaser toont opbouwadvies", !!byText(".hero-teaser", "Opbouwadvies"));
-
-// Voorbeeldresultaat (statisch — geen backend, geen credits)
-check("voorbeeldsectie aanwezig", !!byText(".showcase h2", "ingevulde concept"));
-check("3 voorbeeld-tabs", $$(".showcase .preview-tabs button").length === 3);
-check("opbouwadvies (tab 1) toont schema-einddatum 21-04-2025", !!byText(".showcase", "21-04-2025"));
-click($$(".showcase .preview-tabs button")[1]);
+// Privacyverklaring opent als overlay
+click(byText("a", "Privacyverklaring"));
 await wait(40);
-check("PvA-tab toont AG140-formulier", !!byText(".showcase", "AG140"));
-click($$(".showcase .preview-tabs button")[2]);
-await wait(40);
-check("bericht-tab toont disclaimer-slotzin", !!byText(".showcase", "document van jullie beiden"));
-
-// Tool opent op de upload-stap; geen demo meer
-click(byText("button", "Probeer de PvA-invuller"));
-await wait(50);
-check("tool opent op stap 1 (upload)", !!byText("h1", "Upload de terugkoppeling"));
-check("geen voorbeeldcasus-knop meer", !byText(".example-link", "voorbeeldcasus"));
+check("privacyverklaring opent", !!byText("h1", "Privacyverklaring"));
 
 console.log(failures === 0 ? "\nAlle checks geslaagd." : `\n${failures} check(s) gefaald.`);
 process.exit(failures === 0 ? 0 : 1);
