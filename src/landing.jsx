@@ -323,7 +323,7 @@ const AFSPRAKEN = [
   { icon: I.lock, t: "Ik zie geen medische stukken", d: "Die horen bij de bedrijfsarts. Ik bewaak alleen dat hij ze op tijd naar UWV of je werknemer stuurt." },
   { icon: I.scale, t: "Ik beloof geen uitkomst", d: "Ik zorg dat het verslag compleet is. Of de re-integratie inhoudelijk voldoende was, beoordeelt UWV." },
   { icon: I.doc, t: "Afspraken staan op papier", d: "Je krijgt een verwerkersovereenkomst. Voor contact met UWV teken je een machtiging." },
-  { icon: I.shield, t: "Zorgvuldig met het dossier", d: "Ik gebruik de gegevens alleen voor deze opdracht en bewaar ze niet langer dan nodig." },
+  { icon: I.shield, t: "Zorgvuldig met het dossier", d: "Ik gebruik de gegevens alleen voor deze opdracht. Kopieën bewaar ik tot UWV over de WIA-aanvraag heeft beslist." },
 ];
 
 function Afspraken() {

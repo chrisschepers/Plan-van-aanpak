@@ -1,8 +1,8 @@
-/* Concept-privacyverklaring + AI-transparantie (AI Act).
-   Volledig client-side overlay, in de huisstijl. Bewust gemarkeerd als CONCEPT:
-   vóór verwerking van echte gegevens hoort een juridische review + DPIA. */
+/* Privacyverklaring van de dossiercheck (Poortwachtercheck).
+   Client-side overlay in de huisstijl. Ik-vorm, net als de startpagina. */
 
 import { I } from "./data.jsx";
+import { CONTACT_MAIL } from "./merk.jsx";
 
 const NAVY = "var(--navy)";
 
@@ -18,6 +18,8 @@ function Sectie({ nr, titel, children }) {
   );
 }
 
+const lijst = { paddingLeft: 20, display: "grid", gap: 8 };
+
 export function PrivacyVerklaring({ onClose }) {
   React.useEffect(() => {
     const body = document.querySelector(".legal-body");
@@ -30,132 +32,118 @@ export function PrivacyVerklaring({ onClose }) {
       <div className="tool-bar">
         <div className="tool-bar-inner">
           <button className="tool-back" onClick={onClose}>{I.arrowLeft} Terug naar site</button>
-          <span style={{ fontWeight: 700, color: "var(--navy-900)" }}>Privacyverklaring & AI-transparantie</span>
+          <span style={{ fontWeight: 700, color: "var(--navy-900)" }}>Privacyverklaring</span>
           <a className="brand" href="#" onClick={(e) => { e.preventDefault(); onClose(); }} style={{ fontSize: 15 }}>
-            <span className="mark" style={{ width: 28, height: 28 }}>{I.doc}</span>
+            <span className="mark" style={{ width: 28, height: 28 }}>{I.shield}</span>
           </a>
         </div>
       </div>
 
       <div className="tool-body legal-body">
         <div style={{ maxWidth: 760, margin: "0 auto", padding: "8px 4px 60px" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, fontWeight: 600,
-            color: "var(--flag-text)", background: "var(--flag-bg)", border: "1px solid var(--flag-line)",
-            borderRadius: 999, padding: "6px 14px" }}>
-            {I.info} Concept — nog niet juridisch vastgesteld
-          </div>
-
-          <h1 style={{ fontSize: "clamp(28px,4vw,38px)", color: "var(--navy-900)", marginTop: 18 }}>
-            Privacyverklaring &amp; AI-transparantie
+          <h1 style={{ fontSize: "clamp(28px,4vw,38px)", color: "var(--navy-900)", marginTop: 8 }}>
+            Privacyverklaring
           </h1>
           <p style={{ color: "var(--muted)", fontSize: 15, marginTop: 8 }}>
-            Poortwachtercheck (poortwachtercheck.nl) · concept d.d. 15 juni 2026 · Schepers Digital · KVK 42107874
+            Poortwachtercheck (poortwachtercheck.nl) · versie 21 november 2026 · Schepers Digital · KVK 42107874
           </p>
 
           <div style={{ marginTop: 20, padding: "16px 18px", background: "var(--navy-50)",
             border: "1px solid var(--navy-100)", borderRadius: 12, fontSize: 14.5, color: "var(--ink-soft)", lineHeight: 1.6 }}>
-            {I.shield} Deze tool is gebouwd volgens <strong>privacy by design</strong> en <strong>mens in de loop</strong>.
-            Er worden bewust <strong>geen medische gegevens en geen BSN</strong> verwerkt — alleen functionele en
-            arbeidskundige gegevens die nodig zijn voor het Plan van aanpak (Wet verbetering poortwachter).
+            <strong>Kort:</strong> ik gebruik het verzuimdossier alleen om het re-integratieverslag na te
+            kijken en op orde te brengen, in opdracht van de werkgever. Medische stukken vraag ik niet op; die horen bij
+            de bedrijfsarts. Kopieën bewaar ik tot en met de beschikking van UWV op de WIA-aanvraag en daarna verwijder ik ze.
           </div>
 
-          <Sectie nr="1" titel="Wie verwerkt de gegevens, en in welke rol?">
+          <Sectie nr="1" titel="Wie is verantwoordelijk?">
             <p>
-              Poortwachtercheck is een hulpmiddel voor werkgevers en casemanagers. De <strong>werkgever</strong> die
-              de tool gebruikt is de <strong>verwerkingsverantwoordelijke</strong>: die bepaalt het doel (het opstellen van
-              zíjn Plan van aanpak) en levert de gegevens aan. Poortwachtercheck treedt op als <strong>verwerker</strong>
-              en verwerkt uitsluitend in opdracht van de werkgever. Het AI-model (Anthropic) is <strong>subverwerker</strong>.
+              Poortwachtercheck is een dienst van Schepers Digital (KVK 42107874). Ik controleer en begeleid het
+              re-integratieverslag in opdracht van werkgevers.
             </p>
-            <p style={{ marginTop: 10 }}>
-              Wij gebruiken de aangeleverde gegevens niet voor eigen doeleinden, hergebruiken ze niet en gebruiken ze niet
-              om AI-modellen te trainen.
-            </p>
-          </Sectie>
-
-          <Sectie nr="2" titel="Welke gegevens verwerken we (en welke niet)?">
-            <p><strong>Wél:</strong> functionele en arbeidskundige gegevens — functie, contracturen, eerste ziektedag,
-              belastbaarheid en mogelijkheden in werktermen, opbouwadvies, prognose in werkhervattingstermen, en de naam
-              van werknemer en bedrijfsarts.</p>
-            <p style={{ marginTop: 10 }}><strong>Niet:</strong> medische gegevens (diagnose, klachten, behandeling, aard of
-              oorzaak van het verzuim) en het BSN. Strikte AI-instructies houden deze uit het concept; bij geplakte tekst en
-              Word-bestanden wordt een herkende BSN bovendien al vóór de verwerking weggehaald. Een geüploade PDF of foto
-              wordt door het model zelf gelezen — ook daar worden deze gegevens niet in het concept overgenomen, maar de
-              voorafgaande BSN-verwijdering is op beeldmateriaal niet mogelijk. Controleer als
-              mens-in-de-loop altijd het eindresultaat.</p>
-          </Sectie>
-
-          <Sectie nr="3" titel="Op welke grondslag?">
-            <p>De verwerking steunt op de <strong>wettelijke verplichting</strong> van de werkgever uit de Wet verbetering
-              poortwachter en de Arbeidsomstandighedenwet (AVG art. 6 lid 1 sub c), aangevuld met gerechtvaardigd belang
-              voor de uitvoering via de tool. Er is geen toestemming van de werknemer nodig.</p>
-          </Sectie>
-
-          <Sectie nr="4" titel="AI-transparantie (AI Act)">
-            <ul style={{ paddingLeft: 20, display: "grid", gap: 8 }}>
-              <li>De tool zet <strong>AI</strong> in om de functionele gegevens uit de terugkoppeling te lezen.</li>
-              <li>De uitkomst is altijd een <strong>concept</strong>. <strong>Menselijke controle is verplicht</strong>:
-                de werkgever loopt elk veld na en stelt het Plan van aanpak samen met de werknemer vast.</li>
-              <li>Er worden <strong>geen besluiten genomen die uitsluitend op geautomatiseerde verwerking</strong> berusten
-                (AVG art. 22). De berekening van het opbouwschema en de poortwachter-termijnen gebeurt met een vaste,
-                controleerbare rekenmotor — niet door de AI.</li>
+            <ul style={{ ...lijst, marginTop: 10 }}>
+              <li>Voor de gegevens van de zieke werknemer is de <strong>werkgever</strong> verantwoordelijk. Ik ben
+                <strong> verwerker</strong>: ik werk alleen in opdracht van de werkgever en volgens de
+                verwerkersovereenkomst die we samen tekenen.</li>
+              <li>Voor de gegevens van mijn opdrachtgever (contactpersoon, offerte, factuur) ben ik zelf verantwoordelijk.</li>
             </ul>
           </Sectie>
 
-          <Sectie nr="5" titel="Subverwerkers, hosting en bewaren">
-            <ul style={{ paddingLeft: 20, display: "grid", gap: 8 }}>
-              <li><strong>AI-model:</strong> Anthropic (Claude), als subverwerker — de AI-verwerking vindt plaats in de VS
-                onder passende waarborgen (EU-US Data Privacy Framework / SCC's); je gegevens worden niet gebruikt om
-                modellen te trainen.</li>
-              <li><strong>Verwerking is vluchtig:</strong> het geüploade document en de AI-uitkomst worden uitsluitend in
-                het werkgeheugen verwerkt en <strong>niet door ons opgeslagen</strong>; er wordt geen verzuimdossier
-                opgebouwd. Alleen je account- en creditgegevens (e-mail, saldo, transacties) worden bewaard zolang je
-                account bestaat.</li>
-              <li>Met subverwerkers worden verwerkersovereenkomsten gesloten.</li>
+          <Sectie nr="2" titel="Welke gegevens?">
+            <p><strong>Van de opdrachtgever:</strong> naam en functie van de contactpersoon, e-mailadres, telefoonnummer
+              en bedrijfsgegevens.</p>
+            <p style={{ marginTop: 10 }}><strong>Van de werknemer:</strong> naam, functie, de eerste ziektedag en de
+              andere data uit het dossier, en de stukken van het re-integratiedossier: probleemanalyse, plan van aanpak
+              en bijstellingen, evaluaties, eerstejaarsevaluatie, eindevaluatie en, als die er zijn, rapporten van de
+              arbeidsdeskundige en verslagen van het tweede spoor.</p>
+            <p style={{ marginTop: 10 }}><strong>Niet:</strong> medische stukken, zoals diagnose, behandeling of het
+              medisch dossier. Die blijven bij de bedrijfsarts. Stuur ze niet mee.</p>
+            <p style={{ marginTop: 10 }}>Ook zonder medische stukken staan er in het dossier gegevens over het verzuim en
+              over wat de werknemer wel en niet kan. Volgens de AVG zijn dat gezondheidsgegevens. De werkgever mag die
+              gebruiken voor de re-integratie (artikel 30 UAVG); ik verwerk ze alleen in zijn opdracht en voor dat doel.</p>
+          </Sectie>
+
+          <Sectie nr="3" titel="Waarvoor gebruik ik de gegevens?">
+            <ul style={lijst}>
+              <li><strong>De dossiercheck en begeleiding uitvoeren.</strong> De werkgever is wettelijk verplicht het
+                re-integratieverslag op te stellen (Wet verbetering poortwachter). Ik help daarbij in zijn opdracht.</li>
+              <li><strong>Contact met UWV namens de werkgever,</strong> alleen als dat bij de opdracht hoort en met een
+                getekende machtiging.</li>
+              <li><strong>Offerte, factuur en administratie,</strong> omdat we een overeenkomst hebben en de wet mij
+                verplicht de administratie te bewaren.</li>
+            </ul>
+            <p style={{ marginTop: 10 }}>Ik gebruik de gegevens niet voor iets anders. Ik verkoop ze niet en deel ze niet
+              met anderen, behalve met UWV als dat bij de opdracht hoort.</p>
+          </Sectie>
+
+          <Sectie nr="4" titel="Hoe krijg ik de stukken?">
+            <ul style={lijst}>
+              <li><strong>Op locatie:</strong> ik bekijk het dossier bij je op kantoor.</li>
+              <li><strong>Op afstand:</strong> je stuurt mij kopieën van de stukken. Stuur alleen wat ik nodig heb, zonder
+                medische informatie.</li>
+            </ul>
+          </Sectie>
+
+          <Sectie nr="5" titel="Hoe lang bewaar ik iets?">
+            <ul style={lijst}>
+              <li><strong>Kopieën uit het dossier:</strong> tot en met de beschikking van UWV op de WIA-aanvraag. Daarna
+                verwijder ik de digitale kopieën en vernietig ik papieren kopieën.</li>
+              <li><strong>Gegevens van de opdrachtgever en facturen:</strong> 7 jaar, omdat de belastingwet dat verplicht.</li>
             </ul>
           </Sectie>
 
           <Sectie nr="6" titel="Beveiliging">
-            <p>Versleutelde verbindingen (TLS), sleutels uitsluitend server-side, toegangsbeheer en een procedure voor
-              datalekken. Hosting en opslag vinden plaats binnen de EER; zie de subverwerkers hierboven voor waar de
-              AI-verwerking gebeurt.</p>
+            <p>Alleen ik heb toegang tot de kopieën. Ik bewaar en verstuur ze niet op een plek waar anderen erbij kunnen.
+              Gaat er toch iets mis met de gegevens van een werknemer, dan meld ik dat meteen aan de werkgever, zodat die
+              kan beoordelen of het een datalek is dat gemeld moet worden.</p>
           </Sectie>
 
-          <Sectie nr="7" titel="Cookies en lokale opslag">
-            <p>De site gebruikt alleen <strong>functionele opslag</strong> om je ingelogd te houden (via de inlogdienst
-              Supabase). Er worden <strong>geen tracking- of marketingcookies</strong> geplaatst en er draait geen
-              analytics. Daarom is geen cookie-toestemming nodig.</p>
-            <p>Voor het gemak bewaart de tool daarnaast <strong>uitsluitend in je eigen browser</strong> (lokale opslag
-              op je apparaat): de lopende casus (zodat een verversing je controle-werk niet wist) en per afgeronde casus
-              een minimale set planningsgegevens (naam, geboortedatum, contracteinde, zwangerschap/WAZO) om een
-              vervolg-terugkoppeling voor te laden. Deze gegevens verlaten je apparaat <strong>niet</strong> en zijn in
-              de tool met één knop te wissen ("Wis opgeslagen casussen").</p>
+          <Sectie nr="7" titel="Deze website">
+            <ul style={lijst}>
+              <li>Geen cookies, geen analytics en geen advertenties.</li>
+              <li>De snelle check werkt alleen in je eigen browser. Er wordt niets opgeslagen of verstuurd. De knop om de
+                lijst te mailen opent je eigen mailprogramma; jij bepaalt wat je verstuurt.</li>
+              <li>De site staat bij GitHub Pages en laadt het lettertype van Google Fonts. Zoals bij elke website zien die
+                daarbij je IP-adres.</li>
+            </ul>
           </Sectie>
 
-          <Sectie nr="8" titel="Rechten van betrokkenen">
-            <p>Betrokkenen hebben recht op inzage, rectificatie, wissing, beperking en bezwaar. Omdat de werkgever
-              verwerkingsverantwoordelijke is, lopen verzoeken over verzuimgegevens in eerste instantie via de werkgever;
-              wij ondersteunen de werkgever daarbij.</p>
-            <p style={{ marginTop: 10 }}>Heb je zelf een account bij ons? Dan kun je dat op elk moment verwijderen via
-              <strong> Mijn account → Account verwijderen</strong>; je account, saldo en historie worden dan permanent
-              gewist. Na verwijdering bewaren we uitsluitend een <strong>onomkeerbare hash</strong> (versleutelde
-              afgeleide) van het e-mailadres, alleen om te voorkomen dat het gratis proefcredit meermaals wordt
-              opgehaald — daaruit is het e-mailadres zelf niet te herleiden. Vragen? Neem contact op via het
-              onderstaande adres.</p>
+          <Sectie nr="8" titel="Je rechten">
+            <p>Je hebt recht op inzage, correctie, verwijdering, beperking en bezwaar.</p>
+            <ul style={{ ...lijst, marginTop: 10 }}>
+              <li><strong>Werknemer:</strong> een verzoek over je verzuimdossier doe je bij je werkgever, want die is
+                verantwoordelijk. Ik help je werkgever daarbij.</li>
+              <li><strong>Opdrachtgever:</strong> mail mij op het adres hieronder.</li>
+            </ul>
+            <p style={{ marginTop: 10 }}>Ben je het niet eens met hoe ik met gegevens omga? Dan kun je een klacht indienen
+              bij de Autoriteit Persoonsgegevens.</p>
           </Sectie>
 
           <Sectie nr="9" titel="Contact">
             <p>
-              <a href="mailto:contact@poortwachtercheck.nl" style={{ color: NAVY, fontWeight: 600 }}>contact@poortwachtercheck.nl</a><br />
+              <a href={"mailto:" + CONTACT_MAIL} style={{ color: NAVY, fontWeight: 600 }}>{CONTACT_MAIL}</a><br />
               poortwachtercheck.nl · Schepers Digital · KVK 42107874
             </p>
           </Sectie>
-
-          <div style={{ marginTop: 34, padding: "16px 18px", background: "var(--flag-bg)",
-            border: "1px solid var(--flag-line)", borderRadius: 12, fontSize: 14, color: "var(--flag-text)", lineHeight: 1.6 }}>
-            <strong>Let op — concept.</strong> Deze verklaring is een opzet voor de demo met fictieve gegevens. Vóór het
-            verwerken van échte (persoons)gegevens horen een DPIA, getekende verwerkersovereenkomsten en een juridische
-            toetsing plaats te vinden. Gebruik de tool tot die tijd uitsluitend met fictieve terugkoppelingen.
-          </div>
         </div>
       </div>
     </div>
