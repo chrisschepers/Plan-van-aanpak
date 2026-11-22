@@ -127,8 +127,6 @@ export function PrivacyVerklaring({ onClose }) {
           <Sectie nr="7" titel="Deze website">
             <ul style={lijst}>
               <li>Geen cookies, geen analytics en geen advertenties.</li>
-              <li>De snelle check werkt alleen in je eigen browser. Er wordt niets opgeslagen of verstuurd. De knop om de
-                lijst te mailen opent je eigen mailprogramma; jij bepaalt wat je verstuurt.</li>
               <li>De site staat bij GitHub Pages en laadt het lettertype van Google Fonts. Zoals bij elke website zien die
                 daarbij je IP-adres.</li>
             </ul>

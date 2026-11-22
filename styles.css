@@ -238,36 +238,6 @@ html.js-reveal .reveal.in { animation: revUp .6s var(--ease) both; }
 .bron { margin-top: 22px; font-size: 14px; color: var(--muted); max-width: 86ch; }
 .bron a { text-decoration: underline; text-underline-offset: 2px; }
 
-.check-grid { display: grid; grid-template-columns: 1.15fr .85fr; gap: 24px; margin-top: 40px; align-items: start; }
-.check-lijst { padding: 8px; }
-.check-rij { display: flex; gap: 14px; align-items: flex-start; padding: 14px; border-radius: 10px; cursor: pointer; transition: background .15s; }
-.check-rij:hover { background: var(--navy-50); }
-.check-rij input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.check-vak { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--navy-400); display: grid; place-items: center; flex: none; margin-top: 1px; color: transparent; transition: all .15s; }
-.check-vak svg { width: 15px; height: 15px; }
-.check-rij.aan .check-vak { background: var(--accent); border-color: var(--accent); color: #fff; }
-.check-rij input:focus-visible + .check-vak { outline: 3px solid var(--navy-400); outline-offset: 2px; }
-.check-t { display: block; font-weight: 600; color: var(--navy-900); font-size: 16px; line-height: 1.35; }
-.check-s { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
-.check-rij.aan .check-t { color: var(--ink-soft); }
-.check-zij { display: grid; gap: 20px; position: sticky; top: 90px; }
-.check-uitkomst, .check-data { padding: 24px; }
-.check-uitkomst { border-left: 4px solid var(--flag-line); }
-.check-uitkomst.goed { border-left-color: var(--accent); }
-.check-uitkomst h3 { font-size: 20px; }
-.check-uitkomst p { color: var(--ink-soft); font-size: 15px; margin-top: 8px; }
-.check-uitkomst ul { margin: 12px 0 0; padding-left: 20px; color: var(--ink-soft); font-size: 15px; display: grid; gap: 4px; }
-.check-uitkomst .btn { margin-top: 18px; width: 100%; white-space: normal; text-align: center; line-height: 1.25; }
-.check-klein { font-size: 13.5px !important; color: var(--muted) !important; }
-.check-data label { display: block; font-weight: 600; color: var(--navy-900); font-size: 15px; margin-bottom: 8px; }
-.check-data input { width: 100%; font: inherit; font-size: 16px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 9px; background: #fff; color: var(--ink); }
-.check-data ul { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 12px; }
-.check-data li { display: grid; gap: 1px; padding-left: 12px; border-left: 3px solid var(--navy-100); }
-.cd-d { font-weight: 700; color: var(--navy); font-variant-numeric: tabular-nums; }
-.cd-t { font-size: 14.5px; font-weight: 600; color: var(--ink); }
-.cd-s { font-size: 13.5px; color: var(--muted); }
-@media (max-width: 900px) { .check-grid { grid-template-columns: 1fr; } .check-zij { position: static; } }
-
 .pakketten { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 44px; align-items: stretch; }
 .pakket { padding: 28px; display: flex; flex-direction: column; position: relative; }
 
@@ -342,15 +312,7 @@ html.js-reveal .reveal.in { animation: revUp .6s var(--ease) both; }
 .site .section.tint .card, .site .section.tint .comp-item { background: #fff; }
 .site .comp-item { border: 0; border-bottom: 2px solid var(--navy); border-radius: 0; background: var(--bg); }
 
-.site .pakketten, .site .check-grid, .site .steps { margin-top: 28px; }
-
-.site .check-uitkomst { border-left: 5px solid var(--flag-line); }
-.site .check-uitkomst.goed { border-left-color: var(--accent); }
-.site .check-rij { border-radius: 0; border-bottom: 1px solid var(--line); }
-.site .check-rij:last-child { border-bottom: 0; }
-.site .check-vak { border-radius: 3px; }
-.site .check-data input { border-radius: 0; border-color: var(--navy-400); }
-.site .check-zij { top: 20px; }
+.site .pakketten, .site .steps { margin-top: 28px; }
 
 .site .step .num { border-radius: 50%; }
 .site .step .line { display: none; }
