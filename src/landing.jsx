@@ -253,6 +253,47 @@ function Tarieven() {
   );
 }
 
+const WERKNEMER_PUNTEN = [
+  "We lopen samen na of je alle stukken van je werkgever hebt gekregen.",
+  "Je weet wat er nog moet gebeuren en wat je daarvoor aan je werkgever vraagt.",
+  "Ik help je om je eigen mening in de eindevaluatie op papier te zetten.",
+  "Je weet wat je kunt verwachten van de gesprekken bij UWV.",
+];
+
+function Werknemers() {
+  const tekst = "Ik wil graag dat je meekijkt met mijn re-integratieverslag.\n\nEerste ziektedag:\nWoonplaats:\nTelefoonnummer:";
+  return (
+    <section className="section" id="werknemers">
+      <div className="wrap">
+        <div className="sec-head reveal">
+          <span className="eyebrow"><span className="dot"></span>Voor werknemers</span>
+          <h2>Ben je zelf ziek en komt de WIA-aanvraag eraan?</h2>
+          <p>
+            Je werkgever maakt het re-integratieverslag en dat gaat mee met je WIA-aanvraag. Mist er iets, dan
+            kan UWV je aanvraag nog niet beoordelen. Ik kijk met je mee, zodat je weet waar je staat.
+          </p>
+        </div>
+        <div className="werknemers-grid">
+          <div className="reveal">
+            <ul className="werknemers-lijst">{WERKNEMER_PUNTEN.map((x, i) => <li key={i}>{x}</li>)}</ul>
+            <p className="werknemers-noot">
+              Ik help nooit werkgever en werknemer in hetzelfde dossier. Medische stukken hoef ik niet te zien,
+              dus zet die ook niet in je bericht. Heb je een conflict met je werkgever, dan verwijs ik je naar een jurist.
+            </p>
+          </div>
+          <div className="pakket card reveal">
+            <h3>Meekijken met je verslag</h3>
+            <p className="pakket-d">Eén gesprek van anderhalf uur, bij je thuis of met beeldbellen.</p>
+            <div className="pakket-prijs">€ 195</div>
+            <div className="pakket-sub">inclusief btw</div>
+            <a className="btn btn-ghost" href={mailto("Meekijken als werknemer", tekst)}>Vraag het aan</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const AFSPRAKEN = [
   { t: "Ik zie geen medische stukken", d: "Die horen bij de bedrijfsarts. Ik bewaak alleen dat hij ze op tijd naar UWV of je werknemer stuurt." },
   { t: "Ik beloof geen uitkomst", d: "Ik zorg dat het verslag compleet is. Of de re-integratie inhoudelijk voldoende was, beoordeelt UWV." },
@@ -304,7 +345,7 @@ const FAQS = [
   { q: "Ik heb al een arbodienst. Heeft dit dan zin?", a: "Ja. De arbodienst levert de bedrijfsarts en vaak een deel van de begeleiding, maar de werkgever blijft verantwoordelijk voor een compleet verslag. Ik kijk als tweede paar ogen of alles er is." },
   { q: "Zie je medische gegevens?", a: "Nee. Het medische deel gaat van de bedrijfsarts rechtstreeks naar UWV of naar je werknemer. Ik controleer alleen of dat is gebeurd." },
   { q: "Garandeer je dat er geen loonsanctie komt?", a: "Nee, en dat kan niemand eerlijk beloven. Ik zorg dat het verslag compleet is, zodat een sanctie om een ontbrekend stuk niet nodig is. Of de re-integratie zelf voldoende was, is een inhoudelijk oordeel van UWV over twee jaar verzuim." },
-  { q: "Ik ben werknemer. Kan ik je ook inschakelen?", a: "Ja. Als werknemer heb je hetzelfde belang: met een compleet verslag kan UWV je WIA-aanvraag zonder vertraging behandelen. Ik loop met je na wat je van je werkgever moet krijgen." },
+  { q: "Ik ben werknemer. Kan ik je ook inschakelen?", a: "Ja. Als werknemer heb je hetzelfde belang: met een compleet verslag kan UWV je WIA-aanvraag zonder vertraging behandelen. In één gesprek lopen we na wat je van je werkgever moet krijgen. Dat kost € 195 inclusief btw. Ik help nooit werkgever en werknemer in hetzelfde dossier." },
   { q: "In welke regio werk je?", a: "Dat hoor je bij de kennismaking. Is een bezoek niet praktisch, dan kan de controle ook op afstand, met stukken zonder medische informatie." },
 ];
 
@@ -369,6 +410,7 @@ function Footer({ onOpenPrivacy }) {
             <a href="#checklist">Snelle check</a>
             <a href="#werkwijze">Werkwijze</a>
             <a href="#tarieven">Tarieven</a>
+            <a href="#werknemers">Voor werknemers</a>
           </div>
           <div>
             <h4>Privacy</h4>
@@ -402,6 +444,7 @@ export function Landing({ onOpenPrivacy }) {
       <Checklist />
       <Werkwijze />
       <Tarieven />
+      <Werknemers />
       <Afspraken />
       <Faq />
       <Contact />

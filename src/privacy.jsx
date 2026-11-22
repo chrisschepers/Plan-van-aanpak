@@ -42,32 +42,33 @@ export function PrivacyVerklaring({ onClose }) {
             Privacyverklaring
           </h1>
           <p style={{ color: "var(--muted)", fontSize: 15, marginTop: 8 }}>
-            Poortwachtercheck (poortwachtercheck.nl) · versie 21 november 2026 · Schepers Digital · KVK 42107874
+            Poortwachtercheck (poortwachtercheck.nl) · versie 22 november 2026 · Schepers Digital · KVK 42107874
           </p>
 
           <div style={{ marginTop: 20, padding: "16px 18px", background: "var(--navy-50)",
             border: "1px solid var(--navy-100)", borderRadius: 12, fontSize: 14.5, color: "var(--ink-soft)", lineHeight: 1.6 }}>
             <strong>Kort:</strong> ik gebruik het verzuimdossier alleen om het re-integratieverslag na te
-            kijken en op orde te brengen, in opdracht van de werkgever. Medische stukken vraag ik niet op; die horen bij
+            kijken en op orde te brengen, in opdracht van de werkgever of van de werknemer zelf. Medische stukken vraag ik niet op; die horen bij
             de bedrijfsarts. Kopieën bewaar ik tot en met de beschikking van UWV op de WIA-aanvraag en daarna verwijder ik ze.
           </div>
 
           <Sectie nr="1" titel="Wie is verantwoordelijk?">
             <p>
               Poortwachtercheck is een dienst van Schepers Digital (KVK 42107874). Ik controleer en begeleid het
-              re-integratieverslag in opdracht van werkgevers.
+              re-integratieverslag in opdracht van werkgevers. Werknemers kunnen mij ook zelf inschakelen om mee te kijken.
             </p>
             <ul style={{ ...lijst, marginTop: 10 }}>
               <li>Voor de gegevens van de zieke werknemer is de <strong>werkgever</strong> verantwoordelijk. Ik ben
                 <strong> verwerker</strong>: ik werk alleen in opdracht van de werkgever en volgens de
                 verwerkersovereenkomst die we samen tekenen.</li>
+              <li>Schakel je mij als werknemer zelf in, dan ben ik voor jouw gegevens zelf verantwoordelijk.</li>
               <li>Voor de gegevens van mijn opdrachtgever (contactpersoon, offerte, factuur) ben ik zelf verantwoordelijk.</li>
             </ul>
           </Sectie>
 
           <Sectie nr="2" titel="Welke gegevens?">
-            <p><strong>Van de opdrachtgever:</strong> naam en functie van de contactpersoon, e-mailadres, telefoonnummer
-              en bedrijfsgegevens.</p>
+            <p><strong>Van de opdrachtgever:</strong> naam, e-mailadres en telefoonnummer, en bij een werkgever ook de
+              functie van de contactpersoon en de bedrijfsgegevens.</p>
             <p style={{ marginTop: 10 }}><strong>Van de werknemer:</strong> naam, functie, de eerste ziektedag en de
               andere data uit het dossier, en de stukken van het re-integratiedossier: probleemanalyse, plan van aanpak
               en bijstellingen, evaluaties, eerstejaarsevaluatie, eindevaluatie en, als die er zijn, rapporten van de
@@ -77,12 +78,17 @@ export function PrivacyVerklaring({ onClose }) {
             <p style={{ marginTop: 10 }}>Ook zonder medische stukken staan er in het dossier gegevens over het verzuim en
               over wat de werknemer wel en niet kan. Volgens de AVG zijn dat gezondheidsgegevens. De werkgever mag die
               gebruiken voor de re-integratie (artikel 30 UAVG); ik verwerk ze alleen in zijn opdracht en voor dat doel.</p>
+            <p style={{ marginTop: 10 }}>Schakel je mij als werknemer zelf in, dan gebruik ik die gegevens alleen met jouw
+              uitdrukkelijke toestemming (artikel 9 AVG) en alleen om met je mee te kijken. Je kunt die toestemming altijd
+              intrekken.</p>
           </Sectie>
 
           <Sectie nr="3" titel="Waarvoor gebruik ik de gegevens?">
             <ul style={lijst}>
               <li><strong>De dossiercheck en begeleiding uitvoeren.</strong> De werkgever is wettelijk verplicht het
                 re-integratieverslag op te stellen (Wet verbetering poortwachter). Ik help daarbij in zijn opdracht.</li>
+              <li><strong>Meekijken met een werknemer</strong> die mij zelf inschakelt, op basis van de afspraak met die
+                werknemer en diens uitdrukkelijke toestemming.</li>
               <li><strong>Contact met UWV namens de werkgever,</strong> alleen als dat bij de opdracht hoort en met een
                 getekende machtiging.</li>
               <li><strong>Offerte, factuur en administratie,</strong> omdat we een overeenkomst hebben en de wet mij
@@ -94,7 +100,7 @@ export function PrivacyVerklaring({ onClose }) {
 
           <Sectie nr="4" titel="Hoe krijg ik de stukken?">
             <ul style={lijst}>
-              <li><strong>Op locatie:</strong> ik bekijk het dossier bij je op kantoor.</li>
+              <li><strong>Op locatie:</strong> ik bekijk het dossier bij je op kantoor, of als werknemer bij je thuis.</li>
               <li><strong>Op afstand:</strong> je stuurt mij kopieën van de stukken. Stuur alleen wat ik nodig heb, zonder
                 medische informatie.</li>
             </ul>
@@ -114,7 +120,8 @@ export function PrivacyVerklaring({ onClose }) {
               (Gmail). Google kan die gegevens ook buiten de EU opslaan en valt daarvoor onder het EU-VS Data Privacy
               Framework.
               Gaat er toch iets mis met de gegevens van een werknemer, dan meld ik dat meteen aan de werkgever, zodat die
-              kan beoordelen of het een datalek is dat gemeld moet worden.</p>
+              kan beoordelen of het een datalek is dat gemeld moet worden. Help ik een werknemer zelf, dan meld ik het aan
+              die werknemer en, als dat moet, aan de Autoriteit Persoonsgegevens.</p>
           </Sectie>
 
           <Sectie nr="7" titel="Deze website">
@@ -131,7 +138,7 @@ export function PrivacyVerklaring({ onClose }) {
             <p>Je hebt recht op inzage, correctie, verwijdering, beperking en bezwaar.</p>
             <ul style={{ ...lijst, marginTop: 10 }}>
               <li><strong>Werknemer:</strong> een verzoek over je verzuimdossier doe je bij je werkgever, want die is
-                verantwoordelijk. Ik help je werkgever daarbij.</li>
+                verantwoordelijk. Ik help je werkgever daarbij. Heb je mij zelf ingeschakeld, mail mij dan.</li>
               <li><strong>Opdrachtgever:</strong> mail mij op het adres hieronder.</li>
             </ul>
             <p style={{ marginTop: 10 }}>Ben je het niet eens met hoe ik met gegevens omga? Dan kun je een klacht indienen

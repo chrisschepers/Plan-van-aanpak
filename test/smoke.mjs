@@ -42,7 +42,7 @@ await wait(100);
 check("startpagina rendert hero", !!byText("h1", "compleet naar UWV"));
 check("startpagina heeft FAQ", !!byText("h2", "Goed om te weten"));
 check("startpagina heeft 4 stappen", $$(".step").length === 4);
-check("startpagina heeft 3 pakketten", $$(".pakket").length === 3);
+check("startpagina heeft 3 pakketten", $$("#tarieven .pakket").length === 3);
 check("checklist begint leeg", !!byText(".check-uitkomst h3", "Nog niets aangevinkt"));
 click($$(".check-rij input")[0]);
 await wait(40);
@@ -52,6 +52,8 @@ check("geen link meer naar de invuller", $$('a[href*="plan-van-aanpak-invullen"]
 check("WIA-brief op week 88, niet 87", window.document.body.textContent.includes("week 88") && !window.document.body.textContent.includes("week 87"));
 check("geen UWV-balk en geen 'Direct naar' meer", !$$(".melding").length && !byText("h2", "Direct naar"));
 check("foto van Chris bij 'over mij'", $$('.over-mij img[src="img/chris-schepers.jpg"]').length === 1);
+check("blok voor werknemers met prijs incl. btw", !!byText("#werknemers h2", "WIA-aanvraag eraan") && !!byText("#werknemers .pakket-sub", "inclusief btw"));
+check("werknemer vraagt aan per mail", decodeURIComponent(window.document.querySelector("#werknemers .pakket a").getAttribute("href")).includes("Meekijken als werknemer"));
 
 // Privacyverklaring opent als overlay
 click(byText("a", "Privacyverklaring"));

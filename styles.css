@@ -443,3 +443,10 @@ body { background: var(--paper); }
 .tool-back:hover { background: var(--navy-50); color: var(--navy); }
 .tool-back svg { width: 17px; height: 17px; }
 .tool-body { max-width: 1280px; margin: 0 auto; padding: 40px 28px 80px; }
+
+/* ---- Voor werknemers: lijst links, prijs rechts ---- */
+.site .werknemers-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; margin-top: 28px; align-items: start; }
+.site .werknemers-lijst { list-style: disc; padding-left: 20px; display: grid; gap: 8px; color: var(--ink-soft); font-size: 16.5px; }
+.site .werknemers-noot { color: var(--muted); font-size: 15px; margin-top: 18px; max-width: 60ch; }
+.site .werknemers-grid .pakket .btn { margin-top: 22px; }
+@media (max-width: 900px) { .site .werknemers-grid { grid-template-columns: 1fr; gap: 24px; } }
