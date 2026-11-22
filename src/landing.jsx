@@ -29,13 +29,13 @@ function Hero() {
           <div className="kop-balk">
             <h1>Je re-integratieverslag compleet naar UWV</h1>
             <p className="lead lead-breed">
-              Is je werknemer bijna twee jaar ziek? Ik kom langs, loop het verzuimdossier na
-              en zorg dat het verslag volledig en ondertekend klaarligt.
+              Is je werknemer bijna twee jaar ziek? Ik kom langs en loop het verzuimdossier na.
+              Ik kijk of alles erin zit, en of de niet-medische stukken inhoudelijk kloppen.
             </p>
           </div>
           <div className="hero-cta">
             <a className="btn btn-primary btn-lg" href="#contact">Dossier laten nakijken</a>
-            <a className="btn btn-ghost btn-lg" href="#checklist">Doe zelf de snelle check</a>
+            <a className="btn btn-ghost btn-lg" href="#werkwijze">Zo werk ik</a>
           </div>
           <p className="hero-noot">
             Vaste prijs per dossier. Ik kom bij je op locatie. Medische stukken blijven bij de bedrijfsarts.
@@ -48,130 +48,27 @@ function Hero() {
 
 function Probleem() {
   return (
-    <section className="section tint" id="waarom">
+    <section className="section" id="waarom">
       <div className="wrap">
         <div className="sec-head reveal">
           <span className="eyebrow"><span className="dot"></span>Waarom dit ertoe doet</span>
           <h2>Een ontbrekend stuk kan maanden loon kosten</h2>
           <p>
-            UWV kijkt eerst of het re-integratieverslag compleet is, en pas daarna naar de
-            inhoud. Mist er een onderdeel of een handtekening, dan volgt een administratieve
-            loonsanctie: je betaalt het loon langer door, tot het verslag in orde is.
+            UWV kijkt eerst of het re-integratieverslag compleet is, en daarna naar de inhoud.
+            Mist er een onderdeel of een handtekening, dan volgt een administratieve loonsanctie:
+            je betaalt het loon langer door, tot het verslag in orde is. Vindt UWV dat er te weinig
+            aan re-integratie is gedaan, bijvoorbeeld omdat het tweede spoor te laat begon, dan kan
+            de loonsanctie oplopen tot een jaar.
           </p>
         </div>
         <p className="cijfers-tekst reveal">
           In 2024 legde UWV ruim 4.000 loonsancties op. Bij ongeveer 45% daarvan was het verslag
-          gewoon niet compleet. Herstellen kost al snel drie weken beoordeling door UWV, en daarna
-          loopt het loon nog zes weken door.
+          niet compleet. Herstellen kost dan al snel drie weken beoordeling door UWV, en daarna loopt
+          het loon nog zes weken door. Bij de rest ging het om de inhoud van de re-integratie.
         </p>
         <p className="bron reveal">
           Cijfers: <a href="https://uwvjaarverslag.nl/external/asset/download/project/f9b7da0a-03ec-0000-58b5-7efa5990235f/name/uwv-kwantitatieve-Informatie-2025T3%202.0.pdf" target="_blank" rel="noopener">UWV, kwantitatieve informatie</a>.
           Herstel en doorlooptijd: <a href="https://www.rijksoverheid.nl/documenten/publicaties/2024/09/30/werkproces-uwv-toetsen-riv-en-opleggen-loonsanctie" target="_blank" rel="noopener">werkproces UWV toetsen re-integratieverslag</a>.
-          Dit soort sanctie is te voorkomen, omdat het om volledigheid gaat en niet om een oordeel over de re-integratie.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-// Onderdelen van het re-integratieverslag. Aanvinken = aanwezig (of niet van toepassing).
-const ONDERDELEN = [
-  { id: "pa", t: "Probleemanalyse van de bedrijfsarts", s: "Rond week 6, plus latere bijstellingen" },
-  { id: "pva", t: "Plan van aanpak", s: "Rond week 8, door jou en je werknemer ondertekend" },
-  { id: "bij", t: "Bijstellingen en evaluaties van het plan van aanpak", s: "Elke keer dat de situatie veranderde" },
-  { id: "ej", t: "Eerstejaarsevaluatie", s: "Rond week 52" },
-  { id: "ad", t: "Arbeidsdeskundig onderzoek en verslagen tweede spoor", s: "Als die er zijn geweest" },
-  { id: "ao", t: "Actueel oordeel van de bedrijfsarts", s: "Opgesteld voor de eindevaluatie" },
-  { id: "ee", t: "Eindevaluatie", s: "Door jou en je werknemer ingevuld en ondertekend" },
-  { id: "wn", t: "Oordeel van je werknemer", s: "Zijn of haar eigen kijk op de re-integratie" },
-  { id: "med", t: "Medische informatie is door de bedrijfsarts verstuurd", s: "Rechtstreeks naar UWV of je werknemer; jij krijgt die niet te zien" },
-];
-
-function fmt(d) {
-  return d.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
-}
-function plusWeken(iso, w) {
-  const d = new Date(iso + "T12:00:00");
-  if (isNaN(d)) return null;
-  d.setDate(d.getDate() + w * 7);
-  return d;
-}
-
-const MOMENTEN = [
-  { w: 88, t: "UWV stuurt je werknemer de WIA-brief", s: "Het moment om de eindevaluatie te starten" },
-  { w: 91, t: "Verslag klaar en bij je werknemer", s: "Eindevaluatie gedaan, alles ondertekend" },
-  { w: 93, t: "Uiterste datum WIA-aanvraag", s: "Je werknemer dient de aanvraag met het verslag in" },
-  { w: 104, t: "Einde van de twee jaar", s: "De loondoorbetaling stopt, tenzij UWV een sanctie oplegt" },
-];
-
-function Checklist() {
-  const [aan, setAan] = useState({});
-  const [dag, setDag] = useState("");
-  const wissel = (id) => setAan((a) => ({ ...a, [id]: !a[id] }));
-  const mist = ONDERDELEN.filter((o) => !aan[o.id]);
-  const begonnen = mist.length < ONDERDELEN.length;
-  const data = dag ? MOMENTEN.map((m) => ({ ...m, d: plusWeken(dag, m.w) })).filter((m) => m.d) : [];
-
-  const tekst = [
-    "Ik wil graag mijn verzuimdossier laten nakijken.",
-    "",
-    dag ? "Eerste ziektedag: " + fmt(new Date(dag + "T12:00:00")) : "Eerste ziektedag:",
-    "",
-    "Dit ontbreekt volgens de snelle check:",
-    ...(mist.length ? mist.map((o) => "- " + o.t) : ["- niets, ik wil een controle voor de zekerheid"]),
-    "",
-    "Bedrijfsnaam en plaats:",
-    "Telefoonnummer:",
-  ].join("\n");
-
-  return (
-    <section className="section" id="checklist">
-      <div className="wrap">
-        <div className="sec-head reveal">
-          <span className="eyebrow"><span className="dot"></span>Snelle check</span>
-          <h2>Wat hoort er in het re-integratieverslag?</h2>
-          <p>Vink aan wat je al hebt, of wat in jouw situatie niet speelt. Je ziet meteen wat er nog mist. Er wordt niets opgeslagen of verstuurd.</p>
-        </div>
-        <div className="check-grid">
-          <div className="check-lijst card reveal">
-            {ONDERDELEN.map((o) => (
-              <label className={"check-rij" + (aan[o.id] ? " aan" : "")} key={o.id}>
-                <input type="checkbox" checked={!!aan[o.id]} onChange={() => wissel(o.id)} />
-                <span className="check-vak">{I.checkSm}</span>
-                <span>
-                  <span className="check-t">{o.t}</span>
-                  <span className="check-s">{o.s}</span>
-                </span>
-              </label>
-            ))}
-          </div>
-          <div className="check-zij">
-            <div className={"check-uitkomst card reveal" + (begonnen && !mist.length ? " goed" : "")}>
-              {!begonnen && <React.Fragment><h3>Nog niets aangevinkt</h3><p>Loop de lijst door met het dossier erbij.</p></React.Fragment>}
-              {begonnen && mist.length > 0 && (
-                <React.Fragment>
-                  <h3>Nog {mist.length} {mist.length === 1 ? "onderdeel" : "onderdelen"} te regelen</h3>
-                  <ul>{mist.map((o) => <li key={o.id}>{o.t}</li>)}</ul>
-                </React.Fragment>
-              )}
-              {begonnen && !mist.length && <React.Fragment><h3>De lijst is compleet</h3><p>Controleer nog of elke handtekening en datum erop staat. Dat is waar het vaak misgaat.</p></React.Fragment>}
-              <a className="btn btn-primary" href={mailto("Dossiercheck aanvragen", tekst)}>Stuur dit en vraag een dossiercheck aan</a>
-              <p className="check-klein">Opent je mailprogramma met deze lijst erin. Zet er geen medische gegevens bij.</p>
-            </div>
-            <div className="check-data card reveal" id="data">
-              <label htmlFor="eerste-dag">Eerste ziektedag</label>
-              <input id="eerste-dag" type="date" value={dag} onChange={(e) => setDag(e.target.value)} />
-              {data.length > 0
-                ? <ul>{data.map((m) => (
-                    <li key={m.w}><span className="cd-d">{fmt(m.d)}</span><span className="cd-t">Week {m.w}: {m.t}</span><span className="cd-s">{m.s}</span></li>
-                  ))}</ul>
-                : <p className="check-klein">Vul de datum in en je ziet wanneer het verslag klaar moet zijn.</p>}
-            </div>
-          </div>
-        </div>
-        <p className="bron reveal">
-          Deze lijst is een hulpmiddel en geen volledige toets. Welke stukken precies nodig zijn,
-          hangt af van het verloop van het verzuim. De data schuiven op als de wachttijd is verlengd.
         </p>
       </div>
     </section>
@@ -180,8 +77,8 @@ function Checklist() {
 
 const STAPPEN = [
   { t: "Kennismaken", d: "We bellen kort. Je hoort wat ik nodig heb en wat het kost. De prijs staat vooraf vast." },
-  { t: "Dossier nalopen", d: "Ik kom langs en loop het dossier na aan de hand van een vaste lijst: elk onderdeel, elke datum en elke handtekening." },
-  { t: "Aanvullen", d: "Je krijgt een lijst met wat ontbreekt. Als je dat wilt, help ik met de eindevaluatie en met het bijwerken van de stukken." },
+  { t: "Dossier nalopen", d: "Ik kom langs en loop het dossier na: elk onderdeel, elke datum en elke handtekening. Ook de inhoud van alle niet-medische stukken: klopt het verloop, en is er op tijd bijgestuurd?" },
+  { t: "Aanvullen", d: "Je krijgt een lijst met wat ontbreekt of niet klopt, en wat je eraan kunt doen. Als je dat wilt, help ik met de eindevaluatie en met het bijwerken van de stukken." },
   { t: "Verzendklaar", d: "Het verslag ligt compleet en ondertekend klaar voor je werknemer, op tijd voor de WIA-aanvraag." },
 ];
 
@@ -212,8 +109,8 @@ function Werkwijze() {
 const PAKKETTEN = [
   {
     naam: "Dossiercheck", prijs: "vanaf € 450", sub: "per dossier, excl. btw",
-    d: "Je wilt weten of het verslag compleet is.",
-    punten: ["Bezoek op locatie", "Controle van elk onderdeel, elke datum en handtekening", "Heldere lijst met wat ontbreekt en wat je moet doen"],
+    d: "Je wilt weten of het verslag compleet is en klopt.",
+    punten: ["Bezoek op locatie", "Controle van elk onderdeel, elke datum en handtekening", "Inhoudelijke controle van alle niet-medische stukken", "Heldere lijst met wat ontbreekt of niet klopt, en wat je moet doen"],
   },
   {
     naam: "Compleet verzorgd", prijs: "vanaf € 950", sub: "per dossier, excl. btw",
@@ -296,7 +193,7 @@ function Werknemers() {
 
 const AFSPRAKEN = [
   { t: "Ik zie geen medische stukken", d: "Die horen bij de bedrijfsarts. Ik bewaak alleen dat hij ze op tijd naar UWV of je werknemer stuurt." },
-  { t: "Ik beloof geen uitkomst", d: "Ik zorg dat het verslag compleet is. Of de re-integratie inhoudelijk voldoende was, beoordeelt UWV." },
+  { t: "Ik beloof geen uitkomst", d: "Ik loop ook de inhoud na en wijs je op zwakke plekken. Dat verkleint het risico op een sanctie, maar het oordeel ligt bij UWV." },
   { t: "Afspraken staan op papier", d: "Je krijgt een verwerkersovereenkomst. Voor contact met UWV teken je een machtiging." },
   { t: "Zorgvuldig met het dossier", d: "Ik gebruik de gegevens alleen voor deze opdracht. Kopieën bewaar ik tot UWV over de WIA-aanvraag heeft beslist." },
 ];
@@ -341,10 +238,11 @@ function Afspraken() {
 
 const FAQS = [
   { q: "Wat is een administratieve loonsanctie?", a: "UWV toetst eerst of het re-integratieverslag compleet is. Ontbreekt er een verplicht onderdeel, dan kan UWV de re-integratie niet beoordelen en moet je het loon langer doorbetalen. Die verlenging stopt pas nadat je het ontbrekende hebt aangeleverd en UWV dat heeft beoordeeld." },
+  { q: "Kijk je alleen of alles erin zit?", a: "Nee. Ik loop alle niet-medische stukken ook inhoudelijk na. Kloppen de data en afspraken? Sluit het plan van aanpak aan op het advies van de bedrijfsarts? Is het plan bijgesteld toen de situatie veranderde, en is het tweede spoor op tijd ingezet? Medische stukken blijven bij de bedrijfsarts." },
   { q: "Wanneer schakel ik je in?", a: "Het liefst rond week 80 tot 88 van het verzuim. Dan is er nog tijd om iets te herstellen voordat je werknemer de WIA aanvraagt. Later kan ook, maar dan is de ruimte kleiner. Eerder mag altijd, bijvoorbeeld bij de eerstejaarsevaluatie." },
-  { q: "Ik heb al een arbodienst. Heeft dit dan zin?", a: "Ja. De arbodienst levert de bedrijfsarts en vaak een deel van de begeleiding, maar de werkgever blijft verantwoordelijk voor een compleet verslag. Ik kijk als tweede paar ogen of alles er is." },
+  { q: "Ik heb al een arbodienst. Heeft dit dan zin?", a: "Ja. De arbodienst levert de bedrijfsarts en vaak een deel van de begeleiding, maar de werkgever blijft verantwoordelijk voor een compleet verslag. Ik kijk als tweede paar ogen of alles er is en klopt." },
   { q: "Zie je medische gegevens?", a: "Nee. Het medische deel gaat van de bedrijfsarts rechtstreeks naar UWV of naar je werknemer. Ik controleer alleen of dat is gebeurd." },
-  { q: "Garandeer je dat er geen loonsanctie komt?", a: "Nee, en dat kan niemand eerlijk beloven. Ik zorg dat het verslag compleet is, zodat een sanctie om een ontbrekend stuk niet nodig is. Of de re-integratie zelf voldoende was, is een inhoudelijk oordeel van UWV over twee jaar verzuim." },
+  { q: "Garandeer je dat er geen loonsanctie komt?", a: "Nee, en dat kan niemand eerlijk beloven. Ik zorg dat het verslag compleet is en loop alle niet-medische stukken ook inhoudelijk na. Zie ik een zwakke plek, dan hoor je dat op tijd, zodat je nog kunt bijsturen of het goed kunt onderbouwen. Het oordeel ligt bij UWV." },
   { q: "Ik ben werknemer. Kan ik je ook inschakelen?", a: "Ja. Als werknemer heb je hetzelfde belang: met een compleet verslag kan UWV je WIA-aanvraag zonder vertraging behandelen. In één gesprek lopen we na wat je van je werkgever moet krijgen. Dat kost € 195 inclusief btw. Ik help nooit werkgever en werknemer in hetzelfde dossier." },
   { q: "In welke regio werk je?", a: "Dat hoor je bij de kennismaking. Is een bezoek niet praktisch, dan kan de controle ook op afstand, met stukken zonder medische informatie." },
 ];
@@ -385,7 +283,6 @@ function Contact() {
           <p>Stuur een bericht met de eerste ziektedag en je telefoonnummer. Ik bel je terug voor een korte kennismaking. Zet geen medische gegevens in je bericht.</p>
           <div className="hero-cta">
             <a className="btn btn-accent btn-lg" href={mailto("Kennismaking dossiercheck", tekst)}>Stuur een bericht</a>
-            <a className="btn btn-ghost btn-lg" href="#checklist">Eerst zelf de check doen</a>
           </div>
         </div>
       </div>
@@ -407,7 +304,6 @@ function Footer({ onOpenPrivacy }) {
           </div>
           <div>
             <h4>Dienst</h4>
-            <a href="#checklist">Snelle check</a>
             <a href="#werkwijze">Werkwijze</a>
             <a href="#tarieven">Tarieven</a>
             <a href="#werknemers">Voor werknemers</a>
@@ -441,7 +337,6 @@ export function Landing({ onOpenPrivacy }) {
       <Nav />
       <Hero />
       <Probleem />
-      <Checklist />
       <Werkwijze />
       <Tarieven />
       <Werknemers />
