@@ -1,0 +1,32 @@
+[
+ {
+  "mode": "redesign",
+  "depth": "full",
+  "scope": "page",
+  "shape": "Index-First",
+  "theme": "brand",
+  "axes": "light/roman-serif/warm",
+  "hero": "settled",
+  "nav": "masthead",
+  "footer": "colophon block",
+  "imagery": "the owner portrait only",
+  "photos": [],
+  "entry": "poortwachtercheck.nl",
+  "fingerprint": "Hanging|Asymmetric spans|Hairline|Solid|Margin-aligned|None",
+  "sections": [
+   "hero: text beside the price list",
+   "statement: UWV figures",
+   "steps: ordered list",
+   "index: tarieven rows",
+   "split: werknemers",
+   "grid: afspraken 2x2",
+   "rows: vragen",
+   "split: contact and over mij",
+   "colophon"
+  ],
+  "signature": "the price list on the first screen, four services with fixed prices in the serif",
+  "waived": [],
+  "prompt": "a one-person dossier check of the re-integration report for employers, with a small offer for employees",
+  "date": "2026-11-22"
+ }
+]
