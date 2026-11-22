@@ -1,4 +1,6 @@
-/* Startpagina: de dossiercheck van het re-integratieverslag (Poortwachtercheck). */
+/* Startpagina: de dossiercheck van het re-integratieverslag (Poortwachtercheck).
+   Opbouw (Hallmark-redesign 22-11): masthead, kop met prijsoverzicht, waarom,
+   werkwijze, tarieven, werknemers, afspraken, vragen, contact met over mij, colofon. */
 
 import { I } from "./iconen.jsx";
 import { Merk, MERK, CONTACT_MAIL, mailto } from "./merk.jsx";
@@ -7,10 +9,10 @@ const { useState } = React;
 
 function Nav() {
   return (
-    <header className="nav">
-      <div className="wrap nav-inner">
+    <header className="masthead">
+      <div className="container masthead-inner">
         <Merk />
-        <nav className="nav-links">
+        <nav className="masthead-links" aria-label="Hoofdmenu">
           <a href="#werkwijze">Werkwijze</a>
           <a href="#tarieven">Tarieven</a>
           <a href="#faq">Vragen</a>
@@ -18,91 +20,6 @@ function Nav() {
         </nav>
       </div>
     </header>
-  );
-}
-
-function Hero() {
-  return (
-    <section className="hero" id="top">
-      <div className="wrap hero-enkel">
-        <div className="reveal">
-          <div className="kop-balk">
-            <h1>Je re-integratieverslag compleet naar UWV</h1>
-            <p className="lead lead-breed">
-              Is je werknemer bijna twee jaar ziek? Ik kom langs en loop het verzuimdossier na.
-              Ik kijk of alles erin zit, en of de niet-medische stukken inhoudelijk kloppen.
-            </p>
-          </div>
-          <div className="hero-cta">
-            <a className="btn btn-primary btn-lg" href="#contact">Dossier laten nakijken</a>
-            <a className="btn btn-ghost btn-lg" href="#werkwijze">Zo werk ik</a>
-          </div>
-          <p className="hero-noot">
-            Vaste prijs per dossier. Ik kom bij je op locatie. Medische stukken blijven bij de bedrijfsarts.
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Probleem() {
-  return (
-    <section className="section" id="waarom">
-      <div className="wrap">
-        <div className="sec-head reveal">
-          <span className="eyebrow"><span className="dot"></span>Waarom dit ertoe doet</span>
-          <h2>Een ontbrekend stuk kan maanden loon kosten</h2>
-          <p>
-            UWV kijkt eerst of het re-integratieverslag compleet is, en daarna naar de inhoud.
-            Mist er een onderdeel of een handtekening, dan volgt een administratieve loonsanctie:
-            je betaalt het loon langer door, tot het verslag in orde is. Vindt UWV dat er te weinig
-            aan re-integratie is gedaan, bijvoorbeeld omdat het tweede spoor te laat begon, dan kan
-            de loonsanctie oplopen tot een jaar.
-          </p>
-        </div>
-        <p className="cijfers-tekst reveal">
-          In 2024 legde UWV ruim 4.000 loonsancties op. Bij ongeveer 45% daarvan was het verslag
-          niet compleet. Herstellen kost dan al snel drie weken beoordeling door UWV, en daarna loopt
-          het loon nog zes weken door. Bij de rest ging het om de inhoud van de re-integratie.
-        </p>
-        <p className="bron reveal">
-          Cijfers: <a href="https://uwvjaarverslag.nl/external/asset/download/project/f9b7da0a-03ec-0000-58b5-7efa5990235f/name/uwv-kwantitatieve-Informatie-2025T3%202.0.pdf" target="_blank" rel="noopener">UWV, kwantitatieve informatie</a>.
-          Herstel en doorlooptijd: <a href="https://www.rijksoverheid.nl/documenten/publicaties/2024/09/30/werkproces-uwv-toetsen-riv-en-opleggen-loonsanctie" target="_blank" rel="noopener">werkproces UWV toetsen re-integratieverslag</a>.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-const STAPPEN = [
-  { t: "Kennismaken", d: "We bellen kort. Je hoort wat ik nodig heb en wat het kost. De prijs staat vooraf vast." },
-  { t: "Dossier nalopen", d: "Ik kom langs en loop het dossier na: elk onderdeel, elke datum en elke handtekening. Ook de inhoud van alle niet-medische stukken: klopt het verloop, en is er op tijd bijgestuurd?" },
-  { t: "Aanvullen", d: "Je krijgt een lijst met wat ontbreekt of niet klopt, en wat je eraan kunt doen. Als je dat wilt, help ik met de eindevaluatie en met het bijwerken van de stukken." },
-  { t: "Verzendklaar", d: "Het verslag ligt compleet en ondertekend klaar voor je werknemer, op tijd voor de WIA-aanvraag." },
-];
-
-function Werkwijze() {
-  return (
-    <section className="section tint" id="werkwijze">
-      <div className="wrap">
-        <div className="sec-head reveal">
-          <span className="eyebrow"><span className="dot"></span>Werkwijze</span>
-          <h2>Van losse stukken naar een compleet verslag</h2>
-          <p>Het beste moment is ruim vóór week 88. Dan is er nog tijd om iets te herstellen.</p>
-        </div>
-        <div className="steps">
-          {STAPPEN.map((s, i) => (
-            <div className="step reveal" key={i}>
-              <div className="line"></div>
-              <div className="num">{i + 1}</div>
-              <h3>{s.t}</h3>
-              <p>{s.d}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
   );
 }
 
@@ -124,25 +41,130 @@ const PAKKETTEN = [
   },
 ];
 
+// Het overzicht op het eerste scherm: de diensten van deze pagina, met hun prijs.
+const OVERZICHT = [
+  ...PAKKETTEN.map((p) => ({ naam: p.naam, prijs: p.prijs, btw: p.prijs.startsWith("vanaf") ? "excl. btw" : "", href: "#tarieven" })),
+  { naam: "Meekijken als werknemer", prijs: "€ 195", btw: "incl. btw", href: "#werknemers" },
+];
+
+function Hero() {
+  return (
+    <section className="hero" id="top" aria-labelledby="hero-kop">
+      <div className="container intro-raster reveal">
+          <div className="intro">
+            <h1 id="hero-kop">Je <span className="nw">re-integratieverslag</span> <br />compleet naar UWV</h1>
+            <p className="lead">
+              Is je werknemer bijna twee jaar ziek? Ik kom langs en loop het verzuimdossier na.
+              Ik kijk of alles erin zit, en of de niet-medische stukken inhoudelijk kloppen.
+            </p>
+            <div className="acties">
+              <a className="btn" href="#contact">Dossier laten nakijken</a>
+              <a className="btn btn--quiet" href="#werkwijze">Zo werk ik</a>
+            </div>
+            <p className="intro-noot">Vaste prijs per dossier. Ik kom bij je op locatie. Medische stukken blijven bij de bedrijfsarts.</p>
+          </div>
+          <nav className="overzicht" aria-label="Diensten en prijzen">
+            <ul>
+              {OVERZICHT.map((o) => (
+                <li key={o.naam}>
+                  <a href={o.href}>
+                    <span className="overzicht-naam">{o.naam}</span>
+                    <span className="overzicht-prijs">{o.prijs}{o.btw && <small>{o.btw}</small>}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+      </div>
+    </section>
+  );
+}
+
+function Probleem() {
+  return (
+    <section className="section waarom" id="waarom">
+      <div className="container">
+        <div className="kop-gesplitst">
+          <h2>Een ontbrekend stuk kan maanden loon kosten</h2>
+          <p>
+            UWV kijkt eerst of het re-integratieverslag compleet is, en daarna naar de inhoud.
+            Mist er een onderdeel of een handtekening, dan volgt een administratieve loonsanctie:
+            je betaalt het loon langer door, tot het verslag in orde is. Vindt UWV dat er te weinig
+            aan re-integratie is gedaan, bijvoorbeeld omdat het tweede spoor te laat begon, dan kan
+            de loonsanctie oplopen tot een jaar.
+          </p>
+        </div>
+        <div className="cijfers">
+          <p className="statement">
+            In 2024 legde UWV ruim 4.000 loonsancties op. Bij ongeveer 45% daarvan was het verslag
+            niet compleet.
+          </p>
+          <p className="cijfers-vervolg">
+            Herstellen kost dan al snel drie weken beoordeling door UWV, en daarna loopt
+            het loon nog zes weken door. Bij de rest ging het om de inhoud van de re-integratie.
+          </p>
+        </div>
+        <div className="waarom-voet">
+          <p className="bron">
+            Cijfers: <a href="https://uwvjaarverslag.nl/external/asset/download/project/f9b7da0a-03ec-0000-58b5-7efa5990235f/name/uwv-kwantitatieve-Informatie-2025T3%202.0.pdf" target="_blank" rel="noopener">UWV, kwantitatieve informatie</a>.
+            Herstel en doorlooptijd: <a href="https://www.rijksoverheid.nl/documenten/publicaties/2024/09/30/werkproces-uwv-toetsen-riv-en-opleggen-loonsanctie" target="_blank" rel="noopener">werkproces UWV toetsen re-integratieverslag</a>.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const STAPPEN = [
+  { t: "Kennismaken", d: "We bellen kort. Je hoort wat ik nodig heb en wat het kost. De prijs staat vooraf vast." },
+  { t: "Dossier nalopen", d: "Ik kom langs en loop het dossier na: elk onderdeel, elke datum en elke handtekening. Ook de inhoud van alle niet-medische stukken: klopt het verloop, en is er op tijd bijgestuurd?" },
+  { t: "Aanvullen", d: "Je krijgt een lijst met wat ontbreekt of niet klopt, en wat je eraan kunt doen. Als je dat wilt, help ik met de eindevaluatie en met het bijwerken van de stukken." },
+  { t: "Verzendklaar", d: "Het verslag ligt compleet en ondertekend klaar voor je werknemer, op tijd voor de WIA-aanvraag." },
+];
+
+function Werkwijze() {
+  return (
+    <section className="section werkwijze" id="werkwijze">
+      <div className="container">
+        <div className="kop">
+          <h2>Van losse stukken naar een compleet verslag</h2>
+          <p className="lead">Het beste moment is ruim vóór week 88. Dan is er nog tijd om iets te herstellen.</p>
+        </div>
+        <ol className="steps">
+          {STAPPEN.map((s) => (
+            <li className="step" key={s.t}>
+              <h3>{s.t}</h3>
+              <p>{s.d}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
 function Tarieven() {
   return (
-    <section className="section" id="tarieven">
-      <div className="wrap">
-        <div className="sec-head reveal">
-          <span className="eyebrow"><span className="dot"></span>Tarieven</span>
+    <section className="section tarieven" id="tarieven">
+      <div className="container">
+        <div className="kop">
           <h2>Een vaste prijs per dossier</h2>
-          <p>Geen uurtje-factuurtje. Je weet vooraf wat het kost, en dat is een fractie van één maand doorbetaald loon.</p>
+          <p className="lead">Geen uurtje-factuurtje. Je weet vooraf wat het kost, en dat is een fractie van één maand doorbetaald loon.</p>
         </div>
         <div className="pakketten">
-          {PAKKETTEN.map((p, i) => (
-            <div className="pakket card reveal" key={i}>
-              <h3>{p.naam}</h3>
-              <p className="pakket-d">{p.d}</p>
-              <div className="pakket-prijs">{p.prijs}</div>
-              <div className="pakket-sub">{p.sub}</div>
-              <ul>{p.punten.map((x, j) => <li key={j}>{x}</li>)}</ul>
-              <a className="btn btn-ghost" href={mailto(p.naam + " aanvragen")}>Aanvragen</a>
-            </div>
+          {PAKKETTEN.map((p) => (
+            <article className="pakket" key={p.naam}>
+              <div className="pakket-naam">
+                <h3>{p.naam}</h3>
+                <p className="pakket-d">{p.d}</p>
+              </div>
+              <ul>{p.punten.map((x) => <li key={x}>{x}</li>)}</ul>
+              <div className="pakket-koop">
+                <p className="pakket-prijs">{p.prijs}</p>
+                <p className="pakket-sub">{p.sub}</p>
+                <a className="btn btn--quiet" href={mailto(p.naam + " aanvragen")}>Aanvragen</a>
+              </div>
+            </article>
           ))}
         </div>
       </div>
@@ -160,32 +182,27 @@ const WERKNEMER_PUNTEN = [
 function Werknemers() {
   const tekst = "Ik wil graag dat je meekijkt met mijn re-integratieverslag.\n\nEerste ziektedag:\nWoonplaats:\nTelefoonnummer:";
   return (
-    <section className="section" id="werknemers">
-      <div className="wrap">
-        <div className="sec-head reveal">
-          <span className="eyebrow"><span className="dot"></span>Voor werknemers</span>
+    <section className="section werknemers" id="werknemers">
+      <div className="container werknemers-grid">
+        <div className="werknemers-tekst">
           <h2>Ben je zelf ziek en komt de WIA-aanvraag eraan?</h2>
-          <p>
+          <p className="werknemers-intro">
             Je werkgever maakt het re-integratieverslag en dat gaat mee met je WIA-aanvraag. Mist er iets, dan
             kan UWV je aanvraag nog niet beoordelen. Ik kijk met je mee, zodat je weet waar je staat.
           </p>
+          <ul className="werknemers-lijst">{WERKNEMER_PUNTEN.map((x) => <li key={x}>{x}</li>)}</ul>
+          <p className="werknemers-noot">
+            Ik help nooit werkgever en werknemer in hetzelfde dossier. Medische stukken hoef ik niet te zien,
+            dus zet die ook niet in je bericht. Heb je een conflict met je werkgever, dan verwijs ik je naar een jurist.
+          </p>
         </div>
-        <div className="werknemers-grid">
-          <div className="reveal">
-            <ul className="werknemers-lijst">{WERKNEMER_PUNTEN.map((x, i) => <li key={i}>{x}</li>)}</ul>
-            <p className="werknemers-noot">
-              Ik help nooit werkgever en werknemer in hetzelfde dossier. Medische stukken hoef ik niet te zien,
-              dus zet die ook niet in je bericht. Heb je een conflict met je werkgever, dan verwijs ik je naar een jurist.
-            </p>
-          </div>
-          <div className="pakket card reveal">
-            <h3>Meekijken met je verslag</h3>
-            <p className="pakket-d">Eén gesprek van anderhalf uur, bij je thuis of met beeldbellen.</p>
-            <div className="pakket-prijs">€ 195</div>
-            <div className="pakket-sub">inclusief btw</div>
-            <a className="btn btn-ghost" href={mailto("Meekijken als werknemer", tekst)}>Vraag het aan</a>
-          </div>
-        </div>
+        <aside className="pakket aanbod" aria-label="Meekijken met je verslag">
+          <h3>Meekijken met je verslag</h3>
+          <p className="pakket-d">Eén gesprek van anderhalf uur, bij je thuis of met beeldbellen.</p>
+          <p className="pakket-prijs">€ 195</p>
+          <p className="pakket-sub">inclusief btw</p>
+          <a className="btn" href={mailto("Meekijken als werknemer", tekst)}>Vraag het aan</a>
+        </aside>
       </div>
     </section>
   );
@@ -200,36 +217,16 @@ const AFSPRAKEN = [
 
 function Afspraken() {
   return (
-    <section className="section tint" id="afspraken">
-      <div className="wrap compliance">
-        <div className="reveal">
-          <span className="eyebrow"><span className="dot"></span>Wat je van mij mag verwachten</span>
-          <h2 style={{ fontSize: "clamp(27px,3.2vw,38px)", marginTop: 14 }}>Duidelijk over wat ik wel en niet doe</h2>
-          <div className="comp-list">
-            {AFSPRAKEN.map((c, i) => (
-              <div className="comp-item" key={i}>
-                <div><h4>{c.t}</h4><p>{c.d}</p></div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="over-mij reveal">
-          <div className="over-kop">
-            <img src="img/chris-schepers.jpg" alt="Chris Schepers" width="96" height="96" loading="lazy" />
-            <div>
-              <h3>Chris Schepers</h3>
-              <p className="over-rol">Arbeidsdeskundige i.o.</p>
+    <section className="section afspraken" id="afspraken">
+      <div className="container">
+        <h2>Duidelijk over wat ik wel en niet doe</h2>
+        <div className="afspraken-grid">
+          {AFSPRAKEN.map((c) => (
+            <div className="afspraak" key={c.t}>
+              <h3>{c.t}</h3>
+              <p>{c.d}</p>
             </div>
-          </div>
-          <p>
-            Ik werk als casemanager met werkgevers en werknemers bij langdurig verzuim. Ik
-            weet waar een dossier op vastloopt en waar UWV op let.
-          </p>
-          <p>
-            Je schakelt mij in voor het laatste stuk: de eindevaluatie en het verslag. Dat
-            kan ook als je al een arbodienst hebt.
-          </p>
-          <a className="btn btn-accent" href="#contact">Plan een kennismaking</a>
+          ))}
         </div>
       </div>
     </section>
@@ -250,20 +247,18 @@ const FAQS = [
 function Faq() {
   const [open, setOpen] = useState(0);
   return (
-    <section className="section tint" id="faq">
-      <div className="wrap">
-        <div className="sec-head center reveal">
-          <span className="eyebrow"><span className="dot"></span>Veelgestelde vragen</span>
-          <h2>Goed om te weten</h2>
-        </div>
+    <section className="section vragen" id="faq">
+      <div className="container faq-grid">
+        <h2>Goed om te weten</h2>
         <div className="faq">
           {FAQS.map((f, i) => (
-            <div className={"faq-item reveal" + (open === i ? " open" : "")} key={i}>
-              <button className="faq-q" onClick={() => setOpen(open === i ? -1 : i)} aria-expanded={open === i}>
-                {f.q}<span className="chev">{I.chevDown}</span>
+            <div className={"faq-item" + (open === i ? " open" : "")} key={f.q}>
+              <button className="faq-q" type="button" onClick={() => setOpen(open === i ? -1 : i)}
+                aria-expanded={open === i} aria-controls={"faq-a-" + i}>
+                <span>{f.q}</span><span className="chev">{I.chevDown}</span>
               </button>
-              <div className="faq-a" style={{ maxHeight: open === i ? 320 : 0 }}>
-                <div className="faq-a-inner">{f.a}</div>
+              <div className="faq-a" id={"faq-a-" + i} hidden={open !== i}>
+                <p>{f.a}</p>
               </div>
             </div>
           ))}
@@ -276,13 +271,32 @@ function Faq() {
 function Contact() {
   const tekst = "Ik wil graag een kennismaking over mijn verzuimdossier.\n\nEerste ziektedag:\nBedrijfsnaam en plaats:\nTelefoonnummer:";
   return (
-    <section className="section" id="contact">
-      <div className="wrap">
-        <div className="cta-band reveal">
+    <section className="section contact" id="contact">
+      <div className="container contact-grid">
+        <div className="contact-vraag">
           <h2>Laat je dossier nakijken voordat UWV het doet</h2>
-          <p>Stuur een bericht met de eerste ziektedag en je telefoonnummer. Ik bel je terug voor een korte kennismaking. Zet geen medische gegevens in je bericht.</p>
-          <div className="hero-cta">
-            <a className="btn btn-accent btn-lg" href={mailto("Kennismaking dossiercheck", tekst)}>Stuur een bericht</a>
+          <p className="lead">
+            Stuur een bericht met de eerste ziektedag en je telefoonnummer. Ik bel je terug voor een
+            korte kennismaking. Zet geen medische gegevens in je bericht.
+          </p>
+          <div className="acties">
+            <a className="btn" href={mailto("Kennismaking dossiercheck", tekst)}>Stuur een bericht</a>
+            <a className="contact-adres" href={"mailto:" + CONTACT_MAIL}>{CONTACT_MAIL}</a>
+          </div>
+        </div>
+        <div className="over-mij">
+          <img src="img/chris-schepers.jpg" alt="Chris Schepers" width="400" height="400" loading="lazy" />
+          <div className="over-tekst">
+            <h3>Chris Schepers</h3>
+            <p className="over-rol">Arbeidsdeskundige i.o.</p>
+            <p>
+              Ik werk als casemanager met werkgevers en werknemers bij langdurig verzuim. Ik
+              weet waar een dossier op vastloopt en waar UWV op let.
+            </p>
+            <p>
+              Je schakelt mij in voor het laatste stuk: de eindevaluatie en het verslag. Dat
+              kan ook als je al een arbodienst hebt.
+            </p>
           </div>
         </div>
       </div>
@@ -294,38 +308,27 @@ function Footer({ onOpenPrivacy }) {
   const openPrivacy = (e) => { e.preventDefault(); onOpenPrivacy && onOpenPrivacy(); };
   return (
     <footer className="footer">
-      <div className="wrap">
-        <div className="footer-grid">
-          <div>
-            <Merk style={{ marginBottom: 14 }} />
-            <p style={{ fontSize: 14.5, maxWidth: "34ch", color: "rgba(255,255,255,.6)" }}>
-              Controle en begeleiding van het re-integratieverslag, zodat het compleet naar UWV gaat.
-            </p>
-          </div>
-          <div>
-            <h4>Dienst</h4>
+      <div className="container footer-inner">
+        <div className="footer-merk">
+          <Merk />
+          <p>Controle en begeleiding van het re-integratieverslag, zodat het compleet naar UWV gaat.</p>
+        </div>
+        <nav className="footer-links" aria-label="Voettekst">
+          <div className="footer-groep">
             <a href="#werkwijze">Werkwijze</a>
             <a href="#tarieven">Tarieven</a>
             <a href="#werknemers">Voor werknemers</a>
           </div>
-          <div>
-            <h4>Privacy</h4>
+          <div className="footer-groep">
             <a href="#privacyverklaring" onClick={openPrivacy}>Privacyverklaring</a>
             <a href={mailto("Verwerkersovereenkomst")}>Verwerkersovereenkomst</a>
-          </div>
-          <div>
-            <h4>Contact</h4>
             <a href={"mailto:" + CONTACT_MAIL}>{CONTACT_MAIL}</a>
-            <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>Schepers Digital</span>
-            <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>De Vaandeldrager 13, 6921 TK Duiven</span>
-            <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>KVK 42107874</span>
-            <span style={{ display: "block", padding: "5px 0", fontSize: 15 }}>Btw NL004512417B86</span>
           </div>
-        </div>
-        <div className="footer-bot">
-          <span>© 2026 {MERK} · onderdeel van Schepers Digital · KVK 42107874</span>
-          <span>Geen garantie op de uitkomst van de toets</span>
-        </div>
+        </nav>
+        <p className="colofon">
+          {MERK} is een dienst van Schepers Digital, De Vaandeldrager 13, 6921 TK Duiven.
+          KVK 42107874, btw NL004512417B86. Geen garantie op de uitkomst van de toets. © 2026.
+        </p>
       </div>
     </footer>
   );
@@ -335,14 +338,16 @@ export function Landing({ onOpenPrivacy }) {
   return (
     <div className="site">
       <Nav />
-      <Hero />
-      <Probleem />
-      <Werkwijze />
-      <Tarieven />
-      <Werknemers />
-      <Afspraken />
-      <Faq />
-      <Contact />
+      <main>
+        <Hero />
+        <Probleem />
+        <Werkwijze />
+        <Tarieven />
+        <Werknemers />
+        <Afspraken />
+        <Faq />
+        <Contact />
+      </main>
       <Footer onOpenPrivacy={onOpenPrivacy} />
     </div>
   );
