@@ -1,6 +1,5 @@
 /* App-entry — startpagina (dossiercheck) met de privacyverklaring als overlay.
-   React/ReactDOM als UMD-globals. De PvA-invuller is van de site gehaald
-   (geen kernactiviteit meer); de code staat nog in src/ maar wordt niet gebundeld. */
+   React/ReactDOM komen als UMD-globals uit index.html. */
 
 import { Landing } from "./landing.jsx";
 import { PrivacyVerklaring } from "./privacy.jsx";
