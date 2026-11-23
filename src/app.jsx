@@ -1,5 +1,6 @@
-/* App-entry — startpagina (dossiercheck) met de privacyverklaring als overlay.
-   React/ReactDOM komen als UMD-globals uit index.html. */
+/* De startpagina (dossiercheck) met de privacyverklaring als overlay.
+   React/ReactDOM komen als UMD-globals uit index.html; client.jsx hydrateert,
+   build.mjs rendert dezelfde App vooraf naar index.html. */
 
 import { Landing } from "./landing.jsx";
 import { PrivacyVerklaring } from "./privacy.jsx";
@@ -27,13 +28,18 @@ function useReveal() {
   }, []); // eenmalig: de listeners hoeven niet elke render opnieuw geregistreerd
 }
 
-function App() {
+export function App() {
   const [view, setView] = useState("landing"); // landing | privacy
   useReveal();
 
   useEffect(() => {
     document.body.style.overflow = view === "landing" ? "" : "hidden";
   }, [view]);
+
+  // De losse pagina's linken naar /#privacyverklaring: open dan meteen de verklaring.
+  useEffect(() => {
+    if (window.location.hash === "#privacyverklaring") setView("privacy");
+  }, []);
 
   return (
     <React.Fragment>
@@ -43,4 +49,3 @@ function App() {
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);

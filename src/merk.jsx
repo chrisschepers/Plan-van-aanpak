@@ -2,6 +2,8 @@
 
 export const MERK = "Poortwachtercheck";
 export const CONTACT_MAIL = "contact@poortwachtercheck.nl";
+export const LINKEDIN = "https://www.linkedin.com/in/chris-schepers-57a749bb";
+export const SITE = "https://poortwachtercheck.nl";
 
 export function mailto(onderwerp, tekst) {
   let url = "mailto:" + CONTACT_MAIL + "?subject=" + encodeURIComponent(onderwerp);

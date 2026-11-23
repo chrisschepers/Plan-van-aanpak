@@ -3,27 +3,30 @@
    werkwijze, tarieven, werknemers, afspraken, vragen, contact met over mij, colofon. */
 
 import { I } from "./iconen.jsx";
-import { Merk, MERK, CONTACT_MAIL, mailto } from "./merk.jsx";
+import { Merk, MERK, CONTACT_MAIL, LINKEDIN, mailto } from "./merk.jsx";
+import { ARTIKEL_LINKS } from "./artikel-links.js";
 
 const { useState } = React;
 
-function Nav() {
+// `basis` is "" op de startpagina en "/" op de losse pagina's, zodat de ankers
+// daar naar de startpagina wijzen.
+export function Nav({ basis = "" }) {
   return (
     <header className="masthead">
       <div className="container masthead-inner">
-        <Merk />
+        <Merk href={basis ? "/" : "#top"} />
         <nav className="masthead-links" aria-label="Hoofdmenu">
-          <a href="#werkwijze">Werkwijze</a>
-          <a href="#tarieven">Tarieven</a>
-          <a href="#faq">Vragen</a>
-          <a href="#contact">Contact</a>
+          <a href={basis + "#werkwijze"}>Werkwijze</a>
+          <a href={basis + "#tarieven"}>Tarieven</a>
+          <a href={basis + "#faq"}>Vragen</a>
+          <a href={basis + "#contact"}>Contact</a>
         </nav>
       </div>
     </header>
   );
 }
 
-const PAKKETTEN = [
+export const PAKKETTEN = [
   {
     naam: "Dossiercheck", prijs: "vanaf € 450", sub: "per dossier, excl. btw",
     d: "Je wilt weten of het verslag compleet is en klopt.",
@@ -61,7 +64,7 @@ function Hero() {
               <a className="btn" href="#contact">Dossier laten nakijken</a>
               <a className="btn btn--quiet" href="#werkwijze">Zo werk ik</a>
             </div>
-            <p className="intro-noot">Vaste prijs per dossier. Ik kom bij je op locatie. Medische stukken blijven bij de bedrijfsarts.</p>
+            <p className="intro-noot">Vaste prijs per dossier. Ik kom in heel Nederland bij je op locatie. Medische stukken blijven bij de bedrijfsarts.</p>
           </div>
           <nav className="overzicht" aria-label="Diensten en prijzen">
             <ul>
@@ -233,15 +236,15 @@ function Afspraken() {
   );
 }
 
-const FAQS = [
-  { q: "Wat is een administratieve loonsanctie?", a: "UWV toetst eerst of het re-integratieverslag compleet is. Ontbreekt er een verplicht onderdeel, dan kan UWV de re-integratie niet beoordelen en moet je het loon langer doorbetalen. Die verlenging stopt pas nadat je het ontbrekende hebt aangeleverd en UWV dat heeft beoordeeld." },
+export const FAQS = [
+  { q: "Wat is een administratieve loonsanctie?", a: "UWV toetst eerst of het re-integratieverslag compleet is. Ontbreekt er een verplicht onderdeel, dan kan UWV de re-integratie niet beoordelen en moet je het loon langer doorbetalen. Die verlenging stopt pas nadat je het ontbrekende hebt aangeleverd en UWV dat heeft beoordeeld.", link: { href: "/administratieve-loonsanctie/", tekst: "Meer over de administratieve loonsanctie" } },
   { q: "Kijk je alleen of alles erin zit?", a: "Nee. Ik loop alle niet-medische stukken ook inhoudelijk na. Kloppen de data en afspraken? Sluit het plan van aanpak aan op het advies van de bedrijfsarts? Is het plan bijgesteld toen de situatie veranderde, en is het tweede spoor op tijd ingezet? Medische stukken blijven bij de bedrijfsarts." },
-  { q: "Wanneer schakel ik je in?", a: "Het liefst rond week 80 tot 88 van het verzuim. Dan is er nog tijd om iets te herstellen voordat je werknemer de WIA aanvraagt. Later kan ook, maar dan is de ruimte kleiner. Eerder mag altijd, bijvoorbeeld bij de eerstejaarsevaluatie." },
+  { q: "Wanneer schakel ik je in?", a: "Het liefst rond week 80 tot 88 van het verzuim. Dan is er nog tijd om iets te herstellen voordat je werknemer de WIA aanvraagt. Later kan ook, maar dan is de ruimte kleiner. Eerder mag altijd, bijvoorbeeld bij de eerstejaarsevaluatie.", link: { href: "/eerstejaarsevaluatie/", tekst: "Wat er in de eerstejaarsevaluatie hoort" } },
   { q: "Ik heb al een arbodienst. Heeft dit dan zin?", a: "Ja. De arbodienst levert de bedrijfsarts en vaak een deel van de begeleiding, maar de werkgever blijft verantwoordelijk voor een compleet verslag. Ik kijk als tweede paar ogen of alles er is en klopt." },
   { q: "Zie je medische gegevens?", a: "Nee. Het medische deel gaat van de bedrijfsarts rechtstreeks naar UWV of naar je werknemer. Ik controleer alleen of dat is gebeurd." },
   { q: "Garandeer je dat er geen loonsanctie komt?", a: "Nee, en dat kan niemand eerlijk beloven. Ik zorg dat het verslag compleet is en loop alle niet-medische stukken ook inhoudelijk na. Zie ik een zwakke plek, dan hoor je dat op tijd, zodat je nog kunt bijsturen of het goed kunt onderbouwen. Het oordeel ligt bij UWV." },
-  { q: "Ik ben werknemer. Kan ik je ook inschakelen?", a: "Ja. Als werknemer heb je hetzelfde belang: met een compleet verslag kan UWV je WIA-aanvraag zonder vertraging behandelen. In één gesprek lopen we na wat je van je werkgever moet krijgen. Dat kost € 195 inclusief btw. Ik help nooit werkgever en werknemer in hetzelfde dossier." },
-  { q: "In welke regio werk je?", a: "Dat hoor je bij de kennismaking. Is een bezoek niet praktisch, dan kan de controle ook op afstand, met stukken zonder medische informatie." },
+  { q: "Ik ben werknemer. Kan ik je ook inschakelen?", a: "Ja. Als werknemer heb je hetzelfde belang: met een compleet verslag kan UWV je WIA-aanvraag zonder vertraging behandelen. In één gesprek lopen we na wat je van je werkgever moet krijgen. Dat kost € 195 inclusief btw. Ik help nooit werkgever en werknemer in hetzelfde dossier.", link: { href: "/wia-aanvraag-werknemer/", tekst: "Wat je nodig hebt voor je WIA-aanvraag" } },
+  { q: "In welke regio werk je?", a: "In heel Nederland. Ik kom bij je op locatie. Is een bezoek niet praktisch, dan kan de controle ook op afstand, met stukken zonder medische informatie." },
 ];
 
 function Faq() {
@@ -259,6 +262,7 @@ function Faq() {
               </button>
               <div className="faq-a" id={"faq-a-" + i} hidden={open !== i}>
                 <p>{f.a}</p>
+                {f.link && <p className="faq-link"><a href={f.link.href}>{f.link.tekst}</a></p>}
               </div>
             </div>
           ))}
@@ -289,6 +293,7 @@ function Contact() {
           <div className="over-tekst">
             <h3>Chris Schepers</h3>
             <p className="over-rol">Arbeidsdeskundige i.o.</p>
+            <p className="over-link"><a href={LINKEDIN} rel="me">Mijn profiel op LinkedIn</a></p>
             <p>
               Ik werk als casemanager met werkgevers en werknemers bij langdurig verzuim. Ik
               weet waar een dossier op vastloopt en waar UWV op let.
@@ -304,23 +309,26 @@ function Contact() {
   );
 }
 
-function Footer({ onOpenPrivacy }) {
-  const openPrivacy = (e) => { e.preventDefault(); onOpenPrivacy && onOpenPrivacy(); };
+export function Footer({ onOpenPrivacy, basis = "" }) {
+  const openPrivacy = onOpenPrivacy ? (e) => { e.preventDefault(); onOpenPrivacy(); } : undefined;
   return (
     <footer className="footer">
       <div className="container footer-inner">
         <div className="footer-merk">
-          <Merk />
+          <Merk href={basis ? "/" : "#top"} />
           <p>Controle en begeleiding van het re-integratieverslag, zodat het compleet naar UWV gaat.</p>
         </div>
         <nav className="footer-links" aria-label="Voettekst">
           <div className="footer-groep">
-            <a href="#werkwijze">Werkwijze</a>
-            <a href="#tarieven">Tarieven</a>
-            <a href="#werknemers">Voor werknemers</a>
+            <a href={basis + "#werkwijze"}>Werkwijze</a>
+            <a href={basis + "#tarieven"}>Tarieven</a>
+            <a href={basis + "#werknemers"}>Voor werknemers</a>
           </div>
           <div className="footer-groep">
-            <a href="#privacyverklaring" onClick={openPrivacy}>Privacyverklaring</a>
+            {ARTIKEL_LINKS.map((l) => <a key={l.href} href={l.href}>{l.kort}</a>)}
+          </div>
+          <div className="footer-groep">
+            <a href={basis + "#privacyverklaring"} onClick={openPrivacy}>Privacyverklaring</a>
             <a href={mailto("Verwerkersovereenkomst")}>Verwerkersovereenkomst</a>
             <a href={"mailto:" + CONTACT_MAIL}>{CONTACT_MAIL}</a>
           </div>

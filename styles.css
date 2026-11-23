@@ -236,6 +236,43 @@ html.js-reveal .reveal.in { animation: zet var(--dur-long) var(--ease-out) both;
   font-size: var(--text-sm); color: var(--color-field-muted);
 }
 
+/* ---------- FAQ and bio links ---------- */
+.faq-link { padding-bottom: var(--space-lg); margin-top: calc(-1 * var(--space-sm)); }
+.faq-link a, .over-link a { color: var(--color-field); text-decoration: underline; text-decoration-color: var(--color-accent); text-underline-offset: 0.2em; }
+.faq-link a:hover, .over-link a:hover { color: var(--color-ink); }
+.over-link { margin-top: var(--space-2xs); font-size: var(--text-sm); }
+
+/* ---------- Article pages: a long document in the same system ---------- */
+.artikel .container { max-width: calc(42rem + 2 * var(--gutter)); }
+.artikel-kop { padding-block: var(--space-2xl) var(--space-xl); }
+.kruimel { display: flex; flex-wrap: wrap; gap: var(--space-xs); font-size: var(--text-sm); color: var(--color-muted); }
+.kruimel a { color: var(--color-ink-2); text-decoration: underline; text-underline-offset: 0.2em; }
+.kruimel a:hover { color: var(--color-ink); }
+.artikel-kop h1 { margin-top: var(--space-lg); font-size: var(--text-display-s); line-height: 1.08; max-width: none; }
+.artikel-kop .lead { margin-top: var(--space-lg); }
+.artikel-meta { margin-top: var(--space-lg); padding-top: var(--space-md); border-top: var(--rule-hair) solid var(--color-rule); font-size: var(--text-sm); color: var(--color-muted); }
+.artikel-meta a { color: var(--color-ink-2); text-decoration: underline; text-underline-offset: 0.2em; }
+.artikel-tekst { padding-bottom: var(--space-2xl); line-height: 1.7; }
+.artikel-tekst h2 { margin-top: var(--space-2xl); font-size: var(--text-2xl); line-height: 1.15; max-width: none; }
+.artikel-tekst > h2:first-child { margin-top: var(--space-lg); }
+.artikel-tekst p, .artikel-tekst ul { margin-top: var(--space-md); color: var(--color-ink-2); }
+.artikel-tekst ul { padding-left: var(--space-lg); display: grid; gap: var(--space-xs); }
+.artikel-tekst strong { color: var(--color-ink); font-weight: 600; }
+.artikel-tekst a { color: var(--color-field); text-decoration: underline; text-decoration-color: var(--color-accent); text-underline-offset: 0.2em; }
+.artikel-tekst a:hover { color: var(--color-ink); }
+.artikel-slot { display: grid; gap: var(--space-2xl); padding-bottom: var(--section-gap-s); }
+.artikel-actie { padding: var(--space-xl); background: var(--color-paper-2); border-radius: var(--radius-card); }
+.artikel-actie--tweede { background: transparent; padding: var(--space-lg) 0 0; border-top: var(--rule-hair) solid var(--color-ink); border-radius: 0; }
+.artikel-actie h2 { font-size: var(--text-2xl); max-width: none; }
+.artikel-actie p { margin-top: var(--space-sm); color: var(--color-ink-2); }
+.artikel-actie .acties { margin-top: var(--space-lg); }
+.artikel-meer { color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-accent); text-underline-offset: 0.2em; }
+.artikel-meer:hover { color: var(--color-field); }
+.artikel-bronnen h2, .artikel-verder h2 { font-size: var(--text-lg); max-width: none; }
+.artikel-bronnen ul, .artikel-verder ul { margin: var(--space-sm) 0 0; padding-left: var(--space-lg); display: grid; gap: var(--space-xs); font-size: var(--text-sm); }
+.artikel-bronnen a, .artikel-verder a { color: var(--color-ink-2); text-decoration: underline; text-underline-offset: 0.2em; }
+.artikel-bronnen a:hover, .artikel-verder a:hover { color: var(--color-ink); }
+
 /* ---------- Privacy statement, over the page ---------- */
 .tool { position: fixed; inset: 0; z-index: var(--z-modal); background: var(--color-paper); overflow-y: auto; animation: zet var(--dur-long) var(--ease-out); }
 @media (prefers-reduced-motion: reduce) { .tool { animation: none; } }
