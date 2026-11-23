@@ -1,6 +1,7 @@
-# CI: draait de smoke-test en controleert dat het gecommitte app.js-
-# bundle overeenkomt met een verse build van src/ (GitHub Pages serveert app.js
-# rechtstreeks — een vergeten `npm run build` zou anders stille drift geven).
+# CI: draait de smoke-test en controleert dat app.js, de vooraf gerenderde
+# HTML-pagina's en sitemap.xml overeenkomen met een verse build van src/
+# (GitHub Pages serveert ze rechtstreeks; een vergeten `npm run build` zou
+# anders stille drift geven).
 name: CI
 
 on:
@@ -24,10 +25,11 @@ jobs:
       - name: Testsuite
         run: npm test
 
-      - name: Build-drift-check (app.js in sync met src/)
+      - name: Build-drift-check (app.js, HTML-pagina's en sitemap in sync met src/)
         run: |
           npm run build
-          git diff --exit-code app.js || {
-            echo "::error::app.js wijkt af van een verse build — draai 'npm run build' en commit het resultaat mee."
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --porcelain
+            echo "::error::Een verse build wijkt af van wat is gecommit. Draai 'npm run build' en commit app.js, de HTML-pagina's en sitemap.xml mee."
             exit 1
-          }
+          fi

@@ -1,5 +1,5 @@
 /* Smoke-test: rendert de startpagina in jsdom en controleert de belangrijkste
-   onderdelen. */
+   onderdelen, en daarna de vooraf gerenderde HTML-pagina's en de sitemap. */
 
 import { JSDOM } from "jsdom";
 import { readFileSync } from "fs";
@@ -58,6 +58,26 @@ click(byText("a", "Privacyverklaring"));
 await wait(40);
 check("privacyverklaring opent", !!byText("h1", "Privacyverklaring"));
 check("privacybalk toont het woordmerk, geen schild-icoon", !!byText(".tool-bar .brand", "Poortwachtercheck") && !$$(".tool-bar .mark").length);
+
+// Vooraf gerenderde pagina's (build.mjs): de tekst staat in de HTML zelf.
+const html = (f) => readFileSync(f, "utf8");
+const ldVan = (h) => JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(h)[1]);
+const index = html("index.html");
+check("startpagina staat vooraf in de HTML", index.includes("compleet naar UWV") && index.includes("Inhoudelijke controle van alle niet-medische stukken") && index.includes('<div id="root"><div class="site">'));
+const ldHome = ldVan(index)["@graph"];
+check("JSON-LD op de startpagina: dienst, persoon met LinkedIn, FAQ", ldHome.some((x) => x["@type"] === "ProfessionalService" && x.areaServed) && ldHome.some((x) => x["@type"] === "Person" && x.sameAs?.length) && ldHome.some((x) => x["@type"] === "FAQPage" && x.mainEntity.length >= 8));
+check("werkgebied heel Nederland staat op de pagina", index.includes("In heel Nederland."));
+const ARTIKEL_SLUGS = ["eerstejaarsevaluatie", "eindevaluatie", "administratieve-loonsanctie", "wia-aanvraag-werknemer"];
+for (const slug of ARTIKEL_SLUGS) {
+  const h = html(`${slug}/index.html`);
+  const desc = /<meta name="description" content="([^"]*)"/.exec(h)?.[1] || "";
+  check(`pagina /${slug}/: h1, canonical, artikel-schema, beschrijving <= 160`,
+    /<h1>[^<]+<\/h1>/.test(h) && h.includes(`<link rel="canonical" href="https://poortwachtercheck.nl/${slug}/"`) &&
+    ldVan(h)["@graph"].some((x) => x["@type"] === "Article") && desc.length > 50 && desc.length <= 160 && !h.includes("app.js"));
+}
+const sitemap = html("sitemap.xml");
+check("sitemap noemt de startpagina en alle uitlegpagina's", sitemap.includes("<loc>https://poortwachtercheck.nl/</loc>") && ARTIKEL_SLUGS.every((s) => sitemap.includes(`/${s}/</loc>`)));
+check("startpagina linkt naar de uitlegpagina's", ARTIKEL_SLUGS.every((s) => index.includes(`href="/${s}/"`)));
 
 console.log(failures === 0 ? "\nAlle checks geslaagd." : `\n${failures} check(s) gefaald.`);
 process.exit(failures === 0 ? 0 : 1);
