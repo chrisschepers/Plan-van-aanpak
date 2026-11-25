@@ -57,7 +57,8 @@ function Hero() {
           <div className="intro">
             <h1 id="hero-kop">Je <span className="nw">re-integratieverslag</span> <br />compleet naar UWV</h1>
             <p className="lead">
-              Is je werknemer bijna twee jaar ziek? Ik kom langs en loop het verzuimdossier na.
+              Is je werknemer bijna twee jaar ziek? Als casemanager verzuim kom ik langs en loop ik het
+              dossier na volgens de Wet verbetering poortwachter.
               Ik kijk of alles erin zit, en of de niet-medische stukken inhoudelijk kloppen.
             </p>
             <div className="acties">

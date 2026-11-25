@@ -75,7 +75,7 @@ const paginas = [];
 // Startpagina: vooraf gerenderd, daarna overgenomen door app.js.
 writeFileSync("index.html", pagina({
   pad: "/",
-  titel: "Poortwachtercheck: je re-integratieverslag compleet naar UWV",
+  titel: "Casemanager verzuim: je re-integratieverslag compleet naar UWV",
   ogTitel: "Je re-integratieverslag compleet naar UWV",
   beschrijving: "Is je werknemer bijna twee jaar ziek? Ik loop het verzuimdossier na, ook inhoudelijk, zodat het re-integratieverslag klopt. Vaste prijs, heel Nederland.",
   type: "website",

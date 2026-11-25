@@ -67,7 +67,7 @@ check("startpagina staat vooraf in de HTML", index.includes("compleet naar UWV")
 const ldHome = ldVan(index)["@graph"];
 check("JSON-LD op de startpagina: dienst, persoon met LinkedIn, FAQ", ldHome.some((x) => x["@type"] === "ProfessionalService" && x.areaServed) && ldHome.some((x) => x["@type"] === "Person" && x.sameAs?.length) && ldHome.some((x) => x["@type"] === "FAQPage" && x.mainEntity.length >= 8));
 check("werkgebied heel Nederland staat op de pagina", index.includes("In heel Nederland."));
-const ARTIKEL_SLUGS = ["eerstejaarsevaluatie", "eindevaluatie", "administratieve-loonsanctie", "wia-aanvraag-werknemer"];
+const ARTIKEL_SLUGS = ["wet-poortwachter", "plan-van-aanpak", "eerstejaarsevaluatie", "eindevaluatie", "administratieve-loonsanctie", "wia-aanvraag-werknemer"];
 for (const slug of ARTIKEL_SLUGS) {
   const h = html(`${slug}/index.html`);
   const desc = /<meta name="description" content="([^"]*)"/.exec(h)?.[1] || "";
