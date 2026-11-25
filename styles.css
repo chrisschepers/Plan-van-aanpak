@@ -260,6 +260,10 @@ html.js-reveal .reveal.in { animation: zet var(--dur-long) var(--ease-out) both;
 .artikel-tekst strong { color: var(--color-ink); font-weight: 600; }
 .artikel-tekst a { color: var(--color-field); text-decoration: underline; text-decoration-color: var(--color-accent); text-underline-offset: 0.2em; }
 .artikel-tekst a:hover { color: var(--color-ink); }
+.tijdlijn { margin-top: var(--space-md); display: grid; grid-template-columns: minmax(9rem, max-content) 1fr; gap: var(--space-sm) var(--space-lg); border-top: 1px solid var(--color-rule); padding-top: var(--space-md); }
+.tijdlijn dt { font-weight: 600; color: var(--color-ink); }
+.tijdlijn dd { margin: 0; color: var(--color-ink-2); }
+@media (max-width: 40rem) { .tijdlijn { grid-template-columns: 1fr; gap: 0; } .tijdlijn dd { margin-bottom: var(--space-sm); } }
 .artikel-slot { display: grid; gap: var(--space-2xl); padding-bottom: var(--section-gap-s); }
 .artikel-actie { padding: var(--space-xl); background: var(--color-paper-2); border-radius: var(--radius-card); }
 .artikel-actie--tweede { background: transparent; padding: var(--space-lg) 0 0; border-top: var(--rule-hair) solid var(--color-ink); border-radius: 0; }

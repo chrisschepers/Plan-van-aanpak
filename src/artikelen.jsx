@@ -6,7 +6,7 @@ import { Nav, Footer } from "./landing.jsx";
 import { mailto } from "./merk.jsx";
 import { ARTIKEL_LINKS } from "./artikel-links.js";
 
-const BIJGEWERKT = { iso: "2026-11-23", tekst: "23 november 2026" };
+const BIJGEWERKT = { iso: "2026-11-25", tekst: "25 november 2026" };
 
 const BRON = {
   eerstejaars: { tekst: "UWV: Eerstejaarsevaluatie", href: "https://www.uwv.nl/nl/ziek/re-integratie/eerstejaarsevaluatie" },
@@ -37,6 +37,162 @@ const WERKNEMER_ACTIE = {
 };
 
 export const ARTIKELEN = [
+  {
+    slug: "wet-poortwachter",
+    kort: "Wet poortwachter: de stappen",
+    seoTitel: "Wet poortwachter: alle stappen voor de werkgever, week voor week",
+    beschrijving: "De Wet verbetering poortwachter van week 1 tot week 104: wat je als werkgever wanneer moet doen, wat de werknemer doet en wat er gebeurt als iets ontbreekt.",
+    h1: "Wet poortwachter: alle stappen, week voor week",
+    lead: "Is een werknemer langdurig ziek, dan schrijft de Wet verbetering poortwachter voor wat werkgever en werknemer wanneer doen. Dit zijn de vaste momenten, en dit controleert UWV aan het eind.",
+    actie: WERKGEVER_ACTIE("Wet poortwachter"),
+    tweedeActie: WERKNEMER_ACTIE,
+    bronnen: [BRON.werkwijzer, BRON.verslag, BRON.week42, BRON.eerstejaars, BRON.eind, BRON.beoordeling],
+    inhoud: (
+      <>
+        <h2>Waar de wet om draait</h2>
+        <p>
+          Werkgever en werknemer werken samen aan terugkeer naar werk, vanaf de eerste ziektedag. Wat ze afspreken en
+          doen, leggen ze vast. Al die stukken samen vormen het re-integratieverslag. Dat gaat na bijna twee jaar mee
+          met de WIA-aanvraag, en UWV beoordeelt dan of er genoeg is gedaan.
+        </p>
+
+        <h2>De tijdlijn</h2>
+        <dl className="tijdlijn">
+          <dt>Eerste ziektedag</dt>
+          <dd>Je schakelt de bedrijfsarts of arbodienst in. Het verzuimdossier begint hier.</dd>
+          <dt>Uiterlijk week 6</dt>
+          <dd>De bedrijfsarts maakt de probleemanalyse: wat kan je werknemer nog, wat staat terugkeer in de weg, en wat is het advies. Medische details staan er niet in.</dd>
+          <dt>Uiterlijk week 8</dt>
+          <dd>Werkgever en werknemer maken samen het <a href="/plan-van-aanpak/">plan van aanpak</a>, op basis van dat advies. Daarin staan het doel en de afspraken.</dd>
+          <dt>Daarna, steeds</dt>
+          <dd>Jullie evalueren regelmatig. Verandert er iets, of loopt het vast, dan stel je het plan bij en schrijf je dat op.</dd>
+          <dt>Week 42</dt>
+          <dd>Je meldt bij UWV dat je werknemer nog ziek is: de 42e-weeksmelding.</dd>
+          <dt>Week 52</dt>
+          <dd>De <a href="/eerstejaarsevaluatie/">eerstejaarsevaluatie</a>. Jullie kijken terug op het eerste jaar en kiezen hoe het verder gaat.</dd>
+          <dt>Uiterlijk 6 weken later</dt>
+          <dd>Is er geen zicht op werk in het eigen bedrijf, dan moet het tweede spoor gestart zijn: werk zoeken bij een andere werkgever.</dd>
+          <dt>Week 88</dt>
+          <dd>UWV stuurt je werknemer een brief over de WIA-aanvraag.</dd>
+          <dt>Vóór de aanvraag</dt>
+          <dd>De bedrijfsarts schrijft het actueel oordeel. Daarna vullen jullie samen de <a href="/eindevaluatie/">eindevaluatie</a> in.</dd>
+          <dt>Uiterlijk week 93</dt>
+          <dd>De <a href="/wia-aanvraag-werknemer/">WIA-aanvraag</a> gaat naar UWV, met het complete re-integratieverslag.</dd>
+          <dt>Week 104</dt>
+          <dd>De loondoorbetaling stopt, tenzij UWV een loonsanctie oplegt.</dd>
+        </dl>
+
+        <h2>Wat de werkgever moet doen</h2>
+        <ul>
+          <li>De bedrijfsarts of arbodienst inschakelen en hun adviezen opvolgen.</li>
+          <li>Samen met de werknemer het plan van aanpak maken, uitvoeren en bijstellen.</li>
+          <li>Eerst zoeken naar werk in het eigen bedrijf: eigen werk, aangepast werk of ander passend werk. Lukt dat niet, dan ook daarbuiten.</li>
+          <li>Alles vastleggen, met data en handtekeningen, zodat het re-integratieverslag compleet is.</li>
+          <li>De werknemer een kopie geven van alle stukken.</li>
+        </ul>
+
+        <h2>Wat de werknemer moet doen</h2>
+        <p>
+          Meewerken aan het plan van aanpak en aan de afspraken daarin, en passend werk doen als dat kan. Weigert een
+          werknemer dat zonder goede reden, dan kan de werkgever het loon stopzetten. Lopen jullie samen vast, dan kun
+          je bij UWV een deskundigenoordeel vragen.
+        </p>
+
+        <h2>Wat UWV aan het eind controleert</h2>
+        <p>
+          Bij de WIA-aanvraag kijkt UWV eerst of het re-integratieverslag compleet is. Ontbreekt er iets, dan krijg je
+          5 werkdagen om het aan te vullen; anders volgt een <a href="/administratieve-loonsanctie/">administratieve
+          loonsanctie</a>. Daarna beoordeelt UWV of er genoeg is gedaan. Vindt UWV van niet, dan betaal je het loon
+          tot een jaar langer door.
+        </p>
+
+        <h2>Wat ik doe</h2>
+        <p>
+          Als casemanager verzuim loop ik het dossier langs deze tijdlijn na. Staat elk stuk erin, op tijd, en klopt
+          de inhoud? Hoe eerder, hoe meer tijd er is om iets te herstellen. Het oordeel ligt altijd bij UWV.
+        </p>
+      </>
+    ),
+  },
+  {
+    slug: "plan-van-aanpak",
+    kort: "Plan van aanpak",
+    seoTitel: "Plan van aanpak UWV: wat erin moet en wanneer je het bijstelt",
+    beschrijving: "Het plan van aanpak bij ziekte: uiterlijk in week 8, samen met je werknemer. Wat erin moet, wanneer je het bijstelt en waar UWV later op let.",
+    h1: "Plan van aanpak UWV: wat erin moet en wanneer je het bijstelt",
+    lead: "Uiterlijk in week 8 van de ziekte maken werkgever en werknemer samen een plan van aanpak. Het is het hart van het re-integratieverslag, en UWV leest het aan het eind van het tweede jaar terug.",
+    actie: WERKGEVER_ACTIE("Plan van aanpak"),
+    tweedeActie: WERKNEMER_ACTIE,
+    bronnen: [BRON.werkwijzer, BRON.verslag, BRON.eerstejaars, BRON.beoordeling],
+    inhoud: (
+      <>
+        <h2>Wanneer en door wie</h2>
+        <p>
+          Uiterlijk in week 6 maakt de bedrijfsarts de probleemanalyse, met een advies voor de re-integratie. Op basis
+          daarvan maken werkgever en werknemer samen het plan van aanpak, uiterlijk in week 8. Een bedrijfsarts,
+          arbeidsdeskundige of casemanager kan daarbij helpen, maar de afspraken zijn van jullie tweeën.
+        </p>
+
+        <h2>Wat erin moet</h2>
+        <ul>
+          <li>Het doel: terug naar het eigen werk, aangepast werk, ander werk in het bedrijf, of werk bij een andere werkgever.</li>
+          <li>De acties om dat doel te halen: bijvoorbeeld een behandeling, een cursus, mediation, of een tijdelijk aangepaste werkplek, taken of werktijden.</li>
+          <li>Wie wat doet, en wanneer.</li>
+          <li>Wie de casemanager is.</li>
+          <li>Wanneer jullie het plan evalueren.</li>
+          <li>De handtekeningen van werkgever en werknemer, met datum.</li>
+        </ul>
+        <p>
+          UWV heeft een formulier Plan van aanpak. Een eigen opzet mag ook, zolang het plan als apart en herkenbaar
+          onderdeel in het re-integratieverslag zit.
+        </p>
+
+        <h2>Bijstellen: geen papier voor de la</h2>
+        <p>
+          Het plan van aanpak is geen vast document. Jullie evalueren het regelmatig, en blijkt het niet haalbaar, dan
+          stel je het bij. UWV noemt onder meer deze situaties:
+        </p>
+        <ul>
+          <li>De werkhervatting loopt achter op het doel, of is niet stabiel.</li>
+          <li>Wat je werknemer kan, is veranderd.</li>
+          <li>Er staat geen helder doel in het plan.</li>
+          <li>De medische behandeling loopt vast.</li>
+          <li>Werken en uitval wisselen elkaar af.</li>
+          <li>Je werknemer werkt al lang op therapeutische basis, of te weinig uren, zonder uitzicht op passend werk.</li>
+        </ul>
+        <p>
+          Elke bijstelling leg je vast, met datum en handtekeningen. Een plan dat sinds week 8 niet meer is aangeraakt,
+          is aan het eind een van de bekendste redenen voor een loonsanctie.
+        </p>
+
+        <h2>De evaluaties</h2>
+        <p>
+          Na een jaar volgt de <a href="/eerstejaarsevaluatie/">eerstejaarsevaluatie</a>, vlak voor de WIA-aanvraag de{" "}
+          <a href="/eindevaluatie/">eindevaluatie</a>. Beide zijn evaluaties van het plan van aanpak. Bij de
+          eerstejaarsevaluatie kiezen jullie ook of het tweede spoor nodig is.
+        </p>
+
+        <h2>Wat er met het plan gebeurt</h2>
+        <p>
+          Je stuurt het plan van aanpak niet los naar UWV. Je werknemer krijgt een kopie en jullie bewaren het allebei.
+          Het gaat mee met de <a href="/wia-aanvraag-werknemer/">WIA-aanvraag</a>, als deel van het
+          re-integratieverslag. Ontbreekt het dan, of is het niet bijgesteld, dan kan UWV een loonsanctie opleggen.
+        </p>
+
+        <h2>Niet eens over het plan?</h2>
+        <p>
+          Komen werkgever en werknemer er samen niet uit, of loopt de re-integratie vast, dan kun je bij UWV een
+          deskundigenoordeel vragen. Schrijf in het plan ook op als een van jullie het ergens niet mee eens is.
+        </p>
+
+        <h2>Wat ik doe</h2>
+        <p>
+          Ik kijk of het plan van aanpak een helder doel heeft, of het is bijgesteld toen dat nodig was, en of elke
+          bijstelling goed is vastgelegd. Dan weet je waar je staat, ruim voordat UWV ernaar kijkt.
+        </p>
+      </>
+    ),
+  },
   {
     slug: "eerstejaarsevaluatie",
     kort: "Eerstejaarsevaluatie",
@@ -248,10 +404,10 @@ export const ARTIKELEN = [
   },
   {
     slug: "wia-aanvraag-werknemer",
-    kort: "WIA-aanvraag als werknemer",
-    seoTitel: "Brief van UWV over je WIA-aanvraag: wat moet je regelen?",
+    kort: "WIA-aanvraag",
+    seoTitel: "WIA-aanvraag: brief van UWV in week 88, wat moet je regelen?",
     beschrijving: "Bijna twee jaar ziek en een brief van UWV over de WIA? Wat je meestuurt, wat je aan je werkgever vraagt en wat er gebeurt als er iets ontbreekt.",
-    h1: "Brief van UWV over je WIA-aanvraag: wat moet je regelen?",
+    h1: "WIA-aanvraag: brief van UWV in week 88, wat moet je regelen?",
     lead: "Ben je bijna twee jaar ziek, dan krijg je in week 88 een brief van UWV over de WIA-uitkering. Dit stuur je mee, en dit vraag je aan je werkgever.",
     actie: WERKNEMER_ACTIE,
     bronnen: [BRON.wia, BRON.verslag, BRON.eind, BRON.uitstel, BRON.werkwijzer],
@@ -288,6 +444,14 @@ export const ARTIKELEN = [
           werkdagen om het aan te vullen. Lukt dat niet, dan neemt UWV je aanvraag niet in behandeling. Ligt het
           aan je werkgever, dan krijgt die de kans om het aan te vullen. Lukt dat niet, dan moet je werkgever je
           loon langer doorbetalen.
+        </p>
+
+        <h2>Ben je werkgever?</h2>
+        <p>
+          De WIA-aanvraag doet je werknemer, maar het re-integratieverslag komt grotendeels van jou. Zorg dat alle
+          stukken klaarliggen voor week 88: de probleemanalyse, het <a href="/plan-van-aanpak/">plan van aanpak</a> met
+          bijstellingen, de eerstejaarsevaluatie en het actueel oordeel. Geef je werknemer kopieën en plan de
+          eindevaluatie op tijd. Ontbreekt er iets door jou, dan betaal je het loon langer door.
         </p>
 
         <h2>Later aanvragen kan ook</h2>

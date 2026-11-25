@@ -2,22 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://poortwachtercheck.nl/</loc>
-    <lastmod>2026-11-23</lastmod>
+    <lastmod>2026-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://poortwachtercheck.nl/wet-poortwachter/</loc>
+    <lastmod>2026-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://poortwachtercheck.nl/plan-van-aanpak/</loc>
+    <lastmod>2026-11-25</lastmod>
   </url>
   <url>
     <loc>https://poortwachtercheck.nl/eerstejaarsevaluatie/</loc>
-    <lastmod>2026-11-23</lastmod>
+    <lastmod>2026-11-25</lastmod>
   </url>
   <url>
     <loc>https://poortwachtercheck.nl/eindevaluatie/</loc>
-    <lastmod>2026-11-23</lastmod>
+    <lastmod>2026-11-25</lastmod>
   </url>
   <url>
     <loc>https://poortwachtercheck.nl/administratieve-loonsanctie/</loc>
-    <lastmod>2026-11-23</lastmod>
+    <lastmod>2026-11-25</lastmod>
   </url>
   <url>
     <loc>https://poortwachtercheck.nl/wia-aanvraag-werknemer/</loc>
-    <lastmod>2026-11-23</lastmod>
+    <lastmod>2026-11-25</lastmod>
   </url>
 </urlset>
