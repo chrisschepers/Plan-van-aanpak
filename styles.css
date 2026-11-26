@@ -371,7 +371,52 @@ html.js-reveal .reveal.in { animation: zet var(--dur-long) var(--ease-out) both;
   .termijn { grid-template-columns: minmax(0, 1fr); }
   .termijnen-invoer { padding: var(--space-md); }
 }
+/* Stroomschema: alleen in de pdf */
+.stroom { display: none; }
+@page { size: A4; margin: 14mm 14mm 12mm; }
 @media print {
-  .masthead, .footer, .termijnen-invoer, .termijnen-print, .termijn-hulp, .kruimel, .artikel-meta, .termijnen-noot h2 ~ p:last-child { display: none !important; }
-  .termijn { break-inside: avoid; padding-block: var(--space-sm); }
+  html, body, .site { background: #fff !important; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .site > *:not(main), .artikel-kop, .termijnen > *:not(.stroom), .termijnen-noot { display: none !important; }
+  .artikel .container { max-width: none; padding: 0; }
+  .termijnen { padding: 0; }
+  .stroom { display: block; font-size: 9pt; color: var(--color-ink); }
+  .stroom-kop { text-align: center; padding-bottom: 5mm; border-bottom: 0.4pt solid var(--color-rule); }
+  .stroom-merk { font-family: var(--font-display); font-weight: 600; font-size: 11pt; color: var(--color-field); letter-spacing: -0.01em; }
+  .stroom-kop h2 { margin: 2mm auto 0; font-size: 19pt; line-height: 1.1; max-width: none; }
+  .stroom-sub { margin-top: 2mm; color: var(--color-ink-2); }
+  .stroom-sub strong { color: var(--color-ink); }
+
+  .stroom-lijn { position: relative; list-style: none; margin: 6mm 0 0; padding: 0; display: grid; grid-template-columns: 1fr 12mm 1fr; }
+  .stroom-lijn::before {
+    content: ""; position: absolute; left: 50%; top: 2mm; bottom: 2mm; width: 1.6pt; transform: translateX(-50%);
+    background: linear-gradient(var(--color-field), var(--color-accent));
+  }
+  .stroom-item { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: center; break-inside: avoid; margin-top: -7mm; }
+  .stroom-item:first-child { margin-top: 0; }
+  .stroom-punt {
+    grid-column: 2; grid-row: 1; justify-self: center; width: 3.4mm; height: 3.4mm; border-radius: 50%;
+    background: #fff; border: 1.4pt solid var(--color-field); position: relative; z-index: 1;
+  }
+  .stroom-item--hulp .stroom-punt { background: var(--color-accent); border-color: var(--color-accent); }
+  .stroom-kaart {
+    grid-row: 1; display: grid; gap: 0.6mm; padding: 2.4mm 3.2mm; background: var(--color-paper-2);
+    border: 0.4pt solid var(--color-rule); border-radius: 1.5mm; position: relative;
+  }
+  .stroom-item--links .stroom-kaart, .stroom-item--start .stroom-kaart { grid-column: 1; text-align: right; border-right: 1.6pt solid var(--color-field); }
+  .stroom-item--rechts .stroom-kaart { grid-column: 3; border-left: 1.6pt solid var(--color-field); }
+  .stroom-item--hulp.stroom-item--links .stroom-kaart { border-right-color: var(--color-accent); }
+  .stroom-item--hulp.stroom-item--rechts .stroom-kaart { border-left-color: var(--color-accent); }
+  .stroom-item--start .stroom-kaart { background: var(--color-field); color: var(--color-field-ink); border-color: var(--color-field); }
+  .stroom-item--start .stroom-week, .stroom-item--start .stroom-datum { color: var(--color-field-muted); }
+  .stroom-item--start .stroom-punt { background: var(--color-field); }
+  .stroom-week { font-family: var(--font-display); font-weight: 600; font-size: 8pt; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-accent); }
+  .stroom-kaart strong { font-family: var(--font-display); font-size: 10.5pt; line-height: 1.2; }
+  .stroom-datum { font-size: 8.5pt; font-weight: 600; color: var(--color-field); font-variant-numeric: tabular-nums; }
+  .stroom-kern { font-size: 8pt; color: var(--color-ink-2); line-height: 1.35; }
+
+  .stroom-uitdienst { margin-top: 5mm; padding: 3mm 4mm; border: 0.4pt solid var(--color-rule-2); border-radius: 1.5mm; display: flex; flex-wrap: wrap; gap: 1mm 5mm; font-size: 8.5pt; break-inside: avoid; }
+  .stroom-uitdienst strong { font-family: var(--font-display); width: 100%; font-size: 10pt; }
+  .stroom-voet { margin-top: 5mm; padding-top: 3mm; border-top: 0.4pt solid var(--color-rule); font-size: 8pt; color: var(--color-ink-2); display: grid; gap: 1mm; break-inside: avoid; }
+  .stroom-teken { display: inline-block; width: 2.6mm; height: 2.6mm; border-radius: 50%; background: var(--color-accent); vertical-align: -0.3mm; margin-right: 1mm; }
 }
