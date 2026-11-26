@@ -1,0 +1,17 @@
+{
+  "name": "poortwachtercheck",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "poortwachtercheck.nl — dossiercheck van het re-integratieverslag (Wet verbetering poortwachter)",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node test/smoke.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "jsdom": "^25.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}

@@ -1,0 +1,35 @@
+# CI: draait de smoke-test en controleert dat app.js, de vooraf gerenderde
+# HTML-pagina's en sitemap.xml overeenkomen met een verse build van src/
+# (GitHub Pages serveert ze rechtstreeks; een vergeten `npm run build` zou
+# anders stille drift geven).
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-en-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Dependencies installeren
+        run: npm ci
+
+      - name: Testsuite
+        run: npm test
+
+      - name: Build-drift-check (app.js, HTML-pagina's en sitemap in sync met src/)
+        run: |
+          npm run build
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --porcelain
+            echo "::error::Een verse build wijkt af van wat is gecommit. Draai 'npm run build' en commit app.js, de HTML-pagina's en sitemap.xml mee."
+            exit 1
+          fi
