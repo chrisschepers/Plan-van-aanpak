@@ -79,5 +79,33 @@ const sitemap = html("sitemap.xml");
 check("sitemap noemt de startpagina en alle uitlegpagina's", sitemap.includes("<loc>https://poortwachtercheck.nl/</loc>") && ARTIKEL_SLUGS.every((s) => sitemap.includes(`/${s}/</loc>`)));
 check("startpagina linkt naar de uitlegpagina's", ARTIKEL_SLUGS.every((s) => index.includes(`href="/${s}/"`)));
 
+// Termijnen berekenen
+{
+  const h = html("termijnen-berekenen/index.html");
+  check("termijnenpagina: vooraf gerenderd, canonical, eigen script", h.includes("Probleemanalyse") && h.includes('<link rel="canonical" href="https://poortwachtercheck.nl/termijnen-berekenen/"') && h.includes('src="/termijnen.js"') && h.includes('id="termijnen-root"'));
+  check("sitemap en startpagina noemen de termijnenpagina", sitemap.includes("/termijnen-berekenen/</loc>") && index.includes('href="/termijnen-berekenen/"'));
+  const dom = new JSDOM(h.replace(/<script[^>]*src="https:[^"]*"[^>]*><\/script>/g, "").replace('<script defer src="/termijnen.js"></script>', ""), { url: "https://poortwachtercheck.nl/termijnen-berekenen/", runScripts: "outside-only", pretendToBeVisual: true });
+  const w = dom.window;
+  w.eval(readFileSync("node_modules/react/umd/react.development.js", "utf8"));
+  w.eval(readFileSync("node_modules/react-dom/umd/react-dom.development.js", "utf8"));
+  w.eval(readFileSync("termijnen.js", "utf8"));
+  await wait(50);
+  const d = w.document;
+  const invoer = d.getElementById("eerste-ziektedag");
+  const zet = (el, v) => { const setter = Object.getOwnPropertyDescriptor(w.HTMLInputElement.prototype, "value").set; setter.call(el, v); el.dispatchEvent(new w.Event("input", { bubbles: true })); };
+  zet(invoer, "2026-01-05");
+  await wait(50);
+  const tekst = () => d.querySelector(".termijnen").textContent;
+  check("week 6 = uiterlijk 15 februari 2026", tekst().includes("uiterlijk zondag 15 februari 2026"));
+  check("week 42 = uiterlijk 25 oktober 2026", tekst().includes("uiterlijk zondag 25 oktober 2026"));
+  check("week 93 = WIA uiterlijk 17 oktober 2027", tekst().includes("tot en met zondag 17 oktober 2027"));
+  check("week 104 = laatste dag 2 januari 2028", tekst().includes("laatste dag zondag 2 januari 2028"));
+  check("vereenvoudigd toont geen uit-dienst-blok", !d.querySelector(".termijnen-uitdienst") && !tekst().includes("Vervroegde IVA"));
+  click(d.querySelectorAll('.weergave input')[1]);
+  await wait(50);
+  check("uitgebreid toont vervroegde IVA en ziek uit dienst", tekst().includes("Vervroegde IVA") && !!d.querySelector(".termijnen-uitdienst") && tekst().includes("Verkort re-integratieverslag"));
+  check("voetnoten met hulp bij plan van aanpak, eerstejaarsevaluatie en week 93", d.querySelectorAll(".termijn-hulp").length >= 6);
+}
+
 console.log(failures === 0 ? "\nAlle checks geslaagd." : `\n${failures} check(s) gefaald.`);
 process.exit(failures === 0 ? 0 : 1);
