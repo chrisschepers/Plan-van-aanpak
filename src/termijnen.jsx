@@ -5,7 +5,7 @@
    Er wordt niets opgeslagen of verstuurd. */
 
 import { Nav, Footer } from "./landing.jsx";
-import { mailto } from "./merk.jsx";
+import { mailto, CONTACT_MAIL } from "./merk.jsx";
 
 const { useState } = React;
 
@@ -36,74 +36,74 @@ const hulp = (onderwerp) => ({ onderwerp, href: mailto(onderwerp, "Ik heb een vr
    `uitgebreid: true` = alleen in de uitgebreide weergave. */
 export const TERMIJNEN = [
   {
-    week: "Week 1", titel: "Ziekmelding bij de bedrijfsarts of arbodienst",
+    week: "Week 1", titel: "Ziekmelding bij de bedrijfsarts of arbodienst", kern: "Melden bij bedrijfsarts of arbodienst; het dossier begint.",
     uitleg: "Meld je werknemer binnen een week ziek bij de bedrijfsarts of arbodienst. Het verzuimdossier begint op de eerste ziektedag.",
     wanneer: (s) => ({ tekst: "uiterlijk", datum: eind(s, 1) }),
   },
   {
-    week: "Week 6", titel: "Probleemanalyse",
+    week: "Week 6", titel: "Probleemanalyse", kern: "Bedrijfsarts: mogelijkheden, belemmeringen en advies.",
     uitleg: "De bedrijfsarts beschrijft wat je werknemer nog kan, wat terugkeer in de weg staat en wat het advies is.",
     wanneer: (s) => ({ tekst: "uiterlijk", datum: eind(s, 6) }),
   },
   {
-    week: "Week 6 tot 68", titel: "Vervroegde IVA-aanvraag (mogelijk)", uitgebreid: true,
+    week: "Week 6 tot 68", titel: "Vervroegde IVA-aanvraag (mogelijk)", kern: "Bij geen of nauwelijks kans op herstel.", uitgebreid: true,
     uitleg: "Is er geen of nauwelijks kans op herstel, dan kan je werknemer eerder een IVA-uitkering aanvragen. Dat kan tot en met week 68.",
     wanneer: (s) => ({ tekst: "uiterlijk", datum: eind(s, 68), van: begin(s, 6) }),
   },
   {
-    week: "Week 8", titel: "Plan van aanpak", link: "/plan-van-aanpak/",
+    week: "Week 8", titel: "Plan van aanpak", kern: "Doel en afspraken vastleggen, casemanager aanwijzen.", link: "/plan-van-aanpak/",
     uitleg: "Werkgever en werknemer leggen samen het doel en de afspraken vast, op basis van het advies van de bedrijfsarts. Wijs ook een casemanager aan.",
     wanneer: (s) => ({ tekst: "uiterlijk", datum: eind(s, 8) }),
     hulp: hulp("Plan van aanpak"),
   },
   {
-    week: "Vanaf week 8", titel: "Voortgang bespreken en het plan bijstellen", uitgebreid: true,
+    week: "Vanaf week 8", titel: "Voortgang bespreken en het plan bijstellen", kern: "Minstens eens per zes weken; bijstellen en vastleggen.", uitgebreid: true,
     uitleg: "Bespreek regelmatig, minstens eens per zes weken, hoe het gaat. Verandert de situatie, stel het plan van aanpak dan bij en leg dat vast. Loopt het vast, dan kan een deskundigenoordeel bij UWV helpen.",
     wanneer: () => null,
   },
   {
-    week: "Rond week 40", titel: "Arbeidsdeskundig onderzoek (aanbevolen)", uitgebreid: true,
+    week: "Rond week 40", titel: "Arbeidsdeskundig onderzoek (aanbevolen)", kern: "Wat kan nog, bij jou of elders?", uitgebreid: true,
     uitleg: "Is volledige terugkeer in het eigen werk niet in zicht, laat dan vóór de eerstejaarsevaluatie onderzoeken wat er nog wel kan, bij jou of elders. Dat geeft een stevige basis voor spoor 1 en spoor 2.",
     wanneer: (s) => ({ tekst: "rond", datum: begin(s, 40) }),
     hulp: hulp("Arbeidsdeskundig onderzoek"),
   },
   {
-    week: "Week 42", titel: "42e-weeksmelding bij UWV",
+    week: "Week 42", titel: "42e-weeksmelding bij UWV", kern: "Melden dat je werknemer nog ziek is.",
     uitleg: "Meld bij UWV dat je werknemer nog ziek is. Doe dat uiterlijk in de 42e week.",
     wanneer: (s) => ({ tekst: "uiterlijk", datum: eind(s, 42) }),
   },
   {
-    week: "Week 46 tot 52", titel: "Eerstejaarsevaluatie", link: "/eerstejaarsevaluatie/",
+    week: "Week 46 tot 52", titel: "Eerstejaarsevaluatie", kern: "Terugkijken en het doel voor jaar twee kiezen.", link: "/eerstejaarsevaluatie/",
     uitleg: "Kijk samen terug op het eerste jaar en kies het doel voor het tweede jaar.",
     wanneer: (s) => ({ tekst: "uiterlijk", datum: eind(s, 52), van: begin(s, 46) }),
     hulp: hulp("Eerstejaarsevaluatie"),
   },
   {
-    week: "Week 58", titel: "Spoor 2 inzetten",
+    week: "Week 58", titel: "Spoor 2 inzetten", kern: "Werk zoeken bij een andere werkgever.",
     uitleg: "Is er geen zicht op passend werk in je eigen organisatie, dan moet uiterlijk zes weken na de eerstejaarsevaluatie het tweede spoor lopen: werk zoeken bij een andere werkgever.",
     wanneer: (s) => ({ tekst: "uiterlijk", datum: eind(s, 58) }),
     hulp: hulp("Spoor 2"),
   },
   {
-    week: "Rond week 88", titel: "Brief van UWV over de WIA-aanvraag",
+    week: "Rond week 88", titel: "Brief van UWV over de WIA-aanvraag", kern: "Start met het compleet maken van het verslag.",
     uitleg: "UWV stuurt je werknemer een brief met de uitnodiging om de WIA-uitkering aan te vragen. Tijd om het re-integratieverslag compleet te maken.",
     wanneer: (s) => ({ tekst: "rond", datum: begin(s, 88) }),
     hulp: hulp("Re-integratieverslag"),
   },
   {
-    week: "Vóór de aanvraag", titel: "Actueel oordeel en eindevaluatie", link: "/eindevaluatie/", uitgebreid: true,
+    week: "Vóór de aanvraag", titel: "Actueel oordeel en eindevaluatie", kern: "Bedrijfsarts en daarna samen de eindevaluatie.", link: "/eindevaluatie/", uitgebreid: true,
     uitleg: "De bedrijfsarts schrijft het actueel oordeel. Daarna vullen werkgever en werknemer samen de eindevaluatie in.",
     wanneer: (s) => ({ tekst: "uiterlijk", datum: eind(s, 91) }),
     hulp: hulp("Eindevaluatie"),
   },
   {
-    week: "Week 91 tot 93", titel: "WIA-aanvraag met het volledige re-integratieverslag", link: "/wia-aanvraag-werknemer/",
+    week: "Week 91 tot 93", titel: "WIA-aanvraag met het volledige re-integratieverslag", kern: "Uiterlijk in week 93 bij UWV.", link: "/wia-aanvraag-werknemer/",
     uitleg: "Je werknemer vraagt de WIA-uitkering aan, met het complete re-integratieverslag. Dat moet uiterlijk in week 93 bij UWV zijn.",
     wanneer: (s) => ({ tekst: "uiterlijk", datum: eind(s, 93), van: begin(s, 91) }),
     hulp: hulp("Re-integratieverslag week 93"),
   },
   {
-    week: "Week 104", titel: "Einde loondoorbetaling",
+    week: "Week 104", titel: "Einde loondoorbetaling", kern: "De WIA-uitkering kan de dag erna ingaan.",
     uitleg: "Na 104 weken stopt de loondoorbetaling, tenzij UWV een loonsanctie oplegt. De WIA-uitkering kan de dag erna ingaan.",
     wanneer: (s) => ({ tekst: "laatste dag", datum: eind(s, 104) }),
   },
@@ -156,6 +156,52 @@ function Termijn({ t, start, vandaag }) {
   );
 }
 
+
+/* Stroomschema voor de pdf (alleen zichtbaar bij afdrukken): een doorgaande
+   lijn met de termijnen er om en om naast. */
+function Stroomschema({ lijst, start, uitgebreid }) {
+  const items = lijst.filter((t) => t.wanneer(start));
+  return (
+    <section className="stroom" aria-hidden="true">
+      <header className="stroom-kop">
+        <p className="stroom-merk">Poortwachtercheck</p>
+        <h2>Termijnen Wet verbetering poortwachter</h2>
+        <p className="stroom-sub">Eerste ziektedag: <strong>{datumTekst(start)}</strong> · {uitgebreid ? "uitgebreide" : "vereenvoudigde"} weergave</p>
+      </header>
+      <ol className="stroom-lijn">
+        <li className="stroom-item stroom-item--start">
+          <span className="stroom-punt" />
+          <div className="stroom-kaart"><span className="stroom-week">Dag 1</span><strong>Eerste ziektedag</strong><span className="stroom-datum">{datumTekst(start)}</span></div>
+        </li>
+        {items.map((t, i) => {
+          const w = t.wanneer(start);
+          return (
+            <li key={t.titel} className={"stroom-item" + (i % 2 ? " stroom-item--links" : " stroom-item--rechts") + (t.hulp ? " stroom-item--hulp" : "")}>
+              <span className="stroom-punt" />
+              <div className="stroom-kaart">
+                <span className="stroom-week">{t.week}</span>
+                <strong>{t.titel}</strong>
+                <span className="stroom-datum">{w.van ? <>{datumTekst(w.van)} – {datumTekst(w.datum)}</> : <>{w.tekst} {datumTekst(w.datum)}</>}</span>
+                {t.kern && <span className="stroom-kern">{t.kern}</span>}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+      {uitgebreid && (
+        <div className="stroom-uitdienst">
+          <strong>Ziek uit dienst?</strong>
+          {UIT_DIENST.map((t) => <span key={t.titel}><b>{t.week}:</b> {t.titel.toLowerCase()}</span>)}
+        </div>
+      )}
+      <footer className="stroom-voet">
+        <p><span className="stroom-teken" /> Hulp nodig bij deze stap? Chris Schepers, casemanager verzuim, begeleidt en ondersteunt je graag: {CONTACT_MAIL} · poortwachtercheck.nl</p>
+        <p>De datums zijn een richtlijn, gerekend vanaf de eerste ziektedag als dag 1. Het oordeel ligt altijd bij UWV.</p>
+      </footer>
+    </section>
+  );
+}
+
 const vandaagUTC = () => {
   const n = new Date();
   return new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()));
@@ -201,6 +247,8 @@ export function TermijnenTool() {
           </ol>
         </section>
       )}
+
+      {start && <Stroomschema lijst={lijst} start={start} uitgebreid={uitgebreid} />}
 
       {start && (
         <p className="termijnen-print">
