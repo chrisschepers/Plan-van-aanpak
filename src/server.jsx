@@ -3,10 +3,11 @@
 
 import { App } from "./app.jsx";
 import { PAKKETTEN, FAQS } from "./landing.jsx";
-import { ARTIKELEN, Artikel, ARTIKEL_DATUM } from "./artikelen.jsx";
+import { ARTIKELEN, Artikel, ARTIKEL_DATUM, ARTIKEL_BIJGEWERKT } from "./artikelen.jsx";
+import { TermijnenPagina, TERMIJNEN_PAGINA } from "./termijnen.jsx";
 import { MERK, CONTACT_MAIL, LINKEDIN, SITE } from "./merk.jsx";
 
-export { App, ARTIKELEN, Artikel };
+export { App, ARTIKELEN, Artikel, TermijnenPagina, TERMIJNEN_PAGINA };
 
 const DIENST = SITE + "/#dienst";
 const PERSOON = SITE + "/#chris";
@@ -104,3 +105,4 @@ export function artikelJsonLd(a) {
 }
 
 export const DATUM = ARTIKEL_DATUM;
+export const BIJGEWERKT = ARTIKEL_BIJGEWERKT;

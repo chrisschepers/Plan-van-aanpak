@@ -6,7 +6,7 @@ import { Nav, Footer } from "./landing.jsx";
 import { mailto } from "./merk.jsx";
 import { ARTIKEL_LINKS } from "./artikel-links.js";
 
-const BIJGEWERKT = { iso: "2026-11-25", tekst: "25 november 2026" };
+const BIJGEWERKT = { iso: "2026-11-26", tekst: "26 november 2026" };
 
 const BRON = {
   eerstejaars: { tekst: "UWV: Eerstejaarsevaluatie", href: "https://www.uwv.nl/nl/ziek/re-integratie/eerstejaarsevaluatie" },
@@ -525,3 +525,4 @@ export function Artikel({ artikel }) {
 }
 
 export const ARTIKEL_DATUM = BIJGEWERKT.iso;
+export const ARTIKEL_BIJGEWERKT = BIJGEWERKT;

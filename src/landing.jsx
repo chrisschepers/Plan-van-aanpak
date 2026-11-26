@@ -16,6 +16,7 @@ export function Nav({ basis = "" }) {
       <div className="container masthead-inner">
         <Merk href={basis ? "/" : "#top"} />
         <nav className="masthead-links" aria-label="Hoofdmenu">
+          <a href="/termijnen-berekenen/">Termijnen</a>
           <a href={basis + "#werkwijze"}>Werkwijze</a>
           <a href={basis + "#tarieven"}>Tarieven</a>
           <a href={basis + "#faq"}>Vragen</a>
@@ -321,7 +322,8 @@ export function Footer({ onOpenPrivacy, basis = "" }) {
         </div>
         <nav className="footer-links" aria-label="Voettekst">
           <div className="footer-groep">
-            <a href={basis + "#werkwijze"}>Werkwijze</a>
+            <a href="/termijnen-berekenen/">Termijnen</a>
+          <a href={basis + "#werkwijze"}>Werkwijze</a>
             <a href={basis + "#tarieven"}>Tarieven</a>
             <a href={basis + "#werknemers"}>Voor werknemers</a>
           </div>

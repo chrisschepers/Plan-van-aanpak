@@ -15,6 +15,7 @@ const SITE = "https://poortwachtercheck.nl";
 const jsx = { jsx: "transform", jsxFactory: "React.createElement", jsxFragment: "React.Fragment", bundle: true };
 
 await esbuild.build({ ...jsx, entryPoints: ["src/client.jsx"], outfile: "app.js", format: "iife", target: ["es2019"], logLevel: "info" });
+await esbuild.build({ ...jsx, entryPoints: ["src/termijnen-client.jsx"], outfile: "termijnen.js", format: "iife", target: ["es2019"], logLevel: "info" });
 await esbuild.build({ ...jsx, entryPoints: ["src/server.jsx"], outfile: ".build/server.mjs", format: "esm", platform: "node", logLevel: "warning" });
 
 const React = (await import("react")).default;
@@ -32,7 +33,7 @@ const REACT_SCRIPTS = `<script defer crossorigin="anonymous" src="https://unpkg.
 <script defer crossorigin="anonymous" src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
   integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"></script>`;
 
-function pagina({ pad, titel, ogTitel, beschrijving, type, jsonld, body, app }) {
+function pagina({ pad, titel, ogTitel, beschrijving, type, jsonld, body, app, eiland }) {
   if (beschrijving.length > 160) throw new Error(`Beschrijving van ${pad} is ${beschrijving.length} tekens (max 160)`);
   const url = SITE + pad;
   return `<!DOCTYPE html>
@@ -62,7 +63,7 @@ function pagina({ pad, titel, ogTitel, beschrijving, type, jsonld, body, app }) 
 <link rel="stylesheet" href="/styles.css" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <script type="application/ld+json">${ld(jsonld)}</script>
-${app ? REACT_SCRIPTS + "\n" : ""}</head>
+${app || eiland ? REACT_SCRIPTS + "\n" : ""}${eiland ? `<script defer src="${eiland}"></script>\n` : ""}</head>
 <body>
 ${app ? `<div id="root">${body}</div>\n<script defer src="/app.js"></script>` : body}
 </body>
@@ -99,6 +100,23 @@ for (const a of s.ARTIKELEN) {
     app: false,
   }));
   paginas.push(`/${a.slug}/`);
+}
+
+// Termijnen berekenen: vooraf gerenderd, het rekenblok wordt overgenomen door termijnen.js.
+{
+  const t = s.TERMIJNEN_PAGINA;
+  mkdirSync(t.slug, { recursive: true });
+  writeFileSync(`${t.slug}/index.html`, pagina({
+    pad: `/${t.slug}/`,
+    titel: `${t.seoTitel} | Poortwachtercheck`,
+    ogTitel: t.seoTitel,
+    beschrijving: t.beschrijving,
+    type: "article",
+    jsonld: s.artikelJsonLd(t),
+    body: renderToString(React.createElement(s.TermijnenPagina, { bijgewerkt: s.BIJGEWERKT })),
+    eiland: "/termijnen.js",
+  }));
+  paginas.push(`/${t.slug}/`);
 }
 
 writeFileSync("sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
